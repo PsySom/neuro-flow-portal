@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -75,7 +74,7 @@ const ForProfessionals = () => {
         </div>
 
         <div className="text-center">
-          <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-500">
+          <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
             Присоединиться к программе для специалистов
           </Button>
         </div>
