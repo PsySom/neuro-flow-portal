@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, MessageCircle, Heart, Coffee, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AIDiary = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState({});
+  const navigate = useNavigate();
 
   const questions = [
     {
@@ -53,7 +54,7 @@ const AIDiary = () => {
   const isCompleted = currentStep === questions.length - 1 && responses[currentStep];
 
   return (
-    <section className="animate-fade-in">
+    <section id="ai-diary" className="animate-fade-in">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           Ваш персональный AI-дневник
@@ -132,7 +133,10 @@ const AIDiary = () => {
                     Войдите, чтобы сохранить результаты и получить доступ к полному анализу.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600">
+                    <Button 
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                      onClick={() => navigate('/register')}
+                    >
                       Войти / Регистрация
                     </Button>
                     <Button variant="outline" onClick={() => {

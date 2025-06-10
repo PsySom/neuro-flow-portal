@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Search, Menu, X, Brain, Sparkles } from 'lucide-react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   const Mascot = () => (
     <div className="relative group cursor-pointer">
@@ -26,12 +28,12 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Логотип */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <Brain className="w-8 h-8 text-emerald-600" />
               <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 PsyBalans
               </span>
-            </div>
+            </Link>
           </div>
 
           {/* Десктоп навигация */}
@@ -39,19 +41,19 @@ const Header = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-gray-700 hover:text-emerald-600 transition-colors">
+                  <Link to="/about" className="text-gray-700 hover:text-emerald-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                     О проекте
-                  </NavigationMenuTrigger>
+                  </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-gray-700 hover:text-emerald-600 transition-colors">
+                  <Link to="/knowledge" className="text-gray-700 hover:text-emerald-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                     База знаний
-                  </NavigationMenuTrigger>
+                  </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-gray-700 hover:text-emerald-600 transition-colors">
+                  <Link to="/practices" className="text-gray-700 hover:text-emerald-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                     Практики
-                  </NavigationMenuTrigger>
+                  </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -87,10 +89,17 @@ const Header = () => {
 
             {/* Кнопки авторизации */}
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" className="text-gray-700 hover:text-emerald-600">
+              <Button 
+                variant="ghost" 
+                className="text-gray-700 hover:text-emerald-600"
+                onClick={() => navigate('/login')}
+              >
                 Вход
               </Button>
-              <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
+              <Button 
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                onClick={() => navigate('/register')}
+              >
                 Регистрация
               </Button>
             </div>
@@ -117,21 +126,21 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent>
                 <div className="flex flex-col space-y-6 mt-8">
-                  <Button variant="ghost" className="justify-start text-lg">
+                  <Link to="/about" className="text-lg font-medium text-gray-700 hover:text-emerald-600">
                     О проекте
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-lg">
+                  </Link>
+                  <Link to="/knowledge" className="text-lg font-medium text-gray-700 hover:text-emerald-600">
                     База знаний
-                  </Button>
-                  <Button variant="ghost" className="justify-start text-lg">
+                  </Link>
+                  <Link to="/practices" className="text-lg font-medium text-gray-700 hover:text-emerald-600">
                     Практики
-                  </Button>
+                  </Link>
                   <div className="pt-6 border-t">
                     <div className="space-y-3">
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>
                         Вход
                       </Button>
-                      <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500">
+                      <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500" onClick={() => navigate('/register')}>
                         Регистрация
                       </Button>
                     </div>
@@ -144,7 +153,7 @@ const Header = () => {
 
         {/* Мобильный поиск */}
         {isSearchOpen && (
-          <div className="md:hidden pb-4 animate-slide-in-from-top">
+          <div className="md:hidden pb-4 animate-slide-up">
             <Input placeholder="Поиск практик, статей..." />
           </div>
         )}

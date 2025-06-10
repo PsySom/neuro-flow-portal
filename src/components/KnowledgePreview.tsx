@@ -1,11 +1,12 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Play, Headphones, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const KnowledgePreview = () => {
+  const navigate = useNavigate();
   const articles = [
     {
       type: 'article',
@@ -52,6 +53,7 @@ const KnowledgePreview = () => {
           <Card 
             key={index} 
             className={`${article.color} hover:shadow-lg transition-all duration-300 cursor-pointer group`}
+            onClick={() => navigate('/knowledge')}
           >
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
@@ -92,7 +94,11 @@ const KnowledgePreview = () => {
         ))}
 
         <div className="text-center pt-4">
-          <Button variant="outline" className="hover:bg-emerald-50 hover:border-emerald-300">
+          <Button 
+            variant="outline" 
+            className="hover:bg-emerald-50 hover:border-emerald-300"
+            onClick={() => navigate('/knowledge')}
+          >
             Перейти в раздел базы знаний
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

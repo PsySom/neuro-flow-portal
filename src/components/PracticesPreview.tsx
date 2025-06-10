@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Timer, Users, ArrowRight, Share2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PracticesPreview = () => {
   const [activeExercise, setActiveExercise] = useState(null);
+  const navigate = useNavigate();
 
   const exercises = [
     {
@@ -167,7 +168,11 @@ const PracticesPreview = () => {
           <p className="text-sm text-gray-500 mb-4">
             💾 Результаты можно сохранить после входа • 📱 Легко делиться в социальных сетях
           </p>
-          <Button variant="outline" className="hover:bg-emerald-50 hover:border-emerald-300">
+          <Button 
+            variant="outline" 
+            className="hover:bg-emerald-50 hover:border-emerald-300"
+            onClick={() => navigate('/practices')}
+          >
             Открыть всю базу упражнений
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

@@ -3,14 +3,24 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Users, Zap, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   const stats = [
     { number: '400+', label: 'упражнений', icon: Target },
     { number: '7', label: 'научных подходов', icon: Brain },
     { number: '10k+', label: 'пользователей', icon: Users },
     { number: 'AI', label: 'персонализация', icon: Zap },
   ];
+
+  const scrollToAIDiary = () => {
+    const element = document.getElementById('ai-diary');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/50 pt-20 pb-32">
@@ -59,7 +69,11 @@ const HeroSection = () => {
 
           {/* CTA */}
           <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              onClick={scrollToAIDiary}
+            >
               Попробовать AI-дневник ✨
             </Button>
           </div>

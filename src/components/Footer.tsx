@@ -2,43 +2,44 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Mail, MessageCircle, Github, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const footerSections = [
     {
       title: 'Платформа',
       links: [
-        { label: 'О проекте', href: '#' },
-        { label: 'Как это работает', href: '#' },
-        { label: 'Научная основа', href: '#' },
-        { label: 'Безопасность', href: '#' }
+        { label: 'О проекте', href: '/about' },
+        { label: 'Как это работает', href: '/about#how-it-works' },
+        { label: 'Научная основа', href: '/about#science' },
+        { label: 'Безопасность', href: '/about#security' }
       ]
     },
     {
       title: 'Ресурсы',
       links: [
-        { label: 'База знаний', href: '#' },
-        { label: 'Упражнения', href: '#' },
-        { label: 'Тесты', href: '#' },
-        { label: 'Медитации', href: '#' }
+        { label: 'База знаний', href: '/knowledge' },
+        { label: 'Упражнения', href: '/practices' },
+        { label: 'Тесты', href: '/practices?type=tests' },
+        { label: 'Медитации', href: '/practices?type=meditation' }
       ]
     },
     {
       title: 'Поддержка',
       links: [
-        { label: 'Центр помощи', href: '#' },
-        { label: 'Связаться с нами', href: '#' },
-        { label: 'Для специалистов', href: '#' },
-        { label: 'Сообщество', href: '#' }
+        { label: 'Центр помощи', href: '/help' },
+        { label: 'Связаться с нами', href: '/contact' },
+        { label: 'Для специалистов', href: '/for-professionals' },
+        { label: 'Сообщество', href: '/community' }
       ]
     },
     {
       title: 'Правовая информация',
       links: [
-        { label: 'Политика конфиденциальности', href: '#' },
-        { label: 'Условия использования', href: '#' },
-        { label: 'Согласие на обработку данных', href: '#' },
-        { label: 'Отказ от ответственности', href: '#' }
+        { label: 'Политика конфиденциальности', href: '/privacy' },
+        { label: 'Условия использования', href: '/terms' },
+        { label: 'Согласие на обработку данных', href: '/data-policy' },
+        { label: 'Отказ от ответственности', href: '/disclaimer' }
       ]
     }
   ];
@@ -50,12 +51,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Логотип и описание */}
           <div className="lg:col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
+            <Link to="/" className="flex items-center space-x-2 mb-4">
               <Brain className="w-8 h-8 text-emerald-600" />
               <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 PsyBalans
               </span>
-            </div>
+            </Link>
             <p className="text-gray-600 text-sm leading-relaxed mb-6">
               Персональная экосистема психологического баланса на основе 
               нейронауки и искусственного интеллекта.
@@ -87,12 +88,12 @@ const Footer = () => {
               <ul className="space-y-3">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    <a 
-                      href={link.href}
+                    <Link 
+                      to={link.href}
                       className="text-sm text-gray-600 hover:text-emerald-600 transition-colors duration-200"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -115,9 +116,9 @@ const Footer = () => {
             
             <div className="text-sm text-gray-500">
               Версия 1.0.0 • 
-              <a href="#" className="text-emerald-600 hover:text-emerald-700 ml-1">
+              <Link to="/changelog" className="text-emerald-600 hover:text-emerald-700 ml-1">
                 Что нового?
-              </a>
+              </Link>
             </div>
           </div>
         </div>
