@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -26,12 +25,30 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Practices = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
+  const { toast } = useToast();
+
+  const handleShare = (title: string, type: string = 'практику') => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${title} - PsyBalans`,
+        text: `Попробуйте эту ${type}: ${title}`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Ссылка скопирована",
+        description: `Ссылка на ${type} "${title}" скопирована в буфер обмена`,
+      });
+    }
+  };
 
   const practiceCategories = [
     {
@@ -256,9 +273,18 @@ const Practices = () => {
                         <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
                           <IconComponent className="w-8 h-8 text-white" />
                         </div>
-                        <Badge variant="secondary" className="text-lg px-3 py-1">
-                          {category.count} практик
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="text-lg px-3 py-1">
+                            {category.count} практик
+                          </Badge>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleShare(category.title, 'категорию практик')}
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                       <CardTitle className="text-xl text-gray-900 dark:text-white">
                         {category.title}
@@ -285,9 +311,18 @@ const Practices = () => {
                               </Badge>
                             </div>
                           </div>
-                          <Button size="sm" className="ml-4">
-                            <Play className="w-3 h-3" />
-                          </Button>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <Button size="sm">
+                              <Play className="w-3 h-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleShare(practice.name, 'практику')}
+                            >
+                              <Share2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                       
@@ -329,7 +364,11 @@ const Practices = () => {
                         <Button className="flex-1">
                           Изучить методы
                         </Button>
-                        <Button variant="outline" size="icon">
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => handleShare(approach.title, 'методы')}
+                        >
                           <Share2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -346,9 +385,18 @@ const Practices = () => {
               {assessmentTools.map((tool, index) => (
                 <Card key={index} className="hover:shadow-lg transition-all duration-300">
                   <CardHeader>
-                    <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
-                      <BookOpen className="w-5 h-5 mr-2 text-emerald-600" />
-                      {tool.category}
+                    <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center justify-between">
+                      <div className="flex items-center">
+                        <BookOpen className="w-5 h-5 mr-2 text-emerald-600" />
+                        {tool.category}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleShare(tool.category, 'тесты')}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -357,9 +405,18 @@ const Practices = () => {
                         <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
                           {test}
                         </span>
-                        <Button size="sm" variant="outline">
-                          Пройти
-                        </Button>
+                        <div className="flex items-center space-x-1 ml-2">
+                          <Button size="sm" variant="outline">
+                            Пройти
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleShare(test, 'тест')}
+                          >
+                            <Share2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -375,9 +432,18 @@ const Practices = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                   <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                      Ежедневные чек-ины
-                    </h4>
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Ежедневные чек-ины
+                      </h4>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleShare('Ежедневные чек-ины', 'интерактивную оценку')}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
                       <li>• Быстрая оценка настроения и энергии</li>
                       <li>• Мини-тест на уровень стресса</li>
@@ -390,9 +456,18 @@ const Practices = () => {
 
                 <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
                   <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                      Еженедельные обзоры
-                    </h4>
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Еженедельные обзоры
+                      </h4>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleShare('Еженедельные обзоры', 'интерактивную оценку')}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
                       <li>• Анализ динамики за неделю</li>
                       <li>• Оценка прогресса по целям</li>
@@ -435,3 +510,5 @@ const Practices = () => {
 };
 
 export default Practices;
+
+</edits_to_apply>
