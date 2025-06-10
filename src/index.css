@@ -38,27 +38,29 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Кастомные переменные для PsyBalans */
+    --psybalans-bg: 216 12% 97%;
+    --psybalans-card: 0 0% 100%;
+    --psybalans-emerald: 142 76% 36%;
+    --psybalans-teal: 173 58% 39%;
+    --psybalans-lavender: 263 85% 70%;
+    --psybalans-peach: 25 95% 53%;
+    --psybalans-mint: 152 68% 70%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 217.2 32.6% 17.5%;
     --card-foreground: 210 40% 98%;
 
     --popover: 222.2 84% 4.9%;
@@ -90,6 +92,15 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Тёмная тема для PsyBalans */
+    --psybalans-bg: 222.2 84% 4.9%;
+    --psybalans-card: 217.2 32.6% 17.5%;
+    --psybalans-emerald: 142 70% 45%;
+    --psybalans-teal: 173 55% 50%;
+    --psybalans-lavender: 263 70% 65%;
+    --psybalans-peach: 25 85% 60%;
+    --psybalans-mint: 152 60% 65%;
   }
 }
 
@@ -172,6 +183,10 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+.dark .hover-lift:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
 /* Микроанимации для кнопок */
 .btn-micro {
   transition: all 0.15s ease;
@@ -183,4 +198,13 @@
 
 .btn-micro:active {
   transform: scale(0.98);
+}
+
+/* Градиенты для тёмной темы */
+.bg-gradient-to-br {
+  transition: background 0.3s ease;
+}
+
+.dark .bg-gradient-to-br.from-slate-50.via-white.to-emerald-50 {
+  background: linear-gradient(to bottom right, hsl(var(--psybalans-bg)), hsl(217.2 32.6% 17.5%), hsl(217.2 32.6% 20%));
 }

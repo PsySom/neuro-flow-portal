@@ -62,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				'psybalans': {
+					bg: 'hsl(var(--psybalans-bg))',
+					card: 'hsl(var(--psybalans-card))',
+					emerald: 'hsl(var(--psybalans-emerald))',
+					teal: 'hsl(var(--psybalans-teal))',
+					lavender: 'hsl(var(--psybalans-lavender))',
+					peach: 'hsl(var(--psybalans-peach))',
+					mint: 'hsl(var(--psybalans-mint))',
 				}
 			},
 			borderRadius: {
