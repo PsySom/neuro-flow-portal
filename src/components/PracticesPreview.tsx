@@ -164,6 +164,9 @@ const PracticesPreview = () => {
         ))}
 
         <div className="text-center pt-4">
+          <p className="text-sm text-gray-500 mb-4">
+            💾 Результаты можно сохранить после входа • 📱 Легко делиться в социальных сетях
+          </p>
           <Button variant="outline" className="hover:bg-emerald-50 hover:border-emerald-300">
             Открыть всю базу упражнений
             <ArrowRight className="w-4 h-4 ml-2" />

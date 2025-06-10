@@ -125,6 +125,12 @@ const GoalSelector = () => {
           </Card>
         ))}
       </div>
+
+      <div className="text-center mt-8">
+        <p className="text-sm text-gray-500 mb-4">
+          💡 Упражнения можно сохранить после входа в систему
+        </p>
+      </div>
     </section>
   );
 };
