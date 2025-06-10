@@ -13,20 +13,36 @@ import Footer from '../components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-psybalans-bg via-white to-psybalans-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500">
       <Header />
       <main className="overflow-hidden">
-        <HeroSection />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 py-16">
-          <AIDiary />
-          <GoalSelector />
-          <MoodTimeline />
-          <div className="grid lg:grid-cols-2 gap-16">
-            <KnowledgePreview />
-            <PracticesPreview />
+        <div className="animate-slide-up-fade">
+          <HeroSection />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32 py-20">
+          <div className="animate-slide-in-left">
+            <AIDiary />
           </div>
-          <ProfessionalNote />
-          <NewsletterForm />
+          <div className="animate-slide-in-right">
+            <GoalSelector />
+          </div>
+          <div className="animate-scale-up">
+            <MoodTimeline />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-16 animate-slide-up-fade">
+            <div className="animate-slide-in-left">
+              <KnowledgePreview />
+            </div>
+            <div className="animate-slide-in-right">
+              <PracticesPreview />
+            </div>
+          </div>
+          <div className="animate-scale-up">
+            <ProfessionalNote />
+          </div>
+          <div className="animate-slide-up-fade">
+            <NewsletterForm />
+          </div>
         </div>
       </main>
       <Footer />

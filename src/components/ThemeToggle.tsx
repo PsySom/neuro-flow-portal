@@ -15,11 +15,16 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      className="hover:bg-emerald-50 dark:hover:bg-gray-800 transition-colors duration-200"
+      className="relative overflow-hidden group hover:bg-psybalans-muted transition-all duration-300 hover:scale-105 focus-ring rounded-xl"
     >
-      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <div className="relative w-5 h-5">
+        <Sun className="absolute inset-0 w-5 h-5 text-psybalans-primary rotate-0 scale-100 transition-all duration-500 dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute inset-0 w-5 h-5 text-psybalans-primary rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100" />
+      </div>
       <span className="sr-only">Переключить тему</span>
+      
+      {/* Subtle glow effect */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-psybalans-primary/10 to-psybalans-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
     </Button>
   );
 }

@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Design system inspired by the prototype */
 
 @layer base {
   :root {
@@ -35,7 +35,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -46,44 +46,47 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Кастомные переменные для PsyBalans */
-    --psybalans-bg: 216 12% 97%;
+    /* Modern color palette inspired by prototype */
+    --psybalans-bg: 240 10% 98%;
     --psybalans-card: 0 0% 100%;
-    --psybalans-emerald: 142 76% 36%;
-    --psybalans-teal: 173 58% 39%;
-    --psybalans-lavender: 263 85% 70%;
-    --psybalans-peach: 25 95% 53%;
-    --psybalans-mint: 152 68% 70%;
+    --psybalans-primary: 262 83% 58%;
+    --psybalans-secondary: 213 94% 68%;
+    --psybalans-accent: 142 69% 58%;
+    --psybalans-warning: 38 92% 50%;
+    --psybalans-success: 142 69% 58%;
+    --psybalans-muted: 240 4.8% 95.9%;
+    --psybalans-border: 240 5.9% 90%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 217.2 32.6% 17.5%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -93,14 +96,16 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Тёмная тема для PsyBalans */
-    --psybalans-bg: 222.2 84% 4.9%;
-    --psybalans-card: 217.2 32.6% 17.5%;
-    --psybalans-emerald: 142 70% 45%;
-    --psybalans-teal: 173 55% 50%;
-    --psybalans-lavender: 263 70% 65%;
-    --psybalans-peach: 25 85% 60%;
-    --psybalans-mint: 152 60% 65%;
+    /* Dark theme colors */
+    --psybalans-bg: 240 10% 3.9%;
+    --psybalans-card: 240 3.7% 15.9%;
+    --psybalans-primary: 262 83% 70%;
+    --psybalans-secondary: 213 94% 76%;
+    --psybalans-accent: 142 69% 65%;
+    --psybalans-warning: 38 92% 60%;
+    --psybalans-success: 142 69% 65%;
+    --psybalans-muted: 240 3.7% 15.9%;
+    --psybalans-border: 240 3.7% 25.9%;
   }
 }
 
@@ -110,34 +115,64 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Typography scale inspired by prototype */
+  h1 {
+    @apply text-4xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl lg:text-4xl font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl lg:text-3xl font-semibold tracking-tight;
+  }
+
+  h4 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  h5 {
+    @apply text-lg font-semibold tracking-tight;
+  }
+
+  h6 {
+    @apply text-base font-semibold tracking-tight;
+  }
+
+  p {
+    @apply text-base leading-7;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-psybalans-primary to-psybalans-secondary bg-clip-text text-transparent;
   }
 }
 
-/* Добавляем анимации */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Modern animations inspired by prototype */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: translateY(-10px);
   }
 }
 
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  50% {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.4);
   }
 }
 
-@keyframes slide-up {
+@keyframes slide-up-fade {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -148,63 +183,167 @@
   }
 }
 
-@keyframes pulse-soft {
-  0%, 100% {
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
     opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
+    transform: translateX(0);
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.animate-scale-in {
-  animation: scale-in 0.4s ease-out;
+@keyframes scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out;
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
-.animate-pulse-soft {
-  animation: pulse-soft 2s infinite;
+/* Animation classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-/* Hover эффекты */
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-up-fade {
+  animation: slide-up-fade 0.6s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+
+.animate-scale-up {
+  animation: scale-up 0.4s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Modern glass morphism effects */
+.glass {
+  @apply backdrop-blur-xl bg-white/80 dark:bg-black/20;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.glass-card {
+  @apply backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30;
+}
+
+/* Hover effects inspired by prototype */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  @apply transition-all duration-300 ease-out;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  @apply transform -translate-y-2 shadow-xl shadow-purple-500/10;
 }
 
-.dark .hover-lift:hover {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+.hover-glow {
+  @apply transition-all duration-300;
 }
 
-/* Микроанимации для кнопок */
-.btn-micro {
-  transition: all 0.15s ease;
+.hover-glow:hover {
+  @apply shadow-lg shadow-purple-500/25;
 }
 
-.btn-micro:hover {
-  transform: scale(1.02);
+/* Button styles inspired by prototype */
+.btn-primary {
+  @apply bg-gradient-to-r from-psybalans-primary to-psybalans-secondary text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:scale-105;
 }
 
-.btn-micro:active {
-  transform: scale(0.98);
+.btn-secondary {
+  @apply bg-psybalans-muted hover:bg-psybalans-border text-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105;
 }
 
-/* Градиенты для тёмной темы */
-.bg-gradient-to-br {
-  transition: background 0.3s ease;
+.btn-ghost {
+  @apply text-psybalans-primary hover:bg-psybalans-primary/10 px-6 py-3 rounded-xl font-semibold transition-all duration-300;
 }
 
-.dark .bg-gradient-to-br.from-slate-50.via-white.to-emerald-50 {
-  background: linear-gradient(to bottom right, hsl(var(--psybalans-bg)), hsl(217.2 32.6% 17.5%), hsl(217.2 32.6% 20%));
+/* Modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-psybalans-muted;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-psybalans-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-psybalans-primary/50;
+}
+
+/* Selection styles */
+::selection {
+  @apply bg-psybalans-primary/20 text-psybalans-primary;
+}
+
+/* Focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-psybalans-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+/* Loading states */
+.loading-pulse {
+  @apply animate-pulse bg-gradient-to-r from-psybalans-muted to-psybalans-border;
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
+  
+  h3 {
+    @apply text-xl;
+  }
 }
