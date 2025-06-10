@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import OnboardingDialog from '../components/onboarding/OnboardingDialog';
 
 const Register = () => {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
       <Header />
@@ -33,7 +36,10 @@ const Register = () => {
               <label className="text-sm font-medium text-gray-700">Пароль</label>
               <Input type="password" placeholder="••••••••" />
             </div>
-            <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500">
+            <Button 
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-500"
+              onClick={() => setIsOnboardingOpen(true)}
+            >
               Создать аккаунт
             </Button>
             <div className="text-center text-sm text-gray-600">
@@ -46,6 +52,11 @@ const Register = () => {
         </Card>
       </main>
       <Footer />
+
+      <OnboardingDialog
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+      />
     </div>
   );
 };
