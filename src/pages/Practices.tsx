@@ -510,5 +510,3 @@ const Practices = () => {
 };
 
 export default Practices;
-
-</edits_to_apply>
