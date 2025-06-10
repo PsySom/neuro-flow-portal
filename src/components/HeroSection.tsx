@@ -1,12 +1,65 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Users, Zap, Target } from 'lucide-react';
+import { Brain, Users, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      title: (
+        <>
+          Ваш мозг работает{' '}
+          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+            циклами
+          </span>
+          .
+          <br />
+          Ваши приложения — линейно.
+          <br />
+          <span className="text-3xl md:text-5xl lg:text-6xl text-gray-600 dark:text-gray-400">
+            В этом проблема.
+          </span>
+        </>
+      )
+    },
+    {
+      title: (
+        <>
+          Жизнь — это{' '}
+          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+            поток
+          </span>
+          , в котором для того чтобы быть счастливыми,
+          <br />
+          нужно соблюдать{' '}
+          <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-emerald-600 bg-clip-text text-transparent">
+            баланс
+          </span>{' '}
+          и заботиться о себе и своих потребностях.
+        </>
+      )
+    },
+    {
+      title: (
+        <>
+          Настоящие перемены начинаются с понимания своих{' '}
+          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+            ритмов
+          </span>
+          , состояний и потребностей.
+          <br />
+          <span className="text-3xl md:text-5xl lg:text-6xl text-gray-600 dark:text-gray-400">
+            PsyBalans — первая платформа, которая помогает вам строить жизнь вокруг себя, а не под чужой шаблон.
+          </span>
+        </>
+      )
+    }
+  ];
 
   const stats = [
     { number: '400+', label: 'упражнений', icon: Target },
@@ -22,45 +75,104 @@ const HeroSection = () => {
     }
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  // Auto-advance slides
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/50 pt-20 pb-32">
+    <section className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20 pb-32">
       {/* Декоративные элементы */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-200/40 to-teal-200/40 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-60 -left-40 w-80 h-80 bg-gradient-to-br from-purple-200/40 to-pink-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-200/40 to-teal-200/40 dark:from-emerald-400/20 dark:to-teal-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-60 -left-40 w-80 h-80 bg-gradient-to-br from-purple-200/40 to-pink-200/40 dark:from-purple-400/20 dark:to-pink-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-8">
           {/* Бейдж */}
           <div className="animate-fade-in">
-            <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-4 py-2 text-sm">
+            <Badge variant="secondary" className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700 px-4 py-2 text-sm">
               🧠 Научно обоснованный подход к психологическому балансу
             </Badge>
           </div>
 
-          {/* Заголовок-провокация */}
-          <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
-              Ваш мозг работает{' '}
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
-                циклами
-              </span>
-              .
-              <br />
-              Ваши приложения — линейно.
-              <br />
-              <span className="text-3xl md:text-5xl lg:text-6xl text-gray-600">
-                В этом проблема.
-              </span>
-            </h1>
+          {/* Слайдер заголовков */}
+          <div className="relative space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="relative h-[300px] md:h-[350px] lg:h-[400px] flex items-center justify-center">
+              <div className="relative w-full max-w-6xl">
+                {/* Slides */}
+                <div className="relative overflow-hidden">
+                  <div 
+                    className="flex transition-transform duration-700 ease-in-out"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  >
+                    {slides.map((slide, index) => (
+                      <div
+                        key={index}
+                        className="w-full flex-shrink-0"
+                      >
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
+                          {slide.title}
+                        </h1>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Navigation buttons */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 z-10"
+                  aria-label="Предыдущий слайд"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 z-10"
+                  aria-label="Следующий слайд"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Slide indicators */}
+            <div className="flex justify-center space-x-2 mt-6">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide
+                      ? 'bg-emerald-500 dark:bg-emerald-400 scale-110'
+                      : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  }`}
+                  aria-label={`Перейти к слайду ${index + 1}`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Подзаголовок */}
           <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
               Первая платформа, которая синхронизируется с биологией вашего сознания.{' '}
-              <span className="text-emerald-600 font-semibold">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                 Не просто трекинг, а персональная экосистема баланса
               </span>{' '}
               на основе нейронауки и AI.
@@ -82,13 +194,13 @@ const HeroSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto pt-16 animate-fade-in" style={{ animationDelay: '0.8s' }}>
             {stats.map((stat, index) => (
               <div key={index} className="text-center group hover:scale-105 transition-transform duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-shadow">
-                  <stat.icon className="w-6 h-6 text-emerald-600" />
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-shadow">
+                  <stat.icon className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
                   {stat.number}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {stat.label}
                 </div>
               </div>
