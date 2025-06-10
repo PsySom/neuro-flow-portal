@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -56,6 +55,11 @@ const About = () => {
       icon: BarChart3,
       title: 'Аналитика',
       description: 'Персонализированные советы и планирование на основе реальных данных пользователя'
+    },
+    {
+      icon: Zap,
+      title: 'Рекомендации',
+      description: 'Система умных персональных рекомендаций направленных на заботу о ваших потребностях и баланс напряжения и расслабления'
     }
   ];
 
