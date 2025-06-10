@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Users, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Brain, Users, Zap, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
@@ -21,7 +21,7 @@ const HeroSection = () => {
           <br />
           Ваши приложения — линейно.
           <br />
-          <span className="text-3xl md:text-5xl lg:text-6xl text-gray-600 dark:text-gray-400">
+          <span className="text-lg md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-400 mt-4 block">
             В этом проблема.
           </span>
         </>
@@ -53,7 +53,7 @@ const HeroSection = () => {
           </span>
           , состояний и потребностей.
           <br />
-          <span className="text-3xl md:text-5xl lg:text-6xl text-gray-600 dark:text-gray-400">
+          <span className="text-lg md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-400 mt-6 block">
             PsyBalans — первая платформа, которая помогает вам строить жизнь вокруг себя, а не под чужой шаблон.
           </span>
         </>
@@ -79,15 +79,11 @@ const HeroSection = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  // Auto-advance slides
+  // Auto-advance slides (slower - every 8 seconds)
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 6000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, []);
@@ -110,49 +106,32 @@ const HeroSection = () => {
           </div>
 
           {/* Слайдер заголовков */}
-          <div className="relative space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="relative h-[300px] md:h-[350px] lg:h-[400px] flex items-center justify-center">
-              <div className="relative w-full max-w-6xl">
+          <div className="relative space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="relative h-[280px] md:h-[320px] lg:h-[360px] flex items-center justify-center px-4">
+              <div className="relative w-full max-w-5xl">
                 {/* Slides */}
                 <div className="relative overflow-hidden">
                   <div 
-                    className="flex transition-transform duration-700 ease-in-out"
+                    className="flex transition-transform duration-1000 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
                     {slides.map((slide, index) => (
                       <div
                         key={index}
-                        className="w-full flex-shrink-0"
+                        className="w-full flex-shrink-0 px-8 md:px-12 lg:px-16"
                       >
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
+                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-relaxed">
                           {slide.title}
                         </h1>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                {/* Navigation buttons */}
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 z-10"
-                  aria-label="Предыдущий слайд"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 z-10"
-                  aria-label="Следующий слайд"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
               </div>
             </div>
 
             {/* Slide indicators */}
-            <div className="flex justify-center space-x-2 mt-6">
+            <div className="flex justify-center space-x-3 mt-8">
               {slides.map((_, index) => (
                 <button
                   key={index}
