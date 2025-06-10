@@ -98,7 +98,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onNext }) => {
           <Checkbox
             id="terms"
             checked={formData.agreeToTerms}
-            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreeToTerms: checked }))}
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreeToTerms: Boolean(checked) }))}
           />
           <label htmlFor="terms" className="text-sm text-gray-600 leading-5">
             Я согласен с{' '}
