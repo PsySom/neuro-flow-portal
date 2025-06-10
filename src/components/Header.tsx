@@ -42,6 +42,11 @@ const Header = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
+                  <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                    Главная
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
                   <Link to="/about" className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                     О проекте
                   </Link>
@@ -132,6 +137,9 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent className="dark:bg-gray-900">
                 <div className="flex flex-col space-y-6 mt-8">
+                  <Link to="/" className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    Главная
+                  </Link>
                   <Link to="/about" className="text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                     О проекте
                   </Link>
