@@ -24,6 +24,21 @@ const KnowledgeBase = () => {
     { id: 'self-compassion', name: 'Самосострадание' }
   ];
 
+  const colorSchemes = [
+    { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-300 dark:border-emerald-600', hover: 'hover:border-emerald-400' },
+    { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-300 dark:border-blue-600', hover: 'hover:border-blue-400' },
+    { bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-300 dark:border-purple-600', hover: 'hover:border-purple-400' },
+    { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-300 dark:border-amber-600', hover: 'hover:border-amber-400' },
+    { bg: 'bg-pink-50 dark:bg-pink-900/20', border: 'border-pink-300 dark:border-pink-600', hover: 'hover:border-pink-400' },
+    { bg: 'bg-teal-50 dark:bg-teal-900/20', border: 'border-teal-300 dark:border-teal-600', hover: 'hover:border-teal-400' },
+    { bg: 'bg-indigo-50 dark:bg-indigo-900/20', border: 'border-indigo-300 dark:border-indigo-600', hover: 'hover:border-indigo-400' },
+    { bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-300 dark:border-orange-600', hover: 'hover:border-orange-400' },
+    { bg: 'bg-cyan-50 dark:bg-cyan-900/20', border: 'border-cyan-300 dark:border-cyan-600', hover: 'hover:border-cyan-400' },
+    { bg: 'bg-lime-50 dark:bg-lime-900/20', border: 'border-lime-300 dark:border-lime-600', hover: 'hover:border-lime-400' },
+    { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-300 dark:border-red-600', hover: 'hover:border-red-400' },
+    { bg: 'bg-violet-50 dark:bg-violet-900/20', border: 'border-violet-300 dark:border-violet-600', hover: 'hover:border-violet-400' }
+  ];
+
   const articles = [
     {
       id: 1,
@@ -273,179 +288,191 @@ const KnowledgeBase = () => {
           {/* Articles Tab */}
           <TabsContent value="articles" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredArticles.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors line-clamp-2">
-                        {article.title}
-                      </CardTitle>
-                      <Button variant="ghost" size="sm" className="p-1">
-                        <Star className={`w-4 h-4 ${article.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
-                      </Button>
-                    </div>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{article.readTime}</span>
-                      </div>
-                      <span>👁 {article.views}</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {article.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {article.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Button variant="outline" size="sm">
-                        Читать
-                      </Button>
-                      <div className="flex space-x-1">
+              {filteredArticles.map((article, index) => {
+                const colorScheme = colorSchemes[index % colorSchemes.length];
+                return (
+                  <Card key={article.id} className={`${colorScheme.bg} border-2 ${colorScheme.border} ${colorScheme.hover} transition-all duration-300 group cursor-pointer hover:shadow-lg`}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors line-clamp-2">
+                          {article.title}
+                        </CardTitle>
                         <Button variant="ghost" size="sm" className="p-1">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="p-1">
-                          <Share2 className="w-4 h-4" />
+                          <Star className={`w-4 h-4 ${article.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
                         </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{article.readTime}</span>
+                        </div>
+                        <span>👁 {article.views}</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                        {article.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {article.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Button variant="outline" size="sm">
+                          Читать
+                        </Button>
+                        <div className="flex space-x-1">
+                          <Button variant="ghost" size="sm" className="p-1">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="p-1">
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
           {/* Podcasts Tab */}
           <TabsContent value="podcasts" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPodcasts.map((podcast) => (
-                <Card key={podcast.id} className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Headphones className="w-6 h-6 text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <Clock className="w-4 h-4" />
-                          <span>{podcast.duration}</span>
-                          <span>•</span>
-                          <span>↓ {podcast.downloads}</span>
+              {filteredPodcasts.map((podcast, index) => {
+                const colorScheme = colorSchemes[(index + 6) % colorSchemes.length];
+                return (
+                  <Card key={podcast.id} className={`${colorScheme.bg} border-2 ${colorScheme.border} ${colorScheme.hover} transition-all duration-300 group cursor-pointer hover:shadow-lg`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Headphones className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{podcast.duration}</span>
+                            <span>•</span>
+                            <span>↓ {podcast.downloads}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                      {podcast.title}
-                    </h3>
-                    
-                    <p className="text-gray-600 text-sm mb-4">
-                      {podcast.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {podcast.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Button variant="outline" size="sm" className="hover:bg-purple-50">
-                        <Play className="w-4 h-4 mr-2" />
-                        Слушать
-                      </Button>
-                      <div className="flex space-x-1">
-                        <Button variant="ghost" size="sm" className="p-1">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="p-1">
-                          <Share2 className="w-4 h-4" />
-                        </Button>
+                      
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                        {podcast.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-sm mb-4">
+                        {podcast.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {podcast.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      
+                      <div className="flex items-center justify-between">
+                        <Button variant="outline" size="sm" className="hover:bg-purple-50">
+                          <Play className="w-4 h-4 mr-2" />
+                          Слушать
+                        </Button>
+                        <div className="flex space-x-1">
+                          <Button variant="ghost" size="sm" className="p-1">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="p-1">
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
           {/* Interactive Tab */}
           <TabsContent value="interactive" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTools.map((tool) => (
-                <Card key={tool.id} className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <tool.icon className="w-6 h-6 text-blue-600" />
+              {filteredTools.map((tool, index) => {
+                const colorScheme = colorSchemes[(index + 3) % colorSchemes.length];
+                return (
+                  <Card key={tool.id} className={`${colorScheme.bg} border-2 ${colorScheme.border} ${colorScheme.hover} transition-all duration-300 group cursor-pointer hover:shadow-lg`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <tool.icon className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-sm text-gray-500 capitalize">{tool.type}</span>
+                          <div className="text-xs text-gray-400">{tool.duration}</div>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <span className="text-sm text-gray-500 capitalize">{tool.type}</span>
-                        <div className="text-xs text-gray-400">{tool.duration}</div>
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                      {tool.title}
-                    </h3>
-                    
-                    <p className="text-gray-600 text-sm mb-4">
-                      {tool.description}
-                    </p>
-                    
-                    <Button className="w-full hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200" variant="outline">
-                      Начать
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        {tool.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-sm mb-4">
+                        {tool.description}
+                      </p>
+                      
+                      <Button className="w-full hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200" variant="outline">
+                        Начать
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
           {/* Professional Tab */}
           <TabsContent value="professional" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {professionalResources.map((resource) => (
-                <Card key={resource.id} className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <Users className="w-6 h-6 text-indigo-600" />
+              {professionalResources.map((resource, index) => {
+                const colorScheme = colorSchemes[(index + 9) % colorSchemes.length];
+                return (
+                  <Card key={resource.id} className={`${colorScheme.bg} border-2 ${colorScheme.border} ${colorScheme.hover} transition-all duration-300 group cursor-pointer hover:shadow-lg`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                          <Users className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <span className="text-sm text-gray-500 capitalize">{resource.type}</span>
                       </div>
-                      <span className="text-sm text-gray-500 capitalize">{resource.type}</span>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                      {resource.title}
-                    </h3>
-                    
-                    <p className="text-gray-600 text-sm mb-4">
-                      {resource.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {resource.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <Button variant="outline" size="sm" className="hover:bg-indigo-50">
-                      Изучить
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {resource.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-sm mb-4">
+                        {resource.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {resource.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <Button variant="outline" size="sm" className="hover:bg-indigo-50">
+                        Изучить
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
         </Tabs>
