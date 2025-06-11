@@ -34,32 +34,44 @@ const About = () => {
     {
       icon: BookOpen,
       title: 'AI-дневник',
-      description: 'Быстрая саморефлексия, выявление мыслей, эмоций, триггеров и защитных факторов'
+      description: 'Быстрая саморефлексия, выявление мыслей, эмоций, триггеров и защитных факторов',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      borderColor: 'border-emerald-200 dark:border-emerald-700'
     },
     {
       icon: Activity,
       title: 'Лента времени',
-      description: 'Визуализация ритмов активности, настроения, стресса, энергии и баланса потребностей'
+      description: 'Визуализация ритмов активности, настроения, стресса, энергии и баланса потребностей',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-200 dark:border-blue-700'
     },
     {
       icon: Brain,
       title: 'База знаний',
-      description: 'Статьи, видео, подкасты с научными объяснениями и практическими рекомендациями'
+      description: 'Статьи, видео, подкасты с научными объяснениями и практическими рекомендациями',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      borderColor: 'border-purple-200 dark:border-purple-700'
     },
     {
       icon: Target,
       title: 'База упражнений',
-      description: 'Более 400 адаптированных техник — от дыхательных практик до когнитивных упражнений'
+      description: 'Более 400 адаптированных техник — от дыхательных практик до когнитивных упражнений',
+      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+      borderColor: 'border-amber-200 dark:border-amber-700'
     },
     {
       icon: BarChart3,
       title: 'Аналитика',
-      description: 'Персонализированные советы и планирование на основе реальных данных пользователя'
+      description: 'Персонализированные советы и планирование на основе реальных данных пользователя',
+      bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+      borderColor: 'border-pink-200 dark:border-pink-700'
     },
     {
       icon: Zap,
       title: 'Рекомендации',
-      description: 'Система умных персональных рекомендаций направленных на заботу о ваших потребностях и баланс напряжения и расслабления'
+      description: 'Система умных персональных рекомендаций направленных на заботу о ваших потребностях и баланс напряжения и расслабления',
+      bgColor: 'bg-teal-50 dark:bg-teal-900/20',
+      borderColor: 'border-teal-200 dark:border-teal-700'
     }
   ];
 
@@ -285,7 +297,7 @@ const About = () => {
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {platformFeatures.map((feature, index) => (
-                  <div key={index} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-emerald-300 dark:hover:border-emerald-500 transition-colors">
+                  <div key={index} className={`p-4 border rounded-lg hover:border-emerald-300 dark:hover:border-emerald-500 transition-colors ${feature.bgColor} ${feature.borderColor}`}>
                     <feature.icon className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-3" />
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
                     <p className="text-sm text-gray-700 dark:text-gray-300">{feature.description}</p>
