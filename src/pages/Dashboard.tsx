@@ -22,7 +22,7 @@ import RecommendationsComponent from '@/components/dashboard/RecommendationsComp
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-24">
       {/* Header */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,14 +42,6 @@ const Dashboard = () => {
               <Button variant="ghost" className="dark:text-gray-300">
                 <Calendar className="w-4 h-4 mr-2" />
                 Календарь
-              </Button>
-              <Button variant="ghost" className="dark:text-gray-300">
-                <Activity className="w-4 h-4 mr-2" />
-                Состояние
-              </Button>
-              <Button variant="ghost" className="dark:text-gray-300">
-                <Target className="w-4 h-4 mr-2" />
-                Рекомендации
               </Button>
               <Button variant="ghost" className="dark:text-gray-300">
                 <Zap className="w-4 h-4 mr-2" />
@@ -109,6 +101,45 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Fixed Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="grid grid-cols-3 gap-4">
+            {/* Состояние */}
+            <Button 
+              variant="ghost" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800/30 dark:hover:to-blue-700/30 rounded-xl border border-blue-200/50 dark:border-blue-700/50"
+              onClick={() => console.log('Navigate to Состояние')}
+            >
+              <Activity className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Состояние</span>
+            </Button>
+
+            {/* Рекомендации */}
+            <Button 
+              variant="ghost" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 hover:from-emerald-100 hover:to-emerald-200 dark:hover:from-emerald-800/30 dark:hover:to-emerald-700/30 rounded-xl border border-emerald-200/50 dark:border-emerald-700/50"
+              onClick={() => console.log('Navigate to Рекомендации')}
+            >
+              <Target className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Рекомендации</span>
+            </Button>
+
+            {/* Статистика */}
+            <Button 
+              variant="ghost" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover:from-purple-100 hover:to-purple-200 dark:hover:from-purple-800/30 dark:hover:to-purple-700/30 rounded-xl border border-purple-200/50 dark:border-purple-700/50"
+              onClick={() => console.log('Navigate to Статистика')}
+            >
+              <div className="w-8 h-8 bg-purple-600 dark:bg-purple-400 rounded-lg flex items-center justify-center">
+                <span className="text-white dark:text-purple-900 text-xs font-bold">📊</span>
+              </div>
+              <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Статистика</span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
