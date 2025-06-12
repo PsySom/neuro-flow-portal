@@ -13,6 +13,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import AIChatComponent from '@/components/dashboard/AIChatComponent';
 import ActivityTimelineComponent from '@/components/dashboard/ActivityTimelineComponent';
 import BalanceWheelComponent from '@/components/dashboard/BalanceWheelComponent';
@@ -21,36 +22,36 @@ import RecommendationsComponent from '@/components/dashboard/RecommendationsComp
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-50">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <Brain className="w-8 h-8 text-emerald-600" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <Brain className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
                 PsyBalans
               </span>
             </Link>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <Button variant="ghost" className="text-emerald-600 font-medium">
+              <Button variant="ghost" className="text-emerald-600 dark:text-emerald-400 font-medium">
                 <BookOpen className="w-4 h-4 mr-2" />
                 Дневники
               </Button>
-              <Button variant="ghost">
+              <Button variant="ghost" className="dark:text-gray-300">
                 <Calendar className="w-4 h-4 mr-2" />
                 Календарь
               </Button>
-              <Button variant="ghost">
+              <Button variant="ghost" className="dark:text-gray-300">
                 <Activity className="w-4 h-4 mr-2" />
                 Состояние
               </Button>
-              <Button variant="ghost">
+              <Button variant="ghost" className="dark:text-gray-300">
                 <Target className="w-4 h-4 mr-2" />
                 Рекомендации
               </Button>
-              <Button variant="ghost">
+              <Button variant="ghost" className="dark:text-gray-300">
                 <Zap className="w-4 h-4 mr-2" />
                 Упражнения
               </Button>
@@ -58,15 +59,16 @@ const Dashboard = () => {
 
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <Input 
                   placeholder="Поиск..." 
-                  className="pl-10 w-64"
+                  className="pl-10 w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 />
               </div>
+              <ThemeToggle />
               <Avatar>
                 <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback className="bg-emerald-100 text-emerald-600">АП</AvatarFallback>
+                <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400">АП</AvatarFallback>
               </Avatar>
             </div>
           </div>
