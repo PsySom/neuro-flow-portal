@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,6 +20,56 @@ interface Activity {
 }
 
 const ActivityTimelineComponent = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const timeIndicatorRef = useRef<HTMLDivElement>(null);
+  const lastInteractionRef = useRef(Date.now());
+
+  // Обновление текущего времени каждую минуту
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Автоскроллинг после 20 секунд бездействия
+  useEffect(() => {
+    const checkAutoScroll = () => {
+      const timeSinceLastInteraction = Date.now() - lastInteractionRef.current;
+      if (timeSinceLastInteraction >= 20000) { // 20 секунд
+        scrollToCurrentTime();
+      }
+    };
+
+    const autoScrollTimer = setInterval(checkAutoScroll, 5000); // Проверяем каждые 5 секунд
+
+    return () => clearInterval(autoScrollTimer);
+  }, []);
+
+  // Обработчик взаимодействия пользователя
+  const handleUserInteraction = () => {
+    lastInteractionRef.current = Date.now();
+  };
+
+  // Функция скролла к текущему времени
+  const scrollToCurrentTime = () => {
+    if (timeIndicatorRef.current && scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        const indicatorTop = timeIndicatorRef.current.offsetTop;
+        const containerHeight = scrollContainer.clientHeight;
+        const scrollTop = indicatorTop - containerHeight / 2;
+        
+        scrollContainer.scrollTo({
+          top: Math.max(0, scrollTop),
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
   const activities: Activity[] = [
     { id: 1, name: 'Сон', emoji: '😴', startTime: '00:00', endTime: '08:00', duration: '8 ч', color: 'bg-indigo-200', importance: 5, completed: true, type: 'восстановление', needEmoji: '🛌' },
     { id: 2, name: 'Пробуждение', emoji: '☀️', startTime: '08:00', endTime: '08:30', duration: '30 мин', color: 'bg-yellow-200', importance: 3, completed: true, type: 'восстановление', needEmoji: '⚡' },
@@ -40,6 +90,29 @@ const ActivityTimelineComponent = () => {
     { id: 17, name: 'Заполнение дневника', emoji: '📝', startTime: '22:00', endTime: '22:30', duration: '30 мин', color: 'bg-purple-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🧠' },
     { id: 18, name: 'Подготовка ко сну', emoji: '🌙', startTime: '22:30', endTime: '24:00', duration: '1.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '😴' }
   ];
+
+  // Вычисление позиции индикатора текущего времени
+  const getCurrentTimePosition = () => {
+    const currentHour = currentTime.getHours();
+    const currentMinute = currentTime.getMinutes();
+    const totalMinutes = currentHour * 60 + currentMinute;
+    
+    // Находим подходящий временной слот
+    const slotIndex = Math.floor(currentHour / 3);
+    const slotStartMinutes = slotIndex * 180; // 3 часа = 180 минут
+    const minutesIntoSlot = totalMinutes - slotStartMinutes;
+    
+    // Высота одного слота (95px + padding)
+    const slotHeight = 95 + 8; // 95px высота + 8px padding
+    const positionInSlot = (minutesIntoSlot / 180) * slotHeight;
+    
+    return slotIndex * slotHeight + positionInSlot + 60; // +60 для учета заголовка
+  };
+
+  const currentTimeString = currentTime.toLocaleTimeString('ru-RU', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
 
   // Group activities into 8 three-hour blocks
   const timeSlots = Array.from({ length: 8 }, (_, i) => {
@@ -82,9 +155,36 @@ const ActivityTimelineComponent = () => {
         </Button>
       </CardHeader>
       
-      <CardContent className="p-0">
-        <ScrollArea className="h-[500px]">
-          <div className="px-6">
+      <CardContent className="p-0 relative">
+        <ScrollArea 
+          ref={scrollAreaRef} 
+          className="h-[500px]"
+          onWheel={handleUserInteraction}
+          onTouchStart={handleUserInteraction}
+          onMouseDown={handleUserInteraction}
+        >
+          <div className="px-6 relative">
+            {/* Индикатор текущего времени */}
+            <div 
+              ref={timeIndicatorRef}
+              className="absolute left-0 right-0 z-10 pointer-events-none"
+              style={{ top: `${getCurrentTimePosition()}px` }}
+            >
+              <div className="flex items-center">
+                <div className="w-20 flex justify-center">
+                  <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                    {currentTimeString}
+                  </span>
+                </div>
+                <div 
+                  className="flex-1 h-0.5 bg-red-500 relative"
+                  style={{ height: '2px' }}
+                >
+                  <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
             {timeSlots.map((slot) => (
               <div key={slot.startHour} className="flex items-start py-2 border-b border-gray-100 last:border-b-0 min-h-[95px]">
                 <div className="w-20 text-sm font-medium text-gray-600 py-3">
