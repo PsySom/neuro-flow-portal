@@ -97,18 +97,15 @@ const ActivityTimelineComponent = () => {
                       isActivityStart(activity, slot.startHour) ? (
                         <div 
                           key={activity.id} 
-                          className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[70px]`}
+                          className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[70px] flex flex-col justify-between`}
                         >
-                          <div className="flex items-center justify-between mb-2">
+                          {/* Первая строка: галочка, название и кнопки */}
+                          <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2 flex-1">
                               <Checkbox 
                                 checked={activity.completed}
                                 className="w-4 h-4"
                               />
-                              <span className="text-lg">{activity.emoji}</span>
-                              {activity.type === 'восстановление' && (
-                                <span className="text-sm">{activity.needEmoji}</span>
-                              )}
                               <span className="font-medium text-sm">{activity.name}</span>
                             </div>
                             <div className="flex items-center space-x-1">
@@ -127,6 +124,7 @@ const ActivityTimelineComponent = () => {
                             </div>
                           </div>
                           
+                          {/* Вторая строка: время, продолжительность и звездочки */}
                           <div className="flex items-center space-x-4 text-xs text-gray-600">
                             <span>[{activity.startTime}-{activity.endTime}]</span>
                             <span>[{activity.duration}]</span>
@@ -135,6 +133,14 @@ const ActivityTimelineComponent = () => {
                                 <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                               ))}
                             </div>
+                          </div>
+
+                          {/* Третья строка: эмодзи */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg">{activity.emoji}</span>
+                            {activity.type === 'восстановление' && activity.needEmoji && (
+                              <span className="text-sm">{activity.needEmoji}</span>
+                            )}
                           </div>
                         </div>
                       ) : null
