@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -136,9 +137,9 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - AI Chat */}
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left Column - AI Chat (40% - reduced from 50%) */}
+          <div className="lg:col-span-2">
             <Card className="h-[600px] flex flex-col bg-white/70 backdrop-blur-lg border-0 shadow-xl">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center space-x-2">
@@ -193,8 +194,8 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Right Column - Activity Timeline */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Activity Timeline (60% - increased from 50%) */}
+          <div className="lg:col-span-3">
             <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -228,7 +229,7 @@ const Dashboard = () => {
           </div>
 
           {/* Balance Wheel - Full Width Below */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-5">
             <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -259,7 +260,7 @@ const Dashboard = () => {
           </div>
 
           {/* Quick Stats and Recommendations - Full Width Below */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-5">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Quick Stats */}
               <div className="lg:col-span-1">
