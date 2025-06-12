@@ -66,17 +66,6 @@ const ActivityTimelineComponent = () => {
     };
   });
 
-  const getActivityHeight = (activity: Activity) => {
-    const start = activity.startTime.split(':');
-    const end = activity.endTime.split(':');
-    const startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
-    const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
-    const durationMinutes = endMinutes - startMinutes;
-    
-    // Base height is 72px per hour (increased from 48px), minimum 36px
-    return Math.max(36, (durationMinutes / 60) * 72);
-  };
-
   const isActivityStart = (activity: Activity, startHour: number) => {
     const activityStartHour = parseInt(activity.startTime.split(':')[0]);
     return activityStartHour >= startHour && activityStartHour < startHour + 3;
@@ -108,11 +97,14 @@ const ActivityTimelineComponent = () => {
                       isActivityStart(activity, slot.startHour) ? (
                         <div 
                           key={activity.id} 
-                          className={`${activity.color} rounded-lg p-4 mb-3 border border-gray-200`}
-                          style={{ height: `${getActivityHeight(activity)}px` }}
+                          className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-16`}
                         >
-                          <div className="flex items-start justify-between">
+                          <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2 flex-1">
+                              <Checkbox 
+                                checked={activity.completed}
+                                className="w-4 h-4"
+                              />
                               <span className="text-lg">{activity.emoji}</span>
                               {activity.type === 'восстановление' && (
                                 <span className="text-sm">{activity.needEmoji}</span>
@@ -120,14 +112,22 @@ const ActivityTimelineComponent = () => {
                               <span className="font-medium text-sm">{activity.name}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <Checkbox 
-                                checked={activity.completed}
-                                className="w-4 h-4"
-                              />
+                              <Button size="icon" variant="ghost" className="h-6 w-6">
+                                <Info className="w-3 h-3" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-6 w-6">
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-6 w-6">
+                                <Star className="w-3 h-3" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-6 w-6">
+                                <Trash2 className="w-3 h-3 text-red-500" />
+                              </Button>
                             </div>
                           </div>
                           
-                          <div className="mt-3 flex items-center space-x-4 text-xs text-gray-600">
+                          <div className="flex items-center space-x-4 text-xs text-gray-600">
                             <span>[{activity.startTime}-{activity.endTime}]</span>
                             <span>[{activity.duration}]</span>
                             <div className="flex items-center">
@@ -135,21 +135,6 @@ const ActivityTimelineComponent = () => {
                                 <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                               ))}
                             </div>
-                          </div>
-                          
-                          <div className="mt-3 flex items-center space-x-1">
-                            <Button size="icon" variant="ghost" className="h-6 w-6">
-                              <Info className="w-3 h-3" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-6 w-6">
-                              <Edit className="w-3 h-3" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-6 w-6">
-                              <Star className="w-3 h-3" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-6 w-6">
-                              <Trash2 className="w-3 h-3 text-red-500" />
-                            </Button>
                           </div>
                         </div>
                       ) : null
