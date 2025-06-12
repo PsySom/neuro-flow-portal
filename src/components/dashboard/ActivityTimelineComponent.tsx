@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,7 +86,7 @@ const ActivityTimelineComponent = () => {
         <ScrollArea className="h-[500px]">
           <div className="px-6">
             {timeSlots.map((slot) => (
-              <div key={slot.startHour} className="flex items-start py-2 border-b border-gray-100 last:border-b-0 min-h-[79px]">
+              <div key={slot.startHour} className="flex items-start py-2 border-b border-gray-100 last:border-b-0 min-h-[95px]">
                 <div className="w-20 text-sm font-medium text-gray-600 py-3">
                   {slot.timeString}
                 </div>
@@ -97,7 +96,7 @@ const ActivityTimelineComponent = () => {
                       isActivityStart(activity, slot.startHour) ? (
                         <div 
                           key={activity.id} 
-                          className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[70px] flex flex-col justify-between`}
+                          className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[85px] flex flex-col justify-between`}
                         >
                           {/* Первая строка: галочка, название и кнопки */}
                           <div className="flex items-center justify-between">
@@ -146,7 +145,7 @@ const ActivityTimelineComponent = () => {
                       ) : null
                     )
                   ) : (
-                    <div className="h-[70px] bg-gray-50 rounded-lg flex items-center justify-center opacity-50 hover:opacity-75 cursor-pointer">
+                    <div className="h-[85px] bg-gray-50 rounded-lg flex items-center justify-center opacity-50 hover:opacity-75 cursor-pointer">
                       <Plus className="w-4 h-4 text-gray-400" />
                     </div>
                   )}
