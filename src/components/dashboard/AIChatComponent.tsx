@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,17 @@ const AIChatComponent = () => {
       time: '10:33'
     }
   ]);
+  
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
 
   const sendMessage = () => {
     if (message.trim()) {
@@ -60,7 +71,7 @@ const AIChatComponent = () => {
 
   return (
     <Card className="h-[600px] flex flex-col bg-white/70 backdrop-blur-lg border-0 shadow-xl">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="flex items-center space-x-2">
           <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
             <Brain className="w-5 h-5 text-white" />
@@ -69,9 +80,9 @@ const AIChatComponent = () => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-6">
-          <div className="space-y-4">
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 px-6">
+          <div className="space-y-4 pb-4">
             {chatMessages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-xs lg:max-w-md xl:max-w-lg p-3 rounded-2xl ${
@@ -88,10 +99,11 @@ const AIChatComponent = () => {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t flex-shrink-0">
           <div className="flex space-x-2">
             <Input
               value={message}
