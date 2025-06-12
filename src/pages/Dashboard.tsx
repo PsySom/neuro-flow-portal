@@ -21,6 +21,15 @@ import QuickStatsComponent from '@/components/dashboard/QuickStatsComponent';
 import RecommendationsComponent from '@/components/dashboard/RecommendationsComponent';
 
 const Dashboard = () => {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Доброе утро';
+    if (hour < 18) return 'Добрый день';
+    return 'Добрый вечер';
+  };
+
+  const userName = 'Анна'; // В реальном приложении это будет браться из контекста пользователя
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-24">
       {/* Header */}
@@ -66,6 +75,20 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
+
+      {/* Greeting Section */}
+      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {getGreeting()}, {userName}! 👋
+            </h1>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
+              Как дела? Готовы поработать над своим внутренним балансом?
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
