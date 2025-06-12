@@ -42,24 +42,27 @@ const ActivityTimelineComponent = () => {
     { id: 18, name: 'Подготовка ко сну', emoji: '🌙', startTime: '22:30', endTime: '24:00', duration: '1.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '😴' }
   ];
 
-  const timeSlots = Array.from({ length: 24 }, (_, i) => {
-    const hour = i;
-    const timeString = hour.toString().padStart(2, '0') + ':00';
+  // Group activities into 8 three-hour blocks
+  const timeSlots = Array.from({ length: 8 }, (_, i) => {
+    const startHour = i * 3;
+    const endHour = (i + 1) * 3;
+    const timeString = `${startHour.toString().padStart(2, '0')}:00 - ${endHour.toString().padStart(2, '0')}:00`;
     
-    // Find activities for this hour
-    const hourActivities = activities.filter(activity => {
-      const startHour = parseInt(activity.startTime.split(':')[0]);
-      const endHour = parseInt(activity.endTime.split(':')[0]);
-      const endMinute = parseInt(activity.endTime.split(':')[1]);
+    // Find activities for this 3-hour block
+    const blockActivities = activities.filter(activity => {
+      const activityStartHour = parseInt(activity.startTime.split(':')[0]);
+      const activityEndHour = parseInt(activity.endTime.split(':')[0]);
+      const activityEndMinute = parseInt(activity.endTime.split(':')[1]);
       
-      // Activity spans this hour
-      return startHour <= hour && (endHour > hour || (endHour === hour && endMinute > 0));
+      // Activity overlaps with this 3-hour block
+      return (activityStartHour < endHour && (activityEndHour > startHour || (activityEndHour === endHour && activityEndMinute > 0)));
     });
 
     return {
-      hour,
+      startHour,
+      endHour,
       timeString,
-      activities: hourActivities
+      activities: blockActivities
     };
   });
 
@@ -70,12 +73,13 @@ const ActivityTimelineComponent = () => {
     const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
     const durationMinutes = endMinutes - startMinutes;
     
-    // Base height is 48px (h-12), scale by duration in hours
-    return Math.max(48, (durationMinutes / 60) * 48);
+    // Base height is 72px per hour (increased from 48px), minimum 36px
+    return Math.max(36, (durationMinutes / 60) * 72);
   };
 
-  const isActivityStart = (activity: Activity, hour: number) => {
-    return parseInt(activity.startTime.split(':')[0]) === hour;
+  const isActivityStart = (activity: Activity, startHour: number) => {
+    const activityStartHour = parseInt(activity.startTime.split(':')[0]);
+    return activityStartHour >= startHour && activityStartHour < startHour + 3;
   };
 
   return (
@@ -94,17 +98,17 @@ const ActivityTimelineComponent = () => {
         <ScrollArea className="h-[500px]">
           <div className="px-6">
             {timeSlots.map((slot) => (
-              <div key={slot.hour} className="flex items-start py-1 border-b border-gray-100 last:border-b-0 min-h-[48px]">
-                <div className="w-16 text-sm font-medium text-gray-600 py-2">
+              <div key={slot.startHour} className="flex items-start py-2 border-b border-gray-100 last:border-b-0 min-h-[72px]">
+                <div className="w-20 text-sm font-medium text-gray-600 py-3">
                   {slot.timeString}
                 </div>
                 <div className="flex-1 relative">
                   {slot.activities.length > 0 ? (
                     slot.activities.map((activity) => 
-                      isActivityStart(activity, slot.hour) ? (
+                      isActivityStart(activity, slot.startHour) ? (
                         <div 
                           key={activity.id} 
-                          className={`${activity.color} rounded-lg p-3 mb-2 border border-gray-200`}
+                          className={`${activity.color} rounded-lg p-4 mb-3 border border-gray-200`}
                           style={{ height: `${getActivityHeight(activity)}px` }}
                         >
                           <div className="flex items-start justify-between">
@@ -123,7 +127,7 @@ const ActivityTimelineComponent = () => {
                             </div>
                           </div>
                           
-                          <div className="mt-2 flex items-center space-x-4 text-xs text-gray-600">
+                          <div className="mt-3 flex items-center space-x-4 text-xs text-gray-600">
                             <span>[{activity.startTime}-{activity.endTime}]</span>
                             <span>[{activity.duration}]</span>
                             <div className="flex items-center">
@@ -133,7 +137,7 @@ const ActivityTimelineComponent = () => {
                             </div>
                           </div>
                           
-                          <div className="mt-2 flex items-center space-x-1">
+                          <div className="mt-3 flex items-center space-x-1">
                             <Button size="icon" variant="ghost" className="h-6 w-6">
                               <Info className="w-3 h-3" />
                             </Button>
@@ -151,7 +155,7 @@ const ActivityTimelineComponent = () => {
                       ) : null
                     )
                   ) : (
-                    <div className="h-12 bg-gray-50 rounded-lg flex items-center justify-center opacity-50 hover:opacity-75 cursor-pointer">
+                    <div className="h-16 bg-gray-50 rounded-lg flex items-center justify-center opacity-50 hover:opacity-75 cursor-pointer">
                       <Plus className="w-4 h-4 text-gray-400" />
                     </div>
                   )}
