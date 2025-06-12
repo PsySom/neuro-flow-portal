@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,7 +136,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - AI Chat */}
           <div className="lg:col-span-1">
             <Card className="h-[600px] flex flex-col bg-white/70 backdrop-blur-lg border-0 shadow-xl">
@@ -194,7 +193,7 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Middle Column - Activity Timeline */}
+          {/* Right Column - Activity Timeline */}
           <div className="lg:col-span-1">
             <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
               <CardHeader>
@@ -228,9 +227,8 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Right Column - Stats & Recommendations */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Balance Wheel */}
+          {/* Balance Wheel - Full Width Below */}
+          <div className="lg:col-span-2">
             <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -240,7 +238,7 @@ const Dashboard = () => {
               </CardHeader>
               
               <CardContent>
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {balanceData.map((item, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between text-sm">
@@ -258,69 +256,78 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
-                <CardContent className="p-4 text-center">
-                  <Smile className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-emerald-700">7.5</p>
-                  <p className="text-sm text-emerald-600">Настроение</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200">
-                <CardContent className="p-4 text-center">
-                  <Battery className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-yellow-700">6.2</p>
-                  <p className="text-sm text-yellow-600">Энергия</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recommendations */}
-            <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                  <span>Рекомендации</span>
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-start space-x-3">
-                      <Heart className="w-5 h-5 text-blue-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-blue-900">Дыхательная практика</h4>
-                        <p className="text-sm text-blue-700">Попробуйте 5-минутное дыхательное упражнение для снижения стресса</p>
-                      </div>
-                    </div>
-                  </div>
+          {/* Quick Stats and Recommendations - Full Width Below */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Quick Stats */}
+              <div className="lg:col-span-1">
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+                    <CardContent className="p-4 text-center">
+                      <Smile className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-emerald-700">7.5</p>
+                      <p className="text-sm text-emerald-600">Настроение</p>
+                    </CardContent>
+                  </Card>
                   
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-start space-x-3">
-                      <Zap className="w-5 h-5 text-green-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-green-900">Перерыв на прогулку</h4>
-                        <p className="text-sm text-green-700">15-минутная прогулка поможет восстановить энергию</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                    <div className="flex items-start space-x-3">
-                      <AlertCircle className="w-5 h-5 text-purple-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-purple-900">Режим сна</h4>
-                        <p className="text-sm text-purple-700">Рекомендуем лечь спать на час раньше сегодня</p>
-                      </div>
-                    </div>
-                  </div>
+                  <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200">
+                    <CardContent className="p-4 text-center">
+                      <Battery className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-yellow-700">6.2</p>
+                      <p className="text-sm text-yellow-600">Энергия</p>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Recommendations */}
+              <div className="lg:col-span-2">
+                <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <TrendingUp className="w-5 h-5 text-emerald-600" />
+                      <span>Рекомендации</span>
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <Heart className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-blue-900">Дыхательная практика</h4>
+                            <p className="text-sm text-blue-700">Попробуйте 5-минутное дыхательное упражнение для снижения стресса</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <Zap className="w-5 h-5 text-green-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-green-900">Перерыв на прогулку</h4>
+                            <p className="text-sm text-green-700">15-минутная прогулка поможет восстановить энергию</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <AlertCircle className="w-5 h-5 text-purple-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-purple-900">Режим сна</h4>
+                            <p className="text-sm text-purple-700">Рекомендуем лечь спать на час раньше сегодня</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>
