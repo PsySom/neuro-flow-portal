@@ -99,13 +99,34 @@ const ActivityTimelineComponent = () => {
                           className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[85px] flex flex-col justify-between`}
                         >
                           {/* Первая строка: галочка, название и кнопки */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 flex-1">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-2 flex-1">
                               <Checkbox 
                                 checked={activity.completed}
-                                className="w-4 h-4"
+                                className="w-8 h-8 rounded-sm mt-0.5"
                               />
-                              <span className="font-medium text-sm">{activity.name}</span>
+                              <div className="flex flex-col space-y-1">
+                                <span className="font-medium text-sm leading-tight">{activity.name}</span>
+                                
+                                {/* Вторая строка: время, продолжительность и звездочки */}
+                                <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                  <span>[{activity.startTime}-{activity.endTime}]</span>
+                                  <span>[{activity.duration}]</span>
+                                  <div className="flex items-center">
+                                    {Array.from({ length: activity.importance }, (_, i) => (
+                                      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Третья строка: эмодзи */}
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-lg">{activity.emoji}</span>
+                                  {activity.type === 'восстановление' && activity.needEmoji && (
+                                    <span className="text-sm">{activity.needEmoji}</span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <div className="flex items-center space-x-1">
                               <Button size="icon" variant="ghost" className="h-6 w-6">
@@ -121,25 +142,6 @@ const ActivityTimelineComponent = () => {
                                 <Trash2 className="w-3 h-3 text-red-500" />
                               </Button>
                             </div>
-                          </div>
-                          
-                          {/* Вторая строка: время, продолжительность и звездочки */}
-                          <div className="flex items-center space-x-4 text-xs text-gray-600">
-                            <span>[{activity.startTime}-{activity.endTime}]</span>
-                            <span>[{activity.duration}]</span>
-                            <div className="flex items-center">
-                              {Array.from({ length: activity.importance }, (_, i) => (
-                                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Третья строка: эмодзи */}
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg">{activity.emoji}</span>
-                            {activity.type === 'восстановление' && activity.needEmoji && (
-                              <span className="text-sm">{activity.needEmoji}</span>
-                            )}
                           </div>
                         </div>
                       ) : null
