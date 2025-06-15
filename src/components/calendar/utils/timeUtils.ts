@@ -63,6 +63,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     // Сортируем по времени начала
     group.sort((a, b) => getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime));
     
+    // Определяем количество колонок (максимум 4)
     const totalColumns = Math.min(group.length, 4);
     const columnWidth = 100 / totalColumns;
     
@@ -75,25 +76,25 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
         endMinutes += 24 * 60;
       }
       
-      // Позиция по вертикали - всегда соответствует времени начала
+      // Позиция по вертикали соответствует времени начала
       const top = (startMinutes / 60) * 60; // 60px на час
       
-      // Высота блока
-      let height = ((endMinutes - startMinutes) / 60) * 60;
+      // Высота блока - минимум 60px (размер часового блока)
+      const durationMinutes = endMinutes - startMinutes;
+      const calculatedHeight = (durationMinutes / 60) * 60;
+      const height = Math.max(calculatedHeight, 60); // Минимум 60px
       
-      // Минимальная высота - размер часового блока (60px)
-      height = Math.max(height, 60);
-      
-      // Горизонтальное позиционирование
+      // Горизонтальное позиционирование - размещаем рядом
       const column = index % totalColumns;
       const left = column * columnWidth;
+      const width = columnWidth - 0.5; // Небольшой отступ между блоками
       
       layouts.push({
         activity,
         top: Math.max(0, top),
         height: Math.min(height, 1440 - Math.max(0, top)),
         left,
-        width: columnWidth - 1, // -1% для отступа между блоками
+        width,
         column,
         totalColumns
       });
