@@ -30,8 +30,8 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
   );
   
-  // Отслеживаем занятость колонок для каждого часового блока
-  const columnUsage: { [hourBlock: number]: boolean[] } = {};
+  // Счетчик для определения колонки (0, 1, 2, 0, 1, 2, ...)
+  let activityCounter = 0;
   
   sortedActivities.forEach(activity => {
     const startMinutes = getTimeInMinutes(activity.startTime);
@@ -55,64 +55,17 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     let column = 0;
     let totalColumns = 1;
     
-    // Если активность длится меньше 2 часов, размещаем в колонках
-    if (durationMinutes <= 120) { // до 2 часов включительно
-      const startHour = Math.floor(startMinutes / 60);
-      const endHour = Math.ceil(endMinutes / 60);
-      
-      // Инициализируем отслеживание колонок для всех затронутых часов
-      for (let hour = startHour; hour < endHour; hour++) {
-        if (!columnUsage[hour]) {
-          columnUsage[hour] = [false, false, false]; // 3 колонки
-        }
-      }
-      
-      // Ищем свободную колонку, которая свободна во всех затронутых часах
-      let assignedColumn = -1;
-      for (let col = 0; col < 3; col++) {
-        let columnFree = true;
-        for (let hour = startHour; hour < endHour; hour++) {
-          if (columnUsage[hour] && columnUsage[hour][col]) {
-            columnFree = false;
-            break;
-          }
-        }
-        if (columnFree) {
-          assignedColumn = col;
-          break;
-        }
-      }
-      
-      // Если не нашли свободную колонку, используем первую
-      if (assignedColumn === -1) {
-        assignedColumn = 0;
-      }
-      
-      // Помечаем колонку как занятую во всех затронутых часах
-      for (let hour = startHour; hour < endHour; hour++) {
-        if (columnUsage[hour]) {
-          columnUsage[hour][assignedColumn] = true;
-        }
-      }
+    // Если активность длится 2 часа или меньше, размещаем в колонках
+    if (durationMinutes <= 120) {
+      // Определяем колонку по порядку активностей
+      column = activityCounter % 3;
+      activityCounter++;
       
       totalColumns = 3;
-      column = assignedColumn;
       width = 100 / 3 - 1; // Треть ширины минус отступ
-      left = (100 / 3) * assignedColumn;
+      left = (100 / 3) * column;
     } else {
       // Активности более 2 часов занимают всю ширину
-      const startHour = Math.floor(startMinutes / 60);
-      const endHour = Math.ceil(endMinutes / 60);
-      
-      // Помечаем все часы как занятые для полной ширины
-      for (let hour = startHour; hour < endHour; hour++) {
-        if (!columnUsage[hour]) {
-          columnUsage[hour] = [true, true, true];
-        } else {
-          columnUsage[hour] = [true, true, true];
-        }
-      }
-      
       left = 0;
       width = 100;
       column = 0;
