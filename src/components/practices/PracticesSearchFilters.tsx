@@ -17,6 +17,7 @@ import {
   therapyMethods, 
   problems, 
   objects, 
+  subObjects,
   practiceCategories 
 } from '@/constants/practicesConstants';
 
@@ -31,6 +32,8 @@ interface PracticesSearchFiltersProps {
   setSelectedProblems: (problems: string[]) => void;
   selectedObjects: string[];
   setSelectedObjects: (objects: string[]) => void;
+  selectedSubObjects: string[];
+  setSelectedSubObjects: (subObjects: string[]) => void;
   selectedDuration: string;
   setSelectedDuration: (duration: string) => void;
   selectedLevel: string;
@@ -55,6 +58,8 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
   setSelectedProblems,
   selectedObjects,
   setSelectedObjects,
+  selectedSubObjects,
+  setSelectedSubObjects,
   selectedDuration,
   setSelectedDuration,
   selectedLevel,
@@ -67,6 +72,20 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
   clearAllFilters,
   handleMultiSelectChange
 }) => {
+  // Get available sub-objects based on selected main object
+  const getAvailableSubObjects = () => {
+    if (selectedObjects.length === 0) return [];
+    
+    const allSubObjects = selectedObjects.reduce((acc, objectId) => {
+      const subs = subObjects[objectId as keyof typeof subObjects] || [];
+      return [...acc, ...subs];
+    }, [] as typeof subObjects.thoughts);
+    
+    return allSubObjects;
+  };
+
+  const availableSubObjects = getAvailableSubObjects();
+
   return (
     <Card className="mb-8">
       <CardContent className="p-6">
@@ -140,8 +159,10 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
           <Select value={selectedObjects.length > 0 ? selectedObjects[0] : 'all'} onValueChange={(value) => {
             if (value === 'all') {
               setSelectedObjects([]);
+              setSelectedSubObjects([]);
             } else {
               setSelectedObjects([value]);
+              setSelectedSubObjects([]);
             }
           }}>
             <SelectTrigger>
@@ -152,6 +173,30 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
               {objects.map((object) => (
                 <SelectItem key={object.id} value={object.id}>
                   {object.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select 
+            value={selectedSubObjects.length > 0 ? selectedSubObjects[0] : 'all'} 
+            onValueChange={(value) => {
+              if (value === 'all') {
+                setSelectedSubObjects([]);
+              } else {
+                setSelectedSubObjects([value]);
+              }
+            }}
+            disabled={availableSubObjects.length === 0}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="По подобъекту" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Любой подобъект</SelectItem>
+              {availableSubObjects.map((subObject) => (
+                <SelectItem key={subObject.id} value={subObject.id}>
+                  {subObject.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -176,7 +221,10 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
               ))}
             </SelectContent>
           </Select>
+        </div>
 
+        {/* Вторая строка основных фильтров */}
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 mb-6">
           <Select value={selectedTherapyMethods.length > 0 ? selectedTherapyMethods[0] : 'all'} onValueChange={(value) => {
             if (value === 'all') {
               setSelectedTherapyMethods([]);
@@ -293,7 +341,13 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
                       <Checkbox
                         id={object.id}
                         checked={selectedObjects.includes(object.id)}
-                        onCheckedChange={() => handleMultiSelectChange(object.id, selectedObjects, setSelectedObjects)}
+                        onCheckedChange={() => {
+                          handleMultiSelectChange(object.id, selectedObjects, setSelectedObjects);
+                          // Clear sub-objects when main object selection changes
+                          if (!selectedObjects.includes(object.id)) {
+                            setSelectedSubObjects([]);
+                          }
+                        }}
                       />
                       <label htmlFor={object.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                         {object.label}
@@ -302,6 +356,29 @@ const PracticesSearchFilters: React.FC<PracticesSearchFiltersProps> = ({
                   ))}
                 </div>
               </div>
+
+              {/* Множественный выбор подобъектов воздействия */}
+              {availableSubObjects.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Подобъект воздействия (множественный выбор)
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {availableSubObjects.map((subObject) => (
+                      <div key={subObject.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={subObject.id}
+                          checked={selectedSubObjects.includes(subObject.id)}
+                          onCheckedChange={() => handleMultiSelectChange(subObject.id, selectedSubObjects, setSelectedSubObjects)}
+                        />
+                        <label htmlFor={subObject.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                          {subObject.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </CollapsibleContent>
         </Collapsible>

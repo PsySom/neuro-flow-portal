@@ -17,6 +17,7 @@ const Practices = () => {
   const [selectedTherapyMethods, setSelectedTherapyMethods] = useState<string[]>([]);
   const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
   const [selectedObjects, setSelectedObjects] = useState<string[]>([]);
+  const [selectedSubObjects, setSelectedSubObjects] = useState<string[]>([]);
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -53,6 +54,7 @@ const Practices = () => {
     setSelectedTherapyMethods([]);
     setSelectedProblems([]);
     setSelectedObjects([]);
+    setSelectedSubObjects([]);
     setSelectedDuration('all');
     setSelectedLevel('all');
     setSelectedCategory('all');
@@ -88,9 +90,13 @@ const Practices = () => {
     
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
 
+    // For now, sub-objects don't affect filtering since we don't have sub-object data in the content
+    // This can be extended when content items include sub-object information
+    const matchesSubObjects = true;
+
     return matchesSearch && matchesType && matchesTherapyMethods && 
-           matchesProblems && matchesObjects && matchesDuration && 
-           matchesLevel && matchesCategory;
+           matchesProblems && matchesObjects && matchesSubObjects &&
+           matchesDuration && matchesLevel && matchesCategory;
   });
 
   const activeFiltersCount = [
@@ -98,6 +104,7 @@ const Practices = () => {
     selectedTherapyMethods.length,
     selectedProblems.length,
     selectedObjects.length,
+    selectedSubObjects.length,
     selectedDuration !== 'all' ? 1 : 0,
     selectedLevel !== 'all' ? 1 : 0,
     selectedCategory !== 'all' ? 1 : 0
@@ -132,6 +139,8 @@ const Practices = () => {
           setSelectedProblems={setSelectedProblems}
           selectedObjects={selectedObjects}
           setSelectedObjects={setSelectedObjects}
+          selectedSubObjects={selectedSubObjects}
+          setSelectedSubObjects={setSelectedSubObjects}
           selectedDuration={selectedDuration}
           setSelectedDuration={setSelectedDuration}
           selectedLevel={selectedLevel}

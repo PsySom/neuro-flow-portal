@@ -41,6 +41,57 @@ export const objects = [
   { id: 'typological-tests', label: 'Типологические тесты' }
 ];
 
+export const subObjects = {
+  thoughts: [
+    { id: 'self-esteem-thoughts', label: 'Самооценка' },
+    { id: 'self-criticism-thoughts', label: 'Самокритика' },
+    { id: 'anxious-thoughts', label: 'Тревожные мысли' },
+    { id: 'intrusive-thoughts', label: 'Навязчивые мысли' },
+    { id: 'self-support', label: 'Самоподдержка' },
+    { id: 'beliefs', label: 'Убеждения' },
+    { id: 'rumination', label: 'Руминация' },
+    { id: 'catastrophizing', label: 'Катастрофизация' }
+  ],
+  emotions: [
+    { id: 'fear', label: 'Страх' },
+    { id: 'anxiety', label: 'Тревога' },
+    { id: 'worry', label: 'Беспокойство' },
+    { id: 'euphoria', label: 'Эйфория' },
+    { id: 'sadness', label: 'Грусть' },
+    { id: 'anger', label: 'Гнев' },
+    { id: 'shame', label: 'Стыд' },
+    { id: 'guilt', label: 'Вина' },
+    { id: 'joy', label: 'Радость' },
+    { id: 'loneliness', label: 'Одиночество' }
+  ],
+  states: [
+    { id: 'stress', label: 'Стресс' },
+    { id: 'anxiety-state', label: 'Тревога' },
+    { id: 'apathy', label: 'Апатия' },
+    { id: 'frustration', label: 'Фрустрация' },
+    { id: 'disorientation', label: 'Дезориентация' },
+    { id: 'affect', label: 'Аффект' },
+    { id: 'panic', label: 'Паника' },
+    { id: 'tension', label: 'Напряжение' },
+    { id: 'burnout', label: 'Выгорание' },
+    { id: 'overwhelm', label: 'Перегрузка' }
+  ],
+  behavior: [
+    { id: 'avoidance', label: 'Избегание' },
+    { id: 'procrastination', label: 'Прокрастинация' },
+    { id: 'compulsions', label: 'Компульсии' },
+    { id: 'addictive-behavior', label: 'Аддиктивное поведение' },
+    { id: 'aggression', label: 'Агрессия' },
+    { id: 'self-harm', label: 'Самоповреждение' },
+    { id: 'social-withdrawal', label: 'Социальная изоляция' },
+    { id: 'perfectionism', label: 'Перфекционизм' }
+  ],
+  'self-esteem': [],
+  'self-criticism': [],
+  'diagnostic-tests': [],
+  'typological-tests': []
+};
+
 export const practiceCategories = [
   { id: 'all', label: 'Все категории' },
   { id: 'clinical', label: 'Клинические (научно обоснованные)' },
