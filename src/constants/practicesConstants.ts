@@ -11,7 +11,7 @@ export const therapyMethods = [
   { id: 'act', label: 'ACT (Терапия принятия и ответственности)' },
   { id: 'dbt', label: 'DBT (Диалектическая поведенческая терапия)' },
   { id: 'mindfulness', label: 'Mindfulness (Осознанность)' },
-  { id: 'compassion', label: 'Терапия сострадания' },
+  { id: 'compassion', label: 'SFT Терапия сфокусированная на сострадании' },
   { id: 'gestalt', label: 'Гештальт-терапия' },
   { id: 'psychodynamic', label: 'Психодинамическая терапия' },
   { id: 'humanistic', label: 'Гуманистическая терапия' }
