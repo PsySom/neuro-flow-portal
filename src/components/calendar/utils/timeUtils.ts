@@ -21,17 +21,12 @@ export const activitiesOverlap = (activity1: Activity, activity2: Activity): boo
   return start1 < end2 && start2 < end1;
 };
 
-// Функция для поиска свободной трети для активности
-const findAvailableThird = (activity: Activity, existingLayouts: ActivityLayout[]): number => {
+// Функция для поиска свободной трети в конкретном временном слоте
+const findAvailableThirdInTimeSlot = (activity: Activity, existingLayouts: ActivityLayout[]): number => {
   // Найти все активности, которые пересекаются по времени с текущей
   const overlappingActivities = existingLayouts.filter(layout => 
     activitiesOverlap(activity, layout.activity)
   );
-  
-  // Если нет пересекающихся активностей, используем первую треть
-  if (overlappingActivities.length === 0) {
-    return 0;
-  }
   
   // Найти занятые трети среди пересекающихся активностей
   const occupiedThirds = overlappingActivities.map(layout => layout.column);
@@ -72,13 +67,14 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     const calculatedHeight = (durationMinutes / 60) * 60;
     const height = Math.max(calculatedHeight, 60);
     
-    // Найти доступную треть для этой активности
-    const column = findAvailableThird(activity, layouts);
+    // Сначала пытаемся найти свободную треть в этом временном слоте
+    let column = findAvailableThirdInTimeSlot(activity, layouts);
     
-    // Если нет доступной трети, пропускаем активность
+    // Если в текущем временном слоте нет свободных третей, 
+    // используем циклическое распределение по общему индексу
     if (column === -1) {
-      console.warn(`Cannot place activity "${activity.name}" - all thirds are occupied at this time`);
-      return;
+      column = index % 3;
+      console.warn(`Time slot full for activity "${activity.name}", using cyclic placement in third ${column + 1}`);
     }
     
     // Размещение по третям: каждая треть занимает треть ширины
