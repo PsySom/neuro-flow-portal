@@ -134,12 +134,16 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
           endMinutes += 24 * 60;
         }
         
+        // Позиция по вертикали - всегда соответствует времени начала
         const top = (startMinutes / 60) * 60; // 60px на час
+        
+        // Высота блока
         let height = ((endMinutes - startMinutes) / 60) * 60;
         
-        // Минимальная высота - размер часового блока
+        // Минимальная высота - размер часового блока (60px)
         height = Math.max(height, 60);
         
+        // Горизонтальное позиционирование
         const column = index % totalColumns;
         const left = column * columnWidth;
         
@@ -148,7 +152,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
           top: Math.max(0, top),
           height: Math.min(height, 1440 - Math.max(0, top)),
           left,
-          width: columnWidth,
+          width: columnWidth - 1, // -1% для отступа между блоками
           column,
           totalColumns
         });
@@ -219,10 +223,10 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
                   className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm`}
                   style={{ 
                     top: `${Math.max(0, top)}px`, 
-                    height: `${Math.min(height, 1440 - Math.max(0, top))}px`,
+                    height: `${Math.max(60, Math.min(height, 1440 - Math.max(0, top)))}px`, // Минимальная высота 60px
                     left: `${left}%`,
-                    width: `${width - 1}%`, // -1% для небольшого отступа между блоками
-                    minHeight: '60px'
+                    width: `${width}%`,
+                    zIndex: 1
                   }}
                 >
                   <div className="flex items-start justify-between h-full">
