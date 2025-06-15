@@ -60,8 +60,8 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       // Первый блок "Сон" (00:00-08:00) размещаем в первой колонке
       column = 0;
     } else if (activity.name === 'Сон' && activity.startTime === '23:00') {
-      // Второй блок "Сон" (23:00-00:00) размещаем во второй колонке
-      column = 1;
+      // Второй блок "Сон" (23:00-00:00) размещаем в третьей колонке
+      column = 2;
     } else {
       // Остальные активности размещаем в колонках по порядку
       column = (activityCounter % 3);
