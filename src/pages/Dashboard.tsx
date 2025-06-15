@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,7 @@ import {
   Zap,
   BookOpen
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import AIChatComponent from '@/components/dashboard/AIChatComponent';
 import ActivityTimelineComponent from '@/components/dashboard/ActivityTimelineComponent';
@@ -21,6 +20,8 @@ import QuickStatsComponent from '@/components/dashboard/QuickStatsComponent';
 import RecommendationsComponent from '@/components/dashboard/RecommendationsComponent';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Доброе утро';
@@ -54,7 +55,11 @@ const Dashboard = () => {
                   Календарь
                 </Button>
               </Link>
-              <Button variant="ghost" className="dark:text-gray-300">
+              <Button 
+                variant="ghost" 
+                className="dark:text-gray-300"
+                onClick={() => navigate('/practices')}
+              >
                 <Zap className="w-4 h-4 mr-2" />
                 Упражнения
               </Button>
