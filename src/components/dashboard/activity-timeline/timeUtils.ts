@@ -75,12 +75,12 @@ export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {
 
       // Для активностей, пересекающих полночь
       if (activityEndMinutes < activityStartMinutes) {
-        // Проверяем покрытие в первой части дня (00:00-XX:XX)
-        if (blockStartMinutes === 0 && activityEndMinutes >= blockEndMinutes) {
+        // Проверяем, покрывается ли слот утренней частью активности (00:00-XX:XX)
+        if (blockStartMinutes >= 0 && blockEndMinutes <= activityEndMinutes) {
           return true;
         }
-        // Проверяем покрытие во второй части дня (XX:XX-24:00)
-        if (blockEndMinutes === 24 * 60 && activityStartMinutes <= blockStartMinutes) {
+        // Проверяем, покрывается ли слот вечерней частью активности (XX:XX-24:00)
+        if (blockStartMinutes >= activityStartMinutes && blockEndMinutes <= 24 * 60) {
           return true;
         }
       } else {
