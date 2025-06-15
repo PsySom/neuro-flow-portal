@@ -21,7 +21,7 @@ interface ContentItem {
   tags: string[];
   color: string;
   instructions?: string;
-  questions?: string[];
+  questions?: string[] | { question: string; options: string[]; }[];
   keys?: string;
   responseFormat?: string;
 }

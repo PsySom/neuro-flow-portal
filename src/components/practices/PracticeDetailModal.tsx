@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ interface ContentItem {
   tags: string[];
   color: string;
   instructions?: string;
-  questions?: any[];
+  questions?: string[] | { question: string; options: string[]; }[];
   keys?: string;
   responseFormat?: string;
 }
