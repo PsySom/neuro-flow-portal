@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,8 +35,8 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
   const activityLayouts = calculateActivityLayouts(visibleActivities);
   const timeMarkers = generateTimeMarkers();
 
-  // Получаем уникальные типы активностей
-  const activityTypes = Array.from(new Set(activities.map(activity => activity.type)));
+  // Получаем все возможные типы активностей
+  const allActivityTypes = ['восстановление', 'нейтральная', 'смешанная', 'задача'];
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -96,29 +95,29 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
 
   return (
     <>
-      <div className="flex gap-6">
-        {/* Левая панель с календарем и фильтрами */}
-        <div className="w-80 space-y-4">
-          {/* Миниатюра календаря */}
+      <div className="flex gap-4">
+        {/* Левая панель с календарем и фильтрами - уменьшена на 20% */}
+        <div className="w-64 space-y-4 flex-shrink-0">
+          {/* Миниатюра календаря - компактнее */}
           <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-medium mb-3 text-gray-700">Календарь</h3>
+            <CardContent className="p-3">
+              <h3 className="text-xs font-medium mb-2 text-gray-700">Календарь</h3>
               <Calendar
                 mode="single"
                 selected={currentDate}
                 month={currentDate}
-                className="rounded-md border-0 p-0"
+                className="rounded-md border-0 p-0 scale-90 origin-top-left"
                 classNames={{
-                  months: "flex flex-col space-y-4",
-                  month: "space-y-4",
+                  months: "flex flex-col space-y-2",
+                  month: "space-y-2",
                   caption: "flex justify-center pt-1 relative items-center",
-                  caption_label: "text-sm font-medium",
+                  caption_label: "text-xs font-medium",
                   table: "w-full border-collapse space-y-1",
                   head_row: "flex",
-                  head_cell: "text-muted-foreground rounded-md w-8 font-normal text-xs",
-                  row: "flex w-full mt-2",
-                  cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
-                  day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+                  head_cell: "text-muted-foreground rounded-md w-6 font-normal text-xs",
+                  row: "flex w-full mt-1",
+                  cell: "relative p-0 text-center text-xs focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
+                  day: "h-6 w-6 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground text-xs",
                   day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                   day_today: "bg-accent text-accent-foreground font-semibold",
                   day_outside: "text-muted-foreground opacity-50",
@@ -128,36 +127,39 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
             </CardContent>
           </Card>
 
-          {/* Фильтры по типам активностей */}
+          {/* Фильтры по типам активностей - все типы */}
           <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-medium mb-3 text-gray-700">Фильтры активностей</h3>
-              <div className="space-y-3">
-                {activityTypes.map((type) => (
-                  <div key={type} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={`filter-${type}`}
-                      checked={!filteredTypes.has(type)}
-                      onCheckedChange={(checked) => handleTypeFilterChange(type, checked as boolean)}
-                      className="w-4 h-4"
-                    />
-                    <label
-                      htmlFor={`filter-${type}`}
-                      className="flex-1 flex items-center justify-between cursor-pointer"
-                    >
-                      <span className="text-sm text-gray-700">{getTypeDisplayName(type)}</span>
-                      <Badge variant="secondary" className={`text-xs px-2 py-1 ${getTypeColor(type)}`}>
-                        {activities.filter(a => a.type === type).length}
-                      </Badge>
-                    </label>
-                  </div>
-                ))}
+            <CardContent className="p-3">
+              <h3 className="text-xs font-medium mb-2 text-gray-700">Фильтры активностей</h3>
+              <div className="space-y-2">
+                {allActivityTypes.map((type) => {
+                  const count = activities.filter(a => a.type === type).length;
+                  return (
+                    <div key={type} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`filter-${type}`}
+                        checked={!filteredTypes.has(type)}
+                        onCheckedChange={(checked) => handleTypeFilterChange(type, checked as boolean)}
+                        className="w-3 h-3"
+                      />
+                      <label
+                        htmlFor={`filter-${type}`}
+                        className="flex-1 flex items-center justify-between cursor-pointer"
+                      >
+                        <span className="text-xs text-gray-700">{getTypeDisplayName(type)}</span>
+                        <Badge variant="secondary" className={`text-xs px-1 py-0 ${getTypeColor(type)}`}>
+                          {count}
+                        </Badge>
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Основная область календаря */}
+        {/* Основная область календаря - расширена */}
         <Card className="flex-1 h-[700px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
