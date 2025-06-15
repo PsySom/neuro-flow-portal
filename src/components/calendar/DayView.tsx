@@ -24,6 +24,16 @@ interface DayViewProps {
   currentDate: Date;
 }
 
+interface ActivityLayout {
+  activity: Activity;
+  top: number;
+  height: number;
+  left: number;
+  width: number;
+  column: number;
+  totalColumns: number;
+}
+
 const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
   const baseActivities: Activity[] = [
     { id: 2, name: 'Пробуждение', emoji: '☀️', startTime: '08:00', endTime: '08:30', duration: '30 мин', color: 'bg-yellow-200', importance: 3, completed: true, type: 'восстановление', needEmoji: '⚡' },
@@ -50,24 +60,105 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     minute: '2-digit' 
   });
 
-  // Функция для получения позиции активности в сетке времени
-  const getActivityPosition = (startTime: string, endTime: string) => {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    
-    let startMinutes = startHour * 60 + startMinute;
-    let endMinutes = endHour * 60 + endMinute;
+  // Функция для получения времени в минутах от начала дня
+  const getTimeInMinutes = (timeString: string) => {
+    const [hour, minute] = timeString.split(':').map(Number);
+    return hour * 60 + minute;
+  };
+
+  // Функция для проверки пересечения активностей
+  const activitiesOverlap = (activity1: Activity, activity2: Activity) => {
+    const start1 = getTimeInMinutes(activity1.startTime);
+    let end1 = getTimeInMinutes(activity1.endTime);
+    const start2 = getTimeInMinutes(activity2.startTime);
+    let end2 = getTimeInMinutes(activity2.endTime);
     
     // Обработка активностей, пересекающих полночь
-    if (endMinutes < startMinutes) {
-      endMinutes += 24 * 60; // Добавляем 24 часа для следующего дня
-    }
+    if (end1 < start1) end1 += 24 * 60;
+    if (end2 < start2) end2 += 24 * 60;
     
-    const top = (startMinutes / 60) * 60; // 60px на час
-    const height = ((endMinutes - startMinutes) / 60) * 60;
-    
-    return { top, height };
+    return start1 < end2 && start2 < end1;
   };
+
+  // Функция для расчета раскладки активностей
+  const calculateActivityLayouts = (): ActivityLayout[] => {
+    const layouts: ActivityLayout[] = [];
+    
+    // Группируем пересекающиеся активности
+    const activityGroups: Activity[][] = [];
+    const processed = new Set<number>();
+    
+    baseActivities.forEach(activity => {
+      if (processed.has(activity.id)) return;
+      
+      const group: Activity[] = [activity];
+      processed.add(activity.id);
+      
+      // Находим все активности, которые пересекаются с текущей или с активностями группы
+      let foundNew = true;
+      while (foundNew) {
+        foundNew = false;
+        baseActivities.forEach(otherActivity => {
+          if (processed.has(otherActivity.id)) return;
+          
+          // Проверяем пересечение с любой активностью в группе
+          const overlapsWithGroup = group.some(groupActivity => 
+            activitiesOverlap(groupActivity, otherActivity)
+          );
+          
+          if (overlapsWithGroup) {
+            group.push(otherActivity);
+            processed.add(otherActivity.id);
+            foundNew = true;
+          }
+        });
+      }
+      
+      activityGroups.push(group);
+    });
+    
+    // Для каждой группы рассчитываем позиции
+    activityGroups.forEach(group => {
+      // Сортируем по времени начала
+      group.sort((a, b) => getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime));
+      
+      const totalColumns = Math.min(group.length, 4);
+      const columnWidth = 100 / totalColumns;
+      
+      group.forEach((activity, index) => {
+        const startMinutes = getTimeInMinutes(activity.startTime);
+        let endMinutes = getTimeInMinutes(activity.endTime);
+        
+        // Обработка активностей, пересекающих полночь
+        if (endMinutes < startMinutes) {
+          endMinutes += 24 * 60;
+        }
+        
+        const top = (startMinutes / 60) * 60; // 60px на час
+        let height = ((endMinutes - startMinutes) / 60) * 60;
+        
+        // Минимальная высота - размер часового блока
+        height = Math.max(height, 60);
+        
+        const column = index % totalColumns;
+        const left = column * columnWidth;
+        
+        layouts.push({
+          activity,
+          top: Math.max(0, top),
+          height: Math.min(height, 1440 - Math.max(0, top)),
+          left,
+          width: columnWidth,
+          column,
+          totalColumns
+        });
+      });
+    });
+    
+    return layouts;
+  };
+
+  const activityLayouts = calculateActivityLayouts();
 
   // Генерируем часовые отметки
   const timeMarkers = Array.from({ length: 25 }, (_, i) => {
@@ -118,61 +209,61 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
             ))}
 
             {/* Активности */}
-            {baseActivities.map((activity) => {
-              const { top, height } = getActivityPosition(activity.startTime, activity.endTime);
-              
+            {activityLayouts.map(({ activity, top, height, left, width }) => {
               // Пропускаем активности, которые выходят за пределы дня
               if (top < 0 || top > 1440) return null;
               
               return (
                 <div
                   key={activity.id}
-                  className={`absolute left-0 right-4 ${activity.color} rounded-lg p-3 border border-gray-200 shadow-sm`}
+                  className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm`}
                   style={{ 
                     top: `${Math.max(0, top)}px`, 
                     height: `${Math.min(height, 1440 - Math.max(0, top))}px`,
-                    minHeight: '40px'
+                    left: `${left}%`,
+                    width: `${width - 1}%`, // -1% для небольшого отступа между блоками
+                    minHeight: '60px'
                   }}
                 >
                   <div className="flex items-start justify-between h-full">
-                    <div className="flex items-start space-x-2 flex-1">
+                    <div className="flex items-start space-x-1 flex-1 min-w-0">
                       <Checkbox 
                         checked={activity.completed}
-                        className="w-4 h-4 rounded-sm mt-1 flex-shrink-0"
+                        className="w-3 h-3 rounded-sm mt-1 flex-shrink-0"
                       />
                       <div className="flex flex-col space-y-1 min-w-0 flex-1">
-                        <span className="font-medium text-sm truncate">{activity.name}</span>
+                        <span className="font-medium text-xs truncate">{activity.name}</span>
                         
-                        <div className="flex items-center space-x-2 text-xs text-gray-600">
-                          <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
+                        <div className="flex items-center space-x-1 text-xs text-gray-600">
+                          <span className="font-medium text-xs">{activity.startTime}-{activity.endTime}</span>
                           <div className="flex items-center">
-                            {Array.from({ length: activity.importance }, (_, i) => (
+                            {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
                               <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
                             ))}
                           </div>
                         </div>
 
                         <div className="flex items-center space-x-1">
-                          <span className="text-lg">{activity.emoji}</span>
+                          <span className="text-sm">{activity.emoji}</span>
                           {activity.type === 'восстановление' && activity.needEmoji && (
-                            <span className="text-sm">{activity.needEmoji}</span>
+                            <span className="text-xs">{activity.needEmoji}</span>
                           )}
-                          <Badge variant="secondary" className="text-xs">
-                            {activity.type}
+                          <Badge variant="secondary" className="text-xs px-1 py-0">
+                            {activity.type.slice(0, 4)}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-1 flex-shrink-0">
-                      <Button size="icon" variant="ghost" className="h-6 w-6">
-                        <Info className="w-3 h-3" />
+                    <div className="flex flex-col space-y-1 flex-shrink-0">
+                      <Button size="icon" variant="ghost" className="h-4 w-4">
+                        <Info className="w-2 h-2" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-6 w-6">
-                        <Edit className="w-3 h-3" />
+                      <Button size="icon" variant="ghost" className="h-4 w-4">
+                        <Edit className="w-2 h-2" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-6 w-6">
-                        <Trash2 className="w-3 h-3 text-red-500" />
+                      <Button size="icon" variant="ghost" className="h-4 w-4">
+                        <Trash2 className="w-2 h-2 text-red-500" />
                       </Button>
                     </div>
                   </div>
