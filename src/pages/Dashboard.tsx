@@ -48,10 +48,12 @@ const Dashboard = () => {
                 <BookOpen className="w-4 h-4 mr-2" />
                 Дневники
               </Button>
-              <Button variant="ghost" className="dark:text-gray-300">
-                <Calendar className="w-4 h-4 mr-2" />
-                Календарь
-              </Button>
+              <Link to="/calendar">
+                <Button variant="ghost" className="dark:text-gray-300">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Календарь
+                </Button>
+              </Link>
               <Button variant="ghost" className="dark:text-gray-300">
                 <Zap className="w-4 h-4 mr-2" />
                 Упражнения
