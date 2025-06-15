@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,7 @@ interface ContentItem {
   tags: string[];
   color: string;
   instructions?: string;
-  questions?: string[];
+  questions?: any[];
   keys?: string;
   responseFormat?: string;
 }
@@ -93,26 +92,51 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
       return;
     }
 
-    // Simple scoring system - in real implementation this would be more sophisticated
     let score = 0;
-    Object.values(answers).forEach(answer => {
-      if (answer === 'да' || answer === 'часто' || answer === 'согласен') {
-        score += 1;
-      }
-    });
 
-    const percentage = (score / totalQuestions) * 100;
-    let result = '';
-    
-    if (percentage >= 70) {
-      result = 'Высокий уровень - рекомендуется обратиться к специалисту';
-    } else if (percentage >= 40) {
-      result = 'Средний уровень - стоит обратить внимание на эту область';
+    // Специальная обработка для Шкалы депрессии Бека
+    if (item.title.includes("Шкала депрессии Бека")) {
+      Object.values(answers).forEach(answer => {
+        const answerIndex = parseInt(answer);
+        if (!isNaN(answerIndex)) {
+          score += answerIndex;
+        }
+      });
+
+      let interpretation = '';
+      if (score <= 13) {
+        interpretation = 'Минимальная депрессия - показатели в пределах нормы';
+      } else if (score <= 19) {
+        interpretation = 'Легкая депрессия - рекомендуется наблюдение и поддержка';
+      } else if (score <= 28) {
+        interpretation = 'Умеренная депрессия - рекомендуется консультация специалиста';
+      } else {
+        interpretation = 'Тяжелая депрессия - настоятельно рекомендуется обратиться к специалисту';
+      }
+
+      setTestResult(`Результат: ${score} баллов из 63 возможных\n\nИнтерпретация: ${interpretation}\n\nОбратите внимание: данный тест носит информационный характер и не заменяет профессиональную диагностику.`);
     } else {
-      result = 'Низкий уровень - показатели в норме';
+      // Обычная логика для других тестов
+      Object.values(answers).forEach(answer => {
+        if (answer === 'да' || answer === 'часто' || answer === 'согласен') {
+          score += 1;
+        }
+      });
+
+      const percentage = (score / totalQuestions) * 100;
+      let result = '';
+      
+      if (percentage >= 70) {
+        result = 'Высокий уровень - рекомендуется обратиться к специалисту';
+      } else if (percentage >= 40) {
+        result = 'Средний уровень - стоит обратить внимание на эту область';
+      } else {
+        result = 'Низкий уровень - показатели в норме';
+      }
+
+      setTestResult(`Результат: ${score}/${totalQuestions} баллов (${percentage.toFixed(0)}%)\n${result}`);
     }
 
-    setTestResult(`Результат: ${score}/${totalQuestions} баллов (${percentage.toFixed(0)}%)\n${result}`);
     setShowResult(true);
   };
 
@@ -241,33 +265,63 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
                   </div>
                 )}
 
-                <div className="space-y-4">
-                  {item.questions.map((question, index) => (
+                <div className="space-y-6">
+                  {item.questions.map((questionData, index) => (
                     <div key={index} className="border rounded-lg p-4">
-                      <h5 className="font-medium mb-3">{index + 1}. {question}</h5>
-                      <RadioGroup
-                        value={answers[index] || ''}
-                        onValueChange={(value) => handleAnswerChange(index, value)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="да" id={`q${index}-yes`} />
-                          <Label htmlFor={`q${index}-yes`}>Да</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="нет" id={`q${index}-no`} />
-                          <Label htmlFor={`q${index}-no`}>Нет</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="иногда" id={`q${index}-sometimes`} />
-                          <Label htmlFor={`q${index}-sometimes`}>Иногда</Label>
-                        </div>
-                      </RadioGroup>
+                      {/* Обработка разных форматов вопросов */}
+                      {typeof questionData === 'string' ? (
+                        // Старый формат - простые строки
+                        <>
+                          <h5 className="font-medium mb-3">{index + 1}. {questionData}</h5>
+                          <RadioGroup
+                            value={answers[index] || ''}
+                            onValueChange={(value) => handleAnswerChange(index, value)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="да" id={`q${index}-yes`} />
+                              <Label htmlFor={`q${index}-yes`}>Да</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="нет" id={`q${index}-no`} />
+                              <Label htmlFor={`q${index}-no`}>Нет</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="иногда" id={`q${index}-sometimes`} />
+                              <Label htmlFor={`q${index}-sometimes`}>Иногда</Label>
+                            </div>
+                          </RadioGroup>
+                        </>
+                      ) : (
+                        // Новый формат - объекты с вопросом и вариантами
+                        <>
+                          <h5 className="font-medium mb-3">{index + 1}. {questionData.question}</h5>
+                          <RadioGroup
+                            value={answers[index] || ''}
+                            onValueChange={(value) => handleAnswerChange(index, value)}
+                          >
+                            {questionData.options.map((option: string, optionIndex: number) => (
+                              <div key={optionIndex} className="flex items-start space-x-2 mb-2">
+                                <RadioGroupItem 
+                                  value={optionIndex.toString()} 
+                                  id={`q${index}-option${optionIndex}`} 
+                                />
+                                <Label 
+                                  htmlFor={`q${index}-option${optionIndex}`}
+                                  className="text-sm leading-relaxed cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
 
                 {!showResult && (
-                  <Button onClick={calculateTestResult} className="mt-4 w-full">
+                  <Button onClick={calculateTestResult} className="mt-6 w-full">
                     Получить результат
                   </Button>
                 )}
@@ -288,7 +342,7 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
                   <div>
                     <h4 className="font-medium mb-2">Инструкция:</h4>
                     <p className="text-gray-700">
-                      Следуйте указаниям ниже для выполнения упражнения "{item.title}".
+                      {item.instructions || `Следуйте указаниям ниже для выполнения упражнения "${item.title}".`}
                     </p>
                   </div>
                   <div>
