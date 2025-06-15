@@ -12,6 +12,25 @@ interface ActivityCardProps {
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
+  const getDisplayTime = () => {
+    const activityStartMinutes = timeToMinutes(activity.startTime);
+    const activityEndMinutes = timeToMinutes(activity.endTime);
+    
+    // Если активность пересекает полночь
+    if (activityEndMinutes < activityStartMinutes) {
+      // В первом блоке дня (00:00-03:00) показываем время от 00:00 до окончания
+      if (startHour === 0) {
+        return `00:00-${activity.endTime}`;
+      }
+      // В последних блоках дня показываем время от начала до 24:00
+      if (startHour >= 21) {
+        return `${activity.startTime}-24:00`;
+      }
+    }
+    
+    return `${activity.startTime}-${activity.endTime}`;
+  };
+
   return (
     <div 
       className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[85px] flex flex-col justify-between`}
@@ -25,15 +44,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
           <div className="flex flex-col space-y-1">
             <span className="font-medium text-sm leading-tight">
               {activity.name}
-              {timeToMinutes(activity.endTime) < timeToMinutes(activity.startTime) && (
-                startHour === 0 ? 
-                ` (00:00-${activity.endTime})` : 
-                startHour >= 21 ? ` (${activity.startTime}-24:00)` : ''
-              )}
             </span>
             
             <div className="flex items-center space-x-4 text-xs text-gray-600">
-              <span>[{activity.startTime}-{activity.endTime}]</span>
+              <span>[{getDisplayTime()}]</span>
               <span>[{activity.duration}]</span>
               <div className="flex items-center">
                 {Array.from({ length: activity.importance }, (_, i) => (

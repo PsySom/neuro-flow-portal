@@ -33,14 +33,17 @@ export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {
       const blockStartMinutes = startHour * 60;
       const blockEndMinutes = endHour * 60;
       
+      // Проверяем активности, которые пересекают полночь
       if (activityEndMinutes < activityStartMinutes) {
+        // Активность пересекает полночь (например, сон с 22:30 до 08:00)
         return (
-          (activityStartMinutes >= blockStartMinutes && activityStartMinutes < blockEndMinutes) ||
-          (activityEndMinutes > blockStartMinutes && activityEndMinutes <= blockEndMinutes) ||
-          (blockStartMinutes < 24 * 60 && blockEndMinutes > 0 && activityStartMinutes >= blockStartMinutes) ||
-          (blockStartMinutes < activityEndMinutes && blockEndMinutes > 0)
+          // Часть активности в текущих сутках (например, 22:30-24:00)
+          (activityStartMinutes < 24 * 60 && activityStartMinutes < blockEndMinutes && blockStartMinutes < 24 * 60) ||
+          // Часть активности в следующих сутках (например, 00:00-08:00)
+          (activityEndMinutes > 0 && blockStartMinutes < activityEndMinutes && blockEndMinutes > 0)
         );
       } else {
+        // Обычная активность в пределах одних суток
         return (
           activityStartMinutes < blockEndMinutes && activityEndMinutes > blockStartMinutes
         );
@@ -61,12 +64,19 @@ export const isActivityStart = (activity: Activity, startHour: number): boolean 
   const activityEndMinutes = timeToMinutes(activity.endTime);
   const activityStartMinutes = timeToMinutes(activity.startTime);
   
+  // Если активность пересекает полночь
   if (activityEndMinutes < activityStartMinutes) {
-    return (
-      (activityStartHour >= startHour && activityStartHour < startHour + 3) ||
-      (startHour === 0 && activityEndMinutes <= (startHour + 3) * 60)
-    );
+    // Показываем в блоке, где активность начинается (например, в 21:00-24:00 для сна, начинающегося в 22:30)
+    if (activityStartHour >= startHour && activityStartHour < startHour + 3) {
+      return true;
+    }
+    // Также показываем в первом блоке дня (00:00-03:00) для активностей, которые продолжаются после полуночи
+    if (startHour === 0 && activityEndMinutes > 0) {
+      return true;
+    }
+    return false;
   } else {
+    // Обычная активность
     return activityStartHour >= startHour && activityStartHour < startHour + 3;
   }
 };

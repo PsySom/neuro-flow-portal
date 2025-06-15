@@ -25,7 +25,7 @@ interface DayViewProps {
 }
 
 const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
-  const activities: Activity[] = [
+  const baseActivities: Activity[] = [
     { id: 2, name: 'Пробуждение', emoji: '☀️', startTime: '08:00', endTime: '08:30', duration: '30 мин', color: 'bg-yellow-200', importance: 3, completed: true, type: 'восстановление', needEmoji: '⚡' },
     { id: 3, name: 'Зарядка', emoji: '🏃‍♂️', startTime: '08:30', endTime: '09:30', duration: '1 ч', color: 'bg-green-200', importance: 4, completed: true, type: 'восстановление', needEmoji: '💪' },
     { id: 4, name: 'Душ, завтрак, гигиена', emoji: '🚿', startTime: '09:30', endTime: '10:00', duration: '30 мин', color: 'bg-blue-200', importance: 4, completed: true, type: 'восстановление', needEmoji: '🧘' },
@@ -42,8 +42,31 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     { id: 15, name: 'Просмотр фильма', emoji: '🎬', startTime: '20:00', endTime: '21:30', duration: '1.5 ч', color: 'bg-violet-200', importance: 2, completed: false, type: 'восстановление', needEmoji: '🎭' },
     { id: 16, name: 'Душ, гигиена', emoji: '🚿', startTime: '21:30', endTime: '22:00', duration: '30 мин', color: 'bg-blue-200', importance: 4, completed: false, type: 'восстановление', needEmoji: '🧘' },
     { id: 17, name: 'Заполнение дневника', emoji: '📝', startTime: '22:00', endTime: '22:30', duration: '30 мин', color: 'bg-purple-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🧠' },
-    { id: 1, name: 'Сон', emoji: '😴', startTime: '22:30', endTime: '06:30', duration: '8 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
+    { id: 1, name: 'Сон', emoji: '😴', startTime: '22:30', endTime: '08:00', duration: '9.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
   ];
+
+  // Создаем дополнительные записи для активностей, пересекающих полночь
+  const activities: Activity[] = [...baseActivities];
+  
+  // Добавляем отдельную запись сна для утреннего времени
+  const sleepActivity = baseActivities.find(a => a.id === 1);
+  if (sleepActivity) {
+    activities.push({
+      ...sleepActivity,
+      id: 18, // Уникальный ID для утреннего блока сна
+      name: 'Сон (утро)',
+      startTime: '00:00',
+      endTime: '08:00',
+      duration: '8 ч'
+    });
+  }
+
+  // Сортируем активности по времени начала
+  activities.sort((a, b) => {
+    const timeA = a.startTime.split(':').map(Number);
+    const timeB = b.startTime.split(':').map(Number);
+    return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
+  });
 
   const currentTimeString = new Date().toLocaleTimeString('ru-RU', { 
     hour: '2-digit', 
