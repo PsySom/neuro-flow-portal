@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Timer, Users, Share2 } from 'lucide-react';
+import { Play, Timer, Users, Share2, Calendar, Clock } from 'lucide-react';
 import { contentTypes } from '@/constants/practicesConstants';
 
 interface ContentItem {
@@ -33,6 +33,16 @@ interface PracticeContentCardProps {
 }
 
 const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleShare, onOpenDetail }) => {
+  const handleSchedule = (title: string) => {
+    console.log(`Запланировать: ${title}`);
+    // Здесь будет логика планирования упражнения
+  };
+
+  const handlePostpone = (title: string) => {
+    console.log(`Отложить: ${title}`);
+    // Здесь будет логика откладывания упражнения
+  };
+
   return (
     <Card className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50">
       <CardContent className="p-6">
@@ -86,12 +96,28 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
               )}
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 flex-wrap gap-2">
               <Button 
                 className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}
                 onClick={() => onOpenDetail(item)}
               >
                 Попробовать сейчас
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleSchedule(item.title)}
+              >
+                <Calendar className="w-4 h-4 mr-1" />
+                Запланировать
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePostpone(item.title)}
+              >
+                <Clock className="w-4 h-4 mr-1" />
+                Отложить
               </Button>
               <Button 
                 variant="outline" 

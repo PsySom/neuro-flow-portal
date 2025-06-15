@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Timer, Users, ArrowRight, Share2 } from 'lucide-react';
+import { Play, Timer, Users, ArrowRight, Share2, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const PracticesPreview = () => {
@@ -63,6 +64,21 @@ const PracticesPreview = () => {
   const startExercise = (exerciseId) => {
     setActiveExercise(exerciseId);
     // Здесь была бы логика запуска упражнения
+  };
+
+  const handleSchedule = (title) => {
+    console.log(`Запланировать: ${title}`);
+    // Здесь будет логика планирования упражнения
+  };
+
+  const handlePostpone = (title) => {
+    console.log(`Отложить: ${title}`);
+    // Здесь будет логика откладывания упражнения
+  };
+
+  const handleShare = (title) => {
+    console.log(`Поделиться: ${title}`);
+    // Здесь будет логика поделиться упражнением
   };
 
   return (
@@ -145,14 +161,34 @@ const PracticesPreview = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 flex-wrap gap-2">
                       <Button 
                         onClick={() => startExercise(exercise.id)}
                         className={`bg-gradient-to-r ${exercise.color} hover:shadow-lg transition-all duration-200`}
                       >
                         Попробовать сейчас
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleSchedule(exercise.title)}
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Запланировать
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handlePostpone(exercise.title)}
+                      >
+                        <Clock className="w-4 h-4 mr-1" />
+                        Отложить
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleShare(exercise.title)}
+                      >
                         <Share2 className="w-4 h-4 mr-1" />
                         Поделиться
                       </Button>
