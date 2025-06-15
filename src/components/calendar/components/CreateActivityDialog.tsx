@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -14,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Star, Clock, Repeat, Bell, Palette } from 'lucide-react';
+import { CalendarIcon, Star, Clock, Repeat, Bell, Palette, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -47,6 +46,9 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [note, setNote] = useState('');
   const [status, setStatus] = useState('pending');
 
+  // Validation errors
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+
   const activityTypes = [
     { value: 'восстановление', label: 'Восстанавливающая (забота о себе и своих потребностях, отдых)' },
     { value: 'нейтральная', label: 'Нейтральная' },
@@ -73,14 +75,50 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     'bg-gray-200', 'bg-emerald-200', 'bg-teal-200', 'bg-cyan-200'
   ];
 
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+
+    if (!activityName.trim()) {
+      newErrors.activityName = 'Название активности обязательно для заполнения';
+    }
+
+    if (!activityType) {
+      newErrors.activityType = 'Тип активности обязателен для выбора';
+    }
+
+    if (!startTime) {
+      newErrors.startTime = 'Время начала обязательно для заполнения';
+    }
+
+    if (!endTime) {
+      newErrors.endTime = 'Время окончания обязательно для заполнения';
+    }
+
+    if (!selectedDate) {
+      newErrors.selectedDate = 'Дата обязательна для выбора';
+    }
+
+    // Проверка логики времени
+    if (startTime && endTime) {
+      const start = new Date(`2000-01-01 ${startTime}`);
+      const end = new Date(`2000-01-01 ${endTime}`);
+      if (start >= end) {
+        newErrors.timeLogic = 'Время окончания должно быть позже времени начала';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
-    if (!activityName || !activityType || !startTime || !endTime) {
+    if (!validateForm()) {
       return;
     }
 
     const newActivity = {
       id: Date.now(),
-      name: activityName,
+      name: activityName.trim(),
       emoji: getEmojiByType(activityType),
       startTime,
       endTime,
@@ -111,6 +149,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setSelectedColor('bg-blue-200');
     setNote('');
     setStatus('pending');
+    setErrors({});
     onOpenChange(false);
   };
 
@@ -155,20 +194,46 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
             <div className="space-y-6">
               {/* Название активности */}
               <div className="space-y-2">
-                <Label htmlFor="activity-name">Название активности</Label>
+                <Label htmlFor="activity-name" className="flex items-center">
+                  Название активности
+                  <span className="text-red-500 ml-1">*</span>
+                </Label>
                 <Input
                   id="activity-name"
                   value={activityName}
-                  onChange={(e) => setActivityName(e.target.value)}
+                  onChange={(e) => {
+                    setActivityName(e.target.value);
+                    if (errors.activityName && e.target.value.trim()) {
+                      setErrors(prev => ({ ...prev, activityName: '' }));
+                    }
+                  }}
                   placeholder="Введите название активности..."
+                  className={errors.activityName ? 'border-red-500' : ''}
                 />
+                {errors.activityName && (
+                  <div className="flex items-center text-red-500 text-sm">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.activityName}
+                  </div>
+                )}
               </div>
 
               {/* Тип активности */}
               <div className="space-y-2">
-                <Label>Тип активности</Label>
-                <Select value={activityType} onValueChange={setActivityType}>
-                  <SelectTrigger>
+                <Label className="flex items-center">
+                  Тип активности
+                  <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Select 
+                  value={activityType} 
+                  onValueChange={(value) => {
+                    setActivityType(value);
+                    if (errors.activityType && value) {
+                      setErrors(prev => ({ ...prev, activityType: '' }));
+                    }
+                  }}
+                >
+                  <SelectTrigger className={errors.activityType ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Выберите тип активности..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -179,48 +244,99 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.activityType && (
+                  <div className="flex items-center text-red-500 text-sm">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.activityType}
+                  </div>
+                )}
               </div>
 
               {/* Время начала и окончания */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="start-time">Время начала</Label>
+                  <Label htmlFor="start-time" className="flex items-center">
+                    Время начала
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="start-time"
                       type="time"
                       value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="pl-10"
+                      onChange={(e) => {
+                        setStartTime(e.target.value);
+                        if (errors.startTime && e.target.value) {
+                          setErrors(prev => ({ ...prev, startTime: '' }));
+                        }
+                        if (errors.timeLogic) {
+                          setErrors(prev => ({ ...prev, timeLogic: '' }));
+                        }
+                      }}
+                      className={cn("pl-10", (errors.startTime || errors.timeLogic) ? 'border-red-500' : '')}
                     />
                   </div>
+                  {errors.startTime && (
+                    <div className="flex items-center text-red-500 text-sm">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.startTime}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-time">Время окончания</Label>
+                  <Label htmlFor="end-time" className="flex items-center">
+                    Время окончания
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="end-time"
                       type="time"
                       value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="pl-10"
+                      onChange={(e) => {
+                        setEndTime(e.target.value);
+                        if (errors.endTime && e.target.value) {
+                          setErrors(prev => ({ ...prev, endTime: '' }));
+                        }
+                        if (errors.timeLogic) {
+                          setErrors(prev => ({ ...prev, timeLogic: '' }));
+                        }
+                      }}
+                      className={cn("pl-10", (errors.endTime || errors.timeLogic) ? 'border-red-500' : '')}
                     />
                   </div>
+                  {errors.endTime && (
+                    <div className="flex items-center text-red-500 text-sm">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.endTime}
+                    </div>
+                  )}
                 </div>
               </div>
+              
+              {errors.timeLogic && (
+                <div className="flex items-center text-red-500 text-sm">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.timeLogic}
+                </div>
+              )}
 
               {/* Выбор даты */}
               <div className="space-y-2">
-                <Label>Дата</Label>
+                <Label className="flex items-center">
+                  Дата
+                  <span className="text-red-500 ml-1">*</span>
+                </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !selectedDate && "text-muted-foreground"
+                        !selectedDate && "text-muted-foreground",
+                        errors.selectedDate ? 'border-red-500' : ''
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -231,12 +347,23 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     <Calendar
                       mode="single"
                       selected={selectedDate}
-                      onSelect={setSelectedDate}
+                      onSelect={(date) => {
+                        setSelectedDate(date);
+                        if (errors.selectedDate && date) {
+                          setErrors(prev => ({ ...prev, selectedDate: '' }));
+                        }
+                      }}
                       initialFocus
                       className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.selectedDate && (
+                  <div className="flex items-center text-red-500 text-sm">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.selectedDate}
+                  </div>
+                )}
               </div>
 
               {/* Приоритет */}
