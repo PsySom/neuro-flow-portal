@@ -36,6 +36,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout }) => {
     setIsDialogOpen(true);
   };
 
+  // Функция для получения отображаемого типа активности
+  const getDisplayType = (type: string) => {
+    switch (type) {
+      case 'восстановление': return 'восстанавливающая';
+      case 'нейтральная': return 'нейтральная';
+      case 'смешанная': return 'смешанная';
+      case 'задача': return 'истощающая';
+      default: return type;
+    }
+  };
+
   return (
     <>
       <div
@@ -107,7 +118,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout }) => {
               <span className="text-xs">{activity.needEmoji}</span>
             )}
             <Badge variant="secondary" className="text-xs px-1 py-0">
-              {activity.type.slice(0, 4)}
+              {getDisplayType(activity.type)}
             </Badge>
           </div>
         </div>
