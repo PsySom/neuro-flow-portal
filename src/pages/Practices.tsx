@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -6,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Play, 
   Timer, 
@@ -23,16 +25,77 @@ import {
   BookOpen,
   ChevronRight,
   Clock,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Practices = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedTherapyMethods, setSelectedTherapyMethods] = useState<string[]>([]);
+  const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
+  const [selectedObjects, setSelectedObjects] = useState<string[]>([]);
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const { toast } = useToast();
+
+  // Типы контента
+  const contentTypes = [
+    { id: 'all', label: 'Все типы' },
+    { id: 'exercises', label: 'Упражнения' },
+    { id: 'practices', label: 'Практики' },
+    { id: 'tests', label: 'Тесты' }
+  ];
+
+  // Методы терапии
+  const therapyMethods = [
+    { id: 'cbt', label: 'КПТ (Когнитивно-поведенческая терапия)' },
+    { id: 'act', label: 'ACT (Терапия принятия и ответственности)' },
+    { id: 'dbt', label: 'DBT (Диалектическая поведенческая терапия)' },
+    { id: 'mindfulness', label: 'Mindfulness (Осознанность)' },
+    { id: 'compassion', label: 'Терапия сострадания' },
+    { id: 'gestalt', label: 'Гештальт-терапия' },
+    { id: 'psychodynamic', label: 'Психодинамическая терапия' },
+    { id: 'humanistic', label: 'Гуманистическая терапия' }
+  ];
+
+  // Проблемы
+  const problems = [
+    { id: 'anxiety', label: 'Тревога и беспокойство' },
+    { id: 'depression', label: 'Депрессия и подавленность' },
+    { id: 'stress', label: 'Стресс и выгорание' },
+    { id: 'self-criticism', label: 'Самокритика и низкая самооценка' },
+    { id: 'motivation', label: 'Прокрастинация и мотивация' },
+    { id: 'relationships', label: 'Отношения' },
+    { id: 'trauma', label: 'Травма и ПТСР' },
+    { id: 'sleep', label: 'Проблемы со сном' },
+    { id: 'anger', label: 'Гнев и агрессия' },
+    { id: 'addiction', label: 'Зависимости' }
+  ];
+
+  // Объекты воздействия
+  const objects = [
+    { id: 'thoughts', label: 'Мысли' },
+    { id: 'self-esteem', label: 'Самооценка' },
+    { id: 'self-criticism', label: 'Самокритика' },
+    { id: 'emotions', label: 'Эмоции и чувства' },
+    { id: 'states', label: 'Состояния' },
+    { id: 'behavior', label: 'Поведение' },
+    { id: 'diagnostic-tests', label: 'Диагностические тесты' },
+    { id: 'typological-tests', label: 'Типологические тесты' }
+  ];
+
+  // Категории практик
+  const practiceCategories = [
+    { id: 'all', label: 'Все категории' },
+    { id: 'clinical', label: 'Клинические (научно обоснованные)' },
+    { id: 'therapeutic', label: 'Терапевтические' },
+    { id: 'other', label: 'Другие' }
+  ];
 
   const handleShare = (title: string, type: string = 'практику') => {
     if (navigator.share) {
@@ -50,139 +113,163 @@ const Practices = () => {
     }
   };
 
-  const practiceCategories = [
+  const handleMultiSelectChange = (value: string, selectedArray: string[], setFunction: (arr: string[]) => void) => {
+    if (selectedArray.includes(value)) {
+      setFunction(selectedArray.filter(item => item !== value));
+    } else {
+      setFunction([...selectedArray, value]);
+    }
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedType('all');
+    setSelectedTherapyMethods([]);
+    setSelectedProblems([]);
+    setSelectedObjects([]);
+    setSelectedDuration('all');
+    setSelectedLevel('all');
+    setSelectedCategory('all');
+  };
+
+  // Расширенные данные с мета-тегами
+  const allContent = [
     {
-      id: 'anxiety',
-      title: 'Тревога и беспокойство',
-      icon: Shield,
-      count: '80+',
-      color: 'from-blue-400 to-blue-600',
-      description: 'Техники для снижения тревоги и успокоения',
-      practices: [
-        { name: 'Дыхание 4-7-8', duration: '5 мин', level: 'Легко' },
-        { name: 'Техника заземления 5-4-3-2-1', duration: '3 мин', level: 'Легко' },
-        { name: 'Прогрессивное расслабление', duration: '15 мин', level: 'Средне' },
-        { name: 'Медитация любящей доброты', duration: '20 мин', level: 'Средне' }
-      ]
+      id: 1,
+      title: 'Дыхание 4-7-8',
+      description: 'Техника для быстрого снижения тревожности и засыпания',
+      type: 'exercises',
+      duration: '5 мин',
+      level: 'Легко',
+      participants: '12.5k',
+      category: 'clinical',
+      therapyMethods: ['cbt', 'mindfulness'],
+      problems: ['anxiety', 'sleep', 'stress'],
+      objects: ['states', 'emotions'],
+      tags: ['Дыхание', 'Тревога', 'Релаксация'],
+      color: 'from-blue-400 to-blue-600'
     },
     {
-      id: 'depression',
-      title: 'Депрессия и подавленность',
-      icon: Heart,
-      count: '70+',
-      color: 'from-purple-400 to-purple-600',
-      description: 'Активационные и когнитивные техники',
-      practices: [
-        { name: 'Планирование приятных активностей', duration: '10 мин', level: 'Легко' },
-        { name: 'Дневник достижений', duration: '15 мин', level: 'Легко' },
-        { name: 'Работа с депрессивной триадой', duration: '25 мин', level: 'Продвинутый' },
-        { name: 'Дневник благодарности', duration: '5 мин', level: 'Легко' }
-      ]
+      id: 2,
+      title: 'Сканирование тела',
+      description: 'Практика осознанности для расслабления и снятия напряжения',
+      type: 'practices',
+      duration: '15 мин',
+      level: 'Средне',
+      participants: '8.3k',
+      category: 'clinical',
+      therapyMethods: ['mindfulness', 'gestalt'],
+      problems: ['stress', 'anxiety'],
+      objects: ['states', 'emotions'],
+      tags: ['Медитация', 'Расслабление', 'Осознанность'],
+      color: 'from-green-400 to-emerald-600'
     },
     {
-      id: 'self-criticism',
-      title: 'Самокритика и низкая самооценка',
-      icon: Star,
-      count: '60+',
-      color: 'from-green-400 to-emerald-600',
-      description: 'Практики самосострадания и принятия',
-      practices: [
-        { name: 'Тест на самосострадание', duration: '10 мин', level: 'Легко' },
-        { name: 'Письмо от заботливого друга', duration: '20 мин', level: 'Средне' },
-        { name: 'Дневник сильных сторон', duration: '15 мин', level: 'Легко' },
-        { name: 'Медитация любящей доброты к себе', duration: '18 мин', level: 'Средне' }
-      ]
+      id: 3,
+      title: 'Колесо эмоций',
+      description: 'Интерактивный тест для определения и осознания текущих эмоций',
+      type: 'tests',
+      duration: '3 мин',
+      level: 'Легко',
+      participants: '15.7k',
+      category: 'diagnostic-tests',
+      therapyMethods: ['cbt', 'dbt'],
+      problems: ['emotions'],
+      objects: ['emotions', 'diagnostic-tests'],
+      tags: ['Эмоции', 'Тест', 'Диагностика'],
+      color: 'from-purple-400 to-purple-600'
     },
     {
-      id: 'stress',
-      title: 'Стресс и выгорание',
-      icon: Zap,
-      count: '90+',
-      color: 'from-orange-400 to-red-500',
-      description: 'Техники восстановления и профилактики',
-      practices: [
-        { name: 'Коробочное дыхание', duration: '3 мин', level: 'Легко' },
-        { name: 'Техника STOP', duration: '2 мин', level: 'Легко' },
-        { name: 'Энергетический аудит', duration: '30 мин', level: 'Средне' },
-        { name: 'План стресс-менеджмента', duration: '45 мин', level: 'Продвинутый' }
-      ]
+      id: 4,
+      title: 'Шкала самосострадания',
+      description: 'Оценка уровня самосострадания и доброты к себе',
+      type: 'tests',
+      duration: '10 мин',
+      level: 'Средне',
+      participants: '9.2k',
+      category: 'diagnostic-tests',
+      therapyMethods: ['compassion', 'act'],
+      problems: ['self-criticism', 'depression'],
+      objects: ['self-esteem', 'self-criticism', 'diagnostic-tests'],
+      tags: ['Самосострадание', 'Самооценка', 'Тест'],
+      color: 'from-pink-400 to-rose-600'
     },
     {
-      id: 'motivation',
-      title: 'Прокрастинация и мотивация',
-      icon: Target,
-      count: '50+',
-      color: 'from-indigo-400 to-purple-600',
-      description: 'Преодоление откладывания и повышение мотивации',
-      practices: [
-        { name: 'Правило 2 минут', duration: '2 мин', level: 'Легко' },
-        { name: 'Техника Pomodoro', duration: '25 мин', level: 'Средне' },
-        { name: 'Связь с ценностями', duration: '20 мин', level: 'Средне' },
-        { name: 'Визуализация "Будущее Я"', duration: '15 мин', level: 'Средне' }
-      ]
+      id: 5,
+      title: 'Техника STOP',
+      description: 'Быстрая техника остановки негативных мыслительных циклов',
+      type: 'exercises',
+      duration: '2 мин',
+      level: 'Легко',
+      participants: '18.1k',
+      category: 'clinical',
+      therapyMethods: ['cbt', 'mindfulness'],
+      problems: ['anxiety', 'stress', 'anger'],
+      objects: ['thoughts', 'emotions'],
+      tags: ['КПТ', 'Мысли', 'Стоп-техника'],
+      color: 'from-red-400 to-orange-500'
+    },
+    {
+      id: 6,
+      title: 'Большая Пятерка личности',
+      description: 'Научно обоснованный тест личностных черт',
+      type: 'tests',
+      duration: '15 мин',
+      level: 'Средне',
+      participants: '25.3k',
+      category: 'typological-tests',
+      therapyMethods: ['psychodynamic', 'humanistic'],
+      problems: [],
+      objects: ['typological-tests'],
+      tags: ['Личность', 'Типология', 'Тест'],
+      color: 'from-indigo-400 to-purple-600'
     }
   ];
 
-  const therapeuticApproaches = [
-    {
-      id: 'cbt',
-      title: 'Когнитивно-поведенческие техники',
-      count: '120+',
-      description: 'Работа с мыслями и поведением',
-      icon: Brain
-    },
-    {
-      id: 'act',
-      title: 'ACT-практики',
-      count: '80+',
-      description: 'Принятие и ценностно-ориентированные действия',
-      icon: Target
-    },
-    {
-      id: 'compassion',
-      title: 'Практики самосострадания',
-      count: '60+',
-      description: 'Развитие доброты к себе',
-      icon: Heart
-    },
-    {
-      id: 'mindfulness',
-      title: 'Mindfulness-практики',
-      count: '100+',
-      description: 'Медитации и осознанность',
-      icon: Users
-    }
-  ];
+  // Фильтрация контента
+  const filteredContent = allContent.filter(item => {
+    const matchesSearch = searchTerm === '' || 
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesType = selectedType === 'all' || item.type === selectedType;
+    
+    const matchesTherapyMethods = selectedTherapyMethods.length === 0 || 
+      item.therapyMethods.some(method => selectedTherapyMethods.includes(method));
+    
+    const matchesProblems = selectedProblems.length === 0 || 
+      item.problems.some(problem => selectedProblems.includes(problem));
+    
+    const matchesObjects = selectedObjects.length === 0 || 
+      item.objects.some(object => selectedObjects.includes(object));
+    
+    const matchesDuration = selectedDuration === 'all' || 
+      (selectedDuration === '2-5' && parseInt(item.duration) <= 5) ||
+      (selectedDuration === '10-20' && parseInt(item.duration) >= 10 && parseInt(item.duration) <= 20) ||
+      (selectedDuration === '30+' && parseInt(item.duration) >= 30);
+    
+    const matchesLevel = selectedLevel === 'all' || 
+      (selectedLevel === 'easy' && item.level === 'Легко') ||
+      (selectedLevel === 'medium' && item.level === 'Средне') ||
+      (selectedLevel === 'advanced' && item.level === 'Продвинутый');
+    
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
 
-  const assessmentTools = [
-    {
-      category: 'Базовое состояние',
-      tests: [
-        'Шкала воспринимаемого стресса (PSS-10)',
-        'Шкала тревоги и депрессии (HADS)',
-        'Шкала удовлетворенности жизнью (SWLS)',
-        'Тест на эмоциональный интеллект'
-      ]
-    },
-    {
-      category: 'Специализированные тесты',
-      tests: [
-        'Тест на самосострадание (SCS)',
-        'Шкала психологической гибкости (AAQ-II)',
-        'Тест на стиль привязанности',
-        'Опросник выгорания (MBI)'
-      ]
-    },
-    {
-      category: 'Личностные особенности',
-      tests: [
-        'Большая Пятерка (краткая версия)',
-        'VIA-тест сильных сторон характера',
-        'Тест на хронотип',
-        'Опросник жизнестойкости'
-      ]
-    }
-  ];
+    return matchesSearch && matchesType && matchesTherapyMethods && 
+           matchesProblems && matchesObjects && matchesDuration && 
+           matchesLevel && matchesCategory;
+  });
+
+  const activeFiltersCount = [
+    selectedType !== 'all' ? 1 : 0,
+    selectedTherapyMethods.length,
+    selectedProblems.length,
+    selectedObjects.length,
+    selectedDuration !== 'all' ? 1 : 0,
+    selectedLevel !== 'all' ? 1 : 0,
+    selectedCategory !== 'all' ? 1 : 0
+  ].reduce((sum, count) => sum + count, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -204,22 +291,61 @@ const Practices = () => {
         {/* Умный поиск и фильтры */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Search className="w-5 h-5 text-gray-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Умный поиск</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Search className="w-5 h-5 text-gray-500" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Умный поиск</h3>
+                {activeFiltersCount > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {activeFiltersCount} фильтр{activeFiltersCount > 1 ? 'ов' : ''}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                {activeFiltersCount > 0 && (
+                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                    <X className="w-4 h-4 mr-2" />
+                    Очистить все
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                >
+                  <Filter className="w-4 h-4 mr-2" />
+                  Расширенные фильтры
+                  <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isFiltersExpanded ? 'rotate-180' : ''}`} />
+                </Button>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Основная строка поиска */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                 <Input
-                  placeholder="Поиск по проблеме..."
+                  placeholder="Поиск по проблеме, названию..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
               
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger>
+                  <Target className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Тип контента" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contentTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={selectedDuration} onValueChange={setSelectedDuration}>
                 <SelectTrigger>
                   <Timer className="w-4 h-4 mr-2" />
@@ -245,242 +371,206 @@ const Practices = () => {
                   <SelectItem value="advanced">Продвинутый</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Button variant="outline" className="w-full">
-                <Filter className="w-4 h-4 mr-2" />
-                Больше фильтров
-              </Button>
             </div>
+
+            {/* Расширенные фильтры */}
+            <Collapsible open={isFiltersExpanded} onOpenChange={setIsFiltersExpanded}>
+              <CollapsibleContent className="space-y-6 pt-4 border-t">
+                {/* Методы терапии */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                    <Brain className="w-4 h-4 mr-2" />
+                    Методы терапии
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {therapyMethods.map((method) => (
+                      <div key={method.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={method.id}
+                          checked={selectedTherapyMethods.includes(method.id)}
+                          onCheckedChange={() => handleMultiSelectChange(method.id, selectedTherapyMethods, setSelectedTherapyMethods)}
+                        />
+                        <label htmlFor={method.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                          {method.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Проблемы */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Проблемы и запросы
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {problems.map((problem) => (
+                      <div key={problem.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={problem.id}
+                          checked={selectedProblems.includes(problem.id)}
+                          onCheckedChange={() => handleMultiSelectChange(problem.id, selectedProblems, setSelectedProblems)}
+                        />
+                        <label htmlFor={problem.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                          {problem.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Объекты воздействия */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    Объект воздействия
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {objects.map((object) => (
+                      <div key={object.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={object.id}
+                          checked={selectedObjects.includes(object.id)}
+                          onCheckedChange={() => handleMultiSelectChange(object.id, selectedObjects, setSelectedObjects)}
+                        />
+                        <label htmlFor={object.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                          {object.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Категории */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                    <Star className="w-4 h-4 mr-2" />
+                    Категория практик
+                  </h4>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-full md:w-1/3">
+                      <SelectValue placeholder="Выберите категорию" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {practiceCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="problems" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="problems">Практики по проблемам</TabsTrigger>
-            <TabsTrigger value="methods">Практики по методам</TabsTrigger>
-            <TabsTrigger value="tests">Тесты и самооценки</TabsTrigger>
-          </TabsList>
+        {/* Результаты поиска */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Найдено: {filteredContent.length} {filteredContent.length === 1 ? 'результат' : filteredContent.length < 5 ? 'результата' : 'результатов'}
+            </h2>
+            <div className="flex items-center space-x-2">
+              <Select defaultValue="relevance">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Сортировка" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">По релевантности</SelectItem>
+                  <SelectItem value="popular">По популярности</SelectItem>
+                  <SelectItem value="duration">По времени</SelectItem>
+                  <SelectItem value="level">По сложности</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
-          {/* Практики по проблемам */}
-          <TabsContent value="problems" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {practiceCategories.map((category) => {
-                const IconComponent = category.icon;
-                return (
-                  <Card key={category.id} className="hover:shadow-lg transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                          <IconComponent className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary" className="text-lg px-3 py-1">
-                            {category.count} практик
-                          </Badge>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleShare(category.title, 'категорию практик')}
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+        {/* Карточки контента */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {filteredContent.map((item) => (
+            <Card key={item.id} className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <Play className="w-8 h-8 text-white" />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-2">
+                          {item.description}
+                        </p>
                       </div>
-                      <CardTitle className="text-xl text-gray-900 dark:text-white">
-                        {category.title}
-                      </CardTitle>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        {category.description}
-                      </p>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      {category.practices.map((practice, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                              {practice.name}
-                            </h4>
-                            <div className="flex items-center space-x-3 mt-1">
-                              <div className="flex items-center text-xs text-gray-500">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {practice.duration}
-                              </div>
-                              <Badge variant="outline" className="text-xs">
-                                {practice.level}
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2 ml-4">
-                            <Button size="sm">
-                              <Play className="w-3 h-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleShare(practice.name, 'практику')}
-                            >
-                              <Share2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4" />
+                        <span>{item.duration}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users className="w-4 h-4" />
+                        <span>{item.participants}</span>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {item.level}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {contentTypes.find(t => t.id === item.type)?.label}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center space-x-2 mb-4">
+                      {item.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
                       ))}
-                      
-                      <Button className="w-full mt-4" variant="outline">
-                        Смотреть все {category.count} практик
-                        <ChevronRight className="w-4 h-4 ml-2" />
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <Button className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}>
+                        Попробовать сейчас
                       </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          {/* Практики по методам */}
-          <TabsContent value="methods" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {therapeuticApproaches.map((approach) => {
-                const IconComponent = approach.icon;
-                return (
-                  <Card key={approach.id} className="hover:shadow-lg transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center">
-                          <IconComponent className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                            {approach.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                            {approach.description}
-                          </p>
-                          <Badge variant="secondary">{approach.count} упражнений</Badge>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <Button className="flex-1">
-                          Изучить методы
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => handleShare(approach.title, 'методы')}
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          {/* Тесты и самооценки */}
-          <TabsContent value="tests" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {assessmentTools.map((tool, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center justify-between">
-                      <div className="flex items-center">
-                        <BookOpen className="w-5 h-5 mr-2 text-emerald-600" />
-                        {tool.category}
-                      </div>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handleShare(tool.category, 'тесты')}
+                        onClick={() => handleShare(item.title)}
                       >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {tool.tests.map((test, testIndex) => (
-                      <div key={testIndex} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
-                          {test}
-                        </span>
-                        <div className="flex items-center space-x-1 ml-2">
-                          <Button size="sm" variant="outline">
-                            Пройти
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleShare(test, 'тест')}
-                          >
-                            <Share2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Интерактивные оценки */}
-            <div className="mt-12">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-                Интерактивные оценки
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Ежедневные чек-ины
-                      </h4>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleShare('Ежедневные чек-ины', 'интерактивную оценку')}
-                      >
-                        <Share2 className="w-4 h-4" />
+                        <Share2 className="w-4 h-4 mr-1" />
+                        Поделиться
                       </Button>
                     </div>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      <li>• Быстрая оценка настроения и энергии</li>
-                      <li>• Мини-тест на уровень стресса</li>
-                      <li>• Оценка качества сна</li>
-                      <li>• Проверка базовых потребностей</li>
-                    </ul>
-                    <Button className="w-full">Начать чек-ин</Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-                <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Еженедельные обзоры
-                      </h4>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleShare('Еженедельные обзоры', 'интерактивную оценку')}
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      <li>• Анализ динамики за неделю</li>
-                      <li>• Оценка прогресса по целям</li>
-                      <li>• Рефлексия о изменениях</li>
-                      <li>• Планирование следующей недели</li>
-                    </ul>
-                    <Button className="w-full">Создать обзор</Button>
-                  </CardContent>
-                </Card>
+        {filteredContent.length === 0 && (
+          <Card className="text-center py-12">
+            <CardContent>
+              <div className="text-gray-500 mb-4">
+                <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-medium mb-2">Ничего не найдено</h3>
+                <p className="text-sm">
+                  Попробуйте изменить параметры поиска или очистить фильтры
+                </p>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+              <Button onClick={clearAllFilters} variant="outline">
+                Очистить все фильтры
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* CTA секция */}
         <Card className="mt-12 bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
