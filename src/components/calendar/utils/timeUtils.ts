@@ -28,28 +28,28 @@ const findAvailableColumn = (activity: Activity, existingLayouts: ActivityLayout
   );
   
   if (overlappingActivities.length === 0) {
-    return 0; // Первая колонка свободна
+    return 0; // Первая треть свободна
   }
   
-  // Найти занятые колонки
+  // Найти занятые колонки в текущем временном диапазоне
   const occupiedColumns = overlappingActivities.map(layout => layout.column);
   
-  // Найти первую свободную колонку (максимум 3 колонки по третям)
+  // Найти первую свободную треть (максимум 3 трети)
   for (let column = 0; column < 3; column++) {
     if (!occupiedColumns.includes(column)) {
       return column;
     }
   }
   
-  // Если все три колонки заняты, размещаем в первой с меньшей шириной
-  return 0;
+  // Если все три трети заняты, возвращаем -1 (не можем разместить)
+  return -1;
 };
 
 // Функция для расчета раскладки активностей
 export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout[] => {
   const layouts: ActivityLayout[] = [];
   
-  // Сортируем активности по времени начала
+  // Сортируем активности по времени начала для корректного размещения
   const sortedActivities = [...activities].sort((a, b) => 
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
   );
@@ -70,28 +70,18 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     const calculatedHeight = (durationMinutes / 60) * 60;
     const height = Math.max(calculatedHeight, 60);
     
-    // Найти доступную колонку для этой активности
+    // Найти доступную треть для этой активности
     const column = findAvailableColumn(activity, layouts);
     
-    // Рассчитать количество колонок для текущего времени
-    const overlappingActivities = layouts.filter(layout => 
-      activitiesOverlap(activity, layout.activity)
-    );
+    // Если нет доступной трети, пропускаем активность
+    if (column === -1) {
+      console.warn(`Cannot place activity "${activity.name}" - all thirds are occupied`);
+      return;
+    }
     
-    const maxColumns = Math.max(1, overlappingActivities.length + 1, 3);
-    const columnsToUse = Math.min(maxColumns, 3); // Максимум 3 колонки
-    
-    // Размещение по третям: каждая колонка занимает треть ширины
-    const width = (100 / 3) - 2; // Треть ширины минус отступы
-    const left = (100 / 3) * column + 1; // Позиция по горизонтали
-    
-    // Обновить существующие активности в том же временном диапазоне
-    overlappingActivities.forEach(layout => {
-      if (layout.width > width) {
-        layout.width = width;
-        layout.left = (100 / 3) * layout.column + 1;
-      }
-    });
+    // Размещение по третям: каждая треть занимает треть ширины
+    const width = (100 / 3) - 1; // Треть ширины минус небольшой отступ
+    const left = (100 / 3) * column + 0.5; // Позиция по горизонтали с небольшим отступом
     
     layouts.push({
       activity,
@@ -100,7 +90,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       left,
       width,
       column,
-      totalColumns: columnsToUse
+      totalColumns: 3 // Всегда 3 трети
     });
   });
   
