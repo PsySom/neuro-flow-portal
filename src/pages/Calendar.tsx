@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,12 +17,12 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import DayView from '@/components/calendar/DayView';
 import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
-import CreateActivityDialog from '@/components/dashboard/activity-timeline/CreateActivityDialog';
+import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState('day');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -60,6 +61,11 @@ const Calendar = () => {
     }
     
     return currentDate.toLocaleDateString('ru-RU', options);
+  };
+
+  const handleActivityCreate = (activity: any) => {
+    console.log('New activity created:', activity);
+    // This will be handled by the DayView component
   };
 
   return (
@@ -141,7 +147,7 @@ const Calendar = () => {
               
               <Button 
                 className="bg-emerald-600 hover:bg-emerald-700"
-                onClick={() => setIsDialogOpen(true)}
+                onClick={() => setIsCreateDialogOpen(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Создать активность
@@ -175,8 +181,9 @@ const Calendar = () => {
       </div>
 
       <CreateActivityDialog 
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onActivityCreate={handleActivityCreate}
       />
     </>
   );

@@ -21,6 +21,30 @@ export const activitiesOverlap = (activity1: Activity, activity2: Activity): boo
   return start1 < end2 && start2 < end1;
 };
 
+// Функция для поиска свободной колонки для активности
+const findAvailableColumn = (activity: Activity, existingLayouts: ActivityLayout[]): number => {
+  const overlappingActivities = existingLayouts.filter(layout => 
+    activitiesOverlap(activity, layout.activity)
+  );
+  
+  if (overlappingActivities.length === 0) {
+    return 0; // Первая колонка свободна
+  }
+  
+  // Найти занятые колонки
+  const occupiedColumns = overlappingActivities.map(layout => layout.column);
+  
+  // Найти первую свободную колонку
+  for (let column = 0; column < 3; column++) {
+    if (!occupiedColumns.includes(column)) {
+      return column;
+    }
+  }
+  
+  // Если все колонки заняты, использовать следующую доступную
+  return Math.max(...occupiedColumns) + 1;
+};
+
 // Функция для расчета раскладки активностей
 export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout[] => {
   const layouts: ActivityLayout[] = [];
@@ -29,9 +53,6 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
   const sortedActivities = [...activities].sort((a, b) => 
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
   );
-  
-  // Счетчик для определения колонки остальных активностей
-  let activityCounter = 0;
   
   sortedActivities.forEach(activity => {
     const startMinutes = getTimeInMinutes(activity.startTime);
@@ -49,13 +70,12 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     const calculatedHeight = (durationMinutes / 60) * 60;
     const height = Math.max(calculatedHeight, 60);
     
-    // Определяем ширину и позицию
-    let left = 0;
-    let width = 100;
+    // Найти доступную колонку для этой активности
     let column = 0;
-    let totalColumns = 1;
+    let width = 100;
+    let left = 0;
     
-    // Все активности размещаем в колонках по одной трети
+    // Специальная обработка для блоков "Сон"
     if (activity.name === 'Сон' && activity.startTime === '00:00') {
       // Первый блок "Сон" (00:00-08:00) размещаем в первой колонке
       column = 0;
@@ -63,14 +83,24 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       // Второй блок "Сон" (23:00-00:00) размещаем в третьей колонке
       column = 2;
     } else {
-      // Остальные активности размещаем в колонках по порядку
-      column = (activityCounter % 3);
-      activityCounter++;
+      // Для остальных активностей найти свободную колонку
+      column = findAvailableColumn(activity, layouts);
     }
     
-    totalColumns = 3;
-    width = 100 / 3 - 1; // Треть ширины минус отступ
-    left = (100 / 3) * column;
+    // Рассчитать ширину и позицию на основе количества колонок
+    const maxColumns = Math.max(3, column + 1);
+    width = (100 / maxColumns) - 1; // Процент ширины минус отступ
+    left = (100 / maxColumns) * column;
+    
+    // Обновить ширину существующих активностей, если нужно больше колонок
+    if (column >= 3) {
+      layouts.forEach(layout => {
+        const newMaxColumns = Math.max(maxColumns, layout.column + 1);
+        layout.width = (100 / newMaxColumns) - 1;
+        layout.left = (100 / newMaxColumns) * layout.column;
+        layout.totalColumns = newMaxColumns;
+      });
+    }
     
     layouts.push({
       activity,
@@ -79,7 +109,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       left,
       width,
       column,
-      totalColumns
+      totalColumns: Math.max(3, column + 1)
     });
   });
   
