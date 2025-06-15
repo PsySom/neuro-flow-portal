@@ -19,5 +19,6 @@ export const baseActivities: Activity[] = [
   { id: 15, name: 'Просмотр фильма', emoji: '🎬', startTime: '20:00', endTime: '21:30', duration: '1.5 ч', color: 'bg-violet-200', importance: 2, completed: false, type: 'восстановление', needEmoji: '🎭' },
   { id: 16, name: 'Душ, гигиена', emoji: '🚿', startTime: '21:30', endTime: '22:00', duration: '30 мин', color: 'bg-blue-200', importance: 4, completed: false, type: 'восстановление', needEmoji: '🧘' },
   { id: 17, name: 'Заполнение дневника', emoji: '📝', startTime: '22:00', endTime: '22:30', duration: '30 мин', color: 'bg-purple-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🧠' },
-  { id: 18, name: 'Подготовка ко сну', emoji: '🛌', startTime: '22:30', endTime: '00:00', duration: '1.5 ч', color: 'bg-slate-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🌙' },
+  { id: 18, name: 'Подготовка ко сну', emoji: '🛌', startTime: '22:30', endTime: '23:00', duration: '30 мин', color: 'bg-slate-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🌙' },
+  { id: 19, name: 'Сон', emoji: '😴', startTime: '23:00', endTime: '00:00', duration: '1 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
 ];
