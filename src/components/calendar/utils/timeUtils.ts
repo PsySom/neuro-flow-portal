@@ -30,7 +30,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
   );
   
-  // Счетчик для определения колонки (0, 1, 2, 0, 1, 2, ...)
+  // Счетчик для определения колонки остальных активностей
   let activityCounter = 0;
   
   sortedActivities.forEach(activity => {
@@ -56,12 +56,15 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     let totalColumns = 1;
     
     // Все активности размещаем в колонках по одной трети
-    // Определяем колонку по порядку активностей
-    if (activity.name === 'Сон') {
-      // Активность "Сон" размещаем во второй колонке (средняя треть)
+    if (activity.name === 'Сон' && activity.startTime === '00:00') {
+      // Первый блок "Сон" (00:00-08:00) размещаем в первой колонке
+      column = 0;
+    } else if (activity.name === 'Сон' && activity.startTime === '22:30') {
+      // Второй блок "Сон" (22:30-00:00) размещаем во второй колонке
       column = 1;
     } else {
-      column = activityCounter % 3;
+      // Остальные активности размещаем в колонках по порядку
+      column = (activityCounter % 3);
       activityCounter++;
     }
     
