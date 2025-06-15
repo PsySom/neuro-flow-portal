@@ -9,6 +9,7 @@ import { Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PracticesSearchFilters from '../components/practices/PracticesSearchFilters';
 import PracticeContentCard from '../components/practices/PracticeContentCard';
+import CreatePracticeDialog from '../components/practices/CreatePracticeDialog';
 import { contentTypes, allContent } from '@/constants/practicesConstants';
 
 const Practices = () => {
@@ -227,6 +228,7 @@ const Practices = () => {
       </main>
       
       <Footer />
+      <CreatePracticeDialog />
     </div>
   );
 };
