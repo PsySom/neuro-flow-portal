@@ -22,7 +22,7 @@ export const getCurrentTimePosition = (currentTime: Date): number => {
 };
 
 export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {
-  return Array.from({ length: 8 }, (_, i) => {
+  const allSlots = Array.from({ length: 8 }, (_, i) => {
     const startHour = i * 3;
     const endHour = (i + 1) * 3;
     const timeString = `${startHour.toString().padStart(2, '0')}:00 - ${endHour.toString().padStart(2, '0')}:00`;
@@ -56,6 +56,42 @@ export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {
       timeString,
       activities: blockActivities
     };
+  });
+
+  // Фильтруем слоты: оставляем только те, которые имеют активности или не полностью покрываются другими активностями
+  return allSlots.filter(slot => {
+    // Если в слоте есть активности, показываем его
+    if (slot.activities.length > 0) {
+      return true;
+    }
+
+    // Если слот пустой, проверяем, не покрывается ли он полностью какой-то активностью
+    const blockStartMinutes = slot.startHour * 60;
+    const blockEndMinutes = slot.endHour * 60;
+
+    const isFullyCovered = activities.some(activity => {
+      const activityStartMinutes = timeToMinutes(activity.startTime);
+      const activityEndMinutes = timeToMinutes(activity.endTime);
+
+      // Для активностей, пересекающих полночь
+      if (activityEndMinutes < activityStartMinutes) {
+        // Проверяем покрытие в первой части дня (00:00-XX:XX)
+        if (blockStartMinutes === 0 && activityEndMinutes >= blockEndMinutes) {
+          return true;
+        }
+        // Проверяем покрытие во второй части дня (XX:XX-24:00)
+        if (blockEndMinutes === 24 * 60 && activityStartMinutes <= blockStartMinutes) {
+          return true;
+        }
+      } else {
+        // Для обычных активностей
+        return activityStartMinutes <= blockStartMinutes && activityEndMinutes >= blockEndMinutes;
+      }
+
+      return false;
+    });
+
+    return !isFullyCovered;
   });
 };
 
