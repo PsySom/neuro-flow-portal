@@ -45,32 +45,38 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     { id: 1, name: 'Сон', emoji: '😴', startTime: '22:30', endTime: '08:00', duration: '9.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
   ];
 
-  // Создаем дополнительные записи для активностей, пересекающих полночь
-  const activities: Activity[] = [...baseActivities];
-  
-  // Добавляем отдельную запись сна для утреннего времени
-  const sleepActivity = baseActivities.find(a => a.id === 1);
-  if (sleepActivity) {
-    activities.push({
-      ...sleepActivity,
-      id: 18, // Уникальный ID для утреннего блока сна
-      name: 'Сон (утро)',
-      startTime: '00:00',
-      endTime: '08:00',
-      duration: '8 ч'
-    });
-  }
-
-  // Сортируем активности по времени начала
-  activities.sort((a, b) => {
-    const timeA = a.startTime.split(':').map(Number);
-    const timeB = b.startTime.split(':').map(Number);
-    return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-  });
-
   const currentTimeString = new Date().toLocaleTimeString('ru-RU', { 
     hour: '2-digit', 
     minute: '2-digit' 
+  });
+
+  // Функция для получения позиции активности в сетке времени
+  const getActivityPosition = (startTime: string, endTime: string) => {
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    
+    let startMinutes = startHour * 60 + startMinute;
+    let endMinutes = endHour * 60 + endMinute;
+    
+    // Обработка активностей, пересекающих полночь
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60; // Добавляем 24 часа для следующего дня
+    }
+    
+    const top = (startMinutes / 60) * 60; // 60px на час
+    const height = ((endMinutes - startMinutes) / 60) * 60;
+    
+    return { top, height };
+  };
+
+  // Генерируем часовые отметки
+  const timeMarkers = Array.from({ length: 25 }, (_, i) => {
+    const hour = i;
+    return {
+      hour,
+      time: `${hour.toString().padStart(2, '0')}:00`,
+      position: hour * 60 // 60px на час
+    };
   });
 
   return (
@@ -86,60 +92,104 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
           </Badge>
         </div>
 
-        <div className="space-y-3 max-h-[600px] overflow-y-auto">
-          {activities.map((activity) => (
-            <div 
-              key={activity.id}
-              className={`${activity.color} rounded-lg p-4 border border-gray-200`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3 flex-1">
-                  <Checkbox 
-                    checked={activity.completed}
-                    className="w-6 h-6 rounded-sm mt-1"
-                  />
-                  <div className="flex flex-col space-y-2">
-                    <span className="font-medium text-lg">{activity.name}</span>
-                    
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <span className="font-medium">[{activity.startTime}-{activity.endTime}]</span>
-                      <span>[{activity.duration}]</span>
-                      <div className="flex items-center">
-                        {Array.from({ length: activity.importance }, (_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        ))}
+        <div className="flex h-[600px] overflow-y-auto">
+          {/* Временная шкала слева */}
+          <div className="w-16 flex-shrink-0 relative border-r border-gray-200">
+            {timeMarkers.map(({ hour, time, position }) => (
+              <div 
+                key={hour}
+                className="absolute text-xs text-gray-500 -translate-y-2"
+                style={{ top: `${position}px` }}
+              >
+                {hour < 24 ? time : ''}
+              </div>
+            ))}
+          </div>
+
+          {/* Область активностей */}
+          <div className="flex-1 relative pl-4" style={{ height: '1440px' }}>
+            {/* Сетка часов */}
+            {timeMarkers.slice(0, 24).map(({ hour, position }) => (
+              <div
+                key={hour}
+                className="absolute w-full border-t border-gray-100"
+                style={{ top: `${position}px` }}
+              />
+            ))}
+
+            {/* Активности */}
+            {baseActivities.map((activity) => {
+              const { top, height } = getActivityPosition(activity.startTime, activity.endTime);
+              
+              // Пропускаем активности, которые выходят за пределы дня
+              if (top < 0 || top > 1440) return null;
+              
+              return (
+                <div
+                  key={activity.id}
+                  className={`absolute left-0 right-4 ${activity.color} rounded-lg p-3 border border-gray-200 shadow-sm`}
+                  style={{ 
+                    top: `${Math.max(0, top)}px`, 
+                    height: `${Math.min(height, 1440 - Math.max(0, top))}px`,
+                    minHeight: '40px'
+                  }}
+                >
+                  <div className="flex items-start justify-between h-full">
+                    <div className="flex items-start space-x-2 flex-1">
+                      <Checkbox 
+                        checked={activity.completed}
+                        className="w-4 h-4 rounded-sm mt-1 flex-shrink-0"
+                      />
+                      <div className="flex flex-col space-y-1 min-w-0 flex-1">
+                        <span className="font-medium text-sm truncate">{activity.name}</span>
+                        
+                        <div className="flex items-center space-x-2 text-xs text-gray-600">
+                          <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
+                          <div className="flex items-center">
+                            {Array.from({ length: activity.importance }, (_, i) => (
+                              <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1">
+                          <span className="text-lg">{activity.emoji}</span>
+                          {activity.type === 'восстановление' && activity.needEmoji && (
+                            <span className="text-sm">{activity.needEmoji}</span>
+                          )}
+                          <Badge variant="secondary" className="text-xs">
+                            {activity.type}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">{activity.emoji}</span>
-                      {activity.type === 'восстановление' && activity.needEmoji && (
-                        <span className="text-lg">{activity.needEmoji}</span>
-                      )}
-                      <Badge variant="secondary" className="text-xs">
-                        {activity.type}
-                      </Badge>
+                    
+                    <div className="flex items-center space-x-1 flex-shrink-0">
+                      <Button size="icon" variant="ghost" className="h-6 w-6">
+                        <Info className="w-3 h-3" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-6 w-6">
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-6 w-6">
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </Button>
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-1">
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Info className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Star className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              </div>
+              );
+            })}
+
+            {/* Индикатор текущего времени */}
+            <div
+              className="absolute left-0 right-4 h-0.5 bg-red-500 z-10"
+              style={{
+                top: `${(new Date().getHours() * 60 + new Date().getMinutes())}px`
+              }}
+            >
+              <div className="w-3 h-3 bg-red-500 rounded-full -translate-y-1 -translate-x-1"></div>
             </div>
-          ))}
+          </div>
         </div>
       </CardContent>
     </Card>

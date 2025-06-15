@@ -3,25 +3,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Plus } from 'lucide-react';
-import { useTimelineLogic } from './activity-timeline/useTimelineLogic';
+import { Clock, Plus, Star } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { activities } from './activity-timeline/activityData';
-import { createTimeSlots } from './activity-timeline/timeUtils';
-import TimeIndicator from './activity-timeline/TimeIndicator';
-import TimeSlotComponent from './activity-timeline/TimeSlotComponent';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  const {
-    currentTime,
-    scrollAreaRef,
-    timeIndicatorRef,
-    handleUserInteraction
-  } = useTimelineLogic();
-
-  const timeSlots = createTimeSlots(activities);
 
   return (
     <>
@@ -29,7 +18,7 @@ const ActivityTimelineComponent = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Clock className="w-5 h-5 text-emerald-600" />
-            <span>Лента активности</span>
+            <span>Список активностей</span>
           </CardTitle>
           <Button 
             size="icon" 
@@ -40,25 +29,46 @@ const ActivityTimelineComponent = () => {
           </Button>
         </CardHeader>
         
-        <CardContent className="p-0 relative">
-          <ScrollArea 
-            ref={scrollAreaRef} 
-            className="h-[500px]"
-            onWheel={handleUserInteraction}
-            onTouchStart={handleUserInteraction}
-            onMouseDown={handleUserInteraction}
-          >
-            <div className="px-6 relative">
-              <TimeIndicator 
-                currentTime={currentTime}
-                timeIndicatorRef={timeIndicatorRef}
-              />
+        <CardContent className="p-6">
+          <ScrollArea className="h-[480px]">
+            <div className="space-y-3">
+              {activities.map((activity) => (
+                <div 
+                  key={activity.id}
+                  className={`${activity.color} rounded-lg p-4 border border-gray-200`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-3 flex-1">
+                      <Checkbox 
+                        checked={activity.completed}
+                        className="w-5 h-5 rounded-sm mt-1"
+                      />
+                      <div className="flex flex-col space-y-2">
+                        <span className="font-medium text-lg">{activity.name}</span>
+                        
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <span className="font-medium">[{activity.startTime}-{activity.endTime}]</span>
+                          <span>[{activity.duration}]</span>
+                          <div className="flex items-center">
+                            {Array.from({ length: activity.importance }, (_, i) => (
+                              <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                            ))}
+                          </div>
+                        </div>
 
-              {timeSlots.map((slot) => (
-                <TimeSlotComponent 
-                  key={slot.startHour}
-                  slot={slot}
-                />
+                        <div className="flex items-center space-x-2">
+                          <span className="text-2xl">{activity.emoji}</span>
+                          {activity.type === 'восстановление' && activity.needEmoji && (
+                            <span className="text-lg">{activity.needEmoji}</span>
+                          )}
+                          <Badge variant="secondary" className="text-xs">
+                            {activity.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </ScrollArea>
