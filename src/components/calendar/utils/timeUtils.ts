@@ -55,22 +55,19 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     let column = 0;
     let totalColumns = 1;
     
-    // Если активность длится 2 часа или меньше, размещаем в колонках
-    if (durationMinutes <= 120) {
-      // Определяем колонку по порядку активностей
+    // Все активности размещаем в колонках по одной трети
+    // Определяем колонку по порядку активностей
+    if (activity.name === 'Сон') {
+      // Активность "Сон" размещаем во второй колонке (средняя треть)
+      column = 1;
+    } else {
       column = activityCounter % 3;
       activityCounter++;
-      
-      totalColumns = 3;
-      width = 100 / 3 - 1; // Треть ширины минус отступ
-      left = (100 / 3) * column;
-    } else {
-      // Активности более 2 часов занимают всю ширину
-      left = 0;
-      width = 100;
-      column = 0;
-      totalColumns = 1;
     }
+    
+    totalColumns = 3;
+    width = 100 / 3 - 1; // Треть ширины минус отступ
+    left = (100 / 3) * column;
     
     layouts.push({
       activity,
