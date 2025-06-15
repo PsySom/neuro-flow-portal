@@ -25,79 +25,92 @@ export const activitiesOverlap = (activity1: Activity, activity2: Activity): boo
 export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout[] => {
   const layouts: ActivityLayout[] = [];
   
-  // Группируем пересекающиеся активности
-  const activityGroups: Activity[][] = [];
-  const processed = new Set<number>();
+  // Сортируем активности по времени начала
+  const sortedActivities = [...activities].sort((a, b) => 
+    getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
+  );
   
-  activities.forEach(activity => {
-    if (processed.has(activity.id)) return;
+  // Отслеживаем занятость колонок для каждого часового блока
+  const columnUsage: { [hourBlock: number]: boolean[] } = {};
+  
+  sortedActivities.forEach(activity => {
+    const startMinutes = getTimeInMinutes(activity.startTime);
+    let endMinutes = getTimeInMinutes(activity.endTime);
     
-    const group: Activity[] = [activity];
-    processed.add(activity.id);
-    
-    // Находим все активности, которые пересекаются с текущей или с активностями группы
-    let foundNew = true;
-    while (foundNew) {
-      foundNew = false;
-      activities.forEach(otherActivity => {
-        if (processed.has(otherActivity.id)) return;
-        
-        // Проверяем пересечение с любой активностью в группе
-        const overlapsWithGroup = group.some(groupActivity => 
-          activitiesOverlap(groupActivity, otherActivity)
-        );
-        
-        if (overlapsWithGroup) {
-          group.push(otherActivity);
-          processed.add(otherActivity.id);
-          foundNew = true;
-        }
-      });
+    // Обработка активностей, пересекающих полночь
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
     }
     
-    activityGroups.push(group);
-  });
-  
-  // Для каждой группы рассчитываем позиции
-  activityGroups.forEach(group => {
-    // Сортируем по времени начала
-    group.sort((a, b) => getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime));
+    const durationMinutes = endMinutes - startMinutes;
+    const top = (startMinutes / 60) * 60; // 60px на час
     
-    // Определяем количество колонок (максимум 4)
-    const totalColumns = Math.min(group.length, 4);
-    const columnWidth = 100 / totalColumns;
+    // Определяем высоту блока - минимум 60px
+    const calculatedHeight = (durationMinutes / 60) * 60;
+    const height = Math.max(calculatedHeight, 60);
     
-    group.forEach((activity, index) => {
-      const startMinutes = getTimeInMinutes(activity.startTime);
-      let endMinutes = getTimeInMinutes(activity.endTime);
+    // Определяем ширину и позицию
+    let left = 0;
+    let width = 100;
+    let column = 0;
+    let totalColumns = 1;
+    
+    // Если активность меньше часа, размещаем каскадом
+    if (durationMinutes < 60) {
+      const hourBlock = Math.floor(startMinutes / 60);
       
-      // Обработка активностей, пересекающих полночь
-      if (endMinutes < startMinutes) {
-        endMinutes += 24 * 60;
+      // Инициализируем отслеживание колонок для этого часа если нужно
+      if (!columnUsage[hourBlock]) {
+        columnUsage[hourBlock] = [false, false, false]; // 3 колонки
       }
       
-      // Позиция по вертикали соответствует времени начала
-      const top = (startMinutes / 60) * 60; // 60px на час
+      // Ищем свободную колонку
+      let assignedColumn = 0;
+      for (let i = 0; i < 3; i++) {
+        if (!columnUsage[hourBlock][i]) {
+          assignedColumn = i;
+          columnUsage[hourBlock][i] = true;
+          break;
+        }
+      }
       
-      // Высота блока - минимум 60px (размер часового блока)
-      const durationMinutes = endMinutes - startMinutes;
-      const calculatedHeight = (durationMinutes / 60) * 60;
-      const height = Math.max(calculatedHeight, 60); // Минимум 60px
+      // Если все колонки заняты, используем каскадное наслоение
+      if (columnUsage[hourBlock].every(col => col)) {
+        assignedColumn = Math.floor(Math.random() * 3);
+      }
       
-      // Горизонтальное позиционирование - размещаем рядом
-      const column = index % totalColumns;
-      const left = column * columnWidth;
-      const width = columnWidth - 0.5; // Небольшой отступ между блоками
+      totalColumns = 3;
+      column = assignedColumn;
+      width = 100 / 3 - 1; // Треть ширины минус отступ
+      left = (100 / 3) * assignedColumn;
+    } else {
+      // Активности час и более занимают всю ширину
+      const startHour = Math.floor(startMinutes / 60);
+      const endHour = Math.ceil(endMinutes / 60);
       
-      layouts.push({
-        activity,
-        top: Math.max(0, top),
-        height: Math.min(height, 1440 - Math.max(0, top)),
-        left,
-        width,
-        column,
-        totalColumns
-      });
+      // Помечаем все часы как занятые для полной ширины
+      for (let hour = startHour; hour < endHour; hour++) {
+        if (!columnUsage[hour]) {
+          columnUsage[hour] = [true, true, true];
+        } else {
+          columnUsage[hour] = [true, true, true];
+        }
+      }
+      
+      left = 0;
+      width = 100;
+      column = 0;
+      totalColumns = 1;
+    }
+    
+    layouts.push({
+      activity,
+      top: Math.max(0, top),
+      height: Math.min(height, 1440 - Math.max(0, top)),
+      left,
+      width,
+      column,
+      totalColumns
     });
   });
   
