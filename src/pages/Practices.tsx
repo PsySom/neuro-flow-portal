@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -10,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import PracticesSearchFilters from '../components/practices/PracticesSearchFilters';
 import PracticeContentCard from '../components/practices/PracticeContentCard';
 import CreatePracticeDialog from '../components/practices/CreatePracticeDialog';
+import PracticeDetailModal from '../components/practices/PracticeDetailModal';
 import { contentTypes, allContent } from '@/constants/practicesConstants';
 
 const Practices = () => {
@@ -23,6 +23,8 @@ const Practices = () => {
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [selectedPractice, setSelectedPractice] = useState<any>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const { toast } = useToast();
 
   const handleShare = (title: string, type: string = 'практику') => {
@@ -39,6 +41,11 @@ const Practices = () => {
         description: `Ссылка на ${type} "${title}" скопирована в буфер обмена`,
       });
     }
+  };
+
+  const handleOpenDetail = (item: any) => {
+    setSelectedPractice(item);
+    setIsDetailModalOpen(true);
   };
 
   const handleMultiSelectChange = (value: string, selectedArray: string[], setFunction: (arr: string[]) => void) => {
@@ -184,6 +191,7 @@ const Practices = () => {
               key={item.id}
               item={item}
               handleShare={handleShare}
+              onOpenDetail={handleOpenDetail}
             />
           ))}
         </div>
@@ -229,6 +237,11 @@ const Practices = () => {
       
       <Footer />
       <CreatePracticeDialog />
+      <PracticeDetailModal 
+        item={selectedPractice}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+      />
     </div>
   );
 };

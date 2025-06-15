@@ -20,21 +20,29 @@ interface ContentItem {
   objects: string[];
   tags: string[];
   color: string;
+  instructions?: string;
+  questions?: string[];
+  keys?: string;
+  responseFormat?: string;
 }
 
 interface PracticeContentCardProps {
   item: ContentItem;
   handleShare: (title: string) => void;
+  onOpenDetail: (item: ContentItem) => void;
 }
 
-const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleShare }) => {
+const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleShare, onOpenDetail }) => {
   return (
     <Card className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50">
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
-          <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+          <button 
+            onClick={() => onOpenDetail(item)}
+            className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform`}
+          >
             <Play className="w-8 h-8 text-white" />
-          </div>
+          </button>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-3">
@@ -66,15 +74,23 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
             </div>
 
             <div className="flex items-center space-x-2 mb-4">
-              {item.tags.map((tag, index) => (
+              {item.tags.slice(0, 3).map((tag, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   {tag}
                 </Badge>
               ))}
+              {item.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{item.tags.length - 3}
+                </Badge>
+              )}
             </div>
 
             <div className="flex items-center space-x-3">
-              <Button className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}>
+              <Button 
+                className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}
+                onClick={() => onOpenDetail(item)}
+              >
                 Попробовать сейчас
               </Button>
               <Button 
