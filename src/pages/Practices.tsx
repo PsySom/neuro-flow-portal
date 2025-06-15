@@ -159,7 +159,7 @@ const Practices = () => {
                 <SelectContent>
                   <SelectItem value="relevance">По релевантности</SelectItem>
                   <SelectItem value="popular">По популярности</SelectItem>
-                  <Select Item value="duration">По времени</SelectItem>
+                  <SelectItem value="duration">По времени</SelectItem>
                   <SelectItem value="level">По сложности</SelectItem>
                 </SelectContent>
               </Select>
