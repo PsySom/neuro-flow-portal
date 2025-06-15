@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Timer, Users, ArrowRight, Share2, Calendar, Clock } from 'lucide-react';
+import { Play, Timer, Users, ArrowRight, Share2, Calendar, Clock, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const PracticesPreview = () => {
   const [activeExercise, setActiveExercise] = useState(null);
+  const [likesState, setLikesState] = useState({});
   const navigate = useNavigate();
 
   const exercises = [
@@ -54,7 +54,7 @@ const PracticesPreview = () => {
       color: 'from-purple-400 to-purple-600',
       steps: [
         'Посмотрите на текущий момент',
-        'Выберите базовую эмоцию',
+        'Выберите базовую эмоцию',  
         'Уточните её оттенок',
         'Получите персональные рекомендации'
       ]
@@ -81,6 +81,25 @@ const PracticesPreview = () => {
     // Здесь будет логика поделиться упражнением
   };
 
+  const handleLike = (exerciseId) => {
+    setLikesState(prev => ({
+      ...prev,
+      [exerciseId]: {
+        isLiked: !prev[exerciseId]?.isLiked,
+        count: prev[exerciseId]?.isLiked 
+          ? (prev[exerciseId]?.count || Math.floor(Math.random() * 100) + 10) - 1
+          : (prev[exerciseId]?.count || Math.floor(Math.random() * 100) + 10) + 1
+      }
+    }));
+  };
+
+  const getLikesData = (exerciseId) => {
+    return likesState[exerciseId] || { 
+      isLiked: false, 
+      count: Math.floor(Math.random() * 100) + 10 
+    };
+  };
+
   return (
     <section className="animate-fade-in">
       <div className="mb-8">
@@ -93,112 +112,125 @@ const PracticesPreview = () => {
       </div>
 
       <div className="space-y-6">
-        {exercises.map((exercise) => (
-          <Card 
-            key={exercise.id}
-            className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start space-x-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${exercise.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                  <Play className="w-8 h-8 text-white" />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                        {exercise.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-2">
-                        {exercise.description}
-                      </p>
-                    </div>
+        {exercises.map((exercise) => {
+          const likesData = getLikesData(exercise.id);
+          
+          return (
+            <Card 
+              key={exercise.id}
+              className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className={`w-16 h-16 bg-gradient-to-br ${exercise.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <Play className="w-8 h-8 text-white" />
                   </div>
-
-                  <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Timer className="w-4 h-4" />
-                      <span>{exercise.duration}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
-                      <span>{exercise.participants}</span>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {exercise.difficulty}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center space-x-2 mb-4">
-                    {exercise.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {activeExercise === exercise.id ? (
-                    <div className="bg-white rounded-lg p-4 border-2 border-emerald-200 animate-scale-in">
-                      <h4 className="font-semibold text-gray-800 mb-3">Пошаговая инструкция:</h4>
-                      <ol className="space-y-2 mb-4">
-                        {exercise.steps.map((step, index) => (
-                          <li key={index} className="flex items-start space-x-2 text-sm">
-                            <span className="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold">
-                              {index + 1}
-                            </span>
-                            <span className="text-gray-700">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                      <div className="flex space-x-2">
-                        <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600">
-                          Начать практику
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setActiveExercise(null)}>
-                          Свернуть
-                        </Button>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                          {exercise.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-2">
+                          {exercise.description}
+                        </p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center space-x-3 flex-wrap gap-2">
-                      <Button 
-                        onClick={() => startExercise(exercise.id)}
-                        className={`bg-gradient-to-r ${exercise.color} hover:shadow-lg transition-all duration-200`}
-                      >
-                        Попробовать сейчас
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleSchedule(exercise.title)}
-                      >
-                        <Calendar className="w-4 h-4 mr-1" />
-                        Запланировать
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handlePostpone(exercise.title)}
-                      >
-                        <Clock className="w-4 h-4 mr-1" />
-                        Отложить
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleShare(exercise.title)}
-                      >
-                        <Share2 className="w-4 h-4 mr-1" />
-                        Поделиться
-                      </Button>
+
+                    <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4" />
+                        <span>{exercise.duration}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users className="w-4 h-4" />
+                        <span>{exercise.participants}</span>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {exercise.difficulty}
+                      </Badge>
                     </div>
-                  )}
+
+                    <div className="flex items-center space-x-2 mb-4">
+                      {exercise.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    {activeExercise === exercise.id ? (
+                      <div className="bg-white rounded-lg p-4 border-2 border-emerald-200 animate-scale-in">
+                        <h4 className="font-semibold text-gray-800 mb-3">Пошаговая инструкция:</h4>
+                        <ol className="space-y-2 mb-4">
+                          {exercise.steps.map((step, index) => (
+                            <li key={index} className="flex items-start space-x-2 text-sm">
+                              <span className="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold">
+                                {index + 1}
+                              </span>
+                              <span className="text-gray-700">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                        <div className="flex space-x-2">
+                          <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                            Начать практику
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setActiveExercise(null)}>
+                            Свернуть
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-3 flex-wrap gap-2">
+                        <Button 
+                          onClick={() => startExercise(exercise.id)}
+                          className={`bg-gradient-to-r ${exercise.color} hover:shadow-lg transition-all duration-200`}
+                        >
+                          Попробовать сейчас
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleSchedule(exercise.title)}
+                        >
+                          <Calendar className="w-4 h-4 mr-1" />
+                          Запланировать
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handlePostpone(exercise.title)}
+                        >
+                          <Clock className="w-4 h-4 mr-1" />
+                          Отложить
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleShare(exercise.title)}
+                        >
+                          <Share2 className="w-4 h-4 mr-1" />
+                          Поделиться
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleLike(exercise.id)}
+                          className={`${likesData.isLiked ? 'text-red-500 border-red-200 bg-red-50' : ''}`}
+                        >
+                          <Heart className={`w-4 h-4 mr-1 ${likesData.isLiked ? 'fill-red-500' : ''}`} />
+                          {likesData.count}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
 
         <div className="text-center pt-4">
           <p className="text-sm text-gray-500 mb-4">

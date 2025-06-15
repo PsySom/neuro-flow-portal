@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Timer, Users, Share2, Calendar, Clock } from 'lucide-react';
+import { Play, Timer, Users, Share2, Calendar, Clock, Heart } from 'lucide-react';
 import { contentTypes } from '@/constants/practicesConstants';
 
 interface ContentItem {
@@ -33,6 +33,9 @@ interface PracticeContentCardProps {
 }
 
 const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleShare, onOpenDetail }) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 100) + 10); // Случайное число лайков для демонстрации
+
   const handleSchedule = (title: string) => {
     console.log(`Запланировать: ${title}`);
     // Здесь будет логика планирования упражнения
@@ -41,6 +44,15 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
   const handlePostpone = (title: string) => {
     console.log(`Отложить: ${title}`);
     // Здесь будет логика откладывания упражнения
+  };
+
+  const handleLike = () => {
+    if (isLiked) {
+      setLikesCount(prev => prev - 1);
+    } else {
+      setLikesCount(prev => prev + 1);
+    }
+    setIsLiked(!isLiked);
   };
 
   return (
@@ -126,6 +138,15 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
               >
                 <Share2 className="w-4 h-4 mr-1" />
                 Поделиться
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLike}
+                className={`${isLiked ? 'text-red-500 border-red-200 bg-red-50' : ''}`}
+              >
+                <Heart className={`w-4 h-4 mr-1 ${isLiked ? 'fill-red-500' : ''}`} />
+                {likesCount}
               </Button>
             </div>
           </div>
