@@ -1,4 +1,3 @@
-
 export const contentTypes = [
   { id: 'all', label: 'Все типы' },
   { id: 'exercises', label: 'Упражнения' },
@@ -14,7 +13,8 @@ export const therapyMethods = [
   { id: 'compassion', label: 'SFT Терапия сфокусированная на сострадании' },
   { id: 'gestalt', label: 'Гештальт-терапия' },
   { id: 'psychodynamic', label: 'Психодинамическая терапия' },
-  { id: 'humanistic', label: 'Гуманистическая терапия' }
+  { id: 'humanistic', label: 'Гуманистическая терапия' },
+  { id: 'other', label: 'Другое' }
 ];
 
 export const problems = [
