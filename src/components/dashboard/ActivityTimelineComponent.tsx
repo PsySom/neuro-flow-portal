@@ -88,8 +88,7 @@ const ActivityTimelineComponent = () => {
     { id: 15, name: 'Просмотр фильма', emoji: '🎬', startTime: '20:00', endTime: '21:30', duration: '1.5 ч', color: 'bg-violet-200', importance: 2, completed: false, type: 'восстановление', needEmoji: '🎭' },
     { id: 16, name: 'Душ, гигиена', emoji: '🚿', startTime: '21:30', endTime: '22:00', duration: '30 мин', color: 'bg-blue-200', importance: 4, completed: false, type: 'восстановление', needEmoji: '🧘' },
     { id: 17, name: 'Заполнение дневника', emoji: '📝', startTime: '22:00', endTime: '22:30', duration: '30 мин', color: 'bg-purple-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🧠' },
-    { id: 1, name: 'Сон', emoji: '😴', startTime: '22:30', endTime: '06:30', duration: '8 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
-    { id: 18, name: 'Подготовка ко сну', emoji: '🌙', startTime: '06:30', endTime: '08:00', duration: '1.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '😴' }
+    { id: 1, name: 'Сон', emoji: '😴', startTime: '22:30', endTime: '08:00', duration: '9.5 ч', color: 'bg-indigo-200', importance: 5, completed: false, type: 'восстановление', needEmoji: '🛌' },
   ];
 
   // Вычисление позиции индикатора текущего времени
@@ -115,6 +114,12 @@ const ActivityTimelineComponent = () => {
     minute: '2-digit' 
   });
 
+  // Helper function to convert time string to minutes
+  const timeToMinutes = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
   // Group activities into 8 three-hour blocks
   const timeSlots = Array.from({ length: 8 }, (_, i) => {
     const startHour = i * 3;
@@ -123,12 +128,30 @@ const ActivityTimelineComponent = () => {
     
     // Find activities for this 3-hour block
     const blockActivities = activities.filter(activity => {
-      const activityStartHour = parseInt(activity.startTime.split(':')[0]);
-      const activityEndHour = parseInt(activity.endTime.split(':')[0]);
-      const activityEndMinute = parseInt(activity.endTime.split(':')[1]);
+      const activityStartMinutes = timeToMinutes(activity.startTime);
+      const activityEndMinutes = timeToMinutes(activity.endTime);
+      const blockStartMinutes = startHour * 60;
+      const blockEndMinutes = endHour * 60;
       
-      // Activity overlaps with this 3-hour block
-      return (activityStartHour < endHour && (activityEndHour > startHour || (activityEndHour === endHour && activityEndMinute > 0)));
+      // Handle activities that span midnight (like sleep from 22:30 to 08:00)
+      if (activityEndMinutes < activityStartMinutes) {
+        // Activity crosses midnight
+        // Check if this block overlaps with either the evening part or morning part
+        return (
+          // Evening part: activity starts before midnight and block is in evening
+          (activityStartMinutes >= blockStartMinutes && activityStartMinutes < blockEndMinutes) ||
+          // Morning part: activity ends after midnight and block is in morning  
+          (activityEndMinutes > blockStartMinutes && activityEndMinutes <= blockEndMinutes) ||
+          // Block covers midnight transition
+          (blockStartMinutes < 24 * 60 && blockEndMinutes > 0 && activityStartMinutes >= blockStartMinutes) ||
+          (blockStartMinutes < activityEndMinutes && blockEndMinutes > 0)
+        );
+      } else {
+        // Normal activity within same day
+        return (
+          activityStartMinutes < blockEndMinutes && activityEndMinutes > blockStartMinutes
+        );
+      }
     });
 
     return {
@@ -141,7 +164,20 @@ const ActivityTimelineComponent = () => {
 
   const isActivityStart = (activity: Activity, startHour: number) => {
     const activityStartHour = parseInt(activity.startTime.split(':')[0]);
-    return activityStartHour >= startHour && activityStartHour < startHour + 3;
+    const activityEndMinutes = timeToMinutes(activity.endTime);
+    const activityStartMinutes = timeToMinutes(activity.startTime);
+    
+    // Handle midnight-spanning activities
+    if (activityEndMinutes < activityStartMinutes) {
+      // For activities crossing midnight, show them at the start of both relevant blocks
+      return (
+        (activityStartHour >= startHour && activityStartHour < startHour + 3) || // Evening part
+        (startHour === 0 && activityEndMinutes <= (startHour + 3) * 60) // Morning part (00-03 block)
+      );
+    } else {
+      // Normal activities
+      return activityStartHour >= startHour && activityStartHour < startHour + 3;
+    }
   };
 
   return (
@@ -196,7 +232,7 @@ const ActivityTimelineComponent = () => {
                     slot.activities.map((activity) => 
                       isActivityStart(activity, slot.startHour) ? (
                         <div 
-                          key={activity.id} 
+                          key={`${activity.id}-${slot.startHour}`} 
                           className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[85px] flex flex-col justify-between`}
                         >
                           {/* Первая строка: галочка, название и кнопки */}
@@ -207,7 +243,15 @@ const ActivityTimelineComponent = () => {
                                 className="w-8 h-8 rounded-sm mt-0.5"
                               />
                               <div className="flex flex-col space-y-1">
-                                <span className="font-medium text-sm leading-tight">{activity.name}</span>
+                                <span className="font-medium text-sm leading-tight">
+                                  {activity.name}
+                                  {/* Show time range for current block if it's a midnight-spanning activity */}
+                                  {timeToMinutes(activity.endTime) < timeToMinutes(activity.startTime) && (
+                                    slot.startHour === 0 ? 
+                                    ` (00:00-${activity.endTime})` : 
+                                    slot.startHour >= 21 ? ` (${activity.startTime}-24:00)` : ''
+                                  )}
+                                </span>
                                 
                                 {/* Вторая строка: время, продолжительность и звездочки */}
                                 <div className="flex items-center space-x-4 text-xs text-gray-600">
