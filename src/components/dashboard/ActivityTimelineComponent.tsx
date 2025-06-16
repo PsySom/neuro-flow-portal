@@ -6,11 +6,22 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, Plus, Star } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { activities } from './activity-timeline/activityData';
+import { activities as initialActivities } from './activity-timeline/activityData';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activities, setActivities] = useState(initialActivities);
+
+  const handleActivityToggle = (activityId: number) => {
+    setActivities(prev => 
+      prev.map(activity => 
+        activity.id === activityId 
+          ? { ...activity, completed: !activity.completed }
+          : activity
+      )
+    );
+  };
 
   return (
     <>
@@ -41,7 +52,8 @@ const ActivityTimelineComponent = () => {
                     <div className="flex items-start space-x-3 flex-1">
                       <Checkbox 
                         checked={activity.completed}
-                        className="w-5 h-5 rounded-sm mt-1"
+                        onCheckedChange={() => handleActivityToggle(activity.id)}
+                        className="w-5 h-5 rounded-sm mt-1 cursor-pointer"
                       />
                       <div className="flex flex-col space-y-2">
                         <span className="font-medium text-lg">{activity.name}</span>
