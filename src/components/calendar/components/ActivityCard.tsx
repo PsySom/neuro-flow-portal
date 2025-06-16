@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -109,25 +110,23 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
 
         {/* Вторая строка с временем и звездами важности */}
         <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center space-x-1 text-xs text-gray-600">
-            <span className="font-medium text-xs">{activity.startTime}-{activity.endTime}</span>
-            <div className="flex items-center">
-              {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
-                <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
+          <span className="font-medium text-xs text-gray-600">{activity.startTime}-{activity.endTime}</span>
+          <div className="flex items-center">
+            {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
+              <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
+            ))}
           </div>
+        </div>
 
-          {/* Эмоджи и тип активности справа */}
-          <div className="flex items-center space-x-1">
-            <span className="text-sm">{activity.emoji}</span>
-            {activity.type === 'восстановление' && activity.needEmoji && (
-              <span className="text-xs">{activity.needEmoji}</span>
-            )}
-            <Badge variant="secondary" className="text-xs px-1 py-0">
-              {getDisplayType(activity.type)}
-            </Badge>
-          </div>
+        {/* Третья строка с эмоджи и типом активности слева */}
+        <div className="flex items-center space-x-1">
+          <span className="text-sm">{activity.emoji}</span>
+          {activity.type === 'восстановление' && activity.needEmoji && (
+            <span className="text-xs">{activity.needEmoji}</span>
+          )}
+          <Badge variant="secondary" className="text-xs px-1 py-0">
+            {getDisplayType(activity.type)}
+          </Badge>
         </div>
       </div>
 
