@@ -69,13 +69,13 @@ const ActivityTimelineComponent = () => {
                         </div>
 
                         <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {activity.type}
+                          </Badge>
                           <span className="text-2xl">{activity.emoji}</span>
                           {activity.type === 'восстановление' && activity.needEmoji && (
                             <span className="text-lg">{activity.needEmoji}</span>
                           )}
-                          <Badge variant="secondary" className="text-xs">
-                            {activity.type}
-                          </Badge>
                         </div>
                       </div>
                     </div>
