@@ -109,7 +109,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
         </div>
 
         {/* Вторая строка с временем и звездами важности */}
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-0.5">
           <span className="font-medium text-xs text-gray-600">{activity.startTime}-{activity.endTime}</span>
           <div className="flex items-center">
             {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
@@ -118,15 +118,15 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
           </div>
         </div>
 
-        {/* Третья строка с эмоджи и типом активности слева */}
+        {/* Третья строка с типом активности и эмоджи */}
         <div className="flex items-center space-x-1">
+          <Badge variant="secondary" className="text-xs px-1 py-0">
+            {getDisplayType(activity.type)}
+          </Badge>
           <span className="text-sm">{activity.emoji}</span>
           {activity.type === 'восстановление' && activity.needEmoji && (
             <span className="text-xs">{activity.needEmoji}</span>
           )}
-          <Badge variant="secondary" className="text-xs px-1 py-0">
-            {getDisplayType(activity.type)}
-          </Badge>
         </div>
       </div>
 
