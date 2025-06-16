@@ -60,7 +60,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
         className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
         style={{ 
           top: `${Math.max(0, top)}px`, 
-          height: `${Math.max(60, Math.min(height, 1440 - Math.max(0, top)))}px`,
+          height: `${Math.max(66, Math.min(height, 1440 - Math.max(0, top)))}px`,
           left: `${left}%`,
           width: `${width}%`,
           zIndex: 1
