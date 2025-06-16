@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,17 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     hour: '2-digit', 
     minute: '2-digit' 
   });
+
+  // Обработчик переключения состояния активности
+  const handleActivityToggle = (activityId: number) => {
+    setActivities(prev => 
+      prev.map(activity => 
+        activity.id === activityId 
+          ? { ...activity, completed: !activity.completed }
+          : activity
+      )
+    );
+  };
 
   // Фильтруем активности по выбранным типам
   const visibleActivities = activities.filter(activity => 
@@ -194,7 +206,10 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
                 {/* Активности */}
                 {activityLayouts.map((layout) => (
                   <div key={layout.activity.id} data-activity-card>
-                    <ActivityCard layout={layout} />
+                    <ActivityCard 
+                      layout={layout} 
+                      onToggleComplete={handleActivityToggle}
+                    />
                   </div>
                 ))}
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,9 +8,10 @@ import ActivityDetailsDialog from './ActivityDetailsDialog';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
+  onToggleComplete?: (activityId: number) => void;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ layout }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete }) => {
   const { activity, top, height, left, width } = layout;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -34,6 +34,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout }) => {
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsDialogOpen(true);
+  };
+
+  const handleCheckboxToggle = () => {
+    if (onToggleComplete) {
+      onToggleComplete(activity.id);
+    }
   };
 
   // Функция для получения отображаемого типа активности
@@ -65,7 +71,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout }) => {
           <div className="flex items-start space-x-1 flex-1 min-w-0">
             <Checkbox 
               checked={activity.completed}
-              className="w-3 h-3 rounded-sm mt-1 flex-shrink-0"
+              onCheckedChange={handleCheckboxToggle}
+              className="w-3 h-3 rounded-sm mt-1 flex-shrink-0 cursor-pointer"
               onClick={(e) => e.stopPropagation()}
             />
             <span className="font-medium text-xs truncate">{activity.name}</span>
