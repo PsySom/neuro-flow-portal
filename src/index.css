@@ -46,12 +46,19 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Modern color palette inspired by prototype */
+    /* Personalization variables */
+    --color-primary: 142 69% 58%;
+    --color-secondary: 142 76% 36%;
+    --color-accent: 142 69% 58%;
+    --font-size-base: 16px;
+    --font-scale: 1;
+
+    /* Dynamic colors based on personalization */
     --psybalans-bg: 240 10% 98%;
     --psybalans-card: 0 0% 100%;
-    --psybalans-primary: 262 83% 58%;
-    --psybalans-secondary: 213 94% 68%;
-    --psybalans-accent: 142 69% 58%;
+    --psybalans-primary: var(--color-primary);
+    --psybalans-secondary: var(--color-secondary);
+    --psybalans-accent: var(--color-accent);
     --psybalans-warning: 38 92% 50%;
     --psybalans-success: 142 69% 58%;
     --psybalans-muted: 240 4.8% 95.9%;
@@ -99,9 +106,9 @@
     /* Dark theme colors */
     --psybalans-bg: 240 10% 3.9%;
     --psybalans-card: 240 3.7% 15.9%;
-    --psybalans-primary: 262 83% 70%;
-    --psybalans-secondary: 213 94% 76%;
-    --psybalans-accent: 142 69% 65%;
+    --psybalans-primary: var(--color-primary);
+    --psybalans-secondary: var(--color-secondary);
+    --psybalans-accent: var(--color-accent);
     --psybalans-warning: 38 92% 60%;
     --psybalans-success: 142 69% 65%;
     --psybalans-muted: 240 3.7% 15.9%;
@@ -117,41 +124,51 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: var(--font-size-base);
   }
 
-  /* Typography scale inspired by prototype */
+  /* Typography scale with dynamic sizing */
   h1 {
-    @apply text-4xl lg:text-6xl font-bold tracking-tight;
+    font-size: calc(2.25rem * var(--font-scale));
+    @apply font-bold tracking-tight;
   }
 
   h2 {
-    @apply text-3xl lg:text-4xl font-semibold tracking-tight;
+    font-size: calc(1.875rem * var(--font-scale));
+    @apply font-semibold tracking-tight;
   }
 
   h3 {
-    @apply text-2xl lg:text-3xl font-semibold tracking-tight;
+    font-size: calc(1.5rem * var(--font-scale));
+    @apply font-semibold tracking-tight;
   }
 
   h4 {
-    @apply text-xl font-semibold tracking-tight;
+    font-size: calc(1.25rem * var(--font-scale));
+    @apply font-semibold tracking-tight;
   }
 
   h5 {
-    @apply text-lg font-semibold tracking-tight;
+    font-size: calc(1.125rem * var(--font-scale));
+    @apply font-semibold tracking-tight;
   }
 
   h6 {
-    @apply text-base font-semibold tracking-tight;
+    font-size: calc(1rem * var(--font-scale));
+    @apply font-semibold tracking-tight;
   }
 
   p {
-    @apply text-base leading-7;
+    font-size: calc(1rem * var(--font-scale));
+    @apply leading-7;
   }
 
   .text-gradient {
     @apply bg-gradient-to-r from-psybalans-primary to-psybalans-secondary bg-clip-text text-transparent;
   }
 }
+
+/* ... keep existing code (animations and other styles) */
 
 /* Modern animations inspired by prototype */
 @keyframes float {
@@ -336,14 +353,14 @@
 /* Responsive typography */
 @media (max-width: 640px) {
   h1 {
-    @apply text-3xl;
+    font-size: calc(1.875rem * var(--font-scale));
   }
   
   h2 {
-    @apply text-2xl;
+    font-size: calc(1.5rem * var(--font-scale));
   }
   
   h3 {
-    @apply text-xl;
+    font-size: calc(1.25rem * var(--font-scale));
   }
 }
