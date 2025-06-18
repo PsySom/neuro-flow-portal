@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SettingsButton } from '@/components/SettingsButton';
 import DayView from '@/components/calendar/DayView';
 import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
@@ -104,6 +105,7 @@ const Calendar = () => {
                     className="pl-10 w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                   />
                 </div>
+                <SettingsButton />
                 <ThemeToggle />
                 <Avatar>
                   <AvatarImage src="/placeholder.svg" />

@@ -7,6 +7,7 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
+import { SettingsButton } from './SettingsButton';
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -64,7 +65,7 @@ const Header = () => {
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Поиск и переключатель темы */}
+            {/* Поиск и настройки */}
             <div className="flex items-center space-x-2">
               {isSearchOpen ? (
                 <div className="flex items-center space-x-2">
@@ -91,6 +92,7 @@ const Header = () => {
                   >
                     <Search className="w-5 h-5" />
                   </Button>
+                  <SettingsButton />
                   <ThemeToggle />
                 </>
               )}
@@ -127,6 +129,7 @@ const Header = () => {
             >
               <Search className="w-5 h-5" />
             </Button>
+            <SettingsButton />
             <ThemeToggle />
             <Mascot />
             <Sheet>
