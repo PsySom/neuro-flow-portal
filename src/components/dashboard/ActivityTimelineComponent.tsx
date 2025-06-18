@@ -8,10 +8,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { activities as initialActivities } from './activity-timeline/activityData';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
+import ActivityDetailsDialog from '@/components/calendar/components/ActivityDetailsDialog';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activities, setActivities] = useState(initialActivities);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   const handleActivityToggle = (activityId: number) => {
     setActivities(prev => 
@@ -21,6 +24,24 @@ const ActivityTimelineComponent = () => {
           : activity
       )
     );
+  };
+
+  const handleInfoClick = (activity: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedActivity(activity);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleEditClick = (activity: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedActivity(activity);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleDeleteClick = (activity: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Логика удаления активности
+    setActivities(prev => prev.filter(act => act.id !== activity.id));
   };
 
   return (
@@ -86,7 +107,7 @@ const ActivityTimelineComponent = () => {
                         size="icon" 
                         variant="ghost" 
                         className="h-6 w-6"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => handleInfoClick(activity, e)}
                       >
                         <Info className="w-3 h-3" />
                       </Button>
@@ -94,7 +115,7 @@ const ActivityTimelineComponent = () => {
                         size="icon" 
                         variant="ghost" 
                         className="h-6 w-6"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => handleEditClick(activity, e)}
                       >
                         <Edit className="w-3 h-3" />
                       </Button>
@@ -102,7 +123,7 @@ const ActivityTimelineComponent = () => {
                         size="icon" 
                         variant="ghost" 
                         className="h-6 w-6"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => handleDeleteClick(activity, e)}
                       >
                         <Trash2 className="w-3 h-3 text-red-500" />
                       </Button>
@@ -119,6 +140,14 @@ const ActivityTimelineComponent = () => {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
       />
+
+      {selectedActivity && (
+        <ActivityDetailsDialog 
+          open={isDetailsDialogOpen}
+          onOpenChange={setIsDetailsDialogOpen}
+          activity={selectedActivity}
+        />
+      )}
     </>
   );
 };
