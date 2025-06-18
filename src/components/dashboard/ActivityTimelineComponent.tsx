@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Plus, Star } from 'lucide-react';
+import { Clock, Plus, Star, Info, Edit, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { activities as initialActivities } from './activity-timeline/activityData';
@@ -78,6 +78,34 @@ const ActivityTimelineComponent = () => {
                           )}
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* Кнопки в верхнем правом углу */}
+                    <div className="flex space-x-1 ml-2">
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-6 w-6"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Info className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-6 w-6"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-6 w-6"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </Button>
                     </div>
                   </div>
                 </div>
