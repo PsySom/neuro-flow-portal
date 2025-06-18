@@ -18,11 +18,14 @@ import DayView from '@/components/calendar/DayView';
 import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
+import { useActivities } from '@/contexts/ActivitiesContext';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState('day');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const { addActivity } = useActivities();
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -64,8 +67,7 @@ const Calendar = () => {
   };
 
   const handleActivityCreate = (activity: any) => {
-    console.log('New activity created:', activity);
-    // This will be handled by the DayView component
+    addActivity(activity);
   };
 
   return (

@@ -6,24 +6,19 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, Plus, Star, Info, Edit, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { activities as initialActivities } from './activity-timeline/activityData';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 import ActivityDetailsDialog from '@/components/calendar/components/ActivityDetailsDialog';
+import { useActivities } from '@/contexts/ActivitiesContext';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [activities, setActivities] = useState(initialActivities);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  
+  const { activities, toggleActivityComplete, deleteActivity } = useActivities();
 
   const handleActivityToggle = (activityId: number) => {
-    setActivities(prev => 
-      prev.map(activity => 
-        activity.id === activityId 
-          ? { ...activity, completed: !activity.completed }
-          : activity
-      )
-    );
+    toggleActivityComplete(activityId);
   };
 
   const handleInfoClick = (activity: any, e: React.MouseEvent) => {
@@ -40,8 +35,7 @@ const ActivityTimelineComponent = () => {
 
   const handleDeleteClick = (activity: any, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Логика удаления активности
-    setActivities(prev => prev.filter(act => act.id !== activity.id));
+    deleteActivity(activity.id);
   };
 
   return (

@@ -10,18 +10,18 @@ import TimeMarkers from './components/TimeMarkers';
 import ActivityCard from './components/ActivityCard';
 import CurrentTimeIndicator from './components/CurrentTimeIndicator';
 import CreateActivityDialog from './components/CreateActivityDialog';
-import { baseActivities } from './data/activitiesData';
-import { Activity } from './types';
+import { useActivities } from '@/contexts/ActivitiesContext';
 
 interface DayViewProps {
   currentDate: Date;
 }
 
 const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
-  const [activities, setActivities] = useState<Activity[]>(baseActivities);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+
+  const { activities, toggleActivityComplete, addActivity } = useActivities();
 
   const currentTimeString = new Date().toLocaleTimeString('ru-RU', { 
     hour: '2-digit', 
@@ -30,13 +30,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
 
   // Обработчик переключения состояния активности
   const handleActivityToggle = (activityId: number) => {
-    setActivities(prev => 
-      prev.map(activity => 
-        activity.id === activityId 
-          ? { ...activity, completed: !activity.completed }
-          : activity
-      )
-    );
+    toggleActivityComplete(activityId);
   };
 
   // Фильтруем активности по выбранным типам
@@ -69,8 +63,8 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityCreate = (newActivity: Activity) => {
-    setActivities(prev => [...prev, newActivity]);
+  const handleActivityCreate = (newActivity: any) => {
+    addActivity(newActivity);
   };
 
   const handleTypeFilterChange = (type: string, checked: boolean) => {
