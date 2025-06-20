@@ -1,7 +1,7 @@
+
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Brain, 
   Search, 
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import UserMenu from '@/components/dashboard/UserMenu';
 import AIChatComponent from '@/components/dashboard/AIChatComponent';
 import ActivityTimelineComponent from '@/components/dashboard/ActivityTimelineComponent';
 import BalanceWheelComponent from '@/components/dashboard/BalanceWheelComponent';
@@ -47,14 +48,23 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <Brain className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+              <Brain className="w-8 h-8" style={{ color: `hsl(var(--psybalans-primary))` }} />
+              <span 
+                className="text-2xl font-bold bg-clip-text text-transparent"
+                style={{ 
+                  backgroundImage: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
+                }}
+              >
                 PsyBalans
               </span>
             </Link>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <Button variant="ghost" className="text-emerald-600 dark:text-emerald-400 font-medium">
+              <Button 
+                variant="ghost" 
+                className="font-medium"
+                style={{ color: `hsl(var(--psybalans-primary))` }}
+              >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Дневники
               </Button>
@@ -83,10 +93,7 @@ const Dashboard = () => {
                 />
               </div>
               <ThemeToggle />
-              <Avatar>
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400">АП</AvatarFallback>
-              </Avatar>
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -158,11 +165,21 @@ const Dashboard = () => {
             {/* Рекомендации */}
             <Button 
               variant="ghost" 
-              className="h-20 flex flex-col items-center justify-center space-y-2 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 hover:from-emerald-100 hover:to-emerald-200 dark:hover:from-emerald-800/30 dark:hover:to-emerald-700/30 rounded-xl border border-emerald-200/50 dark:border-emerald-700/50"
+              className="h-20 flex flex-col items-center justify-center space-y-2 rounded-xl border"
+              style={{
+                background: `linear-gradient(to bottom right, hsl(var(--psybalans-primary) / 0.1), hsl(var(--psybalans-secondary) / 0.1))`,
+                borderColor: `hsl(var(--psybalans-primary) / 0.2)`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = `linear-gradient(to bottom right, hsl(var(--psybalans-primary) / 0.2), hsl(var(--psybalans-secondary) / 0.2))`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = `linear-gradient(to bottom right, hsl(var(--psybalans-primary) / 0.1), hsl(var(--psybalans-secondary) / 0.1))`;
+              }}
               onClick={() => console.log('Navigate to Рекомендации')}
             >
-              <Target className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Рекомендации</span>
+              <Target className="w-8 h-8" style={{ color: `hsl(var(--psybalans-primary))` }} />
+              <span className="text-sm font-medium" style={{ color: `hsl(var(--psybalans-primary))` }}>Рекомендации</span>
             </Button>
 
             {/* Статистика */}
