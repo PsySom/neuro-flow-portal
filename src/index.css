@@ -50,6 +50,8 @@
     --color-primary: 142 69% 58%;
     --color-secondary: 142 76% 36%;
     --color-accent: 142 69% 58%;
+    --color-accent-light: 142 76% 73%;
+    --color-accent-dark: 142 76% 36%;
     --font-size-base: 16px;
     --font-scale: 1;
 
@@ -59,6 +61,8 @@
     --psybalans-primary: var(--color-primary);
     --psybalans-secondary: var(--color-secondary);
     --psybalans-accent: var(--color-accent);
+    --psybalans-accent-light: var(--color-accent-light);
+    --psybalans-accent-dark: var(--color-accent-dark);
     --psybalans-warning: 38 92% 50%;
     --psybalans-success: 142 69% 58%;
     --psybalans-muted: 240 4.8% 95.9%;
@@ -109,6 +113,8 @@
     --psybalans-primary: var(--color-primary);
     --psybalans-secondary: var(--color-secondary);
     --psybalans-accent: var(--color-accent);
+    --psybalans-accent-light: var(--color-accent-light);
+    --psybalans-accent-dark: var(--color-accent-dark);
     --psybalans-warning: 38 92% 60%;
     --psybalans-success: 142 69% 65%;
     --psybalans-muted: 240 3.7% 15.9%;

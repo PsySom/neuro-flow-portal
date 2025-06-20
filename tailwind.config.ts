@@ -78,6 +78,8 @@ export default {
 					primary: 'hsl(var(--psybalans-primary))',
 					secondary: 'hsl(var(--psybalans-secondary))',
 					accent: 'hsl(var(--psybalans-accent))',
+					'accent-light': 'hsl(var(--psybalans-accent-light))',
+					'accent-dark': 'hsl(var(--psybalans-accent-dark))',
 					warning: 'hsl(var(--psybalans-warning))',
 					success: 'hsl(var(--psybalans-success))',
 					muted: 'hsl(var(--psybalans-muted))',

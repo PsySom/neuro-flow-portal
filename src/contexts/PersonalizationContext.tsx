@@ -29,32 +29,44 @@ const colorVariables = {
   emerald: {
     primary: '142 69% 58%',
     secondary: '142 76% 36%',
-    accent: '142 69% 58%'
+    accent: '142 69% 58%',
+    light: '142 76% 73%',
+    dark: '142 76% 36%'
   },
   blue: {
     primary: '217 91% 60%',
     secondary: '217 76% 47%',
-    accent: '217 91% 60%'
+    accent: '217 91% 60%',
+    light: '217 91% 73%',
+    dark: '217 76% 47%'
   },
   purple: {
     primary: '262 83% 58%',
     secondary: '262 76% 47%',
-    accent: '262 83% 58%'
+    accent: '262 83% 58%',
+    light: '262 83% 73%',
+    dark: '262 76% 47%'
   },
   pink: {
     primary: '330 81% 60%',
     secondary: '330 76% 47%',
-    accent: '330 81% 60%'
+    accent: '330 81% 60%',
+    light: '330 81% 73%',
+    dark: '330 76% 47%'
   },
   orange: {
     primary: '25 95% 53%',
     secondary: '25 76% 47%',
-    accent: '25 95% 53%'
+    accent: '25 95% 53%',
+    light: '25 95% 68%',
+    dark: '25 76% 47%'
   },
   teal: {
     primary: '173 58% 39%',
     secondary: '173 76% 29%',
-    accent: '173 58% 39%'
+    accent: '173 58% 39%',
+    light: '173 58% 54%',
+    dark: '173 76% 29%'
   }
 };
 
@@ -98,11 +110,13 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       root.classList.add(settings.theme);
     }
 
-    // Apply accent color
+    // Apply accent color variables
     const colors = colorVariables[settings.accentColor];
     root.style.setProperty('--color-primary', colors.primary);
     root.style.setProperty('--color-secondary', colors.secondary);
     root.style.setProperty('--color-accent', colors.accent);
+    root.style.setProperty('--color-accent-light', colors.light);
+    root.style.setProperty('--color-accent-dark', colors.dark);
 
     // Apply font size
     const fontSize = fontSizeVariables[settings.fontSize];
