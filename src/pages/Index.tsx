@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import HeroSection from '../components/HeroSection';
 import AIDiary from '../components/AIDiary';
@@ -12,11 +13,21 @@ import NewsletterForm from '../components/NewsletterForm';
 import Footer from '../components/Footer';
 
 const Index = () => {
+  const location = useLocation();
+
+  // Auto-scroll to hero section when navigating to main page
+  useEffect(() => {
+    const heroElement = document.getElementById('hero-section');
+    if (heroElement) {
+      heroElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-psybalans-bg via-white to-psybalans-muted dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500">
       <Header />
       <main className="overflow-hidden">
-        <div className="animate-slide-up-fade">
+        <div id="hero-section" className="animate-slide-up-fade">
           <HeroSection />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32 py-20">
