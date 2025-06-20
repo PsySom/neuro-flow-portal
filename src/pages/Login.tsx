@@ -7,26 +7,30 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Demo login - any email/password combination works
     if (email && password) {
       setIsLoading(true);
       
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsLoading(false);
-        // Redirect to dashboard
+      try {
+        await login(email, password);
+        // Redirect to dashboard after successful login
         navigate('/dashboard');
-      }, 1000);
+      } catch (error) {
+        console.error('Login failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

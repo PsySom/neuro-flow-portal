@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { ActivitiesProvider } from "@/contexts/ActivitiesContext";
 import { PersonalizationProvider } from "@/contexts/PersonalizationContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
@@ -23,30 +24,32 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <PersonalizationProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TooltipProvider>
-            <ActivitiesProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/calendar" element={<Calendar />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/for-professionals" element={<ForProfessionals />} />
-                  <Route path="/knowledge" element={<KnowledgeBase />} />
-                  <Route path="/practices" element={<Practices />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </ActivitiesProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-      </PersonalizationProvider>
+      <AuthProvider>
+        <PersonalizationProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <TooltipProvider>
+              <ActivitiesProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/for-professionals" element={<ForProfessionals />} />
+                    <Route path="/knowledge" element={<KnowledgeBase />} />
+                    <Route path="/practices" element={<Practices />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </ActivitiesProvider>
+            </TooltipProvider>
+          </ThemeProvider>
+        </PersonalizationProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

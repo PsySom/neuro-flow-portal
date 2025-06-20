@@ -2,16 +2,27 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Menu, X, Brain, Sparkles } from 'lucide-react';
+import { Search, Menu, X, Brain, Sparkles, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { SettingsButton } from './SettingsButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleBack = () => {
+    window.history.back();
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const Mascot = () => (
     <div className="relative group cursor-pointer">
@@ -98,21 +109,50 @@ const Header = () => {
               )}
             </div>
 
-            {/* Кнопки авторизации */}
+            {/* Кнопки авторизации или навигации */}
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
-                onClick={() => navigate('/login')}
-              >
-                Вход
-              </Button>
-              <Button 
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
-                onClick={() => navigate('/register')}
-              >
-                Регистрация
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
+                    onClick={handleBack}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Назад
+                  </Button>
+                  <Button 
+                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Дашборд
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="text-gray-700 dark:text-gray-300"
+                    onClick={handleLogout}
+                  >
+                    Выход
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
+                    onClick={() => navigate('/login')}
+                  >
+                    Вход
+                  </Button>
+                  <Button 
+                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                    onClick={() => navigate('/register')}
+                  >
+                    Регистрация
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Маскот */}
@@ -154,12 +194,30 @@ const Header = () => {
                   </Link>
                   <div className="pt-6 border-t dark:border-gray-700">
                     <div className="space-y-3">
-                      <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>
-                        Вход
-                      </Button>
-                      <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500" onClick={() => navigate('/register')}>
-                        Регистрация
-                      </Button>
+                      {isAuthenticated ? (
+                        <>
+                          <Button variant="outline" className="w-full" onClick={handleBack}>
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Назад
+                          </Button>
+                          <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500" onClick={() => navigate('/dashboard')}>
+                            <LayoutDashboard className="w-4 h-4 mr-2" />
+                            Дашборд
+                          </Button>
+                          <Button variant="outline" className="w-full" onClick={handleLogout}>
+                            Выход
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>
+                            Вход
+                          </Button>
+                          <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500" onClick={() => navigate('/register')}>
+                            Регистрация
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
