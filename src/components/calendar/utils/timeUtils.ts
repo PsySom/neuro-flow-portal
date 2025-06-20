@@ -48,8 +48,8 @@ const findAvailableThirdInTimeSlot = (activity: Activity, existingLayouts: Activ
     }
   }
   
-  // Если все три трети заняты, возвращаем -1
-  return -1;
+  // Если все три трети заняты, возвращаем предпочитаемую (будет перекрытие)
+  return preferredColumn;
 };
 
 // Функция для расчета раскладки активностей
@@ -67,40 +67,63 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     const startMinutes = getTimeInMinutes(activity.startTime);
     let endMinutes = getTimeInMinutes(activity.endTime);
     
-    // Обработка активностей, пересекающих полночь
+    // Обработка активностей, пересекающих полночь (например, сон)
     if (endMinutes < startMinutes) {
       endMinutes += 24 * 60;
     }
     
     const durationMinutes = endMinutes - startMinutes;
-    const top = (startMinutes / 60) * 90; // 90px на час (увеличено с 60px)
     
-    // Определяем высоту блока - минимум 60px (высота остается прежней)
-    const calculatedHeight = (durationMinutes / 60) * 60; // Высота остается 60px на час
-    const height = Math.max(calculatedHeight, 60);
+    // Вычисляем позицию с учетом новой высоты строки (90px на час)
+    let top = (startMinutes / 60) * 90;
+    
+    // Для активностей, пересекающих полночь, обрабатываем специально
+    if (startMinutes >= 22 * 60 && endMinutes > 24 * 60) {
+      // Если активность начинается поздно вечером и продолжается после полуночи
+      top = (startMinutes / 60) * 90;
+    } else if (startMinutes < endMinutes - 24 * 60) {
+      // Если это утренняя часть активности, начавшейся накануне
+      top = 0;
+    }
+    
+    // Вычисляем высоту блока
+    let displayDurationMinutes = durationMinutes;
+    
+    // Для активностей, пересекающих полночь, ограничиваем отображение в пределах дня
+    if (endMinutes > 24 * 60) {
+      if (startMinutes >= 22 * 60) {
+        // Показываем только вечернюю часть до полуночи
+        displayDurationMinutes = 24 * 60 - startMinutes;
+      } else {
+        // Показываем только утреннюю часть после полуночи
+        displayDurationMinutes = endMinutes - 24 * 60;
+        top = 0;
+      }
+    }
+    
+    const calculatedHeight = (displayDurationMinutes / 60) * 90;
+    const height = Math.max(calculatedHeight, 45); // Минимальная высота 45px
     
     // Определяем предпочитаемую колонку циклически (0, 1, 2, 0, 1, 2...)
     const preferredColumn = index % 3;
     
-    // Ищем доступную треть в временном слоте, начиная с предпочитаемой
-    let column = findAvailableThirdInTimeSlot(activity, layouts, preferredColumn);
-    
-    // Если нет доступных третей в этом временном слоте, используем предпочитаемую
-    if (column === -1) {
-      column = preferredColumn;
-      console.warn(`All thirds occupied for activity "${activity.name}", placing in preferred third ${column + 1} (may overlap)`);
-    }
+    // Ищем доступную треть в временном слоте
+    const column = findAvailableThirdInTimeSlot(activity, layouts, preferredColumn);
     
     // Размещение по третям: каждая треть занимает треть ширины
     const width = (100 / 3) - 1; // Треть ширины минус небольшой отступ
     const left = (100 / 3) * column + 0.5; // Позиция по горизонтали с небольшим отступом
     
-    console.log(`Activity "${activity.name}" (${activity.startTime}-${activity.endTime}) placed in column ${column + 1} (index ${index})`);
+    console.log(`Activity "${activity.name}" (${activity.startTime}-${activity.endTime}) placed in column ${column + 1} at top ${top}px with height ${height}px`);
+    
+    // Убеждаемся, что активность находится в пределах видимой области
+    const finalTop = Math.max(0, Math.min(top, 2160 - height));
+    const finalHeight = Math.min(height, 2160 - finalTop);
     
     layouts.push({
       activity,
-      top: Math.max(0, top),
-      height: Math.min(height, 2160 - Math.max(0, top)), // Общая высота увеличена до 2160px (24 * 90)
+      top: finalTop,
+      height: finalHeight,
       left,
       width,
       column,
@@ -109,6 +132,14 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
   });
   
   console.log('calculateActivityLayouts: Created', layouts.length, 'layouts');
+  console.log('Layouts details:', layouts.map(l => ({ 
+    name: l.activity.name, 
+    time: `${l.activity.startTime}-${l.activity.endTime}`,
+    top: l.top, 
+    height: l.height,
+    column: l.column 
+  })));
+  
   return layouts;
 };
 
@@ -119,7 +150,7 @@ export const generateTimeMarkers = () => {
     return {
       hour,
       time: `${hour.toString().padStart(2, '0')}:00`,
-      position: hour * 90 // 90px на час (увеличено с 60px)
+      position: hour * 90 // 90px на час
     };
   });
 };
