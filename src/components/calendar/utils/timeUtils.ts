@@ -56,6 +56,8 @@ const findAvailableThirdInTimeSlot = (activity: Activity, existingLayouts: Activ
 export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout[] => {
   const layouts: ActivityLayout[] = [];
   
+  console.log('calculateActivityLayouts: Processing', activities.length, 'activities');
+  
   // Сортируем активности по времени начала для корректного размещения
   const sortedActivities = [...activities].sort((a, b) => 
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
@@ -93,7 +95,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     const width = (100 / 3) - 1; // Треть ширины минус небольшой отступ
     const left = (100 / 3) * column + 0.5; // Позиция по горизонтали с небольшим отступом
     
-    console.log(`Activity "${activity.name}" placed in column ${column + 1} (index ${index})`);
+    console.log(`Activity "${activity.name}" (${activity.startTime}-${activity.endTime}) placed in column ${column + 1} (index ${index})`);
     
     layouts.push({
       activity,
@@ -106,6 +108,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     });
   });
   
+  console.log('calculateActivityLayouts: Created', layouts.length, 'layouts');
   return layouts;
 };
 

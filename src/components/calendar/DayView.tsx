@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,8 +21,12 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Используем активности из контекста вместо локальных данных
+  // Используем активности из контекста - те же данные, что и в дашборде
   const { activities, toggleActivityComplete, addActivity } = useActivities();
+
+  // Добавляем логирование для отладки
+  console.log('DayView activities count:', activities.length);
+  console.log('DayView activities:', activities.map(a => ({ id: a.id, name: a.name, time: `${a.startTime}-${a.endTime}` })));
 
   const currentTimeString = new Date().toLocaleTimeString('ru-RU', { 
     hour: '2-digit', 
@@ -74,16 +77,20 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     toggleActivityComplete(activityId);
   };
 
-  // Фильтруем активности по выбранным типам
+  // Фильтруем активности по выбранным типам - убеждаемся, что показываем все активности
   const visibleActivities = activities.filter(activity => 
     !filteredTypes.has(activity.type)
   );
 
+  console.log('Visible activities count:', visibleActivities.length);
+  console.log('Filtered types:', Array.from(filteredTypes));
+
   const activityLayouts = calculateActivityLayouts(visibleActivities);
   const timeMarkers = generateTimeMarkers();
 
-  // Получаем все возможные типы активностей
-  const allActivityTypes = ['восстановление', 'нейтральная', 'смешанная', 'задача'];
+  // Получаем все возможные типы активностей из реальных данных
+  const allActivityTypes = [...new Set(activities.map(activity => activity.type))];
+  console.log('All activity types found:', allActivityTypes);
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -212,7 +219,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center space-x-2">
                 <Clock className="w-5 h-5 text-emerald-600" />
-                <span>Активности дня</span>
+                <span>Активности дня ({visibleActivities.length})</span>
               </h2>
               <div className="flex items-center space-x-2">
                 <Badge variant="outline" className="bg-red-500 text-white">
