@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/dashboard/UserMenu';
 import AIChatComponent from '@/components/dashboard/AIChatComponent';
 import ActivityTimelineComponent from '@/components/dashboard/ActivityTimelineComponent';
@@ -23,6 +24,7 @@ import RecommendationsComponent from '@/components/dashboard/RecommendationsComp
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -31,7 +33,7 @@ const Dashboard = () => {
     return 'Добрый вечер';
   };
 
-  const userName = 'Анна'; // В реальном приложении это будет браться из контекста пользователя
+  const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
 
   // Auto-scroll to greeting section when navigating to dashboard
   useEffect(() => {

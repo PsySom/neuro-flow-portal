@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Search, Settings, Palette, Sun, Moon, Monitor } from 'lucide-react';
+import { Search, Settings, Palette, Sun, Moon, Monitor, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePersonalization, AccentColor, Theme } from '@/contexts/PersonalizationContext';
 
@@ -47,6 +47,11 @@ const UserMenu = () => {
   const handleThemeChange = (theme: Theme) => {
     updateSettings({ theme: theme });
     applySettings();
+  };
+
+  const handleUserSettings = () => {
+    console.log('Открыть настройки пользователя');
+    setIsOpen(false);
   };
 
   return (
@@ -104,14 +109,15 @@ const UserMenu = () => {
           {/* Настройки пользователя */}
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <Settings className="w-4 h-4" />
+              <User className="w-4 h-4" />
               <span>Настройки пользователя</span>
             </div>
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => console.log('Открыть настройки пользователя')}
+              onClick={handleUserSettings}
             >
+              <Settings className="w-4 h-4 mr-2" />
               Профиль и аккаунт
             </Button>
           </div>
