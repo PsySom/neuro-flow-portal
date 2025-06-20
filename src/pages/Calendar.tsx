@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Brain, 
@@ -20,6 +19,7 @@ import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import { useActivities } from '@/contexts/ActivitiesContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,6 +27,17 @@ const Calendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { addActivity } = useActivities();
+  const { user } = useAuth();
+
+  const getUserInitial = () => {
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -108,8 +119,9 @@ const Calendar = () => {
                 <SettingsButton />
                 <ThemeToggle />
                 <Avatar>
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400">АП</AvatarFallback>
+                  <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400">
+                    {getUserInitial()}
+                  </AvatarFallback>
                 </Avatar>
               </div>
             </div>

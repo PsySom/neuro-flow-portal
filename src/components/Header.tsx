@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Search, Menu, X, Brain, Sparkles, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -13,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
 
   const handleBack = () => {
     window.history.back();
@@ -22,6 +23,16 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const getUserInitial = () => {
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
   };
 
   const Mascot = () => (
@@ -135,6 +146,11 @@ const Header = () => {
                   >
                     Выход
                   </Button>
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 font-medium">
+                      {getUserInitial()}
+                    </AvatarFallback>
+                  </Avatar>
                 </>
               ) : (
                 <>
@@ -171,6 +187,13 @@ const Header = () => {
             </Button>
             <SettingsButton />
             <ThemeToggle />
+            {isAuthenticated && (
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
+                  {getUserInitial()}
+                </AvatarFallback>
+              </Avatar>
+            )}
             <Mascot />
             <Sheet>
               <SheetTrigger asChild>
