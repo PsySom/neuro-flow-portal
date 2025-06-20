@@ -1,18 +1,19 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Search, Settings, Palette, Sun, Moon, Monitor, User } from 'lucide-react';
+import { Search, Settings, Palette, Sun, Moon, Monitor, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePersonalization, AccentColor, Theme } from '@/contexts/PersonalizationContext';
+import { useNavigate } from 'react-router-dom';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { settings, updateSettings, applySettings } = usePersonalization();
+  const navigate = useNavigate();
 
   const getUserInitial = () => {
     if (user?.name) {
@@ -52,6 +53,12 @@ const UserMenu = () => {
   const handleUserSettings = () => {
     console.log('Открыть настройки пользователя');
     setIsOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    navigate('/');
   };
 
   return (
@@ -180,6 +187,20 @@ const UserMenu = () => {
                 </Button>
               ))}
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Выход из аккаунта */}
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Выйти из аккаунта
+            </Button>
           </div>
         </div>
       </SheetContent>
