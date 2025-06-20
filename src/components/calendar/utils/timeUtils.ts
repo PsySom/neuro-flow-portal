@@ -71,10 +71,10 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     }
     
     const durationMinutes = endMinutes - startMinutes;
-    const top = (startMinutes / 60) * 60; // 60px на час
+    const top = (startMinutes / 60) * 90; // 90px на час (увеличено с 60px)
     
-    // Определяем высоту блока - минимум 60px
-    const calculatedHeight = (durationMinutes / 60) * 60;
+    // Определяем высоту блока - минимум 60px (высота остается прежней)
+    const calculatedHeight = (durationMinutes / 60) * 60; // Высота остается 60px на час
     const height = Math.max(calculatedHeight, 60);
     
     // Определяем предпочитаемую колонку циклически (0, 1, 2, 0, 1, 2...)
@@ -98,7 +98,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
     layouts.push({
       activity,
       top: Math.max(0, top),
-      height: Math.min(height, 1440 - Math.max(0, top)),
+      height: Math.min(height, 2160 - Math.max(0, top)), // Общая высота увеличена до 2160px (24 * 90)
       left,
       width,
       column,
@@ -116,7 +116,7 @@ export const generateTimeMarkers = () => {
     return {
       hour,
       time: `${hour.toString().padStart(2, '0')}:00`,
-      position: hour * 60 // 60px на час
+      position: hour * 90 // 90px на час (увеличено с 60px)
     };
   });
 };

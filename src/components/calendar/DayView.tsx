@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,6 +20,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const { activities, toggleActivityComplete, addActivity } = useActivities();
 
@@ -27,6 +28,45 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     hour: '2-digit', 
     minute: '2-digit' 
   });
+
+  // Функция автоскроллинга к текущему времени
+  const scrollToCurrentTime = () => {
+    if (!scrollAreaRef.current) return;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Рассчитываем позицию текущего времени (90px на час)
+    const currentTimePosition = currentHour * 90 + (currentMinute / 60) * 90;
+    
+    const containerHeight = scrollAreaRef.current.clientHeight;
+    let scrollTop;
+
+    // Логика позиционирования: в первой половине дня (до 12:00) - в верхней трети
+    if (currentHour < 12) {
+      scrollTop = Math.max(0, currentTimePosition - containerHeight / 3);
+    } else {
+      // После полудня постепенно двигаемся к центру и ниже
+      const progressAfterNoon = (currentHour - 12) / 12; // от 0 до 1
+      const targetPosition = containerHeight / 3 + (progressAfterNoon * containerHeight / 3);
+      scrollTop = Math.max(0, currentTimePosition - targetPosition);
+    }
+
+    scrollAreaRef.current.scrollTo({
+      top: scrollTop,
+      behavior: 'smooth'
+    });
+  };
+
+  // Автоскроллинг при загрузке компонента
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToCurrentTime();
+    }, 100); // Небольшая задержка для корректного рендеринга
+
+    return () => clearTimeout(timer);
+  }, [currentDate]);
 
   // Обработчик переключения состояния активности
   const handleActivityToggle = (activityId: number) => {
@@ -54,8 +94,9 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     
-    const hourFromTop = Math.floor(clickY / 60);
-    const minuteFromTop = Math.floor((clickY % 60));
+    // Используем новое соотношение 90px на час
+    const hourFromTop = Math.floor(clickY / 90);
+    const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
     
@@ -133,7 +174,6 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
             </CardContent>
           </Card>
 
-          {/* Фильтры по типам активностей - все типы */}
           <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
             <CardContent className="p-3">
               <h3 className="text-xs font-medium mb-2 text-gray-700">Фильтры активностей</h3>
@@ -173,19 +213,30 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
                 <Clock className="w-5 h-5 text-emerald-600" />
                 <span>Активности дня</span>
               </h2>
-              <Badge variant="outline" className="bg-red-500 text-white">
-                Сейчас: {currentTimeString}
-              </Badge>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="bg-red-500 text-white">
+                  Сейчас: {currentTimeString}
+                </Badge>
+                <button
+                  onClick={scrollToCurrentTime}
+                  className="px-3 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                >
+                  К текущему времени
+                </button>
+              </div>
             </div>
 
-            <div className="flex h-[600px] overflow-y-auto">
+            <div 
+              ref={scrollAreaRef}
+              className="flex h-[600px] overflow-y-auto"
+            >
               {/* Временная шкала слева */}
               <TimeMarkers timeMarkers={timeMarkers} />
 
               {/* Область активностей */}
               <div 
                 className="flex-1 relative pl-4 cursor-pointer" 
-                style={{ height: '1440px' }}
+                style={{ height: '2160px' }} // Увеличено с 1440px до 2160px (24 * 90)
                 onClick={handleEmptyAreaClick}
               >
                 {/* Сетка часов */}
