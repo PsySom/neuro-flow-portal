@@ -40,22 +40,24 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) 
   const [userData, setUserData] = useState<any>({});
 
   const handleStepComplete = (stepData: any) => {
-    setUserData(prev => ({ ...prev, ...stepData }));
+    const newUserData = { ...userData, ...stepData };
+    setUserData(newUserData);
     
+    // Правильный порядок шагов согласно техническому заданию
     const stepOrder: OnboardingStep[] = [
       'registration',
-      'email-verification',
-      'welcome',
-      'basic-info',
-      'chronotype',
-      'current-state',
-      'challenges',
-      'professional-help',
-      'goals',
-      'preferences',
-      'profile-creation',
-      'welcome-complete',
-      'first-checkin'
+      'email-verification', 
+      'welcome',          // B1: Знакомство и приветствие
+      'basic-info',       // B2: Базовые данные
+      'chronotype',       // B3: Хронотип и режим дня
+      'current-state',    // C1: Оценка текущего самочувствия
+      'challenges',       // C2: Основные вызовы и трудности
+      'professional-help',// C3: Диагнозы и профессиональная помощь
+      'goals',           // D1: Основные цели использования
+      'preferences',     // D2: Мотивация и готовность к изменениям
+      'profile-creation',// E1: Создание профиля
+      'welcome-complete',// E2: Добро пожаловать
+      'first-checkin'    // Первая проверка состояния с данными
     ];
     
     const currentIndex = stepOrder.indexOf(currentStep);
