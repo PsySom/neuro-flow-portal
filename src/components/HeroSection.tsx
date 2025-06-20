@@ -14,7 +14,7 @@ const HeroSection = () => {
       title: (
         <>
           Ваш мозг работает{' '}
-          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-psybalans-primary via-psybalans-secondary to-purple-600 bg-clip-text text-transparent">
             циклами
           </span>
           .
@@ -31,13 +31,13 @@ const HeroSection = () => {
       title: (
         <>
           Жизнь — это{' '}
-          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-psybalans-primary via-psybalans-secondary to-purple-600 bg-clip-text text-transparent">
             поток
           </span>
           , в котором для того чтобы быть счастливыми,
           <br />
           нужно соблюдать{' '}
-          <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-emerald-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-psybalans-primary bg-clip-text text-transparent">
             баланс
           </span>{' '}
           и заботиться о себе и своих потребностях.
@@ -48,7 +48,7 @@ const HeroSection = () => {
       title: (
         <>
           Настоящие перемены начинаются с понимания своих{' '}
-          <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-psybalans-primary via-psybalans-secondary to-purple-600 bg-clip-text text-transparent">
             ритмов
           </span>
           , состояний и потребностей.
@@ -138,9 +138,16 @@ const HeroSection = () => {
                   onClick={() => setCurrentSlide(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === currentSlide
-                      ? 'bg-emerald-500 dark:bg-emerald-400 scale-110'
-                      : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                      ? 'scale-110'
+                      : 'hover:bg-gray-400 dark:hover:bg-gray-500'
                   }`}
+                  style={{
+                    backgroundColor: index === currentSlide 
+                      ? `hsl(var(--psybalans-primary))` 
+                      : index === currentSlide 
+                        ? `hsl(var(--psybalans-primary))` 
+                        : 'hsl(var(--muted))'
+                  }}
                   aria-label={`Перейти к слайду ${index + 1}`}
                 />
               ))}
@@ -151,7 +158,7 @@ const HeroSection = () => {
           <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
               Первая платформа, которая синхронизируется с биологией вашего сознания.{' '}
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="font-semibold" style={{ color: `hsl(var(--psybalans-primary))` }}>
                 Не просто трекинг, а персональная экосистема баланса
               </span>{' '}
               на основе нейронауки и AI.
@@ -162,7 +169,16 @@ const HeroSection = () => {
           <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              style={{
+                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = `linear-gradient(to right, hsl(var(--psybalans-secondary)), hsl(var(--psybalans-primary)))`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`;
+              }}
               onClick={scrollToAIDiary}
             >
               Попробовать AI-дневник ✨
@@ -173,8 +189,13 @@ const HeroSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto pt-16 animate-fade-in" style={{ animationDelay: '0.8s' }}>
             {stats.map((stat, index) => (
               <div key={index} className="text-center group hover:scale-105 transition-transform duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-shadow">
-                  <stat.icon className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg transition-shadow"
+                  style={{
+                    background: `linear-gradient(to bottom right, hsl(var(--psybalans-primary) / 0.1), hsl(var(--psybalans-secondary) / 0.1))`
+                  }}
+                >
+                  <stat.icon className="w-6 h-6" style={{ color: `hsl(var(--psybalans-primary))` }} />
                 </div>
                 <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
                   {stat.number}
