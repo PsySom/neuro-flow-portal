@@ -22,6 +22,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Используем активности из контекста вместо локальных данных
   const { activities, toggleActivityComplete, addActivity } = useActivities();
 
   const currentTimeString = new Date().toLocaleTimeString('ru-RU', { 
