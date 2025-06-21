@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Heart, Save, ArrowLeft, ArrowRight } from 'lucide-react';
@@ -20,6 +21,8 @@ interface MoodDiaryData {
   }>;
   emotionTrigger?: string;
   emotionComment: string;
+  bodyStateInfluence?: string;
+  relatedThoughts?: string;
   triggerSource?: string;
   triggerThought?: string;
   hasCognitiveBias: boolean;
@@ -43,6 +46,7 @@ const MoodDiary = () => {
       moodComment: '',
       selectedEmotions: [],
       emotionComment: '',
+      relatedThoughts: '',
       hasCognitiveBias: false,
       selfEvaluation: 0,
       gratitude: ''
@@ -67,6 +71,22 @@ const MoodDiary = () => {
     { emoji: '⚡', label: 'Энергия/состояние', value: 'energy' },
     { emoji: '🌍', label: 'Внешние события', value: 'external' },
     { emoji: '🧠', label: 'Мысли', value: 'thoughts' }
+  ];
+
+  // Эмодзи для состояний тела
+  const bodyStates = [
+    { emoji: '😴', label: 'Усталость', value: 'tired', type: 'negative' },
+    { emoji: '😰', label: 'Напряжение', value: 'tense', type: 'negative' },
+    { emoji: '🤕', label: 'Боль/дискомфорт', value: 'pain', type: 'negative' },
+    { emoji: '😵‍💫', label: 'Головокружение', value: 'dizzy', type: 'negative' },
+    { emoji: '🫨', label: 'Тревожность в теле', value: 'anxious_body', type: 'negative' },
+    { emoji: '😶', label: 'Онемение', value: 'numb', type: 'neutral' },
+    { emoji: '😐', label: 'Обычное состояние', value: 'normal', type: 'neutral' },
+    { emoji: '🙂', label: 'Спокойствие', value: 'calm', type: 'neutral' },
+    { emoji: '💪', label: 'Энергичность', value: 'energetic', type: 'positive' },
+    { emoji: '😌', label: 'Расслабленность', value: 'relaxed', type: 'positive' },
+    { emoji: '✨', label: 'Легкость', value: 'light', type: 'positive' },
+    { emoji: '🔥', label: 'Жизненная сила', value: 'vital', type: 'positive' }
   ];
 
   useEffect(() => {
@@ -184,8 +204,8 @@ const MoodDiary = () => {
       
       {/* Новый вопрос о том, что вызвало эмоцию */}
       {selectedEmotions.length > 0 && (
-        <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-gray-900">Что вызвало эту эмоцию?</h4>
+        <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h4 className="font-medium text-gray-900 dark:text-gray-100">Что вызвало эту эмоцию?</h4>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
             {lifeSpheres.map((sphere) => (
               <button
@@ -194,15 +214,51 @@ const MoodDiary = () => {
                 onClick={() => form.setValue('emotionTrigger', sphere.value)}
                 className={`p-3 rounded-lg border-2 transition-all text-center hover:scale-105 ${
                   form.watch('emotionTrigger') === sphere.value
-                    ? 'border-pink-500 bg-pink-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
                 <div className="text-2xl mb-1">{sphere.emoji}</div>
-                <div className="text-xs text-gray-600">{sphere.label}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-300">{sphere.label}</div>
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Новый вопрос о влиянии на состояние тела */}
+      {selectedEmotions.length > 0 && (
+        <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <h4 className="font-medium text-blue-900 dark:text-blue-100">Как это влияло на твое состояние тела?</h4>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {bodyStates.map((state) => (
+              <button
+                key={state.value}
+                type="button"
+                onClick={() => form.setValue('bodyStateInfluence', state.value)}
+                className={`p-3 rounded-lg border-2 transition-all text-center hover:scale-105 ${
+                  form.watch('bodyStateInfluence') === state.value
+                    ? 'border-blue-500 bg-blue-100 dark:bg-blue-800/30'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
+                }`}
+              >
+                <div className="text-2xl mb-1">{state.emoji}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-300">{state.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Новый вопрос о связанных мыслях */}
+      {selectedEmotions.length > 0 && (
+        <div className="space-y-2">
+          <Label>Какие мысли с этим связаны?</Label>
+          <Textarea
+            placeholder="Опиши свои мысли и размышления..."
+            {...form.register('relatedThoughts')}
+            rows={3}
+          />
         </div>
       )}
 
@@ -219,13 +275,13 @@ const MoodDiary = () => {
       
       {/* Остальные уточняющие вопросы */}
       {showNegativeQuestions && (
-        <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-900">Работа с негативными эмоциями</h4>
+        <div className="space-y-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <h4 className="font-medium text-orange-900 dark:text-orange-100">Работа с негативными эмоциями</h4>
           
           <div className="space-y-2">
             <Label>Что именно вызвало это чувство?</Label>
             <select 
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
               {...form.register('triggerSource')}
             >
               <option value="">Выберите источник</option>
@@ -269,8 +325,8 @@ const MoodDiary = () => {
       )}
 
       {showPositiveQuestions && (
-        <div className="space-y-4 p-4 bg-green-50 rounded-lg">
-          <h4 className="font-medium text-green-900">Позитивные моменты</h4>
+        <div className="space-y-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <h4 className="font-medium text-green-900 dark:text-green-100">Позитивные моменты</h4>
           
           <div className="space-y-2">
             <Label>Что способствовало этому прекрасному состоянию?</Label>
