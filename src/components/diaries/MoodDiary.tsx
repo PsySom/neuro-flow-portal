@@ -18,6 +18,7 @@ interface MoodDiaryData {
     name: string;
     intensity: number;
   }>;
+  emotionTrigger?: string;
   emotionComment: string;
   triggerSource?: string;
   triggerThought?: string;
@@ -51,6 +52,22 @@ const MoodDiary = () => {
   const currentMood = moodValue[0];
   const moodEmoji = getMoodEmoji(currentMood);
   const moodZone = getMoodZone(currentMood);
+
+  // Эмодзи для сфер жизни
+  const lifeSpheres = [
+    { emoji: '💼', label: 'Работа/учеба', value: 'work' },
+    { emoji: '👨‍👩‍👧‍👦', label: 'Семья', value: 'family' },
+    { emoji: '❤️', label: 'Отношения', value: 'relationships' },
+    { emoji: '🏥', label: 'Здоровье', value: 'health' },
+    { emoji: '💰', label: 'Финансы', value: 'money' },
+    { emoji: '👥', label: 'Друзья', value: 'friends' },
+    { emoji: '🎯', label: 'Цели', value: 'goals' },
+    { emoji: '🏠', label: 'Дом/быт', value: 'home' },
+    { emoji: '🎨', label: 'Творчество', value: 'creativity' },
+    { emoji: '⚡', label: 'Энергия/состояние', value: 'energy' },
+    { emoji: '🌍', label: 'Внешние события', value: 'external' },
+    { emoji: '🧠', label: 'Мысли', value: 'thoughts' }
+  ];
 
   useEffect(() => {
     // Проверяем нужны ли уточняющие вопросы
@@ -158,16 +175,6 @@ const MoodDiary = () => {
         onEmotionsChange={handleEmotionSelect}
         selectedEmotions={selectedEmotions}
       />
-
-      {selectedEmotions.length > 0 && (
-        <div className="mt-4 space-y-2">
-          <Label>Если хочется, опиши, как это проявлялось или что этому способствовало:</Label>
-          <Input
-            placeholder="Дополнительные комментарии об эмоциях..."
-            {...form.register('emotionComment')}
-          />
-        </div>
-      )}
     </div>
   );
 
@@ -175,6 +182,42 @@ const MoodDiary = () => {
     <div className="space-y-6">
       <h3 className="text-lg font-medium">Уточняющие вопросы</h3>
       
+      {/* Новый вопрос о том, что вызвало эмоцию */}
+      {selectedEmotions.length > 0 && (
+        <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+          <h4 className="font-medium text-gray-900">Что вызвало эту эмоцию?</h4>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {lifeSpheres.map((sphere) => (
+              <button
+                key={sphere.value}
+                type="button"
+                onClick={() => form.setValue('emotionTrigger', sphere.value)}
+                className={`p-3 rounded-lg border-2 transition-all text-center hover:scale-105 ${
+                  form.watch('emotionTrigger') === sphere.value
+                    ? 'border-pink-500 bg-pink-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="text-2xl mb-1">{sphere.emoji}</div>
+                <div className="text-xs text-gray-600">{sphere.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Перенесенный вопрос из шага 2 */}
+      {selectedEmotions.length > 0 && (
+        <div className="space-y-2">
+          <Label>Если хочется, опиши, как это проявлялось или что этому способствовало:</Label>
+          <Input
+            placeholder="Дополнительные комментарии об эмоциях..."
+            {...form.register('emotionComment')}
+          />
+        </div>
+      )}
+      
+      {/* Остальные уточняющие вопросы */}
       {showNegativeQuestions && (
         <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
           <h4 className="font-medium text-blue-900">Работа с негативными эмоциями</h4>
