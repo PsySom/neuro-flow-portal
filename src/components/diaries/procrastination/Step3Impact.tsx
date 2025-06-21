@@ -33,13 +33,22 @@ const Step3Impact: React.FC<Step3ImpactProps> = ({ form }) => {
     updateTask(taskId, field, updatedArray);
   };
 
+  if (tasks.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium">Оценка влияния и ресурсов</h3>
+        <p className="text-gray-600">Сначала добавьте задачи на предыдущем шаге.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium">Оценка влияния и ресурсов</h3>
       
       {tasks.map((task, index) => (
-        <div key={task.id} className="border rounded-lg p-4 space-y-4">
-          <h4 className="font-medium">Задача {index + 1}: {task.description.slice(0, 50)}...</h4>
+        <div key={task.id} className="border rounded-lg p-4 space-y-4 bg-white dark:bg-gray-800">
+          <h4 className="font-medium">Задача {index + 1}: {task.description ? task.description.slice(0, 50) + (task.description.length > 50 ? '...' : '') : 'Не указана'}</h4>
 
           <div>
             <Label>Насколько сильно откладывание этого дела повлияло на твое общее состояние сегодня?</Label>
@@ -48,16 +57,16 @@ const Step3Impact: React.FC<Step3ImpactProps> = ({ form }) => {
                 type="range"
                 min="-5"
                 max="0"
-                value={task.impactLevel}
+                value={task.impactLevel || 0}
                 onChange={(e) => updateTask(task.id, 'impactLevel', parseInt(e.target.value))}
                 className="w-full"
               />
-              <div className="flex justify-between text-sm text-gray-600 mt-1">
+              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
                 <span>-5 (очень сильно ухудшило)</span>
                 <span>0 (не повлияло)</span>
               </div>
               <p className="text-center mt-2 font-medium">
-                Выбрано: {task.impactLevel}
+                Выбрано: {task.impactLevel || 0}
               </p>
             </div>
           </div>
@@ -66,9 +75,9 @@ const Step3Impact: React.FC<Step3ImpactProps> = ({ form }) => {
             <Label>Чего тебе не хватало для того, чтобы приступить к этому делу? (можно выбрать несколько)</Label>
             <div className="space-y-2 mt-2">
               {missingResources.map((resource) => (
-                <label key={resource.value} className="flex items-center space-x-2">
+                <label key={resource.value} className="flex items-center space-x-2 cursor-pointer">
                   <Checkbox
-                    checked={task.missingResources.includes(resource.value)}
+                    checked={(task.missingResources || []).includes(resource.value)}
                     onCheckedChange={(checked) => 
                       updateTaskArray(task.id, 'missingResources', resource.value, !!checked)
                     }
@@ -77,7 +86,7 @@ const Step3Impact: React.FC<Step3ImpactProps> = ({ form }) => {
                 </label>
               ))}
             </div>
-            {task.missingResources.includes('other') && (
+            {(task.missingResources || []).includes('other') && (
               <Input
                 placeholder="Укажите, чего ещё не хватало..."
                 value={task.missingResourceOther || ''}

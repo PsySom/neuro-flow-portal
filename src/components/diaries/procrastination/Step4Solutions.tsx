@@ -37,21 +37,35 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
     updateTask(taskId, field, updatedArray);
   };
 
+  const handleSubmit = () => {
+    const data = form.getValues();
+    onSubmit(data);
+  };
+
+  if (tasks.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium">Самоподдержка и выводы</h3>
+        <p className="text-gray-600">Сначала добавьте задачи на втором шаге.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium">Самоподдержка и выводы</h3>
       
       {tasks.map((task, index) => (
-        <div key={task.id} className="border rounded-lg p-4 space-y-4">
-          <h4 className="font-medium">Задача {index + 1}: {task.description.slice(0, 50)}...</h4>
+        <div key={task.id} className="border rounded-lg p-4 space-y-4 bg-white dark:bg-gray-800">
+          <h4 className="font-medium">Задача {index + 1}: {task.description ? task.description.slice(0, 50) + (task.description.length > 50 ? '...' : '') : 'Не указана'}</h4>
 
           <div>
             <Label>Что могло бы тебе помочь в следующий раз легче приступить к таким делам? (можно выбрать несколько)</Label>
             <div className="space-y-2 mt-2">
               {helpStrategies.map((strategy) => (
-                <label key={strategy.value} className="flex items-center space-x-2">
+                <label key={strategy.value} className="flex items-center space-x-2 cursor-pointer">
                   <Checkbox
-                    checked={task.helpStrategies.includes(strategy.value)}
+                    checked={(task.helpStrategies || []).includes(strategy.value)}
                     onCheckedChange={(checked) => 
                       updateTaskArray(task.id, 'helpStrategies', strategy.value, !!checked)
                     }
@@ -60,7 +74,7 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
                 </label>
               ))}
             </div>
-            {task.helpStrategies.includes('other') && (
+            {(task.helpStrategies || []).includes('other') && (
               <Input
                 placeholder="Опишите другую стратегию..."
                 value={task.helpStrategyOther || ''}
@@ -73,7 +87,7 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
           <div>
             <Label>Есть ли сейчас что-то небольшое, что ты всё-таки можешь сделать для решения этой задачи?</Label>
             <div className="space-y-2 mt-2">
-              <label className="flex items-center space-x-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   checked={task.willDoSmallStep === true}
@@ -82,7 +96,7 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
                 />
                 <span>Да</span>
               </label>
-              <label className="flex items-center space-x-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   checked={task.willDoSmallStep === false}
@@ -103,8 +117,8 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
           </div>
 
           {task.hasCategoricalThoughts && (
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800 font-medium">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-blue-800 dark:text-blue-200 font-medium">
                 💡 Рекомендация: Поскольку у вас были категоричные мысли, рекомендуем также заполнить дневник работы с мыслями для более глубокой проработки.
               </p>
             </div>
@@ -112,14 +126,14 @@ const Step4Solutions: React.FC<Step4SolutionsProps> = ({ form, onSubmit }) => {
         </div>
       ))}
 
-      <div className="p-4 bg-green-50 rounded-lg">
-        <p className="text-green-800 font-medium">
+      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+        <p className="text-green-800 dark:text-green-200 font-medium">
           🌟 Вы проделали важную работу по анализу своих паттернов прокрастинации. Это первый шаг к изменениям. Помните: каждый маленький шаг имеет значение!
         </p>
       </div>
 
       <Button 
-        onClick={() => form.handleSubmit(onSubmit)()} 
+        onClick={handleSubmit}
         className="w-full"
         size="lg"
       >
