@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,7 @@ interface MoodDiaryData {
     name: string;
     intensity: number;
   }>;
+  emotionComment: string;
   triggerSource?: string;
   triggerThought?: string;
   hasCognitiveBias: boolean;
@@ -41,6 +41,7 @@ const MoodDiary = () => {
       mood: 0,
       moodComment: '',
       selectedEmotions: [],
+      emotionComment: '',
       hasCognitiveBias: false,
       selfEvaluation: 0,
       gratitude: ''
