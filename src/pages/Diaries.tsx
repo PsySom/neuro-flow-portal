@@ -7,9 +7,8 @@ import {
   Brain, 
   Calendar, 
   Search, 
-  BookOpen,
-  Heart,
   Activity,
+  Heart,
   Clock,
   Zap,
   Shield,
@@ -136,14 +135,6 @@ const Diaries = () => {
                   Дашборд
                 </Button>
               </Link>
-              <Button 
-                variant="ghost" 
-                className="font-medium"
-                style={{ color: `hsl(var(--psybalans-primary))` }}
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                Дневники
-              </Button>
               <Link to="/calendar">
                 <Button variant="ghost" className="dark:text-gray-300">
                   <Calendar className="w-4 h-4 mr-2" />
@@ -253,7 +244,7 @@ const Diaries = () => {
               variant="outline" 
               className="h-16 flex flex-col items-center justify-center space-y-2"
             >
-              <BookOpen className="w-5 h-5" />
+              <Activity className="w-5 h-5" />
               <span className="text-sm">Создать запись</span>
             </Button>
             
