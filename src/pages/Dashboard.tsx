@@ -62,14 +62,16 @@ const Dashboard = () => {
             </Link>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <Button 
-                variant="ghost" 
-                className="font-medium"
-                style={{ color: `hsl(var(--psybalans-primary))` }}
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                Дневники
-              </Button>
+              <Link to="/diaries">
+                <Button 
+                  variant="ghost" 
+                  className="font-medium"
+                  style={{ color: `hsl(var(--psybalans-primary))` }}
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Дневники
+                </Button>
+              </Link>
               <Link to="/calendar">
                 <Button variant="ghost" className="dark:text-gray-300">
                   <Calendar className="w-4 h-4 mr-2" />
