@@ -31,8 +31,12 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const weekDays = getWeekDays();
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Рассчитываем раскладку активностей
-  const activityLayouts = calculateActivityLayouts(activities);
+  // Рассчитываем раскладку активностей для каждого дня
+  const getActivitiesForDay = (dayIndex: number) => {
+    // Для демонстрации показываем все активности во все дни
+    // В реальном приложении здесь будет фильтрация по дате
+    return calculateActivityLayouts(activities);
+  };
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
     updateActivity(activityId, updates);
@@ -82,28 +86,32 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
             </div>
 
             {/* Days columns */}
-            {weekDays.map((day, dayIndex) => (
-              <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative">
-                {/* Hour grid lines */}
-                {hours.map((hour) => (
-                  <div 
-                    key={hour}
-                    className="h-[90px] border-b border-gray-100"
-                  />
-                ))}
-                
-                {/* Activities for this day - показываем все активности только в понедельник (dayIndex === 0) для демонстрации */}
-                {dayIndex === 0 && activityLayouts.map((layout) => (
-                  <ActivityCard
-                    key={layout.activity.id}
-                    layout={layout}
-                    onToggleComplete={handleActivityToggle}
-                    onDelete={handleActivityDelete}
-                    onUpdate={handleActivityUpdate}
-                  />
-                ))}
-              </div>
-            ))}
+            {weekDays.map((day, dayIndex) => {
+              const dayActivities = getActivitiesForDay(dayIndex);
+              
+              return (
+                <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative">
+                  {/* Hour grid lines */}
+                  {hours.map((hour) => (
+                    <div 
+                      key={hour}
+                      className="h-[90px] border-b border-gray-100"
+                    />
+                  ))}
+                  
+                  {/* Activities for this day */}
+                  {dayActivities.map((layout) => (
+                    <ActivityCard
+                      key={`${dayIndex}-${layout.activity.id}`}
+                      layout={layout}
+                      onToggleComplete={handleActivityToggle}
+                      onDelete={handleActivityDelete}
+                      onUpdate={handleActivityUpdate}
+                    />
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </ScrollArea>
       </CardContent>

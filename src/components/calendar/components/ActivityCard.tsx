@@ -32,17 +32,15 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
     const rect = cardRef.current.getBoundingClientRect();
     return {
       x: rect.left,
-      y: rect.top + rect.height / 2 // Центр плашки по высоте
+      y: rect.top + rect.height / 2
     };
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Предотвращаем открытие диалога при клике на чекбокс или кнопки
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="checkbox"]')) {
       return;
     }
     
-    // Предотвращаем всплытие события
     e.stopPropagation();
     e.preventDefault();
     
@@ -91,7 +89,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
     }
   };
 
-  // Функция для получения отображаемого типа активности
   const getDisplayType = (type: string) => {
     switch (type) {
       case 'восстановление': return 'восстанавливающая';
@@ -106,7 +103,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
     <>
       <div
         ref={cardRef}
-        className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
+        className={`absolute ${activity.color} rounded-lg p-1.5 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{ 
           top: `${top}px`, 
           height: `${height}px`,
@@ -117,24 +114,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
         }}
         onClick={handleCardClick}
       >
-        {/* Верхняя строка с чекбоксом, названием и кнопками */}
-        <div className="flex items-start justify-between mb-1">
-          <div className="flex items-start space-x-1 flex-1 min-w-0">
+        {/* Компактная верхняя строка с чекбоксом, эмодзи, названием и кнопками */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center space-x-1 flex-1 min-w-0">
             <Checkbox 
               checked={activity.completed}
               onCheckedChange={handleCheckboxToggle}
-              className="w-3 h-3 rounded-sm mt-1 flex-shrink-0 cursor-pointer"
+              className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer"
               onClick={handleCheckboxClick}
             />
+            <span className="text-xs">{activity.emoji}</span>
             <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
           </div>
           
-          {/* Кнопки в верхнем правом углу горизонтально */}
-          <div className="flex space-x-1 ml-2 flex-shrink-0">
+          {/* Кнопки в правом углу */}
+          <div className="flex space-x-0.5 ml-1 flex-shrink-0">
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-4 w-4"
+              className="h-3 w-3 p-0"
               onClick={handleInfoClick}
             >
               <Info className="w-2 h-2" />
@@ -142,7 +140,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-4 w-4"
+              className="h-3 w-3 p-0"
               onClick={handleEditClick}
             >
               <Edit className="w-2 h-2" />
@@ -150,7 +148,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-4 w-4"
+              className="h-3 w-3 p-0"
               onClick={handleDeleteClick}
             >
               <Trash2 className="w-2 h-2 text-red-500" />
@@ -158,24 +156,22 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
           </div>
         </div>
 
-        {/* Вторая строка с временем и звездами важности - только если есть место */}
-        {height > 60 && (
-          <div className="flex items-center justify-between mb-0.5">
-            <span className="font-medium text-xs text-gray-600">{activity.startTime}-{activity.endTime}</span>
-            <div className="flex items-center">
-              {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
-                <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
+        {/* Время всегда отображается */}
+        <div className="flex items-center justify-between text-xs text-gray-600">
+          <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
+          <div className="flex items-center">
+            {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
+              <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
+            ))}
           </div>
-        )}
+        </div>
 
-        {height > 80 && (
-          <div className="flex items-center space-x-1">
+        {/* Дополнительная информация только если есть место */}
+        {height > 70 && (
+          <div className="flex items-center space-x-1 mt-1">
             <Badge variant="secondary" className="text-xs px-1 py-0">
               {getDisplayType(activity.type)}
             </Badge>
-            <span className="text-sm">{activity.emoji}</span>
             {activity.type === 'восстановление' && activity.needEmoji && (
               <span className="text-xs">{activity.needEmoji}</span>
             )}
