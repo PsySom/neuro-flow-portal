@@ -1,4 +1,3 @@
-
 import { Activity, ActivityLayout } from '../types';
 
 // Функция для получения времени в минутах от начала дня
@@ -21,7 +20,7 @@ export const activitiesOverlap = (activity1: Activity, activity2: Activity): boo
   return start1 < end2 && start2 < end1;
 };
 
-// Функция для поиска свободной колонки
+// Функция для поиска свободной колонки для недели (позволяет наложение)
 const findAvailableColumn = (activity: Activity, existingLayouts: ActivityLayout[]): number => {
   const overlappingActivities = existingLayouts.filter(layout => 
     activitiesOverlap(activity, layout.activity)
@@ -33,13 +32,14 @@ const findAvailableColumn = (activity: Activity, existingLayouts: ActivityLayout
   
   const occupiedColumns = overlappingActivities.map(layout => layout.column);
   
+  // Ищем первую свободную колонку, если все заняты - используем колонку 0 (наложение)
   for (let column = 0; column < 3; column++) {
     if (!occupiedColumns.includes(column)) {
       return column;
     }
   }
   
-  return 0; // Fallback к первой колонке
+  return 0; // Наложение на первую колонку
 };
 
 // Функция для расчета раскладки активностей
@@ -75,7 +75,7 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       top = 0;
     }
     
-    // Вычисляем высоту блока
+    // Вычисляем высоту блока - точное соответствие времени
     let displayDurationMinutes = durationMinutes;
     
     if (endMinutes > 24 * 60) {
@@ -87,9 +87,9 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       }
     }
     
-    const height = Math.max(displayDurationMinutes * pixelsPerMinute, 30); // Минимальная высота 30px
+    const height = Math.max(displayDurationMinutes * pixelsPerMinute, 20); // Минимальная высота 20px
     
-    // Найти свободную колонку
+    // Найти свободную колонку (допускаем наложение)
     const column = findAvailableColumn(activity, layouts);
     
     // Размещение по колонкам

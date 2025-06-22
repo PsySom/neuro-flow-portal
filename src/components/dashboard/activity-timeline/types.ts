@@ -11,6 +11,7 @@ export interface Activity {
   completed: boolean;
   type: string;
   needEmoji?: string;
+  date: string;
 }
 
 export interface TimeSlot {

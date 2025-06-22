@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
@@ -17,25 +16,29 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
-  // Используем активности из контекста - те же данные, что и в дашборде
+  // Используем активности из контекста
   const { activities, toggleActivityComplete, addActivity } = useActivities();
 
-  // Добавляем логирование для отладки
-  console.log('DayView activities count:', activities.length);
-  console.log('DayView activities:', activities.map(a => ({ id: a.id, name: a.name, time: `${a.startTime}-${a.endTime}` })));
+  // Фильтруем активности по выбранной дате
+  const currentDateString = currentDate.toISOString().split('T')[0];
+  const dayActivities = activities.filter(activity => 
+    activity.date === currentDateString
+  );
+
+  console.log('DayView current date:', currentDateString);
+  console.log('DayView activities for date:', dayActivities.length);
 
   // Обработчик переключения состояния активности
   const handleActivityToggle = (activityId: number) => {
     toggleActivityComplete(activityId);
   };
 
-  // Фильтруем активности по выбранным типам - убеждаемся, что показываем все активности
-  const visibleActivities = activities.filter(activity => 
+  // Фильтруем активности по выбранным типам
+  const visibleActivities = dayActivities.filter(activity => 
     !filteredTypes.has(activity.type)
   );
 
   console.log('Visible activities count:', visibleActivities.length);
-  console.log('Filtered types:', Array.from(filteredTypes));
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;

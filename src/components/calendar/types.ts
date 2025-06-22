@@ -1,4 +1,3 @@
-
 export interface Activity {
   id: number;
   name: string;
@@ -13,6 +12,7 @@ export interface Activity {
   needEmoji?: string;
   reminder?: string;
   note?: string;
+  date: string;
 }
 
 export interface ActivityLayout {

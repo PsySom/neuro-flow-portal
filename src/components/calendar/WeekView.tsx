@@ -33,14 +33,14 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getActivitiesForDay = (day: Date) => {
-    // Используем индексную логику для распределения активностей по дням недели
-    const dayIndex = weekDays.findIndex(weekDay => 
-      weekDay.toDateString() === day.toDateString()
+    const dayString = day.toISOString().split('T')[0];
+    
+    // Фильтруем активности по дате
+    const dayActivities = activities.filter(activity => 
+      activity.date === dayString
     );
     
-    const dayActivities = activities.filter((activity, index) => 
-      index % 7 === dayIndex
-    );
+    console.log(`Activities for ${dayString}:`, dayActivities.length);
     
     return calculateActivityLayouts(dayActivities);
   };
