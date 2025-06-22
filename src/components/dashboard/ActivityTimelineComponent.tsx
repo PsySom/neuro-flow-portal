@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import { Clock, Plus, Star, Info, Edit, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
-import ActivityDetailsDialog from '@/components/calendar/components/ActivityDetailsDialog';
+import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import { useActivities } from '@/contexts/ActivitiesContext';
 
 const ActivityTimelineComponent = () => {
@@ -136,7 +135,7 @@ const ActivityTimelineComponent = () => {
       />
 
       {selectedActivity && (
-        <ActivityDetailsDialog 
+        <EditActivityDialog 
           open={isDetailsDialogOpen}
           onOpenChange={setIsDetailsDialogOpen}
           activity={selectedActivity}
