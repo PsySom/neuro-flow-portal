@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -27,12 +27,19 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [showFullDialog, setShowFullDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   // Evaluation state
   const [satisfaction, setSatisfaction] = useState([5]);
   const [processSatisfaction, setProcessSatisfaction] = useState([5]);
   const [fatigue, setFatigue] = useState([5]);
   const [stress, setStress] = useState([5]);
+
+  // Trigger animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getDisplayType = (type: string) => {
     switch (type) {
@@ -83,30 +90,26 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     onClose();
   };
 
-  // Вычисляем оптимальную позицию для попапа
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 150);
+  };
+
+  // Вычисляем оптимальную позицию для попапа слева от плашки
   const getPopoverStyle = () => {
     const popoverWidth = 320;
     const popoverHeight = showEvaluation ? 600 : 350;
     
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const screenCenterX = screenWidth / 2;
-    const screenCenterY = screenHeight / 2;
     
-    let left = position.x;
+    // Позиционируем слева от плашки
+    let left = position.x - popoverWidth - 15;
     let top = position.y;
     
-    // Смещаем попап в направлении центра экрана для лучшего UX
-    if (position.x < screenCenterX) {
+    // Если попап не помещается слева, размещаем справа
+    if (left < 10) {
       left = position.x + 15;
-    } else {
-      left = position.x - popoverWidth - 15;
-    }
-    
-    if (position.y < screenCenterY) {
-      top = position.y + 10;
-    } else {
-      top = position.y - popoverHeight - 10;
     }
     
     // Корректируем позицию в границах экрана
@@ -126,6 +129,9 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     return {
       left: `${left}px`,
       top: `${top}px`,
+      opacity: isVisible ? 1 : 0,
+      transform: `scale(${isVisible ? 1 : 0.95}) translateY(${isVisible ? 0 : 10}px)`,
+      transition: 'all 0.2s ease-out',
     };
   };
 
@@ -134,7 +140,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       {/* Overlay */}
       <div 
         className="fixed inset-0 z-40"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Popover */}
@@ -153,7 +159,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
             size="icon"
             variant="ghost"
             className="h-6 w-6 -mt-1 -mr-1"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <X className="w-3 h-3" />
           </Button>
