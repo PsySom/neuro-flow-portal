@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,10 +23,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
       return;
     }
     
-    const rect = e.currentTarget.getBoundingClientRect();
+    // Используем точные координаты клика
     setPopoverPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 5
+      x: e.clientX,
+      y: e.clientY
     });
     setShowPopover(true);
   };
@@ -35,10 +34,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
   const handleInfoClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    const rect = e.currentTarget.getBoundingClientRect();
+    // Используем точные координаты клика
     setPopoverPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 5
+      x: e.clientX,
+      y: e.clientY
     });
     setShowPopover(true);
   };
@@ -46,10 +45,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    const rect = e.currentTarget.getBoundingClientRect();
+    // Используем точные координаты клика
     setPopoverPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.bottom + 5
+      x: e.clientX,
+      y: e.clientY
     });
     setShowPopover(true);
   };

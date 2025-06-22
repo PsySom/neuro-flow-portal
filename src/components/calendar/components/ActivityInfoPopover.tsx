@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +80,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          transform: 'translate(-50%, -10px)'
+          transform: 'translate(-10px, 10px)'
         }}
         onClick={(e) => e.stopPropagation()}
       >
