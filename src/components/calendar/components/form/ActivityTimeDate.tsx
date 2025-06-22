@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { FormErrors } from './validationUtils';
-import TimePickerSheet from './TimePickerSheet';
+import TimePickerDropdown from './TimePickerDropdown';
 
 interface ActivityTimeDateProps {
   startTime: string;
@@ -35,6 +35,8 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
 }) => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const startTimeButtonRef = useRef<HTMLButtonElement>(null);
+  const endTimeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleStartTimeChange = (time: string) => {
     setStartTime(time);
@@ -68,11 +70,15 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
               className={cn("pl-10", (errors.startTime || errors.timeLogic) ? 'border-red-500' : '')}
             />
             <Button
+              ref={startTimeButtonRef}
               type="button"
               variant="ghost"
               size="icon"
               className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
-              onClick={() => setShowStartTimePicker(true)}
+              onClick={() => {
+                setShowEndTimePicker(false);
+                setShowStartTimePicker(true);
+              }}
             >
               <Clock className="w-4 h-4 text-gray-400" />
             </Button>
@@ -99,11 +105,15 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
               className={cn("pl-10", (errors.endTime || errors.timeLogic) ? 'border-red-500' : '')}
             />
             <Button
+              ref={endTimeButtonRef}
               type="button"
               variant="ghost"
               size="icon"
               className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
-              onClick={() => setShowEndTimePicker(true)}
+              onClick={() => {
+                setShowStartTimePicker(false);
+                setShowEndTimePicker(true);
+              }}
             >
               <Clock className="w-4 h-4 text-gray-400" />
             </Button>
@@ -167,21 +177,21 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
         )}
       </div>
 
-      {/* Time Picker Sheets */}
-      <TimePickerSheet
+      {/* Time Picker Dropdowns */}
+      <TimePickerDropdown
         open={showStartTimePicker}
-        onOpenChange={setShowStartTimePicker}
+        onClose={() => setShowStartTimePicker(false)}
         value={startTime}
         onChange={handleStartTimeChange}
-        title="Выберите время начала"
+        triggerRef={startTimeButtonRef}
       />
 
-      <TimePickerSheet
+      <TimePickerDropdown
         open={showEndTimePicker}
-        onOpenChange={setShowEndTimePicker}
+        onClose={() => setShowEndTimePicker(false)}
         value={endTime}
         onChange={handleEndTimeChange}
-        title="Выберите время окончания"
+        triggerRef={endTimeButtonRef}
       />
     </>
   );
