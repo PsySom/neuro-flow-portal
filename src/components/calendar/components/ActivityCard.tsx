@@ -36,23 +36,31 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
       return;
     }
     
+    // Предотвращаем всплытие события
+    e.stopPropagation();
+    e.preventDefault();
+    
     setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
-  const handleCheckboxToggle = () => {
+  const handleCheckboxToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (onToggleComplete) {
       onToggleComplete(activity.id);
     }
@@ -60,6 +68,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (onDelete) {
       onDelete(activity.id);
     }
@@ -98,7 +107,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
               checked={activity.completed}
               onCheckedChange={handleCheckboxToggle}
               className="w-3 h-3 rounded-sm mt-1 flex-shrink-0 cursor-pointer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleCheckboxToggle}
             />
             <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
           </div>
