@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
   const { activity, top, height, left, width } = layout;
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const getCardPosition = () => {
+    if (!cardRef.current) return { x: 0, y: 0 };
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    return {
+      x: rect.left,
+      y: rect.top + rect.height / 2 // Центр плашки по высоте
+    };
+  };
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Предотвращаем открытие диалога при клике на чекбокс или кнопки
@@ -25,33 +36,19 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
       return;
     }
     
-    // Используем точные координаты клика
-    setPopoverPosition({
-      x: e.clientX,
-      y: e.clientY
-    });
+    setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    // Используем точные координаты клика
-    setPopoverPosition({
-      x: e.clientX,
-      y: e.clientY
-    });
+    setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    // Используем точные координаты клика
-    setPopoverPosition({
-      x: e.clientX,
-      y: e.clientY
-    });
+    setPopoverPosition(getCardPosition());
     setShowPopover(true);
   };
 
@@ -82,6 +79,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
   return (
     <>
       <div
+        ref={cardRef}
         className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{ 
           top: `${top}px`, 

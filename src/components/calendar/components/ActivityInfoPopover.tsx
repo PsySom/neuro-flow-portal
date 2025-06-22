@@ -102,6 +102,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
+    const screenCenterY = screenHeight / 2;
     
     // Позиционируем слева от плашки
     let left = position.x - popoverWidth - 15;
@@ -110,6 +111,15 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     // Если попап не помещается слева, размещаем справа
     if (left < 10) {
       left = position.x + 15;
+    }
+    
+    // Корректируем вертикальную позицию для центрирования относительно экрана
+    // Если попап выше центра экрана, центрируем его по плашке
+    // Если ниже центра - сдвигаем вверх для лучшей видимости
+    if (position.y < screenCenterY) {
+      top = position.y - popoverHeight / 2;
+    } else {
+      top = position.y - popoverHeight + 50; // Небольшой отступ снизу
     }
     
     // Корректируем позицию в границах экрана
