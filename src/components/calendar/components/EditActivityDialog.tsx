@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -47,9 +46,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [priority, setPriority] = useState(activity.importance);
   const [repeatType, setRepeatType] = useState('');
-  const [reminder, setReminder] = useState('');
+  const [reminder, setReminder] = useState(activity.reminder || '');
   const [selectedColor, setSelectedColor] = useState(activity.color);
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(activity.note || '');
   const [status, setStatus] = useState(activity.completed ? 'completed' : 'pending');
 
   // Validation errors
@@ -94,8 +93,13 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       color: selectedColor,
       completed: status === 'completed',
       emoji: getEmojiByType(activityType),
-      duration: calculateDuration(startTime, endTime)
+      duration: calculateDuration(startTime, endTime),
+      reminder: reminder,
+      note: note
     };
+
+    console.log('Saving updated activity with reminder:', updatedActivity.reminder);
+    console.log('Saving updated activity with note:', updatedActivity.note);
 
     if (onActivityUpdate) {
       onActivityUpdate(updatedActivity);
