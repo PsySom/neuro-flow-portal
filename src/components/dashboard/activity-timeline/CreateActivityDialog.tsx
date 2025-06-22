@@ -83,7 +83,8 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       completed: false,
       type: activityType,
       note,
-      needEmoji: activityType === 'восстановление' ? '⚡' : undefined
+      needEmoji: activityType === 'восстановление' ? '⚡' : undefined,
+      date: '2025-06-22'
     };
 
     addActivity(newActivity);
