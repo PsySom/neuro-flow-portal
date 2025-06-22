@@ -52,6 +52,20 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
     }
   };
 
+  const handleStartTimeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowEndTimePicker(false);
+    setShowStartTimePicker(!showStartTimePicker);
+  };
+
+  const handleEndTimeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowStartTimePicker(false);
+    setShowEndTimePicker(!showEndTimePicker);
+  };
+
   return (
     <>
       {/* Время начала и окончания */}
@@ -75,10 +89,7 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
               variant="ghost"
               size="icon"
               className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
-              onClick={() => {
-                setShowEndTimePicker(false);
-                setShowStartTimePicker(true);
-              }}
+              onClick={handleStartTimeClick}
             >
               <Clock className="w-4 h-4 text-gray-400" />
             </Button>
@@ -110,10 +121,7 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
               variant="ghost"
               size="icon"
               className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
-              onClick={() => {
-                setShowStartTimePicker(false);
-                setShowEndTimePicker(true);
-              }}
+              onClick={handleEndTimeClick}
             >
               <Clock className="w-4 h-4 text-gray-400" />
             </Button>
