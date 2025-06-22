@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,6 +67,40 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     setShowEvaluation(false);
   };
 
+  // Вычисляем оптимальную позицию для попапа
+  const getPopoverStyle = () => {
+    const popoverWidth = 320; // примерная ширина попапа
+    const popoverHeight = showEvaluation ? 600 : 350; // примерная высота попапа
+    
+    let left = position.x + 10;
+    let top = position.y + 10;
+    
+    // Проверяем, не выходит ли попап за правый край экрана
+    if (left + popoverWidth > window.innerWidth) {
+      left = position.x - popoverWidth - 10;
+    }
+    
+    // Проверяем, не выходит ли попап за нижний край экрана
+    if (top + popoverHeight > window.innerHeight) {
+      top = position.y - popoverHeight - 10;
+    }
+    
+    // Убеждаемся, что попап не выходит за левый край
+    if (left < 10) {
+      left = 10;
+    }
+    
+    // Убеждаемся, что попап не выходит за верхний край
+    if (top < 10) {
+      top = 10;
+    }
+    
+    return {
+      left: `${left}px`,
+      top: `${top}px`,
+    };
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -77,11 +112,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       {/* Popover */}
       <div
         className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: 'translate(-10px, 10px)'
-        }}
+        style={getPopoverStyle()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with close button */}
