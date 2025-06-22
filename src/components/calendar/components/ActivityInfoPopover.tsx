@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { X, Star, Calendar as CalendarIcon, Clock, Bell, Palette, StickyNote } from 'lucide-react';
 import { Activity } from '../types';
 import ActivityDetailsDialog from './ActivityDetailsDialog';
@@ -13,16 +14,19 @@ interface ActivityInfoPopoverProps {
   onClose: () => void;
   position: { x: number; y: number };
   onDelete?: (id: number) => void;
+  onUpdate?: (id: number, updates: Partial<Activity>) => void;
 }
 
 const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   activity,
   onClose,
   position,
-  onDelete
+  onDelete,
+  onUpdate
 }) => {
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [showFullDialog, setShowFullDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Evaluation state
   const [satisfaction, setSatisfaction] = useState([5]);
@@ -46,13 +50,17 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
 
   const handleEdit = () => {
     setShowFullDialog(true);
-    onClose();
   };
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = () => {
     if (onDelete) {
       onDelete(activity.id);
     }
+    setShowDeleteDialog(false);
     onClose();
   };
 
@@ -67,55 +75,50 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     setShowEvaluation(false);
   };
 
+  const handleActivityUpdate = (updatedActivity: Activity) => {
+    if (onUpdate) {
+      onUpdate(activity.id, updatedActivity);
+    }
+    setShowFullDialog(false);
+    onClose();
+  };
+
   // Вычисляем оптимальную позицию для попапа
   const getPopoverStyle = () => {
-    const popoverWidth = 320; // примерная ширина попапа
-    const popoverHeight = showEvaluation ? 600 : 350; // примерная высота попапа
+    const popoverWidth = 320;
+    const popoverHeight = showEvaluation ? 600 : 350;
     
-    // Получаем размеры экрана
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const screenCenterX = screenWidth / 2;
     const screenCenterY = screenHeight / 2;
     
-    // Определяем начальную позицию рядом с местом клика
     let left = position.x;
     let top = position.y;
     
-    // Смещаем попап в направлении центра экрана
+    // Смещаем попап в направлении центра экрана для лучшего UX
     if (position.x < screenCenterX) {
-      // Клик в левой половине экрана - показываем попап справа от клика
-      left = position.x + 20;
+      left = position.x + 15;
     } else {
-      // Клик в правой половине экрана - показываем попап слева от клика
-      left = position.x - popoverWidth - 20;
+      left = position.x - popoverWidth - 15;
     }
     
     if (position.y < screenCenterY) {
-      // Клик в верхней половине экрана - показываем попап ниже клика
       top = position.y + 10;
     } else {
-      // Клик в нижней половине экрана - показываем попап выше клика
       top = position.y - popoverHeight - 10;
     }
     
-    // Корректируем позицию, чтобы попап не выходил за границы экрана
-    // Проверяем правый край
+    // Корректируем позицию в границах экрана
     if (left + popoverWidth > screenWidth - 10) {
       left = screenWidth - popoverWidth - 10;
     }
-    
-    // Проверяем левый край
     if (left < 10) {
       left = 10;
     }
-    
-    // Проверяем нижний край
     if (top + popoverHeight > screenHeight - 10) {
       top = screenHeight - popoverHeight - 10;
     }
-    
-    // Проверяем верхний край
     if (top < 10) {
       top = 10;
     }
@@ -287,17 +290,37 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
           <Button size="sm" variant="outline" onClick={handleEdit} className="flex-1">
             Редактировать
           </Button>
-          <Button size="sm" variant="destructive" onClick={handleDelete} className="flex-1">
+          <Button size="sm" variant="destructive" onClick={handleDeleteClick} className="flex-1">
             Удалить
           </Button>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить активность?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить активность "{activity.name}"? Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Full dialog */}
       <ActivityDetailsDialog 
         open={showFullDialog}
         onOpenChange={setShowFullDialog}
         activity={activity}
+        onActivityUpdate={handleActivityUpdate}
+        onDelete={onDelete}
       />
     </>
   );

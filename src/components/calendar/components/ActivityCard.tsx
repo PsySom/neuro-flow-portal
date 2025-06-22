@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,9 +11,10 @@ interface ActivityCardProps {
   layout: ActivityLayout;
   onToggleComplete?: (activityId: number) => void;
   onDelete?: (activityId: number) => void;
+  onUpdate?: (activityId: number, updates: Partial<ActivityLayout['activity']>) => void;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, onDelete }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, onDelete, onUpdate }) => {
   const { activity, top, height, left, width } = layout;
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
@@ -144,7 +146,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
           </div>
         )}
 
-        {/* Третья строка с типом активности и эмоджи - только если есть место */}
         {height > 80 && (
           <div className="flex items-center space-x-1">
             <Badge variant="secondary" className="text-xs px-1 py-0">
@@ -165,6 +166,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
           onClose={() => setShowPopover(false)}
           position={popoverPosition}
           onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       )}
     </>

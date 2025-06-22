@@ -30,7 +30,7 @@ const Calendar = () => {
   const [activeTab, setActiveTab] = useState('day');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { addActivity } = useActivities();
+  const { addActivity, updateActivity, deleteActivity } = useActivities();
   const { user } = useAuth();
 
   const getUserInitial = () => {
@@ -202,7 +202,11 @@ const Calendar = () => {
             </TabsList>
             
             <TabsContent value="day" className="mt-0">
-              <DayView currentDate={currentDate} />
+              <DayView 
+                currentDate={currentDate} 
+                onUpdateActivity={updateActivity}
+                onDeleteActivity={deleteActivity}
+              />
             </TabsContent>
             
             <TabsContent value="week" className="mt-0">
