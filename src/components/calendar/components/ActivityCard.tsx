@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -15,10 +15,16 @@ interface ActivityCardProps {
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, onDelete, onUpdate }) => {
-  const { activity, top, height, left, width } = layout;
+  const { activity: initialActivity, top, height, left, width } = layout;
+  const [activity, setActivity] = useState(initialActivity);
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Update activity when layout prop changes
+  useEffect(() => {
+    setActivity(initialActivity);
+  }, [initialActivity]);
 
   const getCardPosition = () => {
     if (!cardRef.current) return { x: 0, y: 0 };
@@ -74,6 +80,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
     e.preventDefault();
     if (onDelete) {
       onDelete(activity.id);
+    }
+  };
+
+  const handleActivityUpdate = (activityId: number, updates: Partial<ActivityLayout['activity']>) => {
+    console.log('Updating activity in card:', activityId, updates);
+    setActivity(prev => ({ ...prev, ...updates }));
+    if (onUpdate) {
+      onUpdate(activityId, updates);
     }
   };
 
@@ -176,7 +190,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
           onClose={() => setShowPopover(false)}
           position={popoverPosition}
           onDelete={onDelete}
-          onUpdate={onUpdate}
+          onUpdate={handleActivityUpdate}
         />
       )}
     </>

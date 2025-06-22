@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +17,13 @@ interface ActivityInfoPopoverProps {
 }
 
 const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
-  activity,
+  activity: initialActivity,
   onClose,
   position,
   onDelete,
   onUpdate
 }) => {
+  const [activity, setActivity] = useState(initialActivity);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -34,6 +34,11 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   const [processSatisfaction, setProcessSatisfaction] = useState([5]);
   const [fatigue, setFatigue] = useState([5]);
   const [stress, setStress] = useState([5]);
+
+  // Update activity when prop changes
+  useEffect(() => {
+    setActivity(initialActivity);
+  }, [initialActivity]);
 
   // Trigger animation on mount
   useEffect(() => {
@@ -83,11 +88,12 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   };
 
   const handleActivityUpdate = (updatedActivity: Activity) => {
+    console.log('Activity updated:', updatedActivity);
+    setActivity(updatedActivity);
     if (onUpdate) {
       onUpdate(activity.id, updatedActivity);
     }
     setShowEditDialog(false);
-    onClose();
   };
 
   const handleClose = () => {
