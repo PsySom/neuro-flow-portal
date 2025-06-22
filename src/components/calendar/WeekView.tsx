@@ -42,7 +42,33 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
     
     console.log(`Activities for ${dayString}:`, dayActivities.length);
     
-    return calculateActivityLayouts(dayActivities);
+    // Используем специальную логику для недельного календаря
+    return dayActivities.map(activity => {
+      const [startHour, startMin] = activity.startTime.split(':').map(Number);
+      const [endHour, endMin] = activity.endTime.split(':').map(Number);
+      
+      let startMinutes = startHour * 60 + startMin;
+      let endMinutes = endHour * 60 + endMin;
+      
+      // Обработка активностей через полночь
+      if (endMinutes < startMinutes) {
+        endMinutes += 24 * 60;
+      }
+      
+      const duration = endMinutes - startMinutes;
+      const topPosition = (startMinutes / 60) * 90; // 90px на час
+      const height = (duration / 60) * 90; // высота пропорциональна времени
+      
+      return {
+        activity,
+        top: topPosition,
+        height,
+        left: 0, // начинаем с левого края
+        width: 100, // 100% ширины столбца
+        column: 0,
+        totalColumns: 1
+      };
+    });
   };
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
