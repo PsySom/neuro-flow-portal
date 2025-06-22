@@ -31,10 +31,10 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const weekDays = getWeekDays();
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Рассчитываем раскладку активностей для каждого дня
+  // Получаем активности для конкретного дня
   const getActivitiesForDay = (dayIndex: number) => {
-    // Для демонстрации показываем все активности во все дни
     // В реальном приложении здесь будет фильтрация по дате
+    // Пока для демонстрации показываем все активности во всех днях
     return calculateActivityLayouts(activities);
   };
 
@@ -53,28 +53,16 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-0">
-        {/* Fixed header with days */}
-        <div className="grid grid-cols-8 border-b border-gray-200 bg-gray-50">
-          <div className="h-12 border-r border-gray-200 flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-500">Время</span>
-          </div>
-          {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="h-12 border-r border-gray-200 last:border-r-0 flex flex-col items-center justify-center">
-              <span className="text-xs text-gray-500">
-                {day.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase()}
-              </span>
-              <span className="text-sm font-medium">
-                {day.getDate()}
-              </span>
+        <div className="flex">
+          {/* Time column - fixed */}
+          <div className="w-20 bg-gray-50 border-r border-gray-200">
+            {/* Header */}
+            <div className="h-12 border-b border-gray-200 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-500">Время</span>
             </div>
-          ))}
-        </div>
-
-        {/* Scrollable content area */}
-        <ScrollArea className="h-[652px]">
-          <div className="grid grid-cols-8">
-            {/* Time column */}
-            <div className="border-r border-gray-200">
+            
+            {/* Time markers */}
+            <div>
               {hours.map((hour) => (
                 <div 
                   key={hour} 
@@ -84,36 +72,54 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
                 </div>
               ))}
             </div>
-
-            {/* Days columns */}
-            {weekDays.map((day, dayIndex) => {
-              const dayActivities = getActivitiesForDay(dayIndex);
-              
-              return (
-                <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative">
-                  {/* Hour grid lines */}
-                  {hours.map((hour) => (
-                    <div 
-                      key={hour}
-                      className="h-[90px] border-b border-gray-100"
-                    />
-                  ))}
-                  
-                  {/* Activities for this day */}
-                  {dayActivities.map((layout) => (
-                    <ActivityCard
-                      key={`${dayIndex}-${layout.activity.id}`}
-                      layout={layout}
-                      onToggleComplete={handleActivityToggle}
-                      onDelete={handleActivityDelete}
-                      onUpdate={handleActivityUpdate}
-                    />
-                  ))}
-                </div>
-              );
-            })}
           </div>
-        </ScrollArea>
+
+          {/* Days columns - scrollable */}
+          <div className="flex-1 overflow-x-auto">
+            <div className="grid grid-cols-7 min-w-full">
+              {/* Days header */}
+              {weekDays.map((day, dayIndex) => (
+                <div key={`header-${dayIndex}`} className="h-12 border-r border-gray-200 last:border-r-0 border-b border-gray-200 flex flex-col items-center justify-center bg-gray-50">
+                  <span className="text-xs text-gray-500">
+                    {day.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase()}
+                  </span>
+                  <span className="text-sm font-medium">
+                    {day.getDate()}
+                  </span>
+                </div>
+              ))}
+
+              {/* Days content */}
+              {weekDays.map((day, dayIndex) => {
+                const dayActivities = getActivitiesForDay(dayIndex);
+                
+                return (
+                  <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative min-w-[120px]">
+                    {/* Hour grid lines */}
+                    {hours.map((hour) => (
+                      <div 
+                        key={hour}
+                        className="h-[90px] border-b border-gray-100"
+                      />
+                    ))}
+                    
+                    {/* Activities for this day */}
+                    {dayActivities.map((layout) => (
+                      <ActivityCard
+                        key={`${dayIndex}-${layout.activity.id}`}
+                        layout={layout}
+                        onToggleComplete={handleActivityToggle}
+                        onDelete={handleActivityDelete}
+                        onUpdate={handleActivityUpdate}
+                        viewType="week"
+                      />
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
