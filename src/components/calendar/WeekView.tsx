@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -111,8 +110,8 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
       <div className="flex-1">
         <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
           <CardContent className="p-0">
-            <div className="flex h-[600px]">
-              {/* Полная ширина для контейнера */}
+            <div className="flex h-[720px]">
+              {/* Контейнер высотой 720px для 8 часовых промежутков */}
               <div className="w-full flex flex-col">
                 {/* Заголовки дней - фиксированная верхняя часть */}
                 <div className="flex h-12 border-b border-gray-200 flex-shrink-0">
