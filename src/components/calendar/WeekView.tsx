@@ -33,18 +33,14 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getActivitiesForDay = (day: Date) => {
-    const dayString = day.toISOString().split('T')[0];
+    // Используем индексную логику для распределения активностей по дням недели
+    const dayIndex = weekDays.findIndex(weekDay => 
+      weekDay.toDateString() === day.toDateString()
+    );
     
-    const dayActivities = activities.filter(activity => {
-      if (activity.date) {
-        return activity.date === dayString;
-      }
-      
-      const dayIndex = weekDays.findIndex(weekDay => 
-        weekDay.toDateString() === day.toDateString()
-      );
-      return activities.indexOf(activity) % 7 === dayIndex;
-    });
+    const dayActivities = activities.filter((activity, index) => 
+      index % 7 === dayIndex
+    );
     
     return calculateActivityLayouts(dayActivities);
   };
@@ -65,12 +61,12 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-0">
         <div className="flex h-[600px]">
-          {/* Заголовки - фиксированная верхняя часть */}
-          <div className="w-full">
-            {/* Заголовки дней */}
-            <div className="flex h-12 border-b border-gray-200">
+          {/* Полная ширина для контейнера */}
+          <div className="w-full flex flex-col">
+            {/* Заголовки дней - фиксированная верхняя часть */}
+            <div className="flex h-12 border-b border-gray-200 flex-shrink-0">
               {/* Пустая ячейка для колонки времени */}
-              <div className="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+              <div className="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-medium text-gray-500">Время</span>
               </div>
               
@@ -87,8 +83,8 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
               ))}
             </div>
 
-            {/* Скроллируемая область с общим скроллом */}
-            <div className="h-[548px] relative">
+            {/* Скроллируемая область */}
+            <div className="flex-1 relative">
               <ScrollArea ref={scrollAreaRef} className="h-full">
                 <div className="flex" style={{ height: '2160px' }}>
                   {/* Колонка времени */}
