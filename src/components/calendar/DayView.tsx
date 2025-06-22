@@ -10,12 +10,15 @@ import ActivityCard from './components/ActivityCard';
 import CurrentTimeIndicator from './components/CurrentTimeIndicator';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import { useActivities } from '@/contexts/ActivitiesContext';
+import { Activity } from '@/contexts/ActivitiesContext';
 
 interface DayViewProps {
   currentDate: Date;
+  onUpdateActivity?: (id: number, updates: Partial<Activity>) => void;
+  onDeleteActivity?: (id: number) => void;
 }
 
-const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
+const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDeleteActivity }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
@@ -262,6 +265,8 @@ const DayView: React.FC<DayViewProps> = ({ currentDate }) => {
                     <ActivityCard 
                       layout={layout} 
                       onToggleComplete={handleActivityToggle}
+                      onUpdate={onUpdateActivity}
+                      onDelete={onDeleteActivity}
                     />
                   </div>
                 ))}
