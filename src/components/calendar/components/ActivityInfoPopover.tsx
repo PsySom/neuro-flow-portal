@@ -72,25 +72,50 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     const popoverWidth = 320; // примерная ширина попапа
     const popoverHeight = showEvaluation ? 600 : 350; // примерная высота попапа
     
-    let left = position.x + 10;
-    let top = position.y + 10;
+    // Получаем размеры экрана
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const screenCenterX = screenWidth / 2;
+    const screenCenterY = screenHeight / 2;
     
-    // Проверяем, не выходит ли попап за правый край экрана
-    if (left + popoverWidth > window.innerWidth) {
-      left = position.x - popoverWidth - 10;
+    // Определяем начальную позицию рядом с местом клика
+    let left = position.x;
+    let top = position.y;
+    
+    // Смещаем попап в направлении центра экрана
+    if (position.x < screenCenterX) {
+      // Клик в левой половине экрана - показываем попап справа от клика
+      left = position.x + 20;
+    } else {
+      // Клик в правой половине экрана - показываем попап слева от клика
+      left = position.x - popoverWidth - 20;
     }
     
-    // Проверяем, не выходит ли попап за нижний край экрана
-    if (top + popoverHeight > window.innerHeight) {
+    if (position.y < screenCenterY) {
+      // Клик в верхней половине экрана - показываем попап ниже клика
+      top = position.y + 10;
+    } else {
+      // Клик в нижней половине экрана - показываем попап выше клика
       top = position.y - popoverHeight - 10;
     }
     
-    // Убеждаемся, что попап не выходит за левый край
+    // Корректируем позицию, чтобы попап не выходил за границы экрана
+    // Проверяем правый край
+    if (left + popoverWidth > screenWidth - 10) {
+      left = screenWidth - popoverWidth - 10;
+    }
+    
+    // Проверяем левый край
     if (left < 10) {
       left = 10;
     }
     
-    // Убеждаемся, что попап не выходит за верхний край
+    // Проверяем нижний край
+    if (top + popoverHeight > screenHeight - 10) {
+      top = screenHeight - popoverHeight - 10;
+    }
+    
+    // Проверяем верхний край
     if (top < 10) {
       top = 10;
     }
