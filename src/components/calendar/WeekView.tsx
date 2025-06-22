@@ -99,6 +99,14 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
 
   return (
     <div className="flex gap-6">
+      {/* Боковая панель слева */}
+      <DayViewSidebar
+        currentDate={currentDate}
+        activities={activities}
+        filteredTypes={filteredTypes}
+        onTypeFilterChange={handleTypeFilterChange}
+      />
+
       {/* Основная область календаря */}
       <div className="flex-1">
         <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
@@ -184,14 +192,6 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Боковая панель */}
-      <DayViewSidebar
-        currentDate={currentDate}
-        activities={activities}
-        filteredTypes={filteredTypes}
-        onTypeFilterChange={handleTypeFilterChange}
-      />
     </div>
   );
 };
