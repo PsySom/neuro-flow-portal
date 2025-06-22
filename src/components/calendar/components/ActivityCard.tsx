@@ -5,38 +5,65 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../types';
-import ActivityDetailsDialog from './ActivityDetailsDialog';
+import ActivityInfoPopover from './ActivityInfoPopover';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
   onToggleComplete?: (activityId: number) => void;
+  onDelete?: (activityId: number) => void;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, onDelete }) => {
   const { activity, top, height, left, width } = layout;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Предотвращаем открытие диалога при клике на чекбокс или кнопки
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="checkbox"]')) {
       return;
     }
-    setIsDialogOpen(true);
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopoverPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 5
+    });
+    setShowPopover(true);
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDialogOpen(true);
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopoverPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 5
+    });
+    setShowPopover(true);
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDialogOpen(true);
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopoverPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 5
+    });
+    setShowPopover(true);
   };
 
   const handleCheckboxToggle = () => {
     if (onToggleComplete) {
       onToggleComplete(activity.id);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(activity.id);
     }
   };
 
@@ -99,7 +126,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
               size="icon" 
               variant="ghost" 
               className="h-4 w-4"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleDeleteClick}
             >
               <Trash2 className="w-2 h-2 text-red-500" />
             </Button>
@@ -132,11 +159,15 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete })
         )}
       </div>
 
-      <ActivityDetailsDialog 
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        activity={activity}
-      />
+      {/* Activity Info Popover */}
+      {showPopover && (
+        <ActivityInfoPopover
+          activity={activity}
+          onClose={() => setShowPopover(false)}
+          position={popoverPosition}
+          onDelete={onDelete}
+        />
+      )}
     </>
   );
 };
