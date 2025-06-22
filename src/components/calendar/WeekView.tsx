@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 
 interface Activity {
@@ -61,13 +62,28 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-0">
-        <div className="grid grid-cols-8 h-[700px]">
-          {/* Time column */}
-          <div className="border-r border-gray-200">
-            <div className="h-12 border-b border-gray-200 bg-gray-50 flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-500">Время</span>
+        {/* Fixed header with days */}
+        <div className="grid grid-cols-8 border-b border-gray-200 bg-gray-50">
+          <div className="h-12 border-r border-gray-200 flex items-center justify-center">
+            <span className="text-sm font-medium text-gray-500">Время</span>
+          </div>
+          {weekDays.map((day, dayIndex) => (
+            <div key={dayIndex} className="h-12 border-r border-gray-200 last:border-r-0 flex flex-col items-center justify-center">
+              <span className="text-xs text-gray-500">
+                {day.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase()}
+              </span>
+              <span className="text-sm font-medium">
+                {day.getDate()}
+              </span>
             </div>
-            <div className="overflow-y-auto h-[calc(700px-48px)]">
+          ))}
+        </div>
+
+        {/* Scrollable content area */}
+        <ScrollArea className="h-[652px]">
+          <div className="grid grid-cols-8">
+            {/* Time column */}
+            <div className="border-r border-gray-200">
               {hours.map((hour) => (
                 <div 
                   key={hour} 
@@ -77,27 +93,15 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Days columns */}
-          {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative">
-              <div className="h-12 border-b border-gray-200 bg-gray-50 flex flex-col items-center justify-center">
-                <span className="text-xs text-gray-500">
-                  {day.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase()}
-                </span>
-                <span className="text-sm font-medium">
-                  {day.getDate()}
-                </span>
-              </div>
-              
-              <div className="relative h-[calc(700px-48px)] overflow-hidden">
+            {/* Days columns */}
+            {weekDays.map((day, dayIndex) => (
+              <div key={dayIndex} className="border-r border-gray-200 last:border-r-0 relative">
                 {/* Hour grid lines */}
                 {hours.map((hour) => (
                   <div 
                     key={hour}
-                    className="absolute w-full h-12 border-b border-gray-100"
-                    style={{ top: `${hour * 48}px` }}
+                    className="h-12 border-b border-gray-100"
                   />
                 ))}
                 
@@ -134,9 +138,9 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
