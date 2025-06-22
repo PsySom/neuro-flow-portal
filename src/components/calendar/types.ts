@@ -11,6 +11,8 @@ export interface Activity {
   completed: boolean;
   type: string;
   needEmoji?: string;
+  reminder?: string;
+  note?: string;
 }
 
 export interface ActivityLayout {

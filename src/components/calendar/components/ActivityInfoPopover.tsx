@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,6 +54,16 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       case 'смешанная': return 'смешанная';
       case 'задача': return 'истощающая';
       default: return type;
+    }
+  };
+
+  const getReminderText = (reminder: string) => {
+    switch (reminder) {
+      case '5': return 'За 5 минут';
+      case '15': return 'За 15 минут';
+      case '30': return 'За 30 минут';
+      case '60': return 'За час';
+      default: return 'Нет напоминаний';
     }
   };
 
@@ -211,7 +222,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
 
           <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
             <Bell className="w-3 h-3" />
-            <span>Нет напоминаний</span>
+            <span>{getReminderText((activity as any).reminder || '')}</span>
           </div>
 
           <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
@@ -221,7 +232,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
 
           <div className="flex items-start space-x-2 text-gray-600 dark:text-gray-400">
             <StickyNote className="w-3 h-3 mt-0.5" />
-            <span>Нет заметок</span>
+            <span>{(activity as any).note || 'Нет заметок'}</span>
           </div>
         </div>
 
