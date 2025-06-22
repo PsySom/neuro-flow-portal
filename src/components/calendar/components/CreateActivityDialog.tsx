@@ -106,7 +106,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
             Создать активность
@@ -115,7 +115,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="edit">Создать/редактировать активность</TabsTrigger>
+            <TabsTrigger value="edit">Создать активность</TabsTrigger>
             <TabsTrigger value="evaluate">Оценить активность</TabsTrigger>
             <TabsTrigger value="development">В разработке</TabsTrigger>
           </TabsList>

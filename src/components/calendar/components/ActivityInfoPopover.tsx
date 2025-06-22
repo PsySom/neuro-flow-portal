@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { X, Star, Calendar as CalendarIcon, Clock, Bell, Palette, StickyNote } from 'lucide-react';
 import { Activity } from '../types';
-import ActivityDetailsDialog from './ActivityDetailsDialog';
+import EditActivityDialog from './EditActivityDialog';
 
 interface ActivityInfoPopoverProps {
   activity: Activity;
@@ -25,7 +25,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   onUpdate
 }) => {
   const [showEvaluation, setShowEvaluation] = useState(false);
-  const [showFullDialog, setShowFullDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   
@@ -56,7 +56,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   };
 
   const handleEdit = () => {
-    setShowFullDialog(true);
+    setShowEditDialog(true);
   };
 
   const handleDeleteClick = () => {
@@ -86,7 +86,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     if (onUpdate) {
       onUpdate(activity.id, updatedActivity);
     }
-    setShowFullDialog(false);
+    setShowEditDialog(false);
     onClose();
   };
 
@@ -314,7 +314,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить активность?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -330,10 +330,10 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Full dialog */}
-      <ActivityDetailsDialog 
-        open={showFullDialog}
-        onOpenChange={setShowFullDialog}
+      {/* Edit dialog */}
+      <EditActivityDialog 
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
         activity={activity}
         onActivityUpdate={handleActivityUpdate}
         onDelete={onDelete}

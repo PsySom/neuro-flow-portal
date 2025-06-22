@@ -58,12 +58,15 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
     setShowPopover(true);
   };
 
-  const handleCheckboxToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleCheckboxToggle = (checked: boolean | string) => {
     if (onToggleComplete) {
       onToggleComplete(activity.id);
     }
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -107,7 +110,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ layout, onToggleComplete, o
               checked={activity.completed}
               onCheckedChange={handleCheckboxToggle}
               className="w-3 h-3 rounded-sm mt-1 flex-shrink-0 cursor-pointer"
-              onClick={handleCheckboxToggle}
+              onClick={handleCheckboxClick}
             />
             <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
           </div>

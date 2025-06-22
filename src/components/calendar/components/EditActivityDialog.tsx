@@ -21,7 +21,7 @@ import ActivityAdvancedOptions from './form/ActivityAdvancedOptions';
 import ActivityStatus from './form/ActivityStatus';
 import { validateActivityForm, getEmojiByType, calculateDuration, FormErrors, ActivityFormData } from './form/validationUtils';
 
-interface ActivityDetailsDialogProps {
+interface EditActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   activity: Activity;
@@ -29,7 +29,7 @@ interface ActivityDetailsDialogProps {
   onDelete?: (id: number) => void;
 }
 
-const ActivityDetailsDialog: React.FC<ActivityDetailsDialogProps> = ({
+const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   open,
   onOpenChange,
   activity,
@@ -132,16 +132,16 @@ const ActivityDetailsDialog: React.FC<ActivityDetailsDialogProps> = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-center">
-              {activity.name}
+              Редактировать: {activity.name}
             </DialogTitle>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="edit">Создать/редактировать активность</TabsTrigger>
+              <TabsTrigger value="edit">Редактировать активность</TabsTrigger>
               <TabsTrigger value="evaluate">Оценить активность</TabsTrigger>
               <TabsTrigger value="development">В разработке</TabsTrigger>
             </TabsList>
@@ -380,7 +380,7 @@ const ActivityDetailsDialog: React.FC<ActivityDetailsDialogProps> = ({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить активность?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -399,4 +399,4 @@ const ActivityDetailsDialog: React.FC<ActivityDetailsDialogProps> = ({
   );
 };
 
-export default ActivityDetailsDialog;
+export default EditActivityDialog;
