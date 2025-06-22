@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { FormErrors } from './validationUtils';
+import TimePickerSheet from './TimePickerSheet';
 
 interface ActivityTimeDateProps {
   startTime: string;
@@ -32,6 +33,23 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
   errors,
   setErrors
 }) => {
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+
+  const handleStartTimeChange = (time: string) => {
+    setStartTime(time);
+    if (errors.startTime && time) {
+      setErrors({ ...errors, startTime: '', timeLogic: '' });
+    }
+  };
+
+  const handleEndTimeChange = (time: string) => {
+    setEndTime(time);
+    if (errors.endTime && time) {
+      setErrors({ ...errors, endTime: '', timeLogic: '' });
+    }
+  };
+
   return (
     <>
       {/* Время начала и окончания */}
@@ -42,19 +60,22 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
             <span className="text-red-500 ml-1">*</span>
           </Label>
           <div className="relative">
-            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               id="start-time"
               type="time"
               value={startTime}
-              onChange={(e) => {
-                setStartTime(e.target.value);
-                if (errors.startTime && e.target.value) {
-                  setErrors({ ...errors, startTime: '', timeLogic: '' });
-                }
-              }}
+              onChange={(e) => handleStartTimeChange(e.target.value)}
               className={cn("pl-10", (errors.startTime || errors.timeLogic) ? 'border-red-500' : '')}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
+              onClick={() => setShowStartTimePicker(true)}
+            >
+              <Clock className="w-4 h-4 text-gray-400" />
+            </Button>
           </div>
           {errors.startTime && (
             <div className="flex items-center text-red-500 text-sm">
@@ -63,25 +84,29 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
             </div>
           )}
         </div>
+        
         <div className="space-y-2">
           <Label htmlFor="end-time" className="flex items-center">
             Время окончания
             <span className="text-red-500 ml-1">*</span>
           </Label>
           <div className="relative">
-            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               id="end-time"
               type="time"
               value={endTime}
-              onChange={(e) => {
-                setEndTime(e.target.value);
-                if (errors.endTime && e.target.value) {
-                  setErrors({ ...errors, endTime: '', timeLogic: '' });
-                }
-              }}
+              onChange={(e) => handleEndTimeChange(e.target.value)}
               className={cn("pl-10", (errors.endTime || errors.timeLogic) ? 'border-red-500' : '')}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute left-1 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
+              onClick={() => setShowEndTimePicker(true)}
+            >
+              <Clock className="w-4 h-4 text-gray-400" />
+            </Button>
           </div>
           {errors.endTime && (
             <div className="flex items-center text-red-500 text-sm">
@@ -141,6 +166,23 @@ const ActivityTimeDate: React.FC<ActivityTimeDateProps> = ({
           </div>
         )}
       </div>
+
+      {/* Time Picker Sheets */}
+      <TimePickerSheet
+        open={showStartTimePicker}
+        onOpenChange={setShowStartTimePicker}
+        value={startTime}
+        onChange={handleStartTimeChange}
+        title="Выберите время начала"
+      />
+
+      <TimePickerSheet
+        open={showEndTimePicker}
+        onOpenChange={setShowEndTimePicker}
+        value={endTime}
+        onChange={handleEndTimeChange}
+        title="Выберите время окончания"
+      />
     </>
   );
 };
