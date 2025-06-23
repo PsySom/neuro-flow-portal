@@ -1,14 +1,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../types';
 import ActivityInfoPopover from './ActivityInfoPopover';
 import DeleteRecurringDialog from './DeleteRecurringDialog';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption } from '../utils/recurringUtils';
+import DashboardActivityCard from './activity-card/DashboardActivityCard';
+import WeekActivityCard from './activity-card/WeekActivityCard';
+import DayActivityCard from './activity-card/DayActivityCard';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
@@ -25,7 +24,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   onUpdate,
   viewType = 'day'
 }) => {
-  const { activity: initialActivity, top, height, left, width } = layout;
+  const { activity: initialActivity } = layout;
   const [activity, setActivity] = useState(initialActivity);
   const [showPopover, setShowPopover] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -74,15 +73,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     setShowPopover(true);
   };
 
-  const handleCheckboxToggle = (checked: boolean | string) => {
+  const handleCheckboxToggle = () => {
     if (onToggleComplete) {
       onToggleComplete(activity.id);
     }
-  };
-
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -112,232 +106,21 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
   };
 
-  const getDisplayType = (type: string) => {
-    switch (type) {
-      case 'восстановление': return 'восстанавливающая';
-      case 'нейтральная': return 'нейтральная';
-      case 'смешанная': return 'смешанная';
-      case 'задача': return 'истощающая';
-      default: return type;
-    }
+  const commonProps = {
+    layout: { ...layout, activity },
+    cardRef,
+    onCardClick: handleCardClick,
+    onInfoClick: handleInfoClick,
+    onEditClick: handleEditClick,
+    onDeleteClick: handleDeleteClick,
+    onCheckboxToggle: handleCheckboxToggle
   };
 
-  // Разное отображение для разных типов календаря
-  if (viewType === 'week') {
-    return (
-      <>
-        <div
-          ref={cardRef}
-          className={`absolute ${activity.color} rounded-lg p-1.5 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
-          style={{ 
-            top: `${top}px`, 
-            height: `${height}px`,
-            left: `${left}%`,
-            width: `${width}%`,
-            zIndex: 1,
-            minHeight: '30px'
-          }}
-          onClick={handleCardClick}
-        >
-          {/* Только название */}
-          <div className="font-medium text-xs truncate leading-tight mb-1">
-            {activity.name}
-          </div>
-
-          {/* Только время начала и окончания */}
-          <div className="text-xs text-gray-600">
-            <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
-          </div>
-        </div>
-
-        {/* Activity Info Popover */}
-        {showPopover && (
-          <ActivityInfoPopover
-            activity={activity}
-            onClose={() => setShowPopover(false)}
-            position={popoverPosition}
-            onDelete={handleDeleteClick}
-            onUpdate={handleActivityUpdate}
-          />
-        )}
-
-        {/* Delete Recurring Dialog */}
-        {showDeleteDialog && (
-          <DeleteRecurringDialog
-            open={showDeleteDialog}
-            onOpenChange={setShowDeleteDialog}
-            activity={activity}
-            onConfirm={handleDeleteConfirm}
-          />
-        )}
-      </>
-    );
-  }
-
-  if (viewType === 'dashboard') {
-    return (
-      <>
-        <div
-          ref={cardRef}
-          className={`${activity.color} rounded-lg p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow mb-3`}
-          onClick={handleCardClick}
-        >
-          {/* Верхняя строка: чекбокс + название + кнопки */}
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-start space-x-3 flex-1">
-              <Checkbox 
-                checked={activity.completed}
-                onCheckedChange={handleCheckboxToggle}
-                className="w-5 h-5 rounded-sm mt-1 cursor-pointer"
-                onClick={handleCheckboxClick}
-              />
-              <span className="font-medium text-lg">{activity.name}</span>
-            </div>
-            
-            <div className="flex space-x-1 ml-2">
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="h-6 w-6"
-                onClick={handleInfoClick}
-              >
-                <Info className="w-3 h-3" />
-              </Button>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="h-6 w-6"
-                onClick={handleEditClick}
-              >
-                <Edit className="w-3 h-3" />
-              </Button>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="h-6 w-6"
-                onClick={handleDeleteClick}
-              >
-                <Trash2 className="w-3 h-3 text-red-500" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Вторая строка: время + продолжительность + звезды */}
-          <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-            <span className="font-medium">[{activity.startTime}-{activity.endTime}]</span>
-            <span>[{activity.duration}]</span>
-            <div className="flex items-center">
-              {Array.from({ length: activity.importance }, (_, i) => (
-                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-          </div>
-
-          {/* Третья строка: тип + эмодзи */}
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="text-xs">
-              {getDisplayType(activity.type)}
-            </Badge>
-            <span className="text-2xl">{activity.emoji}</span>
-            {activity.type === 'восстановление' && activity.needEmoji && (
-              <span className="text-lg">{activity.needEmoji}</span>
-            )}
-          </div>
-        </div>
-
-        {/* Activity Info Popover */}
-        {showPopover && (
-          <ActivityInfoPopover
-            activity={activity}
-            onClose={() => setShowPopover(false)}
-            position={popoverPosition}
-            onDelete={handleDeleteClick}
-            onUpdate={handleActivityUpdate}
-          />
-        )}
-
-        {/* Delete Recurring Dialog */}
-        {showDeleteDialog && (
-          <DeleteRecurringDialog
-            open={showDeleteDialog}
-            onOpenChange={setShowDeleteDialog}
-            activity={activity}
-            onConfirm={handleDeleteConfirm}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Календарь дня (по умолчанию)
   return (
     <>
-      <div
-        ref={cardRef}
-        className={`absolute ${activity.color} rounded-lg p-1.5 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
-        style={{ 
-          top: `${top}px`, 
-          height: `${height}px`,
-          left: `${left}%`,
-          width: `${width}%`,
-          zIndex: 1,
-          minHeight: '45px'
-        }}
-        onClick={handleCardClick}
-      >
-        {/* Верхняя строка с чекбоксом, названием и кнопками */}
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center space-x-1 flex-1 min-w-0">
-            <Checkbox 
-              checked={activity.completed}
-              onCheckedChange={handleCheckboxToggle}
-              className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer"
-              onClick={handleCheckboxClick}
-            />
-            <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
-          </div>
-          
-          <div className="flex space-x-0.5 ml-1 flex-shrink-0">
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-3 w-3 p-0"
-              onClick={handleInfoClick}
-            >
-              <Info className="w-2 h-2" />
-            </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-3 w-3 p-0"
-              onClick={handleEditClick}
-            >
-              <Edit className="w-2 h-2" />
-            </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-3 w-3 p-0"
-              onClick={handleDeleteClick}
-            >
-              <Trash2 className="w-2 h-2 text-red-500" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Время + продолжительность + звезды */}
-        <div className="flex items-center justify-between text-xs text-gray-600">
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
-            <span>[{activity.duration}]</span>
-          </div>
-          <div className="flex items-center">
-            {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
-              <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
-            ))}
-          </div>
-        </div>
-      </div>
+      {viewType === 'dashboard' && <DashboardActivityCard {...commonProps} />}
+      {viewType === 'week' && <WeekActivityCard {...commonProps} />}
+      {viewType === 'day' && <DayActivityCard {...commonProps} />}
 
       {/* Activity Info Popover */}
       {showPopover && (
