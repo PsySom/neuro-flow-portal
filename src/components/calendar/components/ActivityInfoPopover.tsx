@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,14 +6,16 @@ import { Slider } from '@/components/ui/slider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { X, Star, Calendar as CalendarIcon, Clock, Bell, Palette, StickyNote } from 'lucide-react';
 import { Activity } from '../types';
+import { DeleteRecurringOption } from '../utils/recurringUtils';
 import EditActivityDialog from './EditActivityDialog';
 
 interface ActivityInfoPopoverProps {
   activity: Activity;
   onClose: () => void;
   position: { x: number; y: number };
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number, deleteOption?: DeleteRecurringOption) => void;
   onUpdate?: (id: number, updates: Partial<Activity>) => void;
+  onEdit?: () => void;
 }
 
 const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
@@ -22,11 +23,11 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   onClose,
   position,
   onDelete,
-  onUpdate
+  onUpdate,
+  onEdit
 }) => {
   const [activity, setActivity] = useState(initialActivity);
   const [showEvaluation, setShowEvaluation] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   
@@ -72,7 +73,9 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   };
 
   const handleEdit = () => {
-    setShowEditDialog(true);
+    if (onEdit) {
+      onEdit();
+    }
   };
 
   const handleDeleteClick = () => {
@@ -96,15 +99,6 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       stress: stress[0]
     });
     setShowEvaluation(false);
-  };
-
-  const handleActivityUpdate = (updatedActivity: Activity) => {
-    console.log('Activity updated:', updatedActivity);
-    setActivity(updatedActivity);
-    if (onUpdate) {
-      onUpdate(activity.id, updatedActivity);
-    }
-    setShowEditDialog(false);
   };
 
   const handleClose = () => {

@@ -7,7 +7,7 @@ import ActivityCard from './components/ActivityCard';
 import CurrentTimeIndicator from './components/CurrentTimeIndicator';
 import DayViewSidebar from './components/DayViewSidebar';
 import CreateActivityDialog from './components/CreateActivityDialog';
-import { DeleteRecurringOption } from './utils/recurringUtils';
+import { DeleteRecurringOption, RecurringActivityOptions } from './utils/recurringUtils';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -119,7 +119,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     // Устанавливаем дату из selectedDate
     const activityWithDate = {
       ...newActivity,
@@ -129,8 +129,9 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
     addActivity(activityWithDate, recurringOptions);
   };
 
-  const handleActivityUpdate = (activityId: number, updates: any) => {
-    updateActivity(activityId, updates);
+  const handleActivityUpdate = (activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
+    console.log('WeekView handleActivityUpdate:', activityId, updates, recurringOptions);
+    updateActivity(activityId, updates, recurringOptions);
   };
 
   const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
