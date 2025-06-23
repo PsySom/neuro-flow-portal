@@ -33,6 +33,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [selectedColor, setSelectedColor] = useState('bg-blue-200');
   const [note, setNote] = useState('');
   const [repeatType, setRepeatType] = useState('');
+  const [selectedDate, setSelectedDate] = useState('2025-06-23'); // Устанавливаем дату по умолчанию
 
   const { addActivity } = useActivities();
 
@@ -73,8 +74,6 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
-
     const newActivity = {
       id: Date.now(),
       name: activityName.trim(),
@@ -88,7 +87,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       type: activityType,
       note,
       needEmoji: activityType === 'восстановление' ? '⚡' : undefined,
-      date: today
+      date: selectedDate
     };
 
     // Формируем параметры повтора
@@ -97,10 +96,11 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       recurringOptions = {
         type: repeatType as 'daily' | 'weekly' | 'monthly',
         interval: 1,
-        maxOccurrences: 365
+        maxOccurrences: repeatType === 'daily' ? 10 : 30 // 10 дней для ежедневных повторений
       };
     }
 
+    console.log('Creating activity with recurring options:', recurringOptions);
     addActivity(newActivity, recurringOptions);
     handleClose();
   };
@@ -114,6 +114,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setSelectedColor('bg-blue-200');
     setNote('');
     setRepeatType('');
+    setSelectedDate('2025-06-23');
     onOpenChange(false);
   };
 
@@ -165,6 +166,16 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                 </Select>
               </div>
 
+              <div>
+                <Label htmlFor="date">Дата</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="startTime">Время начала</Label>
@@ -203,14 +214,14 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
               </div>
 
               <div>
-                <Label htmlFor="repeat">Повторение</Label>
+                <Label htmlFor="repeat">Настройка повторения</Label>
                 <Select value={repeatType} onValueChange={setRepeatType}>
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите тип повторения" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Не повторять</SelectItem>
-                    <SelectItem value="daily">Ежедневно</SelectItem>
+                    <SelectItem value="daily">Ежедневно (10 дней)</SelectItem>
                     <SelectItem value="weekly">Еженедельно</SelectItem>
                     <SelectItem value="monthly">Ежемесячно</SelectItem>
                   </SelectContent>

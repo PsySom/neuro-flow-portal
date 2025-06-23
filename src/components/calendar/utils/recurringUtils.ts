@@ -23,27 +23,31 @@ export const generateRecurringActivities = (
   let currentDate = new Date(startDate);
   let occurrenceCount = 1;
 
-  const maxDate = options.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // год вперед по умолчанию
-  const maxOccurrences = options.maxOccurrences || 365;
+  // Для ежедневных повторений устанавливаем 10 дней
+  const maxOccurrences = options.type === 'daily' ? 10 : (options.maxOccurrences || 30);
+  const maxDate = options.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
   while (occurrenceCount < maxOccurrences && currentDate <= maxDate) {
+    // Создаем новую дату для следующего повторения
+    const nextDate = new Date(currentDate);
+    
     switch (options.type) {
       case 'daily':
-        currentDate.setDate(currentDate.getDate() + options.interval);
+        nextDate.setDate(nextDate.getDate() + options.interval);
         break;
       case 'weekly':
-        currentDate.setDate(currentDate.getDate() + (7 * options.interval));
+        nextDate.setDate(nextDate.getDate() + (7 * options.interval));
         break;
       case 'monthly':
-        currentDate.setMonth(currentDate.getMonth() + options.interval);
+        nextDate.setMonth(nextDate.getMonth() + options.interval);
         break;
     }
 
-    if (currentDate <= maxDate) {
+    if (nextDate <= maxDate) {
       const recurringActivity: Activity = {
         ...baseActivity,
-        id: baseActivity.id + occurrenceCount,
-        date: currentDate.toISOString().split('T')[0],
+        id: baseActivity.id + occurrenceCount * 1000, // Уникальный ID для каждого повторения
+        date: nextDate.toISOString().split('T')[0],
         recurring: {
           originalId: baseActivity.id,
           type: options.type,
@@ -53,7 +57,10 @@ export const generateRecurringActivities = (
       };
 
       activities.push(recurringActivity);
+      currentDate = nextDate;
       occurrenceCount++;
+    } else {
+      break;
     }
   }
 

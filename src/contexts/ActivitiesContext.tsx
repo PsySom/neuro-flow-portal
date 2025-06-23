@@ -52,15 +52,18 @@ interface ActivitiesProviderProps {
 }
 
 export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children }) => {
-  // Переносим все активности на сегодняшний день
-  const today = new Date().toISOString().split('T')[0];
-  const activitiesWithTodayDate = initialActivities.map(activity => ({
+  // Устанавливаем дату 23 июня 2025 года для всех активностей из данных
+  const currentDate = '2025-06-23';
+  const activitiesWithCorrectDate = initialActivities.map(activity => ({
     ...activity,
-    date: today
+    date: currentDate
   }));
 
   const [activities, setActivities] = useState<Activity[]>(
-    activitiesWithTodayDate.sort((a, b) => {
+    activitiesWithCorrectDate.sort((a, b) => {
+      if (a.date !== b.date) {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
       const timeA = a.startTime.split(':').map(Number);
       const timeB = b.startTime.split(':').map(Number);
       return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);

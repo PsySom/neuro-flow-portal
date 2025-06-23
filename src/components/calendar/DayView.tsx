@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
@@ -32,6 +33,7 @@ const DayView: React.FC<DayViewProps> = ({
 
   console.log('DayView current date:', currentDateString);
   console.log('DayView activities for date:', dayActivities.length);
+  console.log('All activities:', activities.length);
 
   // Обработчик переключения состояния активности
   const handleActivityToggle = (activityId: number) => {
@@ -44,7 +46,6 @@ const DayView: React.FC<DayViewProps> = ({
   );
 
   console.log('Visible activities count:', visibleActivities.length);
-  console.log('Filtered types:', Array.from(filteredTypes));
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -56,7 +57,7 @@ const DayView: React.FC<DayViewProps> = ({
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     
-    // Используем новое соотношение 90px на час
+    // Используем соотношение 90px на час
     const hourFromTop = Math.floor(clickY / 90);
     const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
@@ -67,7 +68,12 @@ const DayView: React.FC<DayViewProps> = ({
   };
 
   const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
-    addActivity(newActivity, recurringOptions);
+    // Устанавливаем дату из currentDate, если она не указана
+    const activityWithDate = {
+      ...newActivity,
+      date: newActivity.date || currentDateString
+    };
+    addActivity(activityWithDate, recurringOptions);
   };
 
   const handleActivityUpdate = (id: number, updates: Partial<Activity>) => {
@@ -111,7 +117,7 @@ const DayView: React.FC<DayViewProps> = ({
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={dayActivities} // Передаем только активности текущего дня
+          activities={dayActivities}
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
           onDateSelect={handleDateSelect}
@@ -132,6 +138,7 @@ const DayView: React.FC<DayViewProps> = ({
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         initialTime={selectedTime}
+        initialDate={currentDateString}
         onActivityCreate={handleActivityCreate}
       />
     </>

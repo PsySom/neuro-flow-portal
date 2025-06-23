@@ -17,9 +17,11 @@ const ActivityTimelineComponent = () => {
   
   const { activities, toggleActivityComplete, deleteActivity, updateActivity, getActivitiesForDate } = useActivities();
 
-  // Получаем активности для текущего дня
-  const today = new Date().toISOString().split('T')[0];
-  const todayActivities = getActivitiesForDate(today);
+  // Получаем активности для 23 июня 2025 (текущий день в системе)
+  const currentSystemDate = '2025-06-23';
+  const todayActivities = getActivitiesForDate(currentSystemDate);
+
+  console.log('Dashboard activities for', currentSystemDate, ':', todayActivities.length);
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
     updateActivity(activityId, updates);
@@ -39,7 +41,7 @@ const ActivityTimelineComponent = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Clock className="w-5 h-5 text-emerald-600" />
-            <span>Активности на сегодня</span>
+            <span>Активности на 23 июня 2025</span>
           </CardTitle>
           <Button 
             size="icon" 
@@ -73,7 +75,7 @@ const ActivityTimelineComponent = () => {
               ))}
               {todayActivities.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
-                  <p>Нет активностей на сегодня</p>
+                  <p>Нет активностей на 23 июня 2025</p>
                 </div>
               )}
             </div>
