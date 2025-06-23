@@ -6,6 +6,7 @@ import { useActivities } from '@/contexts/ActivitiesContext';
 import ActivityCard from './components/ActivityCard';
 import CurrentTimeIndicator from './components/CurrentTimeIndicator';
 import DayViewSidebar from './components/DayViewSidebar';
+import { DeleteRecurringOption } from './utils/recurringUtils';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -93,8 +94,8 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
     updateActivity(activityId, updates);
   };
 
-  const handleActivityDelete = (activityId: number) => {
-    deleteActivity(activityId);
+  const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
+    deleteActivity(activityId, deleteOption);
   };
 
   const handleActivityToggle = (activityId: number) => {

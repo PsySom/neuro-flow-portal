@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useActivities } from '@/contexts/ActivitiesContext';
+import { RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
 
 interface CreateActivityDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [priority, setPriority] = useState(1);
   const [selectedColor, setSelectedColor] = useState('bg-blue-200');
   const [note, setNote] = useState('');
+  const [repeatType, setRepeatType] = useState('');
 
   const { addActivity } = useActivities();
 
@@ -71,6 +73,8 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       return;
     }
 
+    const today = new Date().toISOString().split('T')[0];
+
     const newActivity = {
       id: Date.now(),
       name: activityName.trim(),
@@ -84,10 +88,20 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       type: activityType,
       note,
       needEmoji: activityType === 'восстановление' ? '⚡' : undefined,
-      date: '2025-06-22'
+      date: today
     };
 
-    addActivity(newActivity);
+    // Формируем параметры повтора
+    let recurringOptions: RecurringActivityOptions | undefined;
+    if (repeatType && repeatType !== 'none' && repeatType !== '') {
+      recurringOptions = {
+        type: repeatType as 'daily' | 'weekly' | 'monthly',
+        interval: 1,
+        maxOccurrences: 365
+      };
+    }
+
+    addActivity(newActivity, recurringOptions);
     handleClose();
   };
 
@@ -99,6 +113,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setPriority(1);
     setSelectedColor('bg-blue-200');
     setNote('');
+    setRepeatType('');
     onOpenChange(false);
   };
 
@@ -183,6 +198,21 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     <SelectItem value="3">3 - Средняя</SelectItem>
                     <SelectItem value="4">4 - Высокая</SelectItem>
                     <SelectItem value="5">5 - Очень высокая</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="repeat">Повторение</Label>
+                <Select value={repeatType} onValueChange={setRepeatType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите тип повторения" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Не повторять</SelectItem>
+                    <SelectItem value="daily">Ежедневно</SelectItem>
+                    <SelectItem value="weekly">Еженедельно</SelectItem>
+                    <SelectItem value="monthly">Ежемесячно</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -9,12 +9,14 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import ActivityInfoPopover from './ActivityInfoPopover';
+import DeleteRecurringDialog from './DeleteRecurringDialog';
+import { DeleteRecurringOption } from '../utils/recurringUtils';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
   onToggleComplete: (activityId: number) => void;
   onUpdate?: (id: number, updates: Partial<Activity>) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number, deleteOption?: DeleteRecurringOption) => void;
   viewType?: 'day' | 'week' | 'dashboard';
 }
 
@@ -27,6 +29,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [showInfoPopover, setShowInfoPopover] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const handleCheckboxToggle = (e: React.MouseEvent) => {
@@ -53,9 +56,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = (deleteOption: DeleteRecurringOption) => {
     if (onDelete) {
-      onDelete(layout.activity.id);
+      onDelete(layout.activity.id, deleteOption);
     }
+    setShowDeleteDialog(false);
   };
 
   const getDisplayType = (type: string) => {
@@ -265,6 +273,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           onClose={() => setShowInfoPopover(false)}
           onDelete={onDelete}
           onUpdate={onUpdate}
+        />
+      )}
+
+      {/* Диалог удаления повторяющихся активностей */}
+      {showDeleteDialog && (
+        <DeleteRecurringDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          activity={layout.activity}
+          onConfirm={handleDeleteConfirm}
         />
       )}
     </>

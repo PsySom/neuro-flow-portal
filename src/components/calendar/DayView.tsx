@@ -1,15 +1,15 @@
-
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { Activity } from '@/contexts/ActivitiesContext';
+import { DeleteRecurringOption } from './utils/recurringUtils';
 
 interface DayViewProps {
   currentDate: Date;
   onUpdateActivity?: (id: number, updates: Partial<Activity>) => void;
-  onDeleteActivity?: (id: number) => void;
+  onDeleteActivity?: (id: number, deleteOption?: DeleteRecurringOption) => void;
   onDateChange?: (date: Date) => void;
 }
 
@@ -77,10 +77,10 @@ const DayView: React.FC<DayViewProps> = ({
     }
   };
 
-  const handleActivityDelete = (id: number) => {
-    deleteActivity(id);
+  const handleActivityDelete = (id: number, deleteOption?: DeleteRecurringOption) => {
+    deleteActivity(id, deleteOption);
     if (onDeleteActivity) {
-      onDeleteActivity(id);
+      onDeleteActivity(id, deleteOption);
     }
   };
 

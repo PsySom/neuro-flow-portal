@@ -8,20 +8,25 @@ import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityCard from '@/components/calendar/components/ActivityCard';
 import { useActivities } from '@/contexts/ActivitiesContext';
+import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   
-  const { activities, toggleActivityComplete, deleteActivity, updateActivity } = useActivities();
+  const { activities, toggleActivityComplete, deleteActivity, updateActivity, getActivitiesForDate } = useActivities();
+
+  // Получаем активности для текущего дня
+  const today = new Date().toISOString().split('T')[0];
+  const todayActivities = getActivitiesForDate(today);
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
     updateActivity(activityId, updates);
   };
 
-  const handleActivityDelete = (activityId: number) => {
-    deleteActivity(activityId);
+  const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
+    deleteActivity(activityId, deleteOption);
   };
 
   const handleActivityToggle = (activityId: number) => {
@@ -34,7 +39,7 @@ const ActivityTimelineComponent = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Clock className="w-5 h-5 text-emerald-600" />
-            <span>Список активностей</span>
+            <span>Активности на сегодня</span>
           </CardTitle>
           <Button 
             size="icon" 
@@ -48,7 +53,7 @@ const ActivityTimelineComponent = () => {
         <CardContent className="p-6">
           <ScrollArea className="h-[480px]">
             <div className="space-y-0">
-              {activities.map((activity) => (
+              {todayActivities.map((activity) => (
                 <ActivityCard
                   key={activity.id}
                   layout={{
@@ -66,6 +71,11 @@ const ActivityTimelineComponent = () => {
                   viewType="dashboard"
                 />
               ))}
+              {todayActivities.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Нет активностей на сегодня</p>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </CardContent>
