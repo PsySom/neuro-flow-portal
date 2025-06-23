@@ -1,3 +1,4 @@
+
 export interface Activity {
   id: number;
   name: string;
@@ -13,6 +14,12 @@ export interface Activity {
   reminder?: string;
   note?: string;
   date: string;
+  recurring?: {
+    originalId: number;
+    type: 'daily' | 'weekly' | 'monthly';
+    interval: number;
+    occurrenceNumber: number;
+  };
 }
 
 export interface ActivityLayout {
