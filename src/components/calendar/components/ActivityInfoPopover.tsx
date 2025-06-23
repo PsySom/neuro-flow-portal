@@ -6,7 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { X, Star, Calendar as CalendarIcon, Clock, Bell, Palette, StickyNote } from 'lucide-react';
 import { Activity } from '../types';
-import { DeleteRecurringOption } from '../utils/recurringUtils';
+import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 import EditActivityDialog from './EditActivityDialog';
 
 interface ActivityInfoPopoverProps {
@@ -14,7 +14,7 @@ interface ActivityInfoPopoverProps {
   onClose: () => void;
   position: { x: number; y: number };
   onDelete?: (id: number, deleteOption?: DeleteRecurringOption) => void;
-  onUpdate?: (id: number, updates: Partial<Activity>) => void;
+  onUpdate?: (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
   onEdit?: () => void;
 }
 
@@ -29,6 +29,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   const [activity, setActivity] = useState(initialActivity);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   
   // Evaluation state
@@ -75,7 +76,10 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
   const handleEdit = () => {
     if (onEdit) {
       onEdit();
+    } else {
+      setShowEditDialog(true);
     }
+    onClose(); // Close the mini popover when opening edit dialog
   };
 
   const handleDeleteClick = () => {
@@ -88,6 +92,14 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
     }
     setShowDeleteDialog(false);
     onClose();
+  };
+
+  const handleActivityUpdate = (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => {
+    console.log('Activity updated in popover:', updatedActivity, 'with recurring:', recurringOptions);
+    if (onUpdate) {
+      onUpdate(activity.id, updatedActivity, recurringOptions);
+    }
+    setShowEditDialog(false);
   };
 
   const handleSaveEvaluation = () => {
@@ -342,13 +354,15 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       </AlertDialog>
 
       {/* Edit dialog */}
-      <EditActivityDialog 
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        activity={activity}
-        onActivityUpdate={handleActivityUpdate}
-        onDelete={onDelete}
-      />
+      {showEditDialog && (
+        <EditActivityDialog 
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          activity={activity}
+          onActivityUpdate={handleActivityUpdate}
+          onDelete={onDelete}
+        />
+      )}
     </>
   );
 };
