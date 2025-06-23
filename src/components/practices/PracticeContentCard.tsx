@@ -55,8 +55,65 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
     setIsLiked(!isLiked);
   };
 
+  // Функция для получения цвета рамки и фона на основе градиента кнопки
+  const getCardStyling = (color: string) => {
+    if (color.includes('blue')) {
+      return {
+        borderColor: 'border-blue-500',
+        bgColor: 'bg-blue-50/50'
+      };
+    } else if (color.includes('green') || color.includes('emerald')) {
+      return {
+        borderColor: 'border-green-500',
+        bgColor: 'bg-green-50/50'
+      };
+    } else if (color.includes('purple')) {
+      return {
+        borderColor: 'border-purple-500',
+        bgColor: 'bg-purple-50/50'
+      };
+    } else if (color.includes('orange')) {
+      return {
+        borderColor: 'border-orange-500',
+        bgColor: 'bg-orange-50/50'
+      };
+    } else if (color.includes('red') || color.includes('rose')) {
+      return {
+        borderColor: 'border-red-500',
+        bgColor: 'bg-red-50/50'
+      };
+    } else if (color.includes('indigo')) {
+      return {
+        borderColor: 'border-indigo-500',
+        bgColor: 'bg-indigo-50/50'
+      };
+    } else if (color.includes('yellow')) {
+      return {
+        borderColor: 'border-yellow-500',
+        bgColor: 'bg-yellow-50/50'
+      };
+    } else if (color.includes('pink')) {
+      return {
+        borderColor: 'border-pink-500',
+        bgColor: 'bg-pink-50/50'
+      };
+    } else if (color.includes('teal')) {
+      return {
+        borderColor: 'border-teal-500',
+        bgColor: 'bg-teal-50/50'
+      };
+    } else {
+      return {
+        borderColor: 'border-gray-300',
+        bgColor: 'bg-gray-50/50'
+      };
+    }
+  };
+
+  const cardStyling = getCardStyling(item.color);
+
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50">
+    <Card className={`hover:shadow-lg transition-all duration-300 border-2 ${cardStyling.borderColor} ${cardStyling.bgColor}`}>
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
           <button 
