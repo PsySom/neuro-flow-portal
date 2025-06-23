@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Brain, Heart, MessageCircle, Clock, Search, LayoutDashboard, Zap } from 'lucide-react';
+import { ArrowLeft, Brain, Heart, MessageCircle, Clock, Search, LayoutDashboard, Zap, Calendar } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/dashboard/UserMenu';
 
 const Diaries = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
@@ -36,9 +39,17 @@ const Diaries = () => {
                   Дашборд
                 </Button>
               </Link>
+              <Button 
+                variant="ghost" 
+                className="font-medium"
+                style={{ color: `hsl(var(--psybalans-primary))` }}
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Дневники
+              </Button>
               <Link to="/calendar">
                 <Button variant="ghost" className="dark:text-gray-300">
-                  <Brain className="w-4 h-4 mr-2" />
+                  <Calendar className="w-4 h-4 mr-2" />
                   Календарь
                 </Button>
               </Link>
@@ -60,7 +71,7 @@ const Diaries = () => {
                 />
               </div>
               <ThemeToggle />
-              <UserMenu />
+              {isAuthenticated && <UserMenu />}
             </div>
           </div>
         </div>
