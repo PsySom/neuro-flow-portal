@@ -20,6 +20,7 @@ const PracticesPreview = () => {
       participants: '12.5k',
       tags: ['Дыхание', 'Тревога'],
       color: 'from-blue-400 to-blue-600',
+      borderColor: 'border-blue-400',
       steps: [
         'Примите удобное положение',
         'Вдох через нос на 4 счета',
@@ -36,6 +37,7 @@ const PracticesPreview = () => {
       participants: '8.3k',
       tags: ['Медитация', 'Расслабление'],
       color: 'from-green-400 to-emerald-600',
+      borderColor: 'border-green-400',
       steps: [
         'Лягте на спину и закройте глаза',
         'Начните с пальцев ног',
@@ -52,6 +54,7 @@ const PracticesPreview = () => {
       participants: '15.7k',
       tags: ['Эмоции', 'Тест'],
       color: 'from-purple-400 to-purple-600',
+      borderColor: 'border-purple-400',
       steps: [
         'Посмотрите на текущий момент',
         'Выберите базовую эмоцию',  
@@ -118,7 +121,7 @@ const PracticesPreview = () => {
           return (
             <Card 
               key={exercise.id}
-              className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50"
+              className={`hover:shadow-lg transition-all duration-300 border-2 ${exercise.borderColor} bg-gradient-to-r from-white to-gray-50`}
             >
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
