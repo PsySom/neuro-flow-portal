@@ -36,6 +36,19 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const weekDays = getWeekDays();
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
+  // Получаем все активности для текущей недели
+  const getWeekActivities = () => {
+    const weekActivities = [];
+    weekDays.forEach(day => {
+      const dayString = day.toISOString().split('T')[0];
+      const dayActivities = getActivitiesForDate(dayString);
+      weekActivities.push(...dayActivities);
+    });
+    return weekActivities;
+  };
+
+  const weekActivities = getWeekActivities();
+
   const getActivitiesForDay = (day: Date) => {
     const dayString = day.toISOString().split('T')[0];
     
@@ -106,7 +119,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
       {/* Боковая панель слева */}
       <DayViewSidebar
         currentDate={currentDate}
-        activities={activities} // Передаем все активности для построения фильтров
+        activities={weekActivities} // Передаем только активности текущей недели
         filteredTypes={filteredTypes}
         onTypeFilterChange={handleTypeFilterChange}
       />

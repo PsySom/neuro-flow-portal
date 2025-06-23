@@ -16,6 +16,7 @@ const DayViewFilters: React.FC<DayViewFiltersProps> = ({
   filteredTypes,
   onTypeFilterChange
 }) => {
+  // Получаем только уникальные типы из переданных активностей (для текущего периода)
   const allActivityTypes = [...new Set(activities.map(activity => activity.type))];
 
   const getTypeDisplayName = (type: string) => {
@@ -44,6 +45,7 @@ const DayViewFilters: React.FC<DayViewFiltersProps> = ({
         <h3 className="text-xs font-medium mb-2 text-gray-700">Фильтры активностей</h3>
         <div className="space-y-2">
           {allActivityTypes.map((type) => {
+            // Считаем количество активностей данного типа только среди переданных активностей
             const count = activities.filter(a => a.type === type).length;
             return (
               <div key={type} className="flex items-center space-x-2">

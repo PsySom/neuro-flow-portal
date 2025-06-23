@@ -84,7 +84,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={activities} // Передаем все активности для построения фильтров
+          activities={dayActivities} // Передаем только активности текущего дня
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
         />
