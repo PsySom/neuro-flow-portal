@@ -99,18 +99,28 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     }
   }, [activities]);
 
+  const generateUniqueId = (): number => {
+    return Date.now() + Math.floor(Math.random() * 1000);
+  };
+
   const addActivity = (activity: Activity, recurringOptions?: RecurringActivityOptions) => {
     setActivities(prev => {
       let newActivities = [...prev];
       
+      // Убеждаемся, что у активности уникальный ID
+      const activityWithUniqueId = {
+        ...activity,
+        id: activity.id || generateUniqueId()
+      };
+      
       if (recurringOptions && recurringOptions.type !== 'none') {
-        const startDate = new Date(activity.date);
-        const recurringActivities = generateRecurringActivities(activity, recurringOptions, startDate);
+        const startDate = new Date(activityWithUniqueId.date);
+        const recurringActivities = generateRecurringActivities(activityWithUniqueId, recurringOptions, startDate);
         console.log('Generated recurring activities:', recurringActivities.length, 'activities');
         console.log('Recurring activities dates:', recurringActivities.map(a => a.date));
         newActivities = [...newActivities, ...recurringActivities];
       } else {
-        newActivities = [...newActivities, activity];
+        newActivities = [...newActivities, activityWithUniqueId];
       }
 
       return newActivities.sort((a, b) => {
@@ -126,6 +136,15 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
 
   const updateActivity = (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     setActivities(prev => {
+      const activityToUpdate = prev.find(a => a.id === id);
+      if (!activityToUpdate) {
+        console.warn('Activity not found for update:', id);
+        return prev;
+      }
+
+      console.log('Updating activity:', id, 'with recurring options:', recurringOptions);
+
+      // Обновляем основную активность
       let updatedActivities = prev.map(activity => 
         activity.id === id 
           ? { ...activity, ...updates }
@@ -136,22 +155,27 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       if (recurringOptions && recurringOptions.type !== 'none') {
         const updatedActivity = updatedActivities.find(a => a.id === id);
         if (updatedActivity) {
-          // Удаляем старые повторения этой активности
+          // Удаляем все старые повторения этой активности (включая саму активность, если она была повторяющейся)
+          const originalId = activityToUpdate.recurring?.originalId || id;
           updatedActivities = updatedActivities.filter(activity => 
-            activity.recurring?.originalId !== id
+            activity.id !== originalId && activity.recurring?.originalId !== originalId
           );
 
+          // Создаем новую основную активность без информации о повторении
+          const baseActivity = {
+            ...updatedActivity,
+            id: generateUniqueId(),
+            recurring: undefined
+          };
+
           // Генерируем новые повторения
-          const startDate = new Date(updatedActivity.date);
-          const recurringActivities = generateRecurringActivities(updatedActivity, recurringOptions, startDate);
+          const startDate = new Date(baseActivity.date);
+          const recurringActivities = generateRecurringActivities(baseActivity, recurringOptions, startDate);
           
-          // Исключаем оригинальную активность из повторений (она уже обновлена)
-          const newRecurringActivities = recurringActivities.slice(1);
+          console.log('Generated new recurring activities for update:', recurringActivities.length, 'activities');
+          console.log('New recurring activities dates:', recurringActivities.map(a => a.date));
           
-          console.log('Generated new recurring activities for update:', newRecurringActivities.length, 'activities');
-          console.log('New recurring activities dates:', newRecurringActivities.map(a => a.date));
-          
-          updatedActivities = [...updatedActivities, ...newRecurringActivities];
+          updatedActivities = [...updatedActivities, ...recurringActivities];
         }
       }
 

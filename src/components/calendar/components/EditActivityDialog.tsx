@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -47,7 +46,7 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   const [endTime, setEndTime] = useState(activity.endTime);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(activity.date));
   const [priority, setPriority] = useState(activity.importance);
-  const [repeatType, setRepeatType] = useState(activity.recurring?.type || '');
+  const [repeatType, setRepeatType] = useState(activity.recurring?.type || 'none');
   const [reminder, setReminder] = useState(activity.reminder || '');
   const [selectedColor, setSelectedColor] = useState(activity.color);
   const [note, setNote] = useState(activity.note || '');
@@ -62,6 +61,21 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   const [fatigue, setFatigue] = useState([5]);
   const [stress, setStress] = useState([5]);
   const [evaluationNote, setEvaluationNote] = useState('');
+
+  // Обновляем состояние при изменении активности
+  useEffect(() => {
+    setActivityName(activity.name);
+    setActivityType(activity.type);
+    setStartTime(activity.startTime);
+    setEndTime(activity.endTime);
+    setSelectedDate(new Date(activity.date));
+    setPriority(activity.importance);
+    setRepeatType(activity.recurring?.type || 'none');
+    setReminder(activity.reminder || '');
+    setSelectedColor(activity.color);
+    setNote(activity.note || '');
+    setStatus(activity.completed ? 'completed' : 'pending');
+  }, [activity]);
 
   const handleSave = () => {
     const formData: ActivityFormData = {
@@ -101,7 +115,7 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       date: selectedDate.toISOString().split('T')[0]
     };
 
-    // Формируем параметры повтора
+    // Формируем параметры повтора только если выбран тип повторения отличный от 'none'
     let recurringOptions: RecurringActivityOptions | undefined;
     if (repeatType && repeatType !== 'none' && repeatType !== '') {
       recurringOptions = {
@@ -109,9 +123,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
         interval: 1,
         maxOccurrences: repeatType === 'daily' ? 10 : repeatType === 'weekly' ? 8 : 12
       };
+      
+      console.log('Setting recurring options for existing activity:', recurringOptions);
     }
-
-    console.log('Saving updated activity with recurring options:', recurringOptions);
 
     if (onActivityUpdate) {
       onActivityUpdate(updatedActivity, recurringOptions);

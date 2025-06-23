@@ -10,6 +10,10 @@ export interface RecurringActivityOptions {
   maxOccurrences?: number;
 }
 
+const generateUniqueId = (baseId: number, occurrence: number): number => {
+  return baseId * 10000 + occurrence;
+};
+
 export const generateRecurringActivities = (
   baseActivity: Activity,
   options: RecurringActivityOptions,
@@ -19,25 +23,16 @@ export const generateRecurringActivities = (
     return [baseActivity];
   }
 
-  const activities: Activity[] = [baseActivity];
+  const activities: Activity[] = [];
   let currentDate = new Date(startDate);
   let occurrenceCount = 1;
 
-  // Определяем максимальное количество повторений в зависимости от типа
-  let maxOccurrences: number;
-  switch (options.type) {
-    case 'daily':
-      maxOccurrences = 10; // Ежедневно - 10 дней
-      break;
-    case 'weekly':
-      maxOccurrences = 8; // Еженедельно - 8 недель (2 месяца)
-      break;
-    case 'monthly':
-      maxOccurrences = 12; // Ежемесячно - 12 месяцев (год)
-      break;
-    default:
-      maxOccurrences = options.maxOccurrences || 30;
-  }
+  // Определяем максимальное количество повторений
+  const maxOccurrences = options.maxOccurrences || (
+    options.type === 'daily' ? 10 :
+    options.type === 'weekly' ? 8 :
+    12 // monthly
+  );
 
   // Устанавливаем максимальную дату (год вперед)
   const maxDate = options.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
@@ -46,6 +41,19 @@ export const generateRecurringActivities = (
   console.log('Base activity date:', baseActivity.date);
   console.log('Start date:', startDate.toISOString().split('T')[0]);
 
+  // Добавляем первую активность (оригинал)
+  const firstActivity: Activity = {
+    ...baseActivity,
+    recurring: {
+      originalId: baseActivity.id,
+      type: options.type,
+      interval: options.interval,
+      occurrenceNumber: 1
+    }
+  };
+  activities.push(firstActivity);
+
+  // Генерируем повторения
   while (occurrenceCount < maxOccurrences && currentDate <= maxDate) {
     // Создаем новую дату для следующего повторения
     const nextDate = new Date(currentDate);
@@ -67,7 +75,7 @@ export const generateRecurringActivities = (
       
       const recurringActivity: Activity = {
         ...baseActivity,
-        id: baseActivity.id + occurrenceCount * 1000, // Уникальный ID для каждого повторения
+        id: generateUniqueId(baseActivity.id, occurrenceCount + 1),
         date: nextDateString,
         recurring: {
           originalId: baseActivity.id,
@@ -77,7 +85,7 @@ export const generateRecurringActivities = (
         }
       };
 
-      console.log(`Generated recurring activity ${occurrenceCount + 1}:`, nextDateString);
+      console.log(`Generated recurring activity ${occurrenceCount + 1}:`, nextDateString, 'ID:', recurringActivity.id);
       activities.push(recurringActivity);
       currentDate = nextDate;
       occurrenceCount++;
