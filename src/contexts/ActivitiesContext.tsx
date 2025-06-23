@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { activities as initialActivities } from '@/components/dashboard/activity-timeline/activityData';
 import { generateRecurringActivities, RecurringActivityOptions, DeleteRecurringOption, getRecurringGroup } from '@/components/calendar/utils/recurringUtils';
 
@@ -30,7 +30,7 @@ interface ActivitiesContextType {
   activities: Activity[];
   setActivities: React.Dispatch<React.SetStateAction<Activity[]>>;
   addActivity: (activity: Activity, recurringOptions?: RecurringActivityOptions) => void;
-  updateActivity: (id: number, updates: Partial<Activity>) => void;
+  updateActivity: (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
   deleteActivity: (id: number, deleteOption?: DeleteRecurringOption) => void;
   toggleActivityComplete: (id: number) => void;
   getActivitiesForDate: (date: string) => Activity[];
@@ -51,26 +51,53 @@ interface ActivitiesProviderProps {
   children: ReactNode;
 }
 
+const STORAGE_KEY = 'psybalans-activities';
+
 export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children }) => {
-  // Устанавливаем правильную дату 23 июня 2025 года для всех активностей из данных
-  const currentDate = '2025-06-23';
-  const activitiesWithCorrectDate = initialActivities.map(activity => ({
-    ...activity,
-    date: currentDate // Устанавливаем точную дату 23.06.2025
-  }));
+  // Функция для загрузки данных из localStorage
+  const loadActivitiesFromStorage = (): Activity[] => {
+    try {
+      const savedActivities = localStorage.getItem(STORAGE_KEY);
+      if (savedActivities) {
+        const parsed = JSON.parse(savedActivities);
+        console.log('Loaded activities from localStorage:', parsed.length, 'activities');
+        return parsed;
+      }
+    } catch (error) {
+      console.error('Error loading activities from localStorage:', error);
+    }
+    
+    // Если нет сохраненных данных, используем начальные данные
+    const currentDate = '2025-06-23';
+    const activitiesWithCorrectDate = initialActivities.map(activity => ({
+      ...activity,
+      date: currentDate
+    }));
+    console.log('Using initial activities:', activitiesWithCorrectDate.length, 'activities');
+    return activitiesWithCorrectDate;
+  };
 
-  console.log('Activities with correct date:', activitiesWithCorrectDate);
-
-  const [activities, setActivities] = useState<Activity[]>(
-    activitiesWithCorrectDate.sort((a, b) => {
+  const [activities, setActivities] = useState<Activity[]>(() => {
+    const loadedActivities = loadActivitiesFromStorage();
+    return loadedActivities.sort((a, b) => {
       if (a.date !== b.date) {
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       }
       const timeA = a.startTime.split(':').map(Number);
       const timeB = b.startTime.split(':').map(Number);
       return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-    })
-  );
+    });
+  });
+
+  // Сохранение в localStorage при изменении активностей
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(activities));
+      console.log('Saved activities to localStorage:', activities.length, 'activities');
+    } catch (error) {
+      console.error('Error saving activities to localStorage:', error);
+    }
+  }, [activities]);
 
   const addActivity = (activity: Activity, recurringOptions?: RecurringActivityOptions) => {
     setActivities(prev => {
@@ -97,21 +124,46 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     });
   };
 
-  const updateActivity = (id: number, updates: Partial<Activity>) => {
-    setActivities(prev => 
-      prev.map(activity => 
+  const updateActivity = (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    setActivities(prev => {
+      let updatedActivities = prev.map(activity => 
         activity.id === id 
           ? { ...activity, ...updates }
           : activity
-      ).sort((a, b) => {
+      );
+
+      // Если есть параметры повторения, создаем новые повторяющиеся активности
+      if (recurringOptions && recurringOptions.type !== 'none') {
+        const updatedActivity = updatedActivities.find(a => a.id === id);
+        if (updatedActivity) {
+          // Удаляем старые повторения этой активности
+          updatedActivities = updatedActivities.filter(activity => 
+            activity.recurring?.originalId !== id
+          );
+
+          // Генерируем новые повторения
+          const startDate = new Date(updatedActivity.date);
+          const recurringActivities = generateRecurringActivities(updatedActivity, recurringOptions, startDate);
+          
+          // Исключаем оригинальную активность из повторений (она уже обновлена)
+          const newRecurringActivities = recurringActivities.slice(1);
+          
+          console.log('Generated new recurring activities for update:', newRecurringActivities.length, 'activities');
+          console.log('New recurring activities dates:', newRecurringActivities.map(a => a.date));
+          
+          updatedActivities = [...updatedActivities, ...newRecurringActivities];
+        }
+      }
+
+      return updatedActivities.sort((a, b) => {
         if (a.date !== b.date) {
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         }
         const timeA = a.startTime.split(':').map(Number);
         const timeB = b.startTime.split(':').map(Number);
         return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-      })
-    );
+      });
+    });
   };
 
   const deleteActivity = (id: number, deleteOption: DeleteRecurringOption = 'single') => {

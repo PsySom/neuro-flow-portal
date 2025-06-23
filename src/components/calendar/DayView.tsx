@@ -79,7 +79,7 @@ const DayView: React.FC<DayViewProps> = ({
 
   const handleActivityUpdate = (activityOrId: Activity | number, updatesOrRecurring?: Partial<Activity> | RecurringActivityOptions, recurringOptions?: RecurringActivityOptions) => {
     if (typeof activityOrId === 'number') {
-      // Старый формат вызова
+      // Старый формат вызова - простое обновление без повторений
       const id = activityOrId;
       const updates = updatesOrRecurring as Partial<Activity>;
       updateActivity(id, updates);
@@ -93,13 +93,8 @@ const DayView: React.FC<DayViewProps> = ({
       
       console.log('Updating activity in DayView:', activity, 'with recurring:', recurring);
       
-      // Сначала обновляем основную активность
-      updateActivity(activity.id, activity);
-      
-      // Если есть параметры повторения, создаем повторяющиеся активности
-      if (recurring && recurring.type !== 'none') {
-        addActivity(activity, recurring);
-      }
+      // Обновляем активность с параметрами повторения
+      updateActivity(activity.id, activity, recurring);
       
       if (onUpdateActivity) {
         onUpdateActivity(activity.id, activity);
