@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
@@ -18,7 +19,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   const [internalCurrentDate, setInternalCurrentDate] = useState(currentDate);
 
   // Используем активности из контекста
-  const { activities, getActivitiesForDate, toggleActivityComplete, addActivity } = useActivities();
+  const { activities, getActivitiesForDate, toggleActivityComplete, addActivity, updateActivity, deleteActivity } = useActivities();
 
   // Получаем активности для выбранной даты
   const currentDateString = currentDate.toISOString().split('T')[0];
@@ -64,6 +65,20 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
     addActivity(newActivity, recurringOptions);
   };
 
+  const handleActivityUpdate = (id: number, updates: Partial<Activity>) => {
+    updateActivity(id, updates);
+    if (onUpdateActivity) {
+      onUpdateActivity(id, updates);
+    }
+  };
+
+  const handleActivityDelete = (id: number) => {
+    deleteActivity(id);
+    if (onDeleteActivity) {
+      onDeleteActivity(id);
+    }
+  };
+
   const handleTypeFilterChange = (type: string, checked: boolean) => {
     console.log('Filter change:', type, checked);
     setFilteredTypes(prev => {
@@ -100,8 +115,8 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
           currentDate={internalCurrentDate}
           onEmptyAreaClick={handleEmptyAreaClick}
           onActivityToggle={handleActivityToggle}
-          onUpdateActivity={onUpdateActivity}
-          onDeleteActivity={onDeleteActivity}
+          onUpdateActivity={handleActivityUpdate}
+          onDeleteActivity={handleActivityDelete}
         />
       </div>
 
