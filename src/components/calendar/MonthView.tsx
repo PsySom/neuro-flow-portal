@@ -51,14 +51,13 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
   };
 
   const getActivitiesForDateObj = (date: Date) => {
-    if (date.getMonth() === currentMonth) {
-      const dateString = date.toISOString().split('T')[0];
-      return getActivitiesForDate(dateString);
-    }
-    return [];
+    const dateString = date.toISOString().split('T')[0];
+    const activities = getActivitiesForDate(dateString);
+    console.log(`MonthView: Activities for ${dateString}:`, activities.length, activities);
+    return activities;
   };
 
-  const truncateText = (text: string, maxLength: number = 15) => {
+  const truncateText = (text: string, maxLength: number = 12) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
@@ -109,6 +108,7 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
                     >
                       <span>{activity.emoji}</span>
                       <span className="flex-1 truncate">{truncateText(activity.name)}</span>
+                      <span className="text-xs opacity-75">{activity.startTime}</span>
                     </div>
                   ))}
                   

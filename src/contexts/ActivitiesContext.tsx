@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { activities as initialActivities } from '@/components/dashboard/activity-timeline/activityData';
 import { generateRecurringActivities, RecurringActivityOptions, DeleteRecurringOption, getRecurringGroup } from '@/components/calendar/utils/recurringUtils';
@@ -78,7 +79,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       if (recurringOptions && recurringOptions.type !== 'none') {
         const startDate = new Date(activity.date);
         const recurringActivities = generateRecurringActivities(activity, recurringOptions, startDate);
-        console.log('Generated recurring activities:', recurringActivities);
+        console.log('Generated recurring activities:', recurringActivities.length, 'activities');
         newActivities = [...newActivities, ...recurringActivities];
       } else {
         newActivities = [...newActivities, activity];
@@ -144,7 +145,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
 
   const getActivitiesForDate = (date: string): Activity[] => {
     const result = activities.filter(activity => activity.date === date);
-    console.log(`Activities for ${date}:`, result);
+    console.log(`getActivitiesForDate ${date}:`, result.length, 'activities found');
     return result;
   };
 

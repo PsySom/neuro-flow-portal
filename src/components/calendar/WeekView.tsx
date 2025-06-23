@@ -63,9 +63,9 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
       !filteredTypes.has(activity.type)
     );
     
-    console.log(`Activities for ${dayString}:`, dayActivities.length);
+    console.log(`Activities for ${dayString}:`, dayActivities.length, dayActivities);
     
-    // Используем специальную логику для недельного календаря
+    // Преобразуем активности для отображения в недельном календаре
     return dayActivities.map(activity => {
       const [startHour, startMin] = activity.startTime.split(':').map(Number);
       const [endHour, endMin] = activity.endTime.split(':').map(Number);
@@ -80,14 +80,14 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
       
       const duration = endMinutes - startMinutes;
       const topPosition = (startMinutes / 60) * 90; // 90px на час
-      const height = (duration / 60) * 90; // высота пропорциональна времени
+      const height = Math.max((duration / 60) * 90, 30); // минимальная высота 30px
       
       return {
         activity,
         top: topPosition,
         height,
-        left: 0, // начинаем с левого края
-        width: 100, // 100% ширины столбца
+        left: 0,
+        width: 100,
         column: 0,
         totalColumns: 1
       };
@@ -168,7 +168,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
         {/* Боковая панель слева */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={weekActivities} // Передаем только активности текущей недели
+          activities={weekActivities}
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
           onDateSelect={handleDateSelect}

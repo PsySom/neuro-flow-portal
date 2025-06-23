@@ -23,9 +23,26 @@ export const generateRecurringActivities = (
   let currentDate = new Date(startDate);
   let occurrenceCount = 1;
 
-  // Для ежедневных повторений устанавливаем 10 дней
-  const maxOccurrences = options.type === 'daily' ? 10 : (options.maxOccurrences || 30);
+  // Определяем максимальное количество повторений в зависимости от типа
+  let maxOccurrences: number;
+  switch (options.type) {
+    case 'daily':
+      maxOccurrences = 10; // Ежедневно - 10 дней
+      break;
+    case 'weekly':
+      maxOccurrences = 8; // Еженедельно - 8 недель (2 месяца)
+      break;
+    case 'monthly':
+      maxOccurrences = 12; // Ежемесячно - 12 месяцев (год)
+      break;
+    default:
+      maxOccurrences = options.maxOccurrences || 30;
+  }
+
+  // Устанавливаем максимальную дату (год вперед)
   const maxDate = options.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+
+  console.log(`Generating ${options.type} recurring activities, max: ${maxOccurrences}`);
 
   while (occurrenceCount < maxOccurrences && currentDate <= maxDate) {
     // Создаем новую дату для следующего повторения
@@ -56,6 +73,7 @@ export const generateRecurringActivities = (
         }
       };
 
+      console.log(`Generated recurring activity ${occurrenceCount + 1}:`, recurringActivity.date);
       activities.push(recurringActivity);
       currentDate = nextDate;
       occurrenceCount++;
@@ -64,6 +82,7 @@ export const generateRecurringActivities = (
     }
   }
 
+  console.log(`Total generated activities: ${activities.length}`);
   return activities;
 };
 
