@@ -80,6 +80,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
         const startDate = new Date(activity.date);
         const recurringActivities = generateRecurringActivities(activity, recurringOptions, startDate);
         console.log('Generated recurring activities:', recurringActivities.length, 'activities');
+        console.log('Recurring activities dates:', recurringActivities.map(a => a.date));
         newActivities = [...newActivities, ...recurringActivities];
       } else {
         newActivities = [...newActivities, activity];

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -19,12 +20,13 @@ import ActivityTimeDate from './form/ActivityTimeDate';
 import ActivityAdvancedOptions from './form/ActivityAdvancedOptions';
 import ActivityStatus from './form/ActivityStatus';
 import { validateActivityForm, getEmojiByType, calculateDuration, FormErrors, ActivityFormData } from './form/validationUtils';
+import { RecurringActivityOptions } from '../utils/recurringUtils';
 
 interface EditActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   activity: Activity;
-  onActivityUpdate?: (activity: Activity) => void;
+  onActivityUpdate?: (activity: Activity, recurringOptions?: RecurringActivityOptions) => void;
   onDelete?: (id: number) => void;
 }
 
@@ -43,9 +45,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   const [activityType, setActivityType] = useState(activity.type);
   const [startTime, setStartTime] = useState(activity.startTime);
   const [endTime, setEndTime] = useState(activity.endTime);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(activity.date));
   const [priority, setPriority] = useState(activity.importance);
-  const [repeatType, setRepeatType] = useState('');
+  const [repeatType, setRepeatType] = useState(activity.recurring?.type || '');
   const [reminder, setReminder] = useState(activity.reminder || '');
   const [selectedColor, setSelectedColor] = useState(activity.color);
   const [note, setNote] = useState(activity.note || '');
@@ -95,14 +97,24 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       emoji: getEmojiByType(activityType),
       duration: calculateDuration(startTime, endTime),
       reminder: reminder,
-      note: note
+      note: note,
+      date: selectedDate.toISOString().split('T')[0]
     };
 
-    console.log('Saving updated activity with reminder:', updatedActivity.reminder);
-    console.log('Saving updated activity with note:', updatedActivity.note);
+    // Формируем параметры повтора
+    let recurringOptions: RecurringActivityOptions | undefined;
+    if (repeatType && repeatType !== 'none' && repeatType !== '') {
+      recurringOptions = {
+        type: repeatType as 'daily' | 'weekly' | 'monthly',
+        interval: 1,
+        maxOccurrences: repeatType === 'daily' ? 10 : repeatType === 'weekly' ? 8 : 12
+      };
+    }
+
+    console.log('Saving updated activity with recurring options:', recurringOptions);
 
     if (onActivityUpdate) {
-      onActivityUpdate(updatedActivity);
+      onActivityUpdate(updatedActivity, recurringOptions);
     }
     onOpenChange(false);
   };
@@ -190,7 +202,6 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
                   setStatus={setStatus}
                 />
 
-                {/* Кнопки управления */}
                 <div className="flex justify-between">
                   <Button
                     variant="destructive"

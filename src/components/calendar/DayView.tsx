@@ -5,7 +5,7 @@ import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { Activity } from '@/contexts/ActivitiesContext';
-import { DeleteRecurringOption } from './utils/recurringUtils';
+import { DeleteRecurringOption, RecurringActivityOptions } from './utils/recurringUtils';
 
 interface DayViewProps {
   currentDate: Date;
@@ -67,19 +67,43 @@ const DayView: React.FC<DayViewProps> = ({
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     // Устанавливаем дату из currentDate, если она не указана
     const activityWithDate = {
       ...newActivity,
       date: newActivity.date || currentDateString
     };
+    console.log('Creating activity in DayView:', activityWithDate, 'with recurring:', recurringOptions);
     addActivity(activityWithDate, recurringOptions);
   };
 
-  const handleActivityUpdate = (id: number, updates: Partial<Activity>) => {
-    updateActivity(id, updates);
-    if (onUpdateActivity) {
-      onUpdateActivity(id, updates);
+  const handleActivityUpdate = (activityOrId: Activity | number, updatesOrRecurring?: Partial<Activity> | RecurringActivityOptions, recurringOptions?: RecurringActivityOptions) => {
+    if (typeof activityOrId === 'number') {
+      // Старый формат вызова
+      const id = activityOrId;
+      const updates = updatesOrRecurring as Partial<Activity>;
+      updateActivity(id, updates);
+      if (onUpdateActivity) {
+        onUpdateActivity(id, updates);
+      }
+    } else {
+      // Новый формат с поддержкой повторения
+      const activity = activityOrId;
+      const recurring = updatesOrRecurring as RecurringActivityOptions | undefined;
+      
+      console.log('Updating activity in DayView:', activity, 'with recurring:', recurring);
+      
+      // Сначала обновляем основную активность
+      updateActivity(activity.id, activity);
+      
+      // Если есть параметры повторения, создаем повторяющиеся активности
+      if (recurring && recurring.type !== 'none') {
+        addActivity(activity, recurring);
+      }
+      
+      if (onUpdateActivity) {
+        onUpdateActivity(activity.id, activity);
+      }
     }
   };
 

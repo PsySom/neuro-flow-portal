@@ -43,6 +43,8 @@ export const generateRecurringActivities = (
   const maxDate = options.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
   console.log(`Generating ${options.type} recurring activities, max: ${maxOccurrences}`);
+  console.log('Base activity date:', baseActivity.date);
+  console.log('Start date:', startDate.toISOString().split('T')[0]);
 
   while (occurrenceCount < maxOccurrences && currentDate <= maxDate) {
     // Создаем новую дату для следующего повторения
@@ -61,10 +63,12 @@ export const generateRecurringActivities = (
     }
 
     if (nextDate <= maxDate) {
+      const nextDateString = nextDate.toISOString().split('T')[0];
+      
       const recurringActivity: Activity = {
         ...baseActivity,
         id: baseActivity.id + occurrenceCount * 1000, // Уникальный ID для каждого повторения
-        date: nextDate.toISOString().split('T')[0],
+        date: nextDateString,
         recurring: {
           originalId: baseActivity.id,
           type: options.type,
@@ -73,7 +77,7 @@ export const generateRecurringActivities = (
         }
       };
 
-      console.log(`Generated recurring activity ${occurrenceCount + 1}:`, recurringActivity.date);
+      console.log(`Generated recurring activity ${occurrenceCount + 1}:`, nextDateString);
       activities.push(recurringActivity);
       currentDate = nextDate;
       occurrenceCount++;
