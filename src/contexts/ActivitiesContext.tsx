@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { activities as initialActivities } from '@/components/dashboard/activity-timeline/activityData';
 import { generateRecurringActivities, RecurringActivityOptions, DeleteRecurringOption, getRecurringGroup } from '@/components/calendar/utils/recurringUtils';
@@ -52,12 +51,14 @@ interface ActivitiesProviderProps {
 }
 
 export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children }) => {
-  // Устанавливаем дату 23 июня 2025 года для всех активностей из данных
+  // Устанавливаем правильную дату 23 июня 2025 года для всех активностей из данных
   const currentDate = '2025-06-23';
   const activitiesWithCorrectDate = initialActivities.map(activity => ({
     ...activity,
-    date: currentDate
+    date: currentDate // Устанавливаем точную дату 23.06.2025
   }));
+
+  console.log('Activities with correct date:', activitiesWithCorrectDate);
 
   const [activities, setActivities] = useState<Activity[]>(
     activitiesWithCorrectDate.sort((a, b) => {
@@ -77,6 +78,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       if (recurringOptions && recurringOptions.type !== 'none') {
         const startDate = new Date(activity.date);
         const recurringActivities = generateRecurringActivities(activity, recurringOptions, startDate);
+        console.log('Generated recurring activities:', recurringActivities);
         newActivities = [...newActivities, ...recurringActivities];
       } else {
         newActivities = [...newActivities, activity];
@@ -141,7 +143,9 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
   };
 
   const getActivitiesForDate = (date: string): Activity[] => {
-    return activities.filter(activity => activity.date === date);
+    const result = activities.filter(activity => activity.date === date);
+    console.log(`Activities for ${date}:`, result);
+    return result;
   };
 
   const getActivitiesForDateRange = (startDate: string, endDate: string): Activity[] => {
