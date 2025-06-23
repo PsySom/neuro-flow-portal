@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ const PracticesPreview = () => {
       tags: ['Дыхание', 'Тревога'],
       color: 'from-blue-400 to-blue-600',
       borderColor: 'border-blue-500',
+      bgColor: 'bg-blue-50/50',
       buttonColor: 'bg-gradient-to-r from-blue-400 to-blue-600',
       steps: [
         'Примите удобное положение',
@@ -40,6 +40,7 @@ const PracticesPreview = () => {
       tags: ['Медитация', 'Расслабление'],
       color: 'from-green-400 to-emerald-600',
       borderColor: 'border-green-500',
+      bgColor: 'bg-green-50/50',
       buttonColor: 'bg-gradient-to-r from-green-400 to-emerald-600',
       steps: [
         'Лягте на спину и закройте глаза',
@@ -58,6 +59,7 @@ const PracticesPreview = () => {
       tags: ['Эмоции', 'Тест'],
       color: 'from-purple-400 to-purple-600',
       borderColor: 'border-purple-500',
+      bgColor: 'bg-purple-50/50',
       buttonColor: 'bg-gradient-to-r from-purple-400 to-purple-600',
       steps: [
         'Посмотрите на текущий момент',
@@ -125,7 +127,7 @@ const PracticesPreview = () => {
           return (
             <Card 
               key={exercise.id}
-              className={`hover:shadow-lg transition-all duration-300 border-2 ${exercise.borderColor} bg-gradient-to-r from-white to-gray-50`}
+              className={`hover:shadow-lg transition-all duration-300 border-2 ${exercise.borderColor} ${exercise.bgColor}`}
             >
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
