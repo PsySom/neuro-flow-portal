@@ -143,6 +143,60 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
       }
 
       setTestResult(`Результат: ${score} баллов из 80 возможных\n\nИнтерпретация: ${interpretation}\n\nРекомендации: ${recommendations}\n\nОбратите внимание: данный тест носит информационный характер и не заменяет профессиональную диагностику.`);
+    } else if (item.keys === "wurs_adhd_scale") {
+      // Специальная обработка для WURS (СДВГ)
+      Object.values(answers).forEach(answer => {
+        const answerIndex = parseInt(answer);
+        if (!isNaN(answerIndex)) {
+          score += answerIndex;
+        }
+      });
+
+      let interpretation = '';
+      let recommendations = '';
+      
+      if (score <= 30) {
+        interpretation = 'Симптомы СДВГ выражены слабо или отсутствуют';
+        recommendations = 'Признаков СДВГ по шкале не выявлено. Ваше внимание, саморегуляция и организация в пределах нормы.';
+      } else if (score <= 49) {
+        interpretation = 'Возможны отдельные черты СДВГ';
+        recommendations = 'У вас есть отдельные черты, схожие с проявлениями СДВГ. Это встречается у многих людей, особенно в стрессовых ситуациях. Обратите внимание на саморегуляцию, попробуйте техники планирования, осознанности. При выраженных трудностях — обратитесь к специалисту.';
+      } else {
+        interpretation = 'Высока вероятность наличия выраженных симптомов СДВГ';
+        recommendations = 'Ваши ответы говорят о выраженных симптомах СДВГ. Это может влиять на работу, учёбу, отношения и эмоциональное состояние. Рекомендуется обратиться к врачу или психологу для профессиональной диагностики и рекомендаций.';
+      }
+
+      setTestResult(`Результат: ${score} баллов из 100 возможных\n\nИнтерпретация: ${interpretation}\n\nРекомендации: ${recommendations}\n\nОбратите внимание: данный тест носит информационный характер и не заменяет профессиональную диагностику.`);
+    } else if (item.keys === "y_bocs_scale") {
+      // Специальная обработка для Y-BOCS (ОКР)
+      Object.values(answers).forEach(answer => {
+        const answerIndex = parseInt(answer);
+        if (!isNaN(answerIndex)) {
+          score += answerIndex;
+        }
+      });
+
+      let interpretation = '';
+      let recommendations = '';
+      
+      if (score <= 7) {
+        interpretation = 'ОКР выражено минимально или отсутствует (норма)';
+        recommendations = 'Симптомы ОКР отсутствуют или выражены минимально, не мешают жизни.';
+      } else if (score <= 15) {
+        interpretation = 'Лёгкая степень ОКР';
+        recommendations = 'Лёгкие проявления ОКР, можно попробовать техники самопомощи и контроля тревоги.';
+      } else if (score <= 23) {
+        interpretation = 'Умеренная степень ОКР';
+        recommendations = 'Симптомы ОКР средней степени, рекомендуется обратить внимание на способы управления тревогой и обсудить с психологом.';
+      } else if (score <= 31) {
+        interpretation = 'Выраженная степень ОКР';
+        recommendations = 'Ярко выраженные симптомы, которые заметно мешают жизни — настоятельно рекомендована консультация специалиста.';
+      } else {
+        interpretation = 'Крайне выраженное ОКР';
+        recommendations = 'Крайне выраженные симптомы — необходима срочная профессиональная помощь.';
+      }
+
+      setTestResult(`Результат: ${score} баллов из 40 возможных\n\nИнтерпретация: ${interpretation}\n\nРекомендации: ${recommendations}\n\nОбратите внимание: высокий балл не является диагнозом! Диагноз ставит специалист, опираясь на подробное обследование и беседу.`);
     } else {
       // Обычная логика для других тестов
       Object.values(answers).forEach(answer => {
