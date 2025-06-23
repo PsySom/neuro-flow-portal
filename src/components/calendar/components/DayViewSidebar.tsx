@@ -101,6 +101,7 @@ const DayViewSidebar: React.FC<DayViewSidebarProps> = ({
             onSelect={handleDateSelect}
             month={calendarMonth}
             onMonthChange={setCalendarMonth}
+            weekStartsOn={1}
             className="rounded-md border-0 p-0 scale-90 origin-top-left"
             classNames={{
               months: "flex flex-col space-y-2",
