@@ -18,7 +18,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
   // Используем активности из контекста
-  const { getActivitiesForDate, toggleActivityComplete, addActivity } = useActivities();
+  const { activities, getActivitiesForDate, toggleActivityComplete, addActivity } = useActivities();
 
   // Получаем активности для выбранной даты
   const currentDateString = currentDate.toISOString().split('T')[0];
@@ -38,6 +38,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   );
 
   console.log('Visible activities count:', visibleActivities.length);
+  console.log('Filtered types:', Array.from(filteredTypes));
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -64,6 +65,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   };
 
   const handleTypeFilterChange = (type: string, checked: boolean) => {
+    console.log('Filter change:', type, checked);
     setFilteredTypes(prev => {
       const newFiltered = new Set(prev);
       if (checked) {
@@ -71,6 +73,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
       } else {
         newFiltered.add(type);
       }
+      console.log('New filtered types:', Array.from(newFiltered));
       return newFiltered;
     });
   };
@@ -81,7 +84,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={[]} // Передаем пустой массив, так как активности получаются через контекст
+          activities={activities} // Передаем все активности для построения фильтров
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
         />

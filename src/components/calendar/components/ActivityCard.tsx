@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../types';
 import ActivityInfoPopover from './ActivityInfoPopover';
+import DeleteRecurringDialog from './DeleteRecurringDialog';
+import { useActivities } from '@/contexts/ActivitiesContext';
+import { DeleteRecurringOption } from '../utils/recurringUtils';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
@@ -25,8 +28,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const { activity: initialActivity, top, height, left, width } = layout;
   const [activity, setActivity] = useState(initialActivity);
   const [showPopover, setShowPopover] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
+  const { deleteActivity } = useActivities();
 
   // Update activity when layout prop changes
   useEffect(() => {
@@ -83,9 +88,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    if (onDelete) {
-      onDelete(activity.id);
+    
+    // Если активность повторяющаяся, показываем диалог выбора
+    if (activity.recurring) {
+      setShowDeleteDialog(true);
+    } else {
+      if (onDelete) {
+        onDelete(activity.id);
+      }
     }
+  };
+
+  const handleDeleteConfirm = (deleteOption: DeleteRecurringOption) => {
+    deleteActivity(activity.id, deleteOption);
+    setShowDeleteDialog(false);
   };
 
   const handleActivityUpdate = (activityId: number, updates: Partial<ActivityLayout['activity']>) => {
@@ -140,8 +156,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             activity={activity}
             onClose={() => setShowPopover(false)}
             position={popoverPosition}
-            onDelete={onDelete}
+            onDelete={handleDeleteClick}
             onUpdate={handleActivityUpdate}
+          />
+        )}
+
+        {/* Delete Recurring Dialog */}
+        {showDeleteDialog && (
+          <DeleteRecurringDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            activity={activity}
+            onConfirm={handleDeleteConfirm}
           />
         )}
       </>
@@ -225,8 +251,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             activity={activity}
             onClose={() => setShowPopover(false)}
             position={popoverPosition}
-            onDelete={onDelete}
+            onDelete={handleDeleteClick}
             onUpdate={handleActivityUpdate}
+          />
+        )}
+
+        {/* Delete Recurring Dialog */}
+        {showDeleteDialog && (
+          <DeleteRecurringDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            activity={activity}
+            onConfirm={handleDeleteConfirm}
           />
         )}
       </>
@@ -309,8 +345,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           activity={activity}
           onClose={() => setShowPopover(false)}
           position={popoverPosition}
-          onDelete={onDelete}
+          onDelete={handleDeleteClick}
           onUpdate={handleActivityUpdate}
+        />
+      )}
+
+      {/* Delete Recurring Dialog */}
+      {showDeleteDialog && (
+        <DeleteRecurringDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          activity={activity}
+          onConfirm={handleDeleteConfirm}
         />
       )}
     </>

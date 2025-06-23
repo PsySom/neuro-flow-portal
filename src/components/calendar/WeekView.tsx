@@ -12,9 +12,11 @@ interface WeekViewProps {
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
-  const { getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
+  const { activities, getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+
+  console.log('WeekView total activities:', activities.length);
 
   const getWeekDays = () => {
     const startOfWeek = new Date(currentDate);
@@ -86,6 +88,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   };
 
   const handleTypeFilterChange = (type: string, checked: boolean) => {
+    console.log('Week filter change:', type, checked);
     setFilteredTypes(prev => {
       const newSet = new Set(prev);
       if (checked) {
@@ -93,6 +96,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
       } else {
         newSet.add(type);
       }
+      console.log('Week new filtered types:', Array.from(newSet));
       return newSet;
     });
   };
@@ -102,7 +106,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
       {/* Боковая панель слева */}
       <DayViewSidebar
         currentDate={currentDate}
-        activities={[]} // Передаем пустой массив, так как активности получаются через контекст
+        activities={activities} // Передаем все активности для построения фильтров
         filteredTypes={filteredTypes}
         onTypeFilterChange={handleTypeFilterChange}
       />
@@ -132,57 +136,55 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
             </div>
 
             {/* Скроллируемая область календаря */}
-            <div className="h-[720px]">
-              <ScrollArea ref={scrollAreaRef} className="h-full">
-                <div className="flex" style={{ height: '2160px' }}>
-                  {/* Колонка времени */}
-                  <div className="w-20 bg-gray-50 border-r border-gray-200 flex-shrink-0">
-                    {hours.map((hour) => (
-                      <div 
-                        key={hour} 
-                        className="h-[90px] border-b border-gray-100 flex items-start justify-center pt-1 text-xs text-gray-500"
-                      >
-                        {hour.toString().padStart(2, '0')}:00
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Дни недели */}
-                  {weekDays.map((day, dayIndex) => {
-                    const dayActivities = getActivitiesForDay(day);
-                    
-                    return (
-                      <div key={dayIndex} className="flex-1 border-r border-gray-200 last:border-r-0 relative min-w-[120px]">
-                        {/* Сетка часов */}
-                        {hours.map((hour) => (
-                          <div 
-                            key={hour}
-                            className="absolute w-full h-[90px] border-b border-gray-100"
-                            style={{ top: `${hour * 90}px` }}
-                          />
-                        ))}
-                        
-                        {/* Индикатор текущего времени только для сегодня */}
-                        {day.toDateString() === new Date().toDateString() && (
-                          <CurrentTimeIndicator />
-                        )}
-                        
-                        {/* Активности для этого дня */}
-                        {dayActivities.map((layout, activityIndex) => (
-                          <ActivityCard
-                            key={`${dayIndex}-${layout.activity.id}-${activityIndex}`}
-                            layout={layout}
-                            onToggleComplete={handleActivityToggle}
-                            onDelete={handleActivityDelete}
-                            onUpdate={handleActivityUpdate}
-                            viewType="week"
-                          />
-                        ))}
-                      </div>
-                    );
-                  })}
+            <div className="h-[720px] overflow-y-auto" ref={scrollAreaRef}>
+              <div className="flex" style={{ height: '2160px' }}>
+                {/* Колонка времени */}
+                <div className="w-20 bg-gray-50 border-r border-gray-200 flex-shrink-0">
+                  {hours.map((hour) => (
+                    <div 
+                      key={hour} 
+                      className="h-[90px] border-b border-gray-100 flex items-start justify-center pt-1 text-xs text-gray-500"
+                    >
+                      {hour.toString().padStart(2, '0')}:00
+                    </div>
+                  ))}
                 </div>
-              </ScrollArea>
+
+                {/* Дни недели */}
+                {weekDays.map((day, dayIndex) => {
+                  const dayActivities = getActivitiesForDay(day);
+                  
+                  return (
+                    <div key={dayIndex} className="flex-1 border-r border-gray-200 last:border-r-0 relative min-w-[120px]">
+                      {/* Сетка часов */}
+                      {hours.map((hour) => (
+                        <div 
+                          key={hour}
+                          className="absolute w-full h-[90px] border-b border-gray-100"
+                          style={{ top: `${hour * 90}px` }}
+                        />
+                      ))}
+                      
+                      {/* Индикатор текущего времени только для сегодня */}
+                      {day.toDateString() === new Date().toDateString() && (
+                        <CurrentTimeIndicator />
+                      )}
+                      
+                      {/* Активности для этого дня */}
+                      {dayActivities.map((layout, activityIndex) => (
+                        <ActivityCard
+                          key={`${dayIndex}-${layout.activity.id}-${activityIndex}`}
+                          layout={layout}
+                          onToggleComplete={handleActivityToggle}
+                          onDelete={handleActivityDelete}
+                          onUpdate={handleActivityUpdate}
+                          viewType="week"
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
