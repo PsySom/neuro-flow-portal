@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ActivityLayout } from '../types';
@@ -18,7 +19,7 @@ interface ActivityCardProps {
   onToggleComplete: (activityId: number) => void;
   onUpdate?: (id: number, updates: Partial<Activity>) => void;
   onDelete?: (id: number) => void;
-  viewType?: 'day' | 'week';
+  viewType?: 'day' | 'week' | 'dashboard';
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
@@ -71,6 +72,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       );
     }
 
+    if (viewType === 'dashboard') {
+      return (
+        <>
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 text-sm font-medium">
+              <span className="truncate">{layout.activity.name}</span>
+            </div>
+            <p className="text-xs text-gray-600">{layout.activity.startTime}-{layout.activity.endTime}</p>
+            <p className="text-xs text-gray-500">{layout.activity.date}</p>
+          </div>
+        </>
+      );
+    }
+
     return (
       <>
         <div className="space-y-1">
@@ -83,20 +98,34 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     );
   };
 
+  const getCardStyles = () => {
+    if (viewType === 'dashboard') {
+      return {
+        position: 'relative' as const,
+        width: '100%',
+        height: 'auto',
+        minHeight: '60px'
+      };
+    }
+
+    return { 
+      position: 'absolute' as const,
+      top: `${layout.top}px`, 
+      height: `${layout.height}px`,
+      left: `${layout.left}%`,
+      width: `${layout.width}%`,
+      zIndex: 1,
+      minHeight: '40px'
+    };
+  };
+
   return (
     <div
       ref={cardRef}
-      className={`absolute ${layout.activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
+      className={`${layout.activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
         layout.activity.completed ? 'opacity-60' : ''
-      }`}
-      style={{ 
-        top: `${layout.top}px`, 
-        height: `${layout.height}px`,
-        left: `${layout.left}%`,
-        width: `${layout.width}%`,
-        zIndex: 1,
-        minHeight: '40px'
-      }}
+      } ${viewType === 'dashboard' ? 'mb-2' : 'absolute'}`}
+      style={getCardStyles()}
       onClick={handleCardClick}
     >
       <div className="flex items-start space-x-2 h-full">
