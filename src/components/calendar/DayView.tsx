@@ -10,13 +10,18 @@ interface DayViewProps {
   currentDate: Date;
   onUpdateActivity?: (id: number, updates: Partial<Activity>) => void;
   onDeleteActivity?: (id: number) => void;
+  onDateChange?: (date: Date) => void;
 }
 
-const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDeleteActivity }) => {
+const DayView: React.FC<DayViewProps> = ({ 
+  currentDate, 
+  onUpdateActivity, 
+  onDeleteActivity,
+  onDateChange 
+}) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
-  const [internalCurrentDate, setInternalCurrentDate] = useState(currentDate);
 
   // Используем активности из контекста
   const { activities, getActivitiesForDate, toggleActivityComplete, addActivity, updateActivity, deleteActivity } = useActivities();
@@ -94,7 +99,10 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   };
 
   const handleDateSelect = (date: Date) => {
-    setInternalCurrentDate(date);
+    console.log('Date selected in DayView:', date);
+    if (onDateChange) {
+      onDateChange(date);
+    }
   };
 
   return (
@@ -102,7 +110,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
       <div className="flex gap-4">
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
-          currentDate={internalCurrentDate}
+          currentDate={currentDate}
           activities={dayActivities} // Передаем только активности текущего дня
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
@@ -112,7 +120,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
         {/* Основная область календаря */}
         <DayViewCalendar
           visibleActivities={visibleActivities}
-          currentDate={internalCurrentDate}
+          currentDate={currentDate}
           onEmptyAreaClick={handleEmptyAreaClick}
           onActivityToggle={handleActivityToggle}
           onUpdateActivity={handleActivityUpdate}

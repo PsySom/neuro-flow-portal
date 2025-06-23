@@ -9,18 +9,18 @@ import DayViewSidebar from './components/DayViewSidebar';
 
 interface WeekViewProps {
   currentDate: Date;
+  onDateChange?: (date: Date) => void;
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
+const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
   const { activities, getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
-  const [internalCurrentDate, setInternalCurrentDate] = useState(currentDate);
 
   console.log('WeekView total activities:', activities.length);
 
   const getWeekDays = () => {
-    const startOfWeek = new Date(internalCurrentDate);
+    const startOfWeek = new Date(currentDate);
     const dayOfWeek = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
     startOfWeek.setDate(diff);
@@ -116,14 +116,17 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   };
 
   const handleDateSelect = (date: Date) => {
-    setInternalCurrentDate(date);
+    console.log('Date selected in WeekView:', date);
+    if (onDateChange) {
+      onDateChange(date);
+    }
   };
 
   return (
     <div className="flex gap-6">
       {/* Боковая панель слева */}
       <DayViewSidebar
-        currentDate={internalCurrentDate}
+        currentDate={currentDate}
         activities={weekActivities} // Передаем только активности текущей недели
         filteredTypes={filteredTypes}
         onTypeFilterChange={handleTypeFilterChange}

@@ -31,7 +31,9 @@ const DayViewSidebar: React.FC<DayViewSidebarProps> = ({
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date && onDateSelect) {
-      onDateSelect(date);
+      // Создаем новую дату с нормализованным временем
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      onDateSelect(normalizedDate);
     }
   };
 
@@ -50,8 +52,15 @@ const DayViewSidebar: React.FC<DayViewSidebarProps> = ({
   const handleTodayClick = () => {
     setCalendarMonth(today);
     if (onDateSelect) {
-      onDateSelect(today);
+      onDateSelect(todayNormalized);
     }
+  };
+
+  // Проверяем, является ли дата сегодняшней
+  const isSameDay = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
   };
 
   return (
@@ -101,7 +110,7 @@ const DayViewSidebar: React.FC<DayViewSidebarProps> = ({
 
           <Calendar
             mode="single"
-            selected={currentDate}
+            selected={currentDateNormalized}
             onSelect={handleDateSelect}
             month={calendarMonth}
             onMonthChange={setCalendarMonth}

@@ -93,6 +93,11 @@ const Calendar = () => {
     addActivity(activity, recurringOptions);
   };
 
+  const handleDateChange = (newDate: Date) => {
+    console.log('Date changed in Calendar:', newDate);
+    setCurrentDate(newDate);
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -217,11 +222,15 @@ const Calendar = () => {
                 currentDate={currentDate} 
                 onUpdateActivity={updateActivity}
                 onDeleteActivity={deleteActivity}
+                onDateChange={handleDateChange}
               />
             </TabsContent>
             
             <TabsContent value="week" className="mt-0">
-              <WeekView currentDate={currentDate} />
+              <WeekView 
+                currentDate={currentDate} 
+                onDateChange={handleDateChange}
+              />
             </TabsContent>
             
             <TabsContent value="month" className="mt-0">
