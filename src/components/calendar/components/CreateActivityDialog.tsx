@@ -19,6 +19,7 @@ interface CreateActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialTime?: string;
+  initialDate?: string;
   onActivityCreate: (activity: any, recurringOptions?: RecurringActivityOptions) => void;
 }
 
@@ -26,6 +27,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   open,
   onOpenChange,
   initialTime = '',
+  initialDate,
   onActivityCreate
 }) => {
   const [activeTab, setActiveTab] = useState('edit');
@@ -35,7 +37,12 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [activityType, setActivityType] = useState('');
   const [startTime, setStartTime] = useState(initialTime);
   const [endTime, setEndTime] = useState('');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    if (initialDate) {
+      return new Date(initialDate);
+    }
+    return new Date();
+  });
   const [priority, setPriority] = useState(1);
   const [repeatType, setRepeatType] = useState('');
   const [reminder, setReminder] = useState('');
@@ -104,7 +111,12 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setActivityType('');
     setStartTime('');
     setEndTime('');
-    setSelectedDate(new Date());
+    setSelectedDate(() => {
+      if (initialDate) {
+        return new Date(initialDate);
+      }
+      return new Date();
+    });
     setPriority(1);
     setRepeatType('');
     setReminder('');
