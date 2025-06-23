@@ -132,14 +132,6 @@ const Calendar = () => {
                     Дневники
                   </Button>
                 </Link>
-                <Button 
-                  variant="ghost" 
-                  className="font-medium"
-                  style={{ color: `hsl(var(--psybalans-primary))` }}
-                >
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  Календарь
-                </Button>
                 <Link to="/practices">
                   <Button variant="ghost" className="dark:text-gray-300">
                     <Zap className="w-4 h-4 mr-2" />
