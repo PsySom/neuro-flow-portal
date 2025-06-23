@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useActivities } from '@/contexts/ActivitiesContext';
 
 interface MonthViewProps {
   currentDate: Date;
 }
 
 const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
+  const { getActivitiesForDate } = useActivities();
   const today = new Date();
   
   const getMonthData = () => {
@@ -41,13 +42,6 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
   const { days, currentMonth, currentYear } = getMonthData();
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
-  const sampleEvents = [
-    { date: 15, name: 'Встреча с психологом', color: 'bg-blue-500' },
-    { date: 18, name: 'Групповая терапия', color: 'bg-green-500' },
-    { date: 22, name: 'Медитация', color: 'bg-purple-500' },
-    { date: 25, name: 'Семинар по стрессу', color: 'bg-orange-500' },
-  ];
-
   const isToday = (date: Date) => {
     return date.toDateString() === today.toDateString();
   };
@@ -56,11 +50,16 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
     return date.getMonth() === currentMonth;
   };
 
-  const getEventsForDate = (date: Date) => {
+  const getActivitiesForDateObj = (date: Date) => {
     if (date.getMonth() === currentMonth) {
-      return sampleEvents.filter(event => event.date === date.getDate());
+      const dateString = date.toISOString().split('T')[0];
+      return getActivitiesForDate(dateString);
     }
     return [];
+  };
+
+  const truncateText = (text: string, maxLength: number = 15) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   return (
@@ -81,7 +80,10 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
           {days.map((date, index) => {
-            const events = getEventsForDate(date);
+            const activities = getActivitiesForDateObj(date);
+            const maxVisibleActivities = 3;
+            const visibleActivities = activities.slice(0, maxVisibleActivities);
+            const hiddenCount = activities.length - maxVisibleActivities;
             
             return (
               <div
@@ -98,19 +100,27 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
                   </span>
                 </div>
                 
-                <div className="flex-1 space-y-1">
-                  {events.map((event, eventIndex) => (
+                <div className="flex-1 space-y-1 overflow-hidden">
+                  {visibleActivities.map((activity, activityIndex) => (
                     <div
-                      key={eventIndex}
-                      className={`${event.color} text-white text-xs px-1 py-0.5 rounded truncate`}
+                      key={`${activity.id}-${activityIndex}`}
+                      className={`${activity.color} text-white text-xs px-1 py-0.5 rounded truncate flex items-center space-x-1`}
+                      title={`${activity.emoji} ${activity.name} (${activity.startTime}-${activity.endTime})`}
                     >
-                      {event.name}
+                      <span>{activity.emoji}</span>
+                      <span className="flex-1 truncate">{truncateText(activity.name)}</span>
                     </div>
                   ))}
+                  
+                  {hiddenCount > 0 && (
+                    <div className="text-xs text-gray-500 px-1">
+                      +{hiddenCount} еще
+                    </div>
+                  )}
                 </div>
                 
                 {/* Add event button for current month days */}
-                {isCurrentMonth(date) && (
+                {isCurrentMonth(date) && activities.length === 0 && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -127,20 +137,20 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
         {/* Legend */}
         <div className="mt-4 flex flex-wrap gap-4">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded"></div>
-            <span className="text-sm text-gray-600">Консультации</span>
+            <div className="w-3 h-3 bg-blue-200 rounded"></div>
+            <span className="text-sm text-gray-600">Работа</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded"></div>
-            <span className="text-sm text-gray-600">Групповые занятия</span>
+            <div className="w-3 h-3 bg-green-200 rounded"></div>
+            <span className="text-sm text-gray-600">Восстановление</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-purple-500 rounded"></div>
-            <span className="text-sm text-gray-600">Практики</span>
+            <div className="w-3 h-3 bg-purple-200 rounded"></div>
+            <span className="text-sm text-gray-600">Личное</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-orange-500 rounded"></div>
-            <span className="text-sm text-gray-600">Семинары</span>
+            <div className="w-3 h-3 bg-orange-200 rounded"></div>
+            <span className="text-sm text-gray-600">Здоровье</span>
           </div>
         </div>
       </CardContent>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,8 +82,8 @@ const Calendar = () => {
     return currentDate.toLocaleDateString('ru-RU', options);
   };
 
-  const handleActivityCreate = (activity: any) => {
-    addActivity(activity);
+  const handleActivityCreate = (activity: any, recurringOptions?: any) => {
+    addActivity(activity, recurringOptions);
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
@@ -17,13 +18,11 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
   // Используем активности из контекста
-  const { activities, toggleActivityComplete, addActivity } = useActivities();
+  const { getActivitiesForDate, toggleActivityComplete, addActivity } = useActivities();
 
-  // Фильтруем активности по выбранной дате
+  // Получаем активности для выбранной даты
   const currentDateString = currentDate.toISOString().split('T')[0];
-  const dayActivities = activities.filter(activity => 
-    activity.date === currentDateString
-  );
+  const dayActivities = getActivitiesForDate(currentDateString);
 
   console.log('DayView current date:', currentDateString);
   console.log('DayView activities for date:', dayActivities.length);
@@ -60,8 +59,8 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityCreate = (newActivity: any) => {
-    addActivity(newActivity);
+  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+    addActivity(newActivity, recurringOptions);
   };
 
   const handleTypeFilterChange = (type: string, checked: boolean) => {
@@ -82,7 +81,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={activities}
+          activities={[]} // Передаем пустой массив, так как активности получаются через контекст
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
         />

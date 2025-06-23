@@ -12,7 +12,7 @@ interface WeekViewProps {
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
-  const { activities, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
+  const { getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
@@ -37,9 +37,9 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const getActivitiesForDay = (day: Date) => {
     const dayString = day.toISOString().split('T')[0];
     
-    // Фильтруем активности по дате и типам
-    const dayActivities = activities.filter(activity => 
-      activity.date === dayString && !filteredTypes.has(activity.type)
+    // Получаем активности для дня и фильтруем по типам
+    const dayActivities = getActivitiesForDate(dayString).filter(activity => 
+      !filteredTypes.has(activity.type)
     );
     
     console.log(`Activities for ${dayString}:`, dayActivities.length);
@@ -102,7 +102,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
       {/* Боковая панель слева */}
       <DayViewSidebar
         currentDate={currentDate}
-        activities={activities}
+        activities={[]} // Передаем пустой массив, так как активности получаются через контекст
         filteredTypes={filteredTypes}
         onTypeFilterChange={handleTypeFilterChange}
       />
@@ -131,7 +131,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
               ))}
             </div>
 
-            {/* Скроллируемая область календаря - высота 720px (8 часов по 90px) */}
+            {/* Скроллируемая область календаря */}
             <div className="h-[720px]">
               <ScrollArea ref={scrollAreaRef} className="h-full">
                 <div className="flex" style={{ height: '2160px' }}>

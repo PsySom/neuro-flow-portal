@@ -13,12 +13,13 @@ import ActivityTimeDate from './form/ActivityTimeDate';
 import ActivityAdvancedOptions from './form/ActivityAdvancedOptions';
 import ActivityStatus from './form/ActivityStatus';
 import { validateActivityForm, getEmojiByType, calculateDuration, FormErrors, ActivityFormData } from './form/validationUtils';
+import { RecurringActivityOptions } from '../utils/recurringUtils';
 
 interface CreateActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialTime?: string;
-  onActivityCreate: (activity: any) => void;
+  onActivityCreate: (activity: any, recurringOptions?: RecurringActivityOptions) => void;
 }
 
 const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
@@ -79,11 +80,21 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       completed: status === 'completed',
       type: activityType,
       note,
-      repeatType,
-      reminder
+      reminder,
+      date: selectedDate.toISOString().split('T')[0]
     };
 
-    onActivityCreate(newActivity);
+    // Формируем параметры повтора
+    let recurringOptions: RecurringActivityOptions | undefined;
+    if (repeatType && repeatType !== 'none' && repeatType !== '') {
+      recurringOptions = {
+        type: repeatType as 'daily' | 'weekly' | 'monthly',
+        interval: 1, // каждый день/неделю/месяц
+        maxOccurrences: 365 // максимум год вперед
+      };
+    }
+
+    onActivityCreate(newActivity, recurringOptions);
     handleClose();
   };
 

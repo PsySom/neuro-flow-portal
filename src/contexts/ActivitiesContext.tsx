@@ -1,5 +1,7 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { activities as initialActivities } from '@/components/dashboard/activity-timeline/activityData';
+import { generateRecurringActivities, RecurringActivityOptions, DeleteRecurringOption, getRecurringGroup } from '@/components/calendar/utils/recurringUtils';
 
 export interface Activity {
   id: number;
@@ -14,15 +16,25 @@ export interface Activity {
   type: string;
   needEmoji?: string;
   date: string;
+  reminder?: string;
+  note?: string;
+  recurring?: {
+    originalId: number;
+    type: 'daily' | 'weekly' | 'monthly';
+    interval: number;
+    occurrenceNumber: number;
+  };
 }
 
 interface ActivitiesContextType {
   activities: Activity[];
   setActivities: React.Dispatch<React.SetStateAction<Activity[]>>;
-  addActivity: (activity: Activity) => void;
+  addActivity: (activity: Activity, recurringOptions?: RecurringActivityOptions) => void;
   updateActivity: (id: number, updates: Partial<Activity>) => void;
-  deleteActivity: (id: number) => void;
+  deleteActivity: (id: number, deleteOption?: DeleteRecurringOption) => void;
   toggleActivityComplete: (id: number) => void;
+  getActivitiesForDate: (date: string) => Activity[];
+  getActivitiesForDateRange: (startDate: string, endDate: string) => Activity[];
 }
 
 const ActivitiesContext = createContext<ActivitiesContextType | undefined>(undefined);
@@ -48,11 +60,22 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     })
   );
 
-  const addActivity = (activity: Activity) => {
+  const addActivity = (activity: Activity, recurringOptions?: RecurringActivityOptions) => {
     setActivities(prev => {
-      const newActivities = [...prev, activity];
-      // Сортируем по времени начала
+      let newActivities = [...prev];
+      
+      if (recurringOptions && recurringOptions.type !== 'none') {
+        const startDate = new Date(activity.date);
+        const recurringActivities = generateRecurringActivities(activity, recurringOptions, startDate);
+        newActivities = [...newActivities, ...recurringActivities];
+      } else {
+        newActivities = [...newActivities, activity];
+      }
+
       return newActivities.sort((a, b) => {
+        if (a.date !== b.date) {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
         const timeA = a.startTime.split(':').map(Number);
         const timeB = b.startTime.split(':').map(Number);
         return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
@@ -67,6 +90,9 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
           ? { ...activity, ...updates }
           : activity
       ).sort((a, b) => {
+        if (a.date !== b.date) {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
         const timeA = a.startTime.split(':').map(Number);
         const timeB = b.startTime.split(':').map(Number);
         return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
@@ -74,8 +100,24 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     );
   };
 
-  const deleteActivity = (id: number) => {
-    setActivities(prev => prev.filter(activity => activity.id !== id));
+  const deleteActivity = (id: number, deleteOption: DeleteRecurringOption = 'single') => {
+    setActivities(prev => {
+      const activityToDelete = prev.find(a => a.id === id);
+      
+      if (!activityToDelete) return prev;
+
+      if (deleteOption === 'all' && (activityToDelete.recurring || 
+          prev.some(a => a.recurring?.originalId === id))) {
+        // Удаляем все повторяющиеся активности
+        const originalId = activityToDelete.recurring?.originalId || id;
+        return prev.filter(activity => 
+          activity.id !== originalId && activity.recurring?.originalId !== originalId
+        );
+      } else {
+        // Удаляем только выбранную активность
+        return prev.filter(activity => activity.id !== id);
+      }
+    });
   };
 
   const toggleActivityComplete = (id: number) => {
@@ -88,6 +130,16 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     );
   };
 
+  const getActivitiesForDate = (date: string): Activity[] => {
+    return activities.filter(activity => activity.date === date);
+  };
+
+  const getActivitiesForDateRange = (startDate: string, endDate: string): Activity[] => {
+    return activities.filter(activity => 
+      activity.date >= startDate && activity.date <= endDate
+    );
+  };
+
   const value = {
     activities,
     setActivities,
@@ -95,6 +147,8 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     updateActivity,
     deleteActivity,
     toggleActivityComplete,
+    getActivitiesForDate,
+    getActivitiesForDateRange,
   };
 
   return (
