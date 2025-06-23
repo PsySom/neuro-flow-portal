@@ -42,7 +42,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
   const weekDays = getWeekDays();
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Получаем все активности для текущей недели
+  // Получаем все активности для текущей недели для сайдбара
   const getWeekActivities = () => {
     const weekActivities = [];
     weekDays.forEach(day => {
@@ -58,15 +58,18 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
   const getActivitiesForDay = (day: Date) => {
     const dayString = day.toISOString().split('T')[0];
     
-    // Получаем активности для дня и фильтруем по типам
-    const dayActivities = getActivitiesForDate(dayString).filter(activity => 
+    // Получаем активности для конкретного дня используя тот же метод что и в DayView
+    const dayActivities = getActivitiesForDate(dayString);
+    
+    // Фильтруем по типам
+    const filteredActivities = dayActivities.filter(activity => 
       !filteredTypes.has(activity.type)
     );
     
-    console.log(`Activities for ${dayString}:`, dayActivities.length, dayActivities);
+    console.log(`WeekView: Activities for ${dayString}:`, filteredActivities.length, 'filtered from', dayActivities.length, 'total');
     
     // Преобразуем активности для отображения в недельном календаре
-    return dayActivities.map(activity => {
+    return filteredActivities.map(activity => {
       const [startHour, startMin] = activity.startTime.split(':').map(Number);
       const [endHour, endMin] = activity.endTime.split(':').map(Number);
       
