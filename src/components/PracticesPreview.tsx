@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,8 @@ const PracticesPreview = () => {
       participants: '12.5k',
       tags: ['Дыхание', 'Тревога'],
       color: 'from-blue-400 to-blue-600',
-      borderColor: 'border-blue-400',
+      borderColor: 'border-blue-500',
+      buttonColor: 'bg-gradient-to-r from-blue-400 to-blue-600',
       steps: [
         'Примите удобное положение',
         'Вдох через нос на 4 счета',
@@ -37,7 +39,8 @@ const PracticesPreview = () => {
       participants: '8.3k',
       tags: ['Медитация', 'Расслабление'],
       color: 'from-green-400 to-emerald-600',
-      borderColor: 'border-green-400',
+      borderColor: 'border-green-500',
+      buttonColor: 'bg-gradient-to-r from-green-400 to-emerald-600',
       steps: [
         'Лягте на спину и закройте глаза',
         'Начните с пальцев ног',
@@ -54,7 +57,8 @@ const PracticesPreview = () => {
       participants: '15.7k',
       tags: ['Эмоции', 'Тест'],
       color: 'from-purple-400 to-purple-600',
-      borderColor: 'border-purple-400',
+      borderColor: 'border-purple-500',
+      buttonColor: 'bg-gradient-to-r from-purple-400 to-purple-600',
       steps: [
         'Посмотрите на текущий момент',
         'Выберите базовую эмоцию',  
@@ -189,7 +193,7 @@ const PracticesPreview = () => {
                       <div className="flex items-center space-x-3 flex-wrap gap-2">
                         <Button 
                           onClick={() => startExercise(exercise.id)}
-                          className={`bg-gradient-to-r ${exercise.color} hover:shadow-lg transition-all duration-200`}
+                          className={`${exercise.buttonColor} hover:shadow-lg transition-all duration-200 text-white`}
                         >
                           Попробовать сейчас
                         </Button>
