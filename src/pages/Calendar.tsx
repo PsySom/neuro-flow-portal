@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +44,10 @@ const Calendar = () => {
       return user.email.charAt(0).toUpperCase();
     }
     return 'U';
+  };
+
+  const handleViewChange = (value: string) => {
+    setView(value as ViewType);
   };
 
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -202,7 +205,7 @@ const Calendar = () => {
 
         {/* Calendar Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Tabs value={view} onValueChange={setView} className="w-full">
+          <Tabs value={view} onValueChange={handleViewChange} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="day">День</TabsTrigger>
               <TabsTrigger value="week">Неделя</TabsTrigger>
