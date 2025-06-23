@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
@@ -16,6 +15,7 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+  const [internalCurrentDate, setInternalCurrentDate] = useState(currentDate);
 
   // Используем активности из контекста
   const { activities, getActivitiesForDate, toggleActivityComplete, addActivity } = useActivities();
@@ -78,21 +78,26 @@ const DayView: React.FC<DayViewProps> = ({ currentDate, onUpdateActivity, onDele
     });
   };
 
+  const handleDateSelect = (date: Date) => {
+    setInternalCurrentDate(date);
+  };
+
   return (
     <>
       <div className="flex gap-4">
         {/* Левая панель с календарем и фильтрами */}
         <DayViewSidebar
-          currentDate={currentDate}
+          currentDate={internalCurrentDate}
           activities={dayActivities} // Передаем только активности текущего дня
           filteredTypes={filteredTypes}
           onTypeFilterChange={handleTypeFilterChange}
+          onDateSelect={handleDateSelect}
         />
 
         {/* Основная область календаря */}
         <DayViewCalendar
           visibleActivities={visibleActivities}
-          currentDate={currentDate}
+          currentDate={internalCurrentDate}
           onEmptyAreaClick={handleEmptyAreaClick}
           onActivityToggle={handleActivityToggle}
           onUpdateActivity={onUpdateActivity}

@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,11 +14,12 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
   const { activities, getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete } = useActivities();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+  const [internalCurrentDate, setInternalCurrentDate] = useState(currentDate);
 
   console.log('WeekView total activities:', activities.length);
 
   const getWeekDays = () => {
-    const startOfWeek = new Date(currentDate);
+    const startOfWeek = new Date(internalCurrentDate);
     const dayOfWeek = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
     startOfWeek.setDate(diff);
@@ -114,14 +114,19 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate }) => {
     });
   };
 
+  const handleDateSelect = (date: Date) => {
+    setInternalCurrentDate(date);
+  };
+
   return (
     <div className="flex gap-6">
       {/* Боковая панель слева */}
       <DayViewSidebar
-        currentDate={currentDate}
+        currentDate={internalCurrentDate}
         activities={weekActivities} // Передаем только активности текущей недели
         filteredTypes={filteredTypes}
         onTypeFilterChange={handleTypeFilterChange}
+        onDateSelect={handleDateSelect}
       />
 
       {/* Основная область календаря */}

@@ -1,148 +1,140 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ActivityLayout } from '../types';
-import ActivityInfoPopover from './ActivityInfoPopover';
-import DeleteRecurringDialog from './DeleteRecurringDialog';
-import { useActivities } from '@/contexts/ActivitiesContext';
-import { DeleteRecurringOption } from '../utils/recurringUtils';
-import DashboardActivityCard from './activity-card/DashboardActivityCard';
-import WeekActivityCard from './activity-card/WeekActivityCard';
-import DayActivityCard from './activity-card/DayActivityCard';
+import { Activity } from '@/contexts/ActivitiesContext';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from '@/components/ui/button';
+import { Edit, Trash2 } from 'lucide-react';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
-  onToggleComplete?: (activityId: number) => void;
-  onDelete?: (activityId: number) => void;
-  onUpdate?: (activityId: number, updates: Partial<ActivityLayout['activity']>) => void;
-  viewType?: 'dashboard' | 'day' | 'week';
+  onToggleComplete: (activityId: number) => void;
+  onUpdate?: (id: number, updates: Partial<Activity>) => void;
+  onDelete?: (id: number) => void;
+  viewType?: 'day' | 'week';
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ 
-  layout, 
-  onToggleComplete, 
-  onDelete, 
+const ActivityCard: React.FC<ActivityCardProps> = ({
+  layout,
+  onToggleComplete,
   onUpdate,
+  onDelete,
   viewType = 'day'
 }) => {
-  const { activity: initialActivity } = layout;
-  const [activity, setActivity] = useState(initialActivity);
-  const [showPopover, setShowPopover] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
-  const { deleteActivity } = useActivities();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Update activity when layout prop changes
-  useEffect(() => {
-    setActivity(initialActivity);
-  }, [initialActivity]);
-
-  const getCardPosition = () => {
-    if (!cardRef.current) return { x: 0, y: 0 };
-    
-    const rect = cardRef.current.getBoundingClientRect();
-    return {
-      x: rect.left,
-      y: rect.top + rect.height / 2
-    };
+  const handleCheckboxToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleComplete(layout.activity.id);
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="checkbox"]')) {
-      return;
-    }
-    
-    e.stopPropagation();
-    e.preventDefault();
-    
-    setPopoverPosition(getCardPosition());
-    setShowPopover(true);
-  };
-
-  const handleInfoClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setPopoverPosition(getCardPosition());
-    setShowPopover(true);
+    // console.log('Card clicked:', layout.activity.name);
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    e.preventDefault();
-    setPopoverPosition(getCardPosition());
-    setShowPopover(true);
-  };
-
-  const handleCheckboxToggle = () => {
-    if (onToggleComplete) {
-      onToggleComplete(activity.id);
-    }
+    setIsEditDialogOpen(true);
+    // console.log('Edit clicked:', layout.activity.name);
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    e.preventDefault();
-    
-    // Если активность повторяющаяся, показываем диалог выбора
-    if (activity.recurring) {
-      setShowDeleteDialog(true);
-    } else {
-      if (onDelete) {
-        onDelete(activity.id);
-      }
+    if (onDelete) {
+      onDelete(layout.activity.id);
     }
+    // console.log('Delete clicked:', layout.activity.name);
   };
 
-  const handleDeleteConfirm = (deleteOption: DeleteRecurringOption) => {
-    deleteActivity(activity.id, deleteOption);
-    setShowDeleteDialog(false);
-  };
+  const renderCardContent = () => {
+    if (viewType === 'week') {
+      return (
+        <>
+          {/* Только название */}
+          <div className="font-medium text-xs truncate leading-tight mb-1">
+            {layout.activity.name}
+          </div>
 
-  const handleActivityUpdate = (activityId: number, updates: Partial<ActivityLayout['activity']>) => {
-    console.log('Updating activity in card:', activityId, updates);
-    setActivity(prev => ({ ...prev, ...updates }));
-    if (onUpdate) {
-      onUpdate(activityId, updates);
+          {/* Только время начала и окончания */}
+          <div className="text-xs text-gray-600">
+            <span className="font-medium">{layout.activity.startTime}-{layout.activity.endTime}</span>
+          </div>
+        </>
+      );
     }
-  };
 
-  const commonProps = {
-    layout: { ...layout, activity },
-    cardRef,
-    onCardClick: handleCardClick,
-    onInfoClick: handleInfoClick,
-    onEditClick: handleEditClick,
-    onDeleteClick: handleDeleteClick,
-    onCheckboxToggle: handleCheckboxToggle
+    return (
+      <>
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2 text-sm font-medium">
+            <span className="truncate">{layout.activity.name}</span>
+          </div>
+          <p className="text-xs text-gray-600">{layout.activity.startTime}-{layout.activity.endTime}</p>
+        </div>
+      </>
+    );
   };
 
   return (
-    <>
-      {viewType === 'dashboard' && <DashboardActivityCard {...commonProps} />}
-      {viewType === 'week' && <WeekActivityCard {...commonProps} />}
-      {viewType === 'day' && <DayActivityCard {...commonProps} />}
+    <div
+      ref={cardRef}
+      className={`absolute ${layout.activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
+        layout.activity.completed ? 'opacity-60' : ''
+      }`}
+      style={{ 
+        top: `${layout.top}px`, 
+        height: `${layout.height}px`,
+        left: `${layout.left}%`,
+        width: `${layout.width}%`,
+        zIndex: 1,
+        minHeight: '40px'
+      }}
+      onClick={handleCardClick}
+    >
+      <div className="flex items-start space-x-2 h-full">
+        <div 
+          className="flex-shrink-0 mt-0.5"
+          onClick={handleCheckboxToggle}
+        >
+          <Checkbox
+            checked={layout.activity.completed}
+            onCheckedChange={() => onToggleComplete(layout.activity.id)}
+            className="w-4 h-4 border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
+          />
+        </div>
 
-      {/* Activity Info Popover */}
-      {showPopover && (
-        <ActivityInfoPopover
-          activity={activity}
-          onClose={() => setShowPopover(false)}
-          position={popoverPosition}
-          onDelete={handleDeleteClick}
-          onUpdate={handleActivityUpdate}
-        />
-      )}
+        <div className="flex-1 min-w-0">
+          {renderCardContent()}
+        </div>
+      </div>
 
-      {/* Delete Recurring Dialog */}
-      {showDeleteDialog && (
-        <DeleteRecurringDialog
-          open={showDeleteDialog}
-          onOpenChange={setShowDeleteDialog}
-          activity={activity}
-          onConfirm={handleDeleteConfirm}
-        />
+      {/* Кнопки редактирования и удаления */}
+      {onUpdate && onDelete && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="absolute right-1 top-1 h-6 w-6 p-0 bg-white/50 hover:bg-white/80 rounded-full shadow-sm">
+              <Edit className="h-3 w-3 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={handleEditClick}>
+              <Edit className="w-4 h-4 mr-2" /> Редактировать
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDeleteClick}>
+              <Trash2 className="w-4 h-4 mr-2" /> Удалить
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
-    </>
+    </div>
   );
 };
 
