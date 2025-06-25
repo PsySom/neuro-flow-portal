@@ -2,27 +2,40 @@
 export interface DepressionCareDiaryData {
   // Step 1 - Daily Care
   bedTime?: string;
+  bedtime?: string; // Alternative naming for compatibility
   wakeTime?: string;
+  wakeupTime?: string; // Alternative naming for compatibility
   nightWakeups?: number;
   sleepQuality?: number;
   restfulness?: number;
+  restedness?: number; // Alternative naming for compatibility
   currentMood?: number;
+  morningMood?: number; // Alternative naming for compatibility
   moodWords?: string[];
   bodyFeeling?: string[];
+  bodyState?: string[]; // Alternative naming for compatibility
   bodyNeeds?: string[];
   dailyIntentions?: string[];
   dailyJoy?: string;
   middayMood?: number;
+  middayTime?: string; // Added missing field
   middayActivity?: string;
+  currentActivity?: string; // Alternative naming for compatibility
   middayDifficulty?: string;
+  emotionalWeather?: string; // Added missing field
+  activityFeeling?: string; // Added missing field
   avoidanceBehaviors?: string[];
   selfCareAction?: string;
   eveningMood?: number;
+  overallDayRating?: number; // Added missing field
   dayDifficult?: string;
+  mostDifficult?: string; // Alternative naming for compatibility
   dayPleasant?: string;
+  mostPleasant?: string; // Alternative naming for compatibility
   selfPraise?: string;
   smallJoys?: string[];
   basicCareChecks?: string[];
+  basicNeedsCovered?: string[]; // Alternative naming for compatibility
   sleepPreparation?: string[];
   plannedBedtime?: string;
 
@@ -142,26 +155,42 @@ export interface DepressionCareDiaryData {
 
 export const getInitialDepressionCareData = (): DepressionCareDiaryData => ({
   currentMood: 0,
+  morningMood: 0,
   sleepQuality: 5,
   restfulness: 5,
+  restedness: 5,
   moodWords: [],
   bodyFeeling: [],
+  bodyState: [],
   bodyNeeds: [],
   dailyIntentions: [],
   dailyJoy: '',
   middayMood: 0,
+  middayTime: '',
   middayActivity: '',
+  currentActivity: '',
   middayDifficulty: '',
+  emotionalWeather: '',
+  activityFeeling: '',
   avoidanceBehaviors: [],
   selfCareAction: '',
   eveningMood: 0,
+  overallDayRating: 0,
   dayDifficult: '',
+  mostDifficult: '',
   dayPleasant: '',
+  mostPleasant: '',
   selfPraise: '',
   smallJoys: [],
   basicCareChecks: [],
+  basicNeedsCovered: [],
   sleepPreparation: [],
   plannedBedtime: '',
+  bedtime: '',
+  bedTime: '',
+  wakeupTime: '',
+  wakeTime: '',
+  nightWakeups: 0,
   emotions: {},
   moodTriggers: [],
   specificSituation: '',
