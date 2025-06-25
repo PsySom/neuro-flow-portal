@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Brain, Clock, Users, ArrowRight, Target, Lightbulb, Heart } from 'lucide-react';
+import { BookOpen, Brain, Clock, Users, ArrowRight, Target, Lightbulb, Heart, Smile } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -67,6 +67,20 @@ const Diaries = () => {
       tags: ['ОКР', 'Навязчивости', 'Самоконтроль'],
       features: ['Детальный анализ', 'Практики сопротивления', 'Поддержка'],
       path: '/ocd-diary'
+    },
+    {
+      id: 'self-esteem',
+      title: 'Дневник самооценки',
+      description: 'Развивайте самосострадание, работайте с самокритикой и самоподдержкой',
+      icon: Smile,
+      color: 'from-emerald-500 to-teal-500',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200',
+      duration: '12-20 мин',
+      participants: '15.3k',
+      tags: ['Самооценка', 'Самосострадание', 'КПТ'],
+      features: ['Анализ самокритики', 'Переосмысление', 'Самоподдержка'],
+      path: '/self-esteem-diary'
     }
   ];
 
@@ -194,9 +208,9 @@ const Diaries = () => {
             <Button 
               variant="secondary" 
               size="lg"
-              onClick={() => navigate('/mood-diary')}
+              onClick={() => navigate('/self-esteem-diary')}
             >
-              Попробовать дневник настроения
+              Попробовать дневник самооценки
             </Button>
           </div>
         </div>
