@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Play, Headphones, Users, Search, Filter, Clock, Star, Download, Share2, Heart, Brain, Lightbulb, Target } from 'lucide-react';
+import { BookOpen, Play, Headphones, Users, Search, Filter, Clock, Star, Download, Share2 } from 'lucide-react';
 
 const KnowledgeBase = () => {
   const navigate = useNavigate();
@@ -89,7 +89,7 @@ const KnowledgeBase = () => {
           </div>
           
           <h2>Самоподдержка — альтернатива автоматической самокритике</h2>
-          <p>Современная наука (Neff, 2003; Gilbert, 2010) предлагает концепцию самосострадания (self-compassion, самоподдержки): это умение относиться к себе с доброжелательством, поддерживать себя в трудностях и не терять контакт с внутренней человечностью.</p>
+          <p>Современная наука (Neff, 2003; Gilbert, 2010) предлагает концепцию самосострадания (self-compassion, самоподдержки): это умение относиться к себе с доброжелательностью, поддерживать себя в трудностях и не терять контакт с внутренней человечностью.</p>
           
           <p>Самоподдержка состоит из трёх компонентов (Neff, 2003):</p>
           <ol>
@@ -358,7 +358,7 @@ const KnowledgeBase = () => {
       description: 'Научно валидированная шкала для оценки воспринимаемого стресса.',
       type: 'test',
       duration: '5 мин',
-      icon: Brain,
+      icon: null,
       category: 'wellbeing'
     },
     {
@@ -367,7 +367,7 @@ const KnowledgeBase = () => {
       description: 'Интерактивная программа развития практики благодарности.',
       type: 'challenge',
       duration: '21 день',
-      icon: Heart,
+      icon: null,
       category: 'wellbeing'
     },
     {
@@ -376,7 +376,7 @@ const KnowledgeBase = () => {
       description: 'Структурированный инструмент для работы с автоматическими мыслями.',
       type: 'tool',
       duration: 'Ежедневно',
-      icon: Lightbulb,
+      icon: null,
       category: 'thinking'
     },
     {
@@ -385,7 +385,7 @@ const KnowledgeBase = () => {
       description: 'Интерактивный планировщик для постановки и достижения целей.',
       type: 'planner',
       duration: 'Разово',
-      icon: Target,
+      icon: null,
       category: 'habits'
     }
   ];
@@ -632,7 +632,7 @@ const KnowledgeBase = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <tool.icon className="w-6 h-6 text-blue-600" />
+                          {tool.icon ? <tool.icon className="w-6 h-6 text-blue-600" /> : null}
                         </div>
                         <div className="flex-1">
                           <span className="text-sm text-gray-500 capitalize">{tool.type}</span>
