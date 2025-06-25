@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Brain, Clock, Users, ArrowRight, Target, Lightbulb, Heart, Smile } from 'lucide-react';
+import { BookOpen, Brain, Clock, Users, ArrowRight, Target, Lightbulb, Heart, Smile, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -24,7 +24,7 @@ const Diaries = () => {
       participants: '23.5k',
       tags: ['Эмоции', 'Настроение', 'Самонаблюдение'],
       features: ['Трекинг эмоций', 'Визуализация', 'Статистика'],
-      path: '/mood-diary'
+      path: '/diary/mood'
     },
     {
       id: 'thoughts',
@@ -38,7 +38,7 @@ const Diaries = () => {
       participants: '18.2k',
       tags: ['КПТ', 'Мышление', 'Самоанализ'],
       features: ['8 шагов КПТ', 'Работа с искажениями', 'Альтернативы'],
-      path: '/thoughts-diary'
+      path: '/diary/thoughts'
     },
     {
       id: 'procrastination',
@@ -52,7 +52,7 @@ const Diaries = () => {
       participants: '12.7k',
       tags: ['Продуктивность', 'Мотивация', 'Планирование'],
       features: ['Анализ задач', 'Поиск решений', 'Трекинг прогресса'],
-      path: '/procrastination-diary'
+      path: '/diary/procrastination'
     },
     {
       id: 'ocd',
@@ -66,7 +66,7 @@ const Diaries = () => {
       participants: '8.9k',
       tags: ['ОКР', 'Навязчивости', 'Самоконтроль'],
       features: ['Детальный анализ', 'Практики сопротивления', 'Поддержка'],
-      path: '/ocd-diary'
+      path: '/diary/ocd'
     },
     {
       id: 'self-esteem',
@@ -80,7 +80,21 @@ const Diaries = () => {
       participants: '15.3k',
       tags: ['Самооценка', 'Самосострадание', 'КПТ'],
       features: ['Анализ самокритики', 'Переосмысление', 'Самоподдержка'],
-      path: '/self-esteem-diary'
+      path: '/diary/self-esteem'
+    },
+    {
+      id: 'depression-care',
+      title: 'Дневник заботливого выхода из депрессии',
+      description: 'Комплексный подход к преодолению депрессии через ежедневную заботу о себе',
+      icon: Sparkles,
+      color: 'from-purple-500 to-pink-500',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-pink-50',
+      borderColor: 'border-purple-200',
+      duration: '20-40 мин',
+      participants: '9.1k',
+      tags: ['Депрессия', 'Самозабота', 'Восстановление'],
+      features: ['8 блоков работы', 'Кризисная поддержка', 'Долгосрочное наблюдение'],
+      path: '/diary/depression-care'
     }
   ];
 
@@ -208,9 +222,9 @@ const Diaries = () => {
             <Button 
               variant="secondary" 
               size="lg"
-              onClick={() => navigate('/self-esteem-diary')}
+              onClick={() => navigate('/diary/depression-care')}
             >
-              Попробовать дневник самооценки
+              Попробовать дневник заботливого выхода
             </Button>
           </div>
         </div>

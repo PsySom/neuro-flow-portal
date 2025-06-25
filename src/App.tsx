@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -25,6 +24,7 @@ import OCDDiaryPage from "./pages/OCDDiaryPage"
 import ProcrastinationDiaryPage from "./pages/ProcrastinationDiaryPage"
 import SelfEsteemDiaryPage from "./pages/SelfEsteemDiaryPage"
 import NotFound from "./pages/NotFound"
+import DepressionCareDiaryPage from "./pages/DepressionCareDiaryPage"
 
 const queryClient = new QueryClient()
 
@@ -55,6 +55,7 @@ function App() {
                     <Route path="/diary/ocd" element={<OCDDiaryPage />} />
                     <Route path="/diary/procrastination" element={<ProcrastinationDiaryPage />} />
                     <Route path="/diary/self-esteem" element={<SelfEsteemDiaryPage />} />
+                    <Route path="/diary/depression-care" element={<DepressionCareDiaryPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </ActivitiesProvider>
