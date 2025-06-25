@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BookOpen, Play, Headphones, Users, Search, Filter, Clock, Star, Download, Share2, Heart, Brain, Lightbulb, Target } from 'lucide-react';
 
 const KnowledgeBase = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('articles');
@@ -397,7 +399,11 @@ const KnowledgeBase = () => {
                         ))}
                       </div>
                       <div className="flex items-center justify-between">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/article/${article.id}`)}
+                        >
                           Читать
                         </Button>
                         <div className="flex space-x-1">
