@@ -1,13 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { ArrowLeft, Heart, Download, Share2, Clock, Eye, BookOpen, Brain, Lightbulb, Target, List, ChevronRight } from 'lucide-react';
+import TableOfContents from '../components/article/TableOfContents';
+import ArticleContent from '../components/article/ArticleContent';
+import RecommendedTools from '../components/article/RecommendedTools';
+import { ArrowLeft, Heart, Download, Share2, Clock, Eye, BookOpen, Brain, Lightbulb, Target } from 'lucide-react';
 
 const ArticleView = () => {
   const { id } = useParams();
@@ -479,111 +480,17 @@ const ArticleView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Table of Contents - Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <Card className="bg-white border-emerald-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <List className="w-5 h-5 text-emerald-600" />
-                    <h3 className="font-semibold text-gray-900">Содержание</h3>
-                  </div>
-                  <ScrollArea className="h-96">
-                    <nav className="space-y-2">
-                      {tableOfContents.map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => scrollToSection(item.id)}
-                          className={`w-full text-left text-sm py-2 px-3 rounded-lg transition-colors hover:bg-emerald-50 flex items-center gap-2 ${
-                            activeSection === item.id
-                              ? 'bg-emerald-100 text-emerald-700 font-medium'
-                              : 'text-gray-600 hover:text-emerald-600'
-                          }`}
-                        >
-                          <ChevronRight className="w-3 h-3 flex-shrink-0" />
-                          <span className="line-clamp-2">{item.title}</span>
-                        </button>
-                      ))}
-                    </nav>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
+            <TableOfContents 
+              items={tableOfContents}
+              activeSection={activeSection}
+              onSectionClick={scrollToSection}
+            />
           </div>
 
           {/* Article Content */}
           <div className="lg:col-span-3">
-            <Card className="mb-8">
-              <CardContent className="p-8">
-                <ScrollArea className="h-auto">
-                  <div 
-                    className="prose prose-lg max-w-none prose-emerald"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
-                  />
-                </ScrollArea>
-              </CardContent>
-            </Card>
-
-            {/* Recommended Tools Section */}
-            <Card className="bg-gradient-to-r from-blue-50 to-emerald-50 border-emerald-200">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  🎯 Рекомендуемые тесты, дневники и упражнения
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Эти научно обоснованные инструменты помогут вам применить знания из статьи на практике, 
-                  оценить своё состояние и развить навыки работы с депрессией, эмоциями и мыслями.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {recommendedTools.map((tool) => (
-                    <Card key={tool.id} className="bg-white hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <tool.icon className="w-6 h-6 text-emerald-600" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900 mb-2">
-                              {tool.title}
-                            </h3>
-                            <p className="text-gray-600 text-sm mb-3">
-                              {tool.description}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <Badge variant="outline" className="text-xs">
-                                {tool.type === 'diary' ? 'Дневник' : tool.type === 'test' ? 'Тест' : 'Упражнение'}
-                              </Badge>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => navigate(tool.link)}
-                                className="hover:bg-emerald-50"
-                              >
-                                {tool.type === 'diary' ? 'Открыть дневник' : tool.type === 'test' ? 'Пройти тест' : 'Попробовать'}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                
-                <div className="mt-8 text-center">
-                  <Button 
-                    className="bg-emerald-600 hover:bg-emerald-700 mr-4"
-                    onClick={() => navigate('/practices')}
-                  >
-                    Все упражнения и практики
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate('/diaries')}
-                  >
-                    Все дневники
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ArticleContent content={article.content} />
+            <RecommendedTools tools={recommendedTools} />
           </div>
         </div>
       </main>
