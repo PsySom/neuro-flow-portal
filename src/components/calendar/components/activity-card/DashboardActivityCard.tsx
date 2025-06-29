@@ -38,8 +38,13 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   };
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
+    console.log('DashboardActivityCard: Checkbox clicked, preventing propagation');
     e.stopPropagation();
-    e.preventDefault();
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    console.log('DashboardActivityCard: Checkbox changed to:', checked);
+    onCheckboxToggle();
   };
 
   const renderStars = () => {
@@ -61,7 +66,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
         <div className="flex items-start space-x-3 flex-1">
           <Checkbox 
             checked={activity.completed}
-            onCheckedChange={onCheckboxToggle}
+            onCheckedChange={handleCheckboxChange}
             className="w-5 h-5 rounded-sm mt-1 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
             onClick={handleCheckboxClick}
           />
