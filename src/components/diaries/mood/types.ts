@@ -9,6 +9,7 @@ export interface MoodDiaryData {
   emotionTrigger?: string;
   emotionComment: string;
   bodyStateInfluence?: string;
+  bodyStateCustom?: string;
   relatedThoughts?: string;
   triggerSource?: string;
   triggerThought?: string;
