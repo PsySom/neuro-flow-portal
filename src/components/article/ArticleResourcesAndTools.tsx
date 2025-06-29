@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -133,7 +132,7 @@ const ArticleResourcesAndTools: React.FC = () => {
           <TabsTrigger value="exercises">Упражнения</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="tests" className="mt-6">
+        <TabsContent value="tests" className="mt-6" id="tests">
           <Card className="bg-gradient-to-r from-blue-50 to-emerald-50 border-emerald-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -149,7 +148,7 @@ const ArticleResourcesAndTools: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="diaries" className="mt-6">
+        <TabsContent value="diaries" className="mt-6" id="diaries">
           <Card className="bg-gradient-to-r from-pink-50 to-emerald-50 border-emerald-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -165,7 +164,7 @@ const ArticleResourcesAndTools: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="exercises" className="mt-6">
+        <TabsContent value="exercises" className="mt-6" id="exercises">
           <Card className="bg-gradient-to-r from-purple-50 to-emerald-50 border-emerald-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
