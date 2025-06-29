@@ -35,10 +35,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     onToggleComplete(layout.activity.id);
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
-    onToggleComplete(layout.activity.id);
-  };
-
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -108,7 +104,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             onInfoClick={handleInfoClick}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxChange}
+            onCheckboxToggle={handleCheckboxToggle}
           />
         );
       case 'day':
@@ -120,7 +116,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             onInfoClick={handleInfoClick}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxChange}
+            onCheckboxToggle={handleCheckboxToggle}
           />
         );
       case 'week':
@@ -140,7 +136,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             onInfoClick={handleInfoClick}
             onEditClick={handleEditClick}
             onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxChange}
+            onCheckboxToggle={handleCheckboxToggle}
           />
         );
     }

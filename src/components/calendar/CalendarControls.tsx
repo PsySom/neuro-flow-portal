@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { usePersonalization } from '@/contexts/PersonalizationContext';
 
 interface CalendarControlsProps {
   dateTitle: string;
@@ -18,6 +19,26 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
   onToday,
   onCreateActivity
 }) => {
+  const { settings } = usePersonalization();
+
+  const getAccentColorClasses = () => {
+    switch (settings.accentColor) {
+      case 'blue':
+        return 'bg-blue-600 hover:bg-blue-700';
+      case 'purple':
+        return 'bg-purple-600 hover:bg-purple-700';
+      case 'pink':
+        return 'bg-pink-600 hover:bg-pink-700';
+      case 'orange':
+        return 'bg-orange-600 hover:bg-orange-700';
+      case 'teal':
+        return 'bg-teal-600 hover:bg-teal-700';
+      case 'emerald':
+      default:
+        return 'bg-emerald-600 hover:bg-emerald-700';
+    }
+  };
+
   return (
     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -52,7 +73,7 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
           </div>
           
           <Button 
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className={getAccentColorClasses()}
             onClick={onCreateActivity}
           >
             <Plus className="w-4 h-4 mr-2" />
