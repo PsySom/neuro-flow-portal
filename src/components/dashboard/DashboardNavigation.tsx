@@ -1,17 +1,10 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Zap, BarChart3 } from 'lucide-react';
 
 const DashboardNavigation = () => {
-  const navigate = useNavigate();
-
-  const handleStatisticsClick = () => {
-    console.log('Navigating to statistics...');
-    navigate('/statistics');
-  };
-
   return (
     <nav className="hidden md:flex items-center space-x-6">
       <Link to="/diaries">
@@ -32,10 +25,12 @@ const DashboardNavigation = () => {
           Упражнения
         </Button>
       </Link>
-      <Button variant="ghost" className="dark:text-gray-300" onClick={handleStatisticsClick}>
-        <BarChart3 className="w-4 h-4 mr-2" />
-        Статистика
-      </Button>
+      <Link to="/statistics">
+        <Button variant="ghost" className="dark:text-gray-300">
+          <BarChart3 className="w-4 h-4 mr-2" />
+          Статистика
+        </Button>
+      </Link>
     </nav>
   );
 };

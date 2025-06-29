@@ -10,7 +10,8 @@ import MoodEmotionsChart from '@/components/statistics/MoodEmotionsChart';
 
 const Statistics = () => {
   useEffect(() => {
-    console.log('Statistics page mounted successfully');
+    console.log('Statistics page mounted successfully - route /statistics');
+    console.log('Current location:', window.location.pathname);
   }, []);
 
   return (
