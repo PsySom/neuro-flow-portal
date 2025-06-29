@@ -56,7 +56,12 @@ const MoodEmotionsChart = () => {
   };
 
   const CustomDot = (props: any) => {
-    const { cx, cy, payload } = props;
+    const { cx, cy, payload, index } = props;
+    
+    // Для месячного графика показываем точки только для каждого третьего дня
+    if (timeRange === 'month' && index % 3 !== 0) {
+      return null;
+    }
     
     return (
       <g>
