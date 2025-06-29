@@ -30,6 +30,8 @@ interface MoodDiaryData {
   positiveSource?: string;
   selfEvaluation: number;
   gratitude: string;
+  emotionConnection?: string;
+  emotionImpact?: string;
 }
 
 const MoodDiary = () => {
@@ -49,7 +51,9 @@ const MoodDiary = () => {
       relatedThoughts: '',
       hasCognitiveBias: false,
       selfEvaluation: 0,
-      gratitude: ''
+      gratitude: '',
+      emotionConnection: '',
+      emotionImpact: ''
     }
   });
 
@@ -205,17 +209,17 @@ const MoodDiary = () => {
       {/* Основные вопросы - всегда показываем если есть выбранные эмоции */}
       {selectedEmotions.length > 0 && (
         <>
-          {/* Вопрос о том, что вызвало эмоцию */}
+          {/* Вопрос: С чем связанно это чувство? */}
           <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100">Что вызвало эту эмоцию?</h4>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">С чем связанно это чувство?</h4>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {lifeSpheres.map((sphere) => (
                 <button
                   key={sphere.value}
                   type="button"
-                  onClick={() => form.setValue('emotionTrigger', sphere.value)}
+                  onClick={() => form.setValue('emotionConnection', sphere.value)}
                   className={`p-3 rounded-lg border-2 transition-all text-center hover:scale-105 ${
-                    form.watch('emotionTrigger') === sphere.value
+                    form.watch('emotionConnection') === sphere.value
                       ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                       : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
                   }`}
@@ -225,6 +229,16 @@ const MoodDiary = () => {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Вопрос: На что влияет эта эмоция? */}
+          <div className="space-y-2">
+            <Label>На что влияет эта эмоция? Чему мешает или помогает?</Label>
+            <Textarea
+              placeholder="Опиши, как эмоция влияет на твою жизнь, деятельность, отношения..."
+              {...form.register('emotionImpact')}
+              rows={3}
+            />
           </div>
 
           {/* Вопрос о влиянии на состояние тела */}
