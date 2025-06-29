@@ -4,10 +4,9 @@ import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import TableOfContents from '../components/article/TableOfContents';
-import ArticleContent from '../components/article/ArticleContent';
-import RecommendedTools from '../components/article/RecommendedTools';
+import ArticleTabContent from '../components/article/ArticleTabContent';
 import ArticleHeader from '../components/article/ArticleHeader';
-import { getArticleData, getArticleTableOfContents, getRecommendedTools } from '../data/articleData';
+import { getArticleData, getArticleTableOfContents } from '../data/articleData';
 
 const ArticleView = () => {
   const { id } = useParams();
@@ -17,7 +16,6 @@ const ArticleView = () => {
 
   const tableOfContents = getArticleTableOfContents();
   const article = getArticleData();
-  const recommendedTools = getRecommendedTools();
 
   useEffect(() => {
     setLikes(Math.floor(Math.random() * 100) + 50);
@@ -104,8 +102,7 @@ const ArticleView = () => {
 
           {/* Article Content */}
           <div className="lg:col-span-3">
-            <ArticleContent content={article.content} />
-            <RecommendedTools tools={recommendedTools} />
+            <ArticleTabContent content={article.content} />
           </div>
         </div>
       </main>
