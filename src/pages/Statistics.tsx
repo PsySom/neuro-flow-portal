@@ -10,8 +10,12 @@ import MoodEmotionsChart from '@/components/statistics/MoodEmotionsChart';
 
 const Statistics = () => {
   useEffect(() => {
-    console.log('Statistics page mounted successfully - route /statistics');
-    console.log('Current location:', window.location.pathname);
+    console.log('=== STATISTICS PAGE MOUNTED ===');
+    console.log('Route: /statistics');
+    console.log('Current URL:', window.location.href);
+    console.log('Current pathname:', window.location.pathname);
+    console.log('Document title:', document.title);
+    console.log('=== END STATISTICS DEBUG ===');
   }, []);
 
   return (
@@ -58,6 +62,11 @@ const Statistics = () => {
           <p className="text-gray-600 dark:text-gray-400">
             Анализ данных из ваших дневников
           </p>
+          <div className="mt-4 p-4 bg-green-100 dark:bg-green-900/20 rounded-lg">
+            <p className="text-green-800 dark:text-green-200">
+              ✅ Страница статистики успешно загружена!
+            </p>
+          </div>
         </div>
 
         <Tabs defaultValue="mood-emotions" className="w-full">
