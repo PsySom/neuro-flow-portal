@@ -16,6 +16,12 @@ import { AuthProvider } from './contexts/AuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
 import { ActivitiesProvider } from './contexts/ActivitiesContext';
 import ArticleView from './pages/ArticleView';
+import MoodDiaryPage from './pages/MoodDiaryPage';
+import ThoughtsDiaryPage from './pages/ThoughtsDiaryPage';
+import SelfEsteemDiaryPage from './pages/SelfEsteemDiaryPage';
+import ProcrastinationDiaryPage from './pages/ProcrastinationDiaryPage';
+import OCDDiaryPage from './pages/OCDDiaryPage';
+import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 
 function App() {
   return (
@@ -37,6 +43,12 @@ function App() {
                 <Route path="/dashboard/practices" element={<DashboardPractices />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/article/:id" element={<ArticleView />} />
+                <Route path="/mood-diary" element={<MoodDiaryPage />} />
+                <Route path="/thoughts-diary" element={<ThoughtsDiaryPage />} />
+                <Route path="/self-esteem-diary" element={<SelfEsteemDiaryPage />} />
+                <Route path="/procrastination-diary" element={<ProcrastinationDiaryPage />} />
+                <Route path="/ocd-diary" element={<OCDDiaryPage />} />
+                <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
               </Routes>
             </div>
           </Router>
