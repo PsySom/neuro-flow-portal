@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { BookOpen, Stethoscope, Wrench, ChevronRight } from 'lucide-react';
@@ -10,6 +10,8 @@ interface AccordionNavProps {
 }
 
 const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSectionClick }) => {
+  const [openAccordion, setOpenAccordion] = useState<string>('concepts');
+
   const sections = [
     {
       id: 'concepts',
@@ -45,13 +47,16 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
     }
   ];
 
-  const getActiveValue = () => {
-    for (const section of sections) {
-      if (activeSection === section.id || section.subsections.some(sub => sub.id === activeSection)) {
-        return section.id;
-      }
-    }
-    return sections[0].id;
+  const handleAccordionChange = (value: string) => {
+    setOpenAccordion(value === openAccordion ? '' : value);
+  };
+
+  const handleSectionClick = (sectionId: string) => {
+    onSectionClick(`section-${sectionId}`);
+  };
+
+  const handleSubsectionClick = (subsectionId: string) => {
+    onSectionClick(subsectionId);
   };
 
   return (
@@ -59,7 +64,13 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
       <CardContent className="p-4">
         <h3 className="font-semibold text-lg mb-4 text-emerald-700">Содержание статьи</h3>
         
-        <Accordion type="single" value={getActiveValue()} collapsible className="w-full">
+        <Accordion 
+          type="single" 
+          value={openAccordion} 
+          onValueChange={handleAccordionChange}
+          collapsible 
+          className="w-full"
+        >
           {sections.map((section) => {
             const IconComponent = section.icon;
             const isActiveSection = activeSection === section.id || section.subsections.some(sub => sub.id === activeSection);
@@ -72,7 +83,7 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
                       ? 'bg-emerald-50 text-emerald-700 shadow-sm' 
                       : 'hover:bg-gray-50 hover:shadow-sm'
                   }`}
-                  onClick={() => onSectionClick(`section-${section.id}`)}
+                  onClick={() => handleSectionClick(section.id)}
                 >
                   <div className="flex items-center space-x-3">
                     <IconComponent className={`w-5 h-5 transition-all duration-200 ${
@@ -83,11 +94,11 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
                 </AccordionTrigger>
                 
                 <AccordionContent className="pb-2 overflow-hidden">
-                  <div className="ml-8 space-y-1 animate-slide-up-fade">
+                  <div className="ml-8 space-y-1 animate-accordion-down">
                     {section.subsections.map((subsection, index) => (
                       <button
                         key={subsection.id}
-                        onClick={() => onSectionClick(subsection.id)}
+                        onClick={() => handleSubsectionClick(subsection.id)}
                         className={`w-full text-left p-3 rounded-md text-sm transition-all duration-200 ease-in-out flex items-center space-x-2 transform hover:translate-x-1 ${
                           activeSection === subsection.id
                             ? 'bg-emerald-100 text-emerald-700 font-medium shadow-sm scale-105'
