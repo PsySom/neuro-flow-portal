@@ -10,7 +10,7 @@ import MoodEmotionsChart from '@/components/statistics/MoodEmotionsChart';
 
 const Statistics = () => {
   useEffect(() => {
-    console.info('Navigate to Статистика');
+    console.log('Statistics page mounted successfully');
   }, []);
 
   return (
@@ -86,7 +86,7 @@ const Statistics = () => {
 
           <TabsContent value="procrastination" className="mt-6">
             <div className="text-center py-12 text-gray-500">
-              График прокрастинации будет добавлен позднее
+              График прокрастинации будет добавлен позднее  
             </div>
           </TabsContent>
 
