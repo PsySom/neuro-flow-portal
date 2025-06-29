@@ -8,7 +8,6 @@ import ArticleContent from '../components/article/ArticleContent';
 import RecommendedTools from '../components/article/RecommendedTools';
 import ArticleHeader from '../components/article/ArticleHeader';
 import { getArticleData, getArticleTableOfContents, getRecommendedTools } from '../data/articleData';
-import { BookOpen, Heart, Brain, Lightbulb, Target } from 'lucide-react';
 
 const ArticleView = () => {
   const { id } = useParams();
@@ -18,22 +17,7 @@ const ArticleView = () => {
 
   const tableOfContents = getArticleTableOfContents();
   const article = getArticleData();
-  const recommendedToolsData = getRecommendedTools();
-
-  // Map icon names to actual icon components
-  const iconMap: { [key: string]: React.ComponentType<any> } = {
-    BookOpen,
-    Heart,
-    Brain,
-    Lightbulb,
-    Target
-  };
-
-  // Transform recommended tools to include actual icon components
-  const recommendedTools = recommendedToolsData.map(tool => ({
-    ...tool,
-    icon: iconMap[tool.icon] || BookOpen
-  }));
+  const recommendedTools = getRecommendedTools();
 
   useEffect(() => {
     setLikes(Math.floor(Math.random() * 100) + 50);

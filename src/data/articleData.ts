@@ -1,4 +1,6 @@
 
+import { BookOpen, Heart, Brain, Lightbulb, Target } from 'lucide-react';
+
 export const getArticleTableOfContents = () => [
   { id: 'что-такое-депрессия', title: 'Что такое депрессия?' },
   { id: 'на-что-влияет-депрессия', title: 'На что влияет депрессия?' },
@@ -300,7 +302,7 @@ export const getRecommendedTools = () => [
     title: 'Тест на депрессию PHQ-9',
     description: 'Научно валидированный скрининговый тест для оценки уровня депрессии',
     type: 'test',
-    icon: 'BookOpen',
+    icon: BookOpen,
     category: 'depression',
     link: '/tests/depression-phq9'
   },
@@ -309,7 +311,7 @@ export const getRecommendedTools = () => [
     title: 'Шкала депрессии Бека (BDI-II)',
     description: 'Классический инструмент для измерения тяжести депрессивной симптоматики',
     type: 'test',
-    icon: 'BookOpen',
+    icon: BookOpen,
     category: 'depression', 
     link: '/tests/beck-depression'
   },
@@ -318,7 +320,7 @@ export const getRecommendedTools = () => [
     title: 'Дневник заботливого выхода из депрессии',
     description: 'Комплексный инструмент для ежедневного отслеживания состояния и планирования восстановления',
     type: 'diary',
-    icon: 'Heart',
+    icon: Heart,
     category: 'depression',
     link: '/diaries/depression-care'
   },
@@ -327,7 +329,7 @@ export const getRecommendedTools = () => [
     title: 'Дневник мыслей',
     description: 'Структурированная работа с негативными автоматическими мыслями по методу КПТ',
     type: 'diary',
-    icon: 'Brain',
+    icon: Brain,
     category: 'thoughts',
     link: '/diaries/thoughts'
   },
@@ -336,7 +338,7 @@ export const getRecommendedTools = () => [
     title: 'Дневник эмоций',
     description: 'Для развития эмоциональной осознанности и навыков регуляции',
     type: 'diary',
-    icon: 'Heart',
+    icon: Heart,
     category: 'emotions',
     link: '/diaries/mood'
   },
@@ -345,7 +347,7 @@ export const getRecommendedTools = () => [
     title: 'Техники дыхания 4-7-8',
     description: 'Для снижения тревожности, стресса и улучшения эмоционального состояния',
     type: 'exercise',
-    icon: 'Lightbulb',
+    icon: Lightbulb,
     category: 'stress',
     link: '/practices'
   },
@@ -354,7 +356,7 @@ export const getRecommendedTools = () => [
     title: 'Сканирование тела',
     description: 'Медитативная практика для осознанности, расслабления и снижения соматических симптомов',
     type: 'exercise',
-    icon: 'Target',
+    icon: Target,
     category: 'mindfulness',
     link: '/practices'
   },
@@ -363,7 +365,7 @@ export const getRecommendedTools = () => [
     title: 'Когнитивная реструктуризация',
     description: 'Техники КПТ для работы с искаженными негативными мыслями',
     type: 'exercise',
-    icon: 'Brain',
+    icon: Brain,
     category: 'cognitive',
     link: '/practices'
   },
@@ -372,7 +374,7 @@ export const getRecommendedTools = () => [
     title: 'Практики самосострадания',
     description: 'Развитие доброжелательного отношения к себе и снижение самокритики',
     type: 'exercise',
-    icon: 'Heart',
+    icon: Heart,
     category: 'self-compassion',
     link: '/practices'
   },
@@ -381,7 +383,7 @@ export const getRecommendedTools = () => [
     title: 'Поведенческая активация',
     description: 'Планирование приятных и значимых активностей для преодоления апатии',
     type: 'exercise',
-    icon: 'Target',
+    icon: Target,
     category: 'behavioral',
     link: '/practices'
   }
