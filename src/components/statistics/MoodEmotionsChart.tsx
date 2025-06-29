@@ -22,13 +22,16 @@ const mockData = {
     { time: 'Вс', mood: 1, emotions: ['ностальгия'], emotionIntensity: 'слабая', connection: 'творчество', impact: 'вдохновляет' }
   ],
   month: [
-    { time: '1', mood: 2, peak: true },
-    { time: '5', mood: -3, peak: true },
-    { time: '10', mood: 1, peak: false },
-    { time: '15', mood: 4, peak: true },
-    { time: '20', mood: -1, peak: false },
-    { time: '25', mood: 3, peak: true },
-    { time: '30', mood: 0, peak: false }
+    { time: '3', mood: 2, peak: true },
+    { time: '6', mood: -3, peak: true },
+    { time: '9', mood: 1, peak: false },
+    { time: '12', mood: 4, peak: true },
+    { time: '15', mood: -1, peak: false },
+    { time: '18', mood: 3, peak: true },
+    { time: '21', mood: 0, peak: false },
+    { time: '24', mood: 2, peak: true },
+    { time: '27', mood: -2, peak: false },
+    { time: '30', mood: 1, peak: false }
   ]
 };
 
@@ -56,16 +59,7 @@ const MoodEmotionsChart = () => {
   };
 
   const CustomDot = (props: any) => {
-    const { cx, cy, payload, index } = props;
-    
-    // Для месячного графика показываем точки только для определенных дней месяца
-    if (timeRange === 'month') {
-      const dayNumber = parseInt(payload.time);
-      const targetDays = [1, 3, 5, 7, 9, 11, 13, 16, 18, 20, 21, 23, 25, 27, 29];
-      if (!targetDays.includes(dayNumber)) {
-        return null;
-      }
-    }
+    const { cx, cy, payload } = props;
     
     return (
       <g>
