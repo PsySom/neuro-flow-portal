@@ -94,55 +94,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   };
 
   const renderCard = () => {
+    const commonProps = {
+      layout,
+      cardRef,
+      onCardClick: handleCardClick,
+      onInfoClick: handleInfoClick,
+      onEditClick: handleEditClick,
+      onDeleteClick: handleDeleteClick,
+      onCheckboxToggle: handleCheckboxToggle
+    };
+
     switch (viewType) {
       case 'dashboard':
-        return (
-          <DashboardActivityCard
-            layout={layout}
-            cardRef={cardRef}
-            onCardClick={handleCardClick}
-            onInfoClick={handleInfoClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxToggle}
-          />
-        );
+        return <DashboardActivityCard {...commonProps} />;
       case 'day':
-        return (
-          <DayActivityCard
-            layout={layout}
-            cardRef={cardRef}
-            onCardClick={handleCardClick}
-            onInfoClick={handleInfoClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxToggle}
-          />
-        );
+        return <DayActivityCard {...commonProps} />;
       case 'week':
-        return (
-          <WeekActivityCard
-            layout={layout}
-            cardRef={cardRef}
-            onCardClick={handleCardClick}
-            onInfoClick={handleInfoClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxToggle}
-          />
-        );
+        return <WeekActivityCard {...commonProps} />;
       default:
-        return (
-          <DayActivityCard
-            layout={layout}
-            cardRef={cardRef}
-            onCardClick={handleCardClick}
-            onInfoClick={handleInfoClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleDeleteClick}
-            onCheckboxToggle={handleCheckboxToggle}
-          />
-        );
+        return <DayActivityCard {...commonProps} />;
     }
   };
 

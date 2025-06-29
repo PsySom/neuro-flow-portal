@@ -1,5 +1,8 @@
 
 import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 
 interface WeekActivityCardProps {
@@ -44,14 +47,56 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
       }}
       onClick={onCardClick}
     >
-      {/* Название активности */}
-      <div className="font-medium text-xs truncate leading-tight mb-1">
-        {activity.name}
+      {/* Верхняя строка с чекбоксом, названием и кнопками */}
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center space-x-1 flex-1 min-w-0">
+          <Checkbox 
+            checked={activity.completed}
+            onCheckedChange={onCheckboxToggle}
+            className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
+            onClick={handleCheckboxClick}
+          />
+          <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
+        </div>
+        
+        <div className="flex space-x-0.5 ml-1 flex-shrink-0">
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
+            onClick={onInfoClick}
+          >
+            <Info className="w-2 h-2" />
+          </Button>
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
+            onClick={onEditClick}
+          >
+            <Edit className="w-2 h-2" />
+          </Button>
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
+            onClick={onDeleteClick}
+          >
+            <Trash2 className="w-2 h-2 text-red-500" />
+          </Button>
+        </div>
       </div>
 
-      {/* Время начала и окончания */}
-      <div className="text-xs text-gray-600">
-        <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
+      {/* Время + звезды важности */}
+      <div className="flex items-center justify-between text-xs text-gray-600">
+        <div className="flex items-center space-x-1">
+          <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
+        </div>
+        <div className="flex items-center">
+          {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
+            <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
+          ))}
+        </div>
       </div>
     </div>
   );
