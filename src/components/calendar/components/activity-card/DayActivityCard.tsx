@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 
@@ -11,7 +12,6 @@ interface DayActivityCardProps {
   onInfoClick: (e: React.MouseEvent) => void;
   onEditClick: (e: React.MouseEvent) => void;
   onDeleteClick: (e: React.MouseEvent) => void;
-  onCheckboxToggle: () => void;
 }
 
 const DayActivityCard: React.FC<DayActivityCardProps> = ({
@@ -20,8 +20,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
   onCardClick,
   onInfoClick,
   onEditClick,
-  onDeleteClick,
-  onCheckboxToggle
+  onDeleteClick
 }) => {
   const { activity, top, height, left, width } = layout;
 
@@ -29,6 +28,16 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
     console.log('DayActivityCard: Card clicked');
     e.stopPropagation();
     onCardClick(e);
+  };
+
+  const getDisplayType = (type: string) => {
+    const typeMap: Record<string, string> = {
+      'восстановление': 'восстанавливающая',
+      'нейтральная': 'нейтральная',
+      'смешанная': 'смешанная',
+      'задача': 'истощающая'
+    };
+    return typeMap[type] || type;
   };
 
   return (
@@ -81,7 +90,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
       </div>
 
       {/* Время + продолжительность + звезды */}
-      <div className="flex items-center justify-between text-xs text-gray-600">
+      <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
         <div className="flex items-center space-x-2">
           <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
           <span>[{activity.duration}]</span>
@@ -91,6 +100,17 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
             <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
           ))}
         </div>
+      </div>
+
+      {/* Тип активности и эмодзи */}
+      <div className="flex items-center space-x-2">
+        <Badge variant="secondary" className="text-xs px-1 py-0.5">
+          {getDisplayType(activity.type)}
+        </Badge>
+        <span className="text-lg">{activity.emoji}</span>
+        {activity.type === 'восстановление' && activity.needEmoji && (
+          <span className="text-sm">{activity.needEmoji}</span>
+        )}
       </div>
     </div>
   );
