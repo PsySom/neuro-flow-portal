@@ -38,9 +38,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Проверяем, что клик не по кнопкам или чекбоксу
+    // Проверяем, что клик не по чекбоксу
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('[data-state]')) {
+    if (target.closest('[role="checkbox"]') || target.closest('[data-state]')) {
+      return;
+    }
+
+    // Для дневного вида проверяем, что клик не по кнопкам
+    if (viewType === 'day' && target.closest('button')) {
       return;
     }
 
@@ -98,21 +103,39 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       layout,
       cardRef,
       onCardClick: handleCardClick,
-      onInfoClick: handleInfoClick,
-      onEditClick: handleEditClick,
-      onDeleteClick: handleDeleteClick,
       onCheckboxToggle: handleCheckboxToggle
     };
 
     switch (viewType) {
       case 'dashboard':
-        return <DashboardActivityCard {...commonProps} />;
+        return (
+          <DashboardActivityCard 
+            {...commonProps}
+            onInfoClick={handleInfoClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+          />
+        );
       case 'day':
-        return <DayActivityCard {...commonProps} />;
+        return (
+          <DayActivityCard 
+            {...commonProps}
+            onInfoClick={handleInfoClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+          />
+        );
       case 'week':
         return <WeekActivityCard {...commonProps} />;
       default:
-        return <DayActivityCard {...commonProps} />;
+        return (
+          <DayActivityCard 
+            {...commonProps}
+            onInfoClick={handleInfoClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+          />
+        );
     }
   };
 
