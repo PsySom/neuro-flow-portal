@@ -11,6 +11,7 @@ import Diaries from './pages/Diaries';
 import KnowledgeBase from './pages/KnowledgeBase';
 import Practices from './pages/Practices';
 import DashboardPractices from './pages/DashboardPractices';
+import Statistics from './pages/Statistics';
 import About from './pages/About';
 import { AuthProvider } from './contexts/AuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/knowledge" element={<KnowledgeBase />} />
                 <Route path="/practices" element={<Practices />} />
                 <Route path="/dashboard/practices" element={<DashboardPractices />} />
+                <Route path="/statistics" element={<Statistics />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/article/:id" element={<ArticleView />} />
                 <Route path="/mood-diary" element={<MoodDiaryPage />} />

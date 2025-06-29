@@ -1,0 +1,199 @@
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { getMoodEmoji } from '../diaries/moodDiaryUtils';
+
+// Тестовые данные
+const mockData = {
+  day: [
+    { time: 'Утро', mood: 2, emotions: ['радость', 'спокойствие'], connection: 'семья', impact: 'помогает продуктивности' },
+    { time: 'День', mood: -1, emotions: ['тревога', 'усталость'], connection: 'работа', impact: 'мешает концентрации' },
+    { time: 'Вечер', mood: 3, emotions: ['благодарность', 'умиротворение'], connection: 'дом', impact: 'помогает расслабиться' }
+  ],
+  week: [
+    { time: 'Пн', mood: 1, emotions: ['интерес'], connection: 'работа', impact: 'помогает развитию' },
+    { time: 'Вт', mood: -2, emotions: ['раздражение'], connection: 'отношения', impact: 'мешает общению' },
+    { time: 'Ср', mood: 0, emotions: ['спокойствие'], connection: 'здоровье', impact: 'нейтрально' },
+    { time: 'Чт', mood: 3, emotions: ['радость'], connection: 'друзья', impact: 'поднимает настроение' },
+    { time: 'Пт', mood: 2, emotions: ['гордость'], connection: 'цели', impact: 'мотивирует' },
+    { time: 'Сб', mood: 4, emotions: ['любовь'], connection: 'семья', impact: 'дает энергию' },
+    { time: 'Вс', mood: 1, emotions: ['ностальгия'], connection: 'творчество', impact: 'вдохновляет' }
+  ],
+  month: [
+    { time: '1', mood: 2, peak: true },
+    { time: '5', mood: -3, peak: true },
+    { time: '10', mood: 1, peak: false },
+    { time: '15', mood: 4, peak: true },
+    { time: '20', mood: -1, peak: false },
+    { time: '25', mood: 3, peak: true },
+    { time: '30', mood: 0, peak: false }
+  ]
+};
+
+type TimeRange = 'day' | 'week' | 'month';
+
+interface DetailInfo {
+  emotions: string[];
+  connection: string;
+  impact: string;
+}
+
+const MoodEmotionsChart = () => {
+  const [timeRange, setTimeRange] = useState<TimeRange>('day');
+  const [selectedPoint, setSelectedPoint] = useState<any>(null);
+
+  const currentData = mockData[timeRange];
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
+          <p className="font-medium">{`${label}: ${data.mood}`}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {getMoodEmoji(data.mood)}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (timeRange === 'month' && !payload.peak) {
+      return null;
+    }
+    
+    return (
+      <g>
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill="white" 
+          stroke="#3b82f6" 
+          strokeWidth={2}
+          className="cursor-pointer hover:r-8"
+          onClick={() => setSelectedPoint(payload)}
+        />
+        <text 
+          x={cx} 
+          y={cy} 
+          textAnchor="middle" 
+          dominantBaseline="middle" 
+          fontSize="12"
+          className="pointer-events-none"
+        >
+          {getMoodEmoji(payload.mood)}
+        </text>
+      </g>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>График настроения и эмоций</span>
+            <div className="flex space-x-2">
+              <Button
+                variant={timeRange === 'day' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('day')}
+              >
+                День
+              </Button>
+              <Button
+                variant={timeRange === 'week' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('week')}
+              >
+                Неделя
+              </Button>
+              <Button
+                variant={timeRange === 'month' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('month')}
+              >
+                Месяц
+              </Button>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis domain={[-5, 5]} />
+                <ReferenceLine y={0} stroke="#666" strokeDasharray="2 2" />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="mood" 
+                  stroke="#3b82f6" 
+                  strokeWidth={2}
+                  dot={<CustomDot />}
+                  connectNulls={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedPoint && timeRange !== 'month' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Подробности</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                  Настроение: {selectedPoint.mood} {getMoodEmoji(selectedPoint.mood)}
+                </h4>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Какие чувства?</h4>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedPoint.emotions?.join(', ') || 'Не указано'}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">С чем было связано?</h4>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedPoint.connection || 'Не указано'}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">На что повлияло?</h4>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedPoint.impact || 'Не указано'}
+                </p>
+              </div>
+
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedPoint(null)}
+              >
+                Закрыть
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default MoodEmotionsChart;
