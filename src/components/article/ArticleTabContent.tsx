@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import ArticleBasicConcepts from './ArticleBasicConcepts';
@@ -11,13 +10,12 @@ interface ArticleTabContentProps {
 }
 
 const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
-  const [activeSection, setActiveSection] = useState('что-такое-депрессия');
+  const [activeSection, setActiveSection] = useState('на-что-влияет-депрессия');
 
   // Scroll spy effect
   useEffect(() => {
     const handleScroll = () => {
       const sections = [
-        'что-такое-депрессия',
         'на-что-влияет-депрессия',
         'как-проявляется-депрессия',
         'какая-бывает-депрессия',
@@ -26,8 +24,6 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
         'диагностика-депрессии',
         'лечение-депрессии',
         'профилактика-и-самопомощь',
-        'помощь-близкому-с-депрессией',
-        'источники',
         'tests',
         'diaries',
         'exercises'
