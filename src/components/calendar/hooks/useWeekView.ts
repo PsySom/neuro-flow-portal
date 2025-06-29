@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 import { calculateActivityLayouts } from '../utils/timeUtils';
+import { formatDateToString } from '@/utils/dateUtils';
 
 export const useWeekView = (currentDate: Date) => {
   const { getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete, addActivity } = useActivities();
@@ -32,7 +33,7 @@ export const useWeekView = (currentDate: Date) => {
   const getWeekActivities = () => {
     const weekActivities = [];
     weekDays.forEach(day => {
-      const dayString = day.toISOString().split('T')[0];
+      const dayString = formatDateToString(day);
       const dayActivities = getActivitiesForDate(dayString);
       weekActivities.push(...dayActivities);
     });
@@ -41,15 +42,15 @@ export const useWeekView = (currentDate: Date) => {
   };
 
   const getActivitiesForDay = (day: Date) => {
-    const dayString = day.toISOString().split('T')[0];
+    const dayString = formatDateToString(day);
     const dayActivities = getActivitiesForDate(dayString);
-    console.log(`Activities for ${dayString}:`, dayActivities.length);
+    console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
     
     const filteredActivities = dayActivities.filter(activity => 
       !filteredTypes.has(activity.type)
     );
     
-    console.log(`Filtered activities for ${dayString}:`, filteredActivities.length);
+    console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     
     return calculateActivityLayouts(filteredActivities);
   };
@@ -68,7 +69,7 @@ export const useWeekView = (currentDate: Date) => {
     const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
-    const clickDate = weekDays[dayIndex].toISOString().split('T')[0];
+    const clickDate = formatDateToString(weekDays[dayIndex]);
     
     console.log('Week view click:', clickTime, clickDate);
     

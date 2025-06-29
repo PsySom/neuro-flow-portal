@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useActivities } from '@/contexts/ActivitiesContext';
+import { formatDateToString } from '@/utils/dateUtils';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -51,8 +52,9 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
   };
 
   const getActivitiesForDateObj = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = formatDateToString(date);
     const activities = getActivitiesForDate(dateString);
+    console.log(`MonthView: Activities for ${dateString}:`, activities.length);
     return activities;
   };
 
