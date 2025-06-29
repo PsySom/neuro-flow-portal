@@ -34,14 +34,15 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`absolute ${activity.color} rounded-lg p-1.5 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
+      className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
+        activity.completed ? 'opacity-60' : ''
+      }`}
       style={{ 
         top: `${top}px`, 
-        height: `${height}px`,
+        height: `${Math.max(height, 90)}px`,
         left: `${left}%`,
         width: `${width}%`,
-        zIndex: 1,
-        minHeight: '45px'
+        zIndex: 1
       }}
       onClick={onCardClick}
     >
@@ -51,7 +52,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
           <Checkbox 
             checked={activity.completed}
             onCheckedChange={onCheckboxToggle}
-            className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer"
+            className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
             onClick={handleCheckboxClick}
           />
           <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
@@ -61,7 +62,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-3 w-3 p-0"
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onInfoClick}
           >
             <Info className="w-2 h-2" />
@@ -69,7 +70,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-3 w-3 p-0"
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onEditClick}
           >
             <Edit className="w-2 h-2" />
@@ -77,7 +78,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-3 w-3 p-0"
+            className="h-3 w-3 p-0 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onDeleteClick}
           >
             <Trash2 className="w-2 h-2 text-red-500" />

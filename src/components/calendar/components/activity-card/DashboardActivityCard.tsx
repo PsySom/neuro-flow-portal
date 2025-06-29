@@ -45,7 +45,9 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`${activity.color} rounded-lg p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow mb-3`}
+      className={`${activity.color} rounded-lg p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow mb-3 ${
+        activity.completed ? 'opacity-60' : ''
+      }`}
       onClick={onCardClick}
     >
       {/* Верхняя строка: чекбокс + название + кнопки */}
@@ -54,7 +56,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           <Checkbox 
             checked={activity.completed}
             onCheckedChange={onCheckboxToggle}
-            className="w-5 h-5 rounded-sm mt-1 cursor-pointer"
+            className="w-5 h-5 rounded-sm mt-1 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
             onClick={handleCheckboxClick}
           />
           <span className="font-medium text-lg">{activity.name}</span>
@@ -64,7 +66,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6"
+            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onInfoClick}
           >
             <Info className="w-3 h-3" />
@@ -72,7 +74,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6"
+            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onEditClick}
           >
             <Edit className="w-3 h-3" />
@@ -80,7 +82,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6"
+            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onDeleteClick}
           >
             <Trash2 className="w-3 h-3 text-red-500" />
