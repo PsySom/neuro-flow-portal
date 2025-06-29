@@ -23,6 +23,8 @@ import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { Activity } from '@/contexts/ActivitiesContext';
+import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import UserMenu from '@/components/dashboard/UserMenu';
 
 type ViewType = 'day' | 'week' | 'month';

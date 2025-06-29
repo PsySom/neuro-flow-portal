@@ -119,7 +119,6 @@ const ActivityTimelineComponent = () => {
       <CreateActivityDialog 
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        initialDate={currentDateString}
       />
 
       {selectedActivity && (

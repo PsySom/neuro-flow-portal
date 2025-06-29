@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -33,9 +32,8 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [selectedColor, setSelectedColor] = useState('bg-blue-200');
   const [note, setNote] = useState('');
   const [repeatType, setRepeatType] = useState('');
-  const [selectedDate, setSelectedDate] = useState('2025-06-23'); // Устанавливаем дату по умолчанию
 
-  const { addActivity } = useActivities();
+  const { addActivity, getCurrentDateString } = useActivities();
 
   const getEmojiByType = (type: string) => {
     switch (type) {
@@ -74,6 +72,9 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       return;
     }
 
+    // Используем текущую дату для активности из дашборда
+    const currentDate = getCurrentDateString();
+
     const newActivity = {
       id: Date.now(),
       name: activityName.trim(),
@@ -87,7 +88,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       type: activityType,
       note,
       needEmoji: activityType === 'восстановление' ? '⚡' : undefined,
-      date: selectedDate
+      date: currentDate
     };
 
     // Формируем параметры повтора
@@ -114,7 +115,6 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setSelectedColor('bg-blue-200');
     setNote('');
     setRepeatType('');
-    setSelectedDate('2025-06-23');
     onOpenChange(false);
   };
 
@@ -164,16 +164,6 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     <SelectItem value="задача">Истощающая</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="date">Дата</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
