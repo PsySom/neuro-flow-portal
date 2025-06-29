@@ -32,23 +32,37 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const handleCheckboxToggle = () => {
+    console.log('ActivityCard: Checkbox toggled for activity:', layout.activity.id);
     onToggleComplete(layout.activity.id);
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    console.log('ActivityCard: Card clicked, viewType:', viewType, 'target:', e.target);
     e.stopPropagation();
     
     // Проверяем, что клик не по чекбоксу
     const target = e.target as HTMLElement;
-    if (target.closest('[role="checkbox"]') || target.closest('[data-state]')) {
+    const isCheckboxClick = target.closest('[role="checkbox"]') || 
+                           target.closest('[data-state]') || 
+                           target.closest('button[role="checkbox"]') ||
+                           target.hasAttribute('data-state') ||
+                           target.closest('.peer'); // Для Shadcn checkbox
+
+    if (isCheckboxClick) {
+      console.log('ActivityCard: Click on checkbox detected, ignoring');
       return;
     }
 
-    // Для дневного вида проверяем, что клик не по кнопкам
-    if (viewType === 'day' && target.closest('button')) {
-      return;
+    // Для дневного вида проверяем, что клик не по кнопкам (кроме чекбокса)
+    if (viewType === 'day') {
+      const isButtonClick = target.closest('button:not([role="checkbox"])');
+      if (isButtonClick) {
+        console.log('ActivityCard: Click on button detected in day view, ignoring');
+        return;
+      }
     }
 
+    console.log('ActivityCard: Opening info popover');
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       setPopoverPosition({
@@ -60,6 +74,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {
+    console.log('ActivityCard: Info button clicked');
     e.stopPropagation();
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
@@ -148,7 +163,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         <ActivityInfoPopover
           activity={layout.activity}
           position={popoverPosition}
-          onClose={() => setShowInfoPopover(false)}
+          onClose={() => {
+            console.log('ActivityCard: Closing info popover');
+            setShowInfoPopover(false);
+          }}
           onDelete={onDelete}
           onUpdate={onUpdate}
           onEdit={() => {

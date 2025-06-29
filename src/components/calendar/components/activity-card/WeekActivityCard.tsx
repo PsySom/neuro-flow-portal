@@ -20,8 +20,14 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
   const { activity, top, height, left, width } = layout;
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
+    console.log('WeekActivityCard: Checkbox clicked, stopping propagation');
     e.stopPropagation();
     e.preventDefault();
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    console.log('WeekActivityCard: Card clicked');
+    onCardClick(e);
   };
 
   return (
@@ -38,7 +44,7 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
         zIndex: 1,
         minHeight: '30px'
       }}
-      onClick={onCardClick}
+      onClick={handleCardClick}
     >
       {/* Верхняя строка с чекбоксом и названием */}
       <div className="flex items-center space-x-1 mb-1">
