@@ -1,10 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Timer, Users, Share2, Calendar, Clock, Heart } from 'lucide-react';
 import { contentTypes } from '@/constants/practicesConstants';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginPromptDialog from './LoginPromptDialog';
+import CreateActivityFromPracticeDialog from './CreateActivityFromPracticeDialog';
 
 interface ContentItem {
   id: number;
@@ -34,11 +36,23 @@ interface PracticeContentCardProps {
 
 const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleShare, onOpenDetail }) => {
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 100) + 10); // Случайное число лайков для демонстрации
+  const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 100) + 10);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showCreateActivityDialog, setShowCreateActivityDialog] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleSchedule = (title: string) => {
     console.log(`Запланировать: ${title}`);
-    // Здесь будет логика планирования упражнения
+    
+    if (!isAuthenticated) {
+      setShowLoginDialog(true);
+    } else {
+      setShowCreateActivityDialog(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setShowCreateActivityDialog(true);
   };
 
   const handlePostpone = (title: string) => {
@@ -113,103 +127,117 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
   const cardStyling = getCardStyling(item.color);
 
   return (
-    <Card className={`hover:shadow-lg transition-all duration-300 border-2 ${cardStyling.borderColor} ${cardStyling.bgColor}`}>
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <button 
-            onClick={() => onOpenDetail(item)}
-            className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform`}
-          >
-            <Play className="w-8 h-8 text-white" />
-          </button>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2">
-                  {item.description}
-                </p>
+    <>
+      <Card className={`hover:shadow-lg transition-all duration-300 border-2 ${cardStyling.borderColor} ${cardStyling.bgColor}`}>
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-4">
+            <button 
+              onClick={() => onOpenDetail(item)}
+              className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform`}
+            >
+              <Play className="w-8 h-8 text-white" />
+            </button>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-2">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Timer className="w-4 h-4" />
-                <span>{item.duration}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Users className="w-4 h-4" />
-                <span>{item.participants}</span>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {item.level}
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {contentTypes.find(t => t.id === item.type)?.label}
-              </Badge>
-            </div>
-
-            <div className="flex items-center space-x-2 mb-4">
-              {item.tags.slice(0, 3).map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {item.tags.length > 3 && (
+              <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-1">
+                  <Timer className="w-4 h-4" />
+                  <span>{item.duration}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Users className="w-4 h-4" />
+                  <span>{item.participants}</span>
+                </div>
                 <Badge variant="outline" className="text-xs">
-                  +{item.tags.length - 3}
+                  {item.level}
                 </Badge>
-              )}
-            </div>
+                <Badge variant="secondary" className="text-xs">
+                  {contentTypes.find(t => t.id === item.type)?.label}
+                </Badge>
+              </div>
 
-            <div className="flex items-center space-x-3 flex-wrap gap-2">
-              <Button 
-                className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}
-                onClick={() => onOpenDetail(item)}
-              >
-                Попробовать сейчас
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleSchedule(item.title)}
-              >
-                <Calendar className="w-4 h-4 mr-1" />
-                Запланировать
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handlePostpone(item.title)}
-              >
-                <Clock className="w-4 h-4 mr-1" />
-                Отложить
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleShare(item.title)}
-              >
-                <Share2 className="w-4 h-4 mr-1" />
-                Поделиться
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleLike}
-                className={`${isLiked ? 'text-red-500 border-red-200 bg-red-50' : ''}`}
-              >
-                <Heart className={`w-4 h-4 mr-1 ${isLiked ? 'fill-red-500' : ''}`} />
-                {likesCount}
-              </Button>
+              <div className="flex items-center space-x-2 mb-4">
+                {item.tags.slice(0, 3).map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+                {item.tags.length > 3 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{item.tags.length - 3}
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-3 flex-wrap gap-2">
+                <Button 
+                  className={`bg-gradient-to-r ${item.color} hover:shadow-lg transition-all duration-200`}
+                  onClick={() => onOpenDetail(item)}
+                >
+                  Попробовать сейчас
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleSchedule(item.title)}
+                >
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Запланировать
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handlePostpone(item.title)}
+                >
+                  <Clock className="w-4 h-4 mr-1" />
+                  Отложить
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleShare(item.title)}
+                >
+                  <Share2 className="w-4 h-4 mr-1" />
+                  Поделиться
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleLike}
+                  className={`${isLiked ? 'text-red-500 border-red-200 bg-red-50' : ''}`}
+                >
+                  <Heart className={`w-4 h-4 mr-1 ${isLiked ? 'fill-red-500' : ''}`} />
+                  {likesCount}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <LoginPromptDialog 
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      <CreateActivityFromPracticeDialog
+        open={showCreateActivityDialog}
+        onOpenChange={setShowCreateActivityDialog}
+        practiceItem={item}
+      />
+    </>
   );
 };
 
