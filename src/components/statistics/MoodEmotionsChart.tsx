@@ -22,16 +22,36 @@ const mockData = {
     { time: 'Вс', mood: 1, emotions: ['ностальгия'], emotionIntensity: 'слабая', connection: 'творчество', impact: 'вдохновляет' }
   ],
   month: [
-    { time: '3', mood: 2, peak: true },
-    { time: '6', mood: -3, peak: true },
-    { time: '9', mood: 1, peak: false },
-    { time: '12', mood: 4, peak: true },
-    { time: '15', mood: -1, peak: false },
-    { time: '18', mood: 3, peak: true },
-    { time: '21', mood: 0, peak: false },
-    { time: '24', mood: 2, peak: true },
-    { time: '27', mood: -2, peak: false },
-    { time: '30', mood: 1, peak: false }
+    { time: '1', mood: 2 },
+    { time: '2', mood: 1 },
+    { time: '3', mood: 3 },
+    { time: '4', mood: 0 },
+    { time: '5', mood: -1 },
+    { time: '6', mood: 2 },
+    { time: '7', mood: 1 },
+    { time: '8', mood: -2 },
+    { time: '9', mood: 4 },
+    { time: '10', mood: 3 },
+    { time: '11', mood: 1 },
+    { time: '12', mood: -1 },
+    { time: '13', mood: 2 },
+    { time: '14', mood: 0 },
+    { time: '15', mood: 3 },
+    { time: '16', mood: -2 },
+    { time: '17', mood: 1 },
+    { time: '18', mood: 4 },
+    { time: '19', mood: 2 },
+    { time: '20', mood: -1 },
+    { time: '21', mood: 0 },
+    { time: '22', mood: 3 },
+    { time: '23', mood: 1 },
+    { time: '24', mood: -2 },
+    { time: '25', mood: 2 },
+    { time: '26', mood: 1 },
+    { time: '27', mood: 3 },
+    { time: '28', mood: 0 },
+    { time: '29', mood: -1 },
+    { time: '30', mood: 2 }
   ]
 };
 
@@ -59,7 +79,7 @@ const MoodEmotionsChart = () => {
   };
 
   const CustomDot = (props: any) => {
-    const { cx, cy, payload } = props;
+    const { cx, cy, payload, index } = props;
     
     return (
       <g>
@@ -73,17 +93,20 @@ const MoodEmotionsChart = () => {
           className="cursor-pointer"
           onClick={() => setSelectedPoint(payload)}
         />
-        <text 
-          x={cx} 
-          y={cy - 20} 
-          textAnchor="middle" 
-          dominantBaseline="middle" 
-          fontSize="24"
-          className="pointer-events-none"
-          style={{ fontSize: '24px' }}
-        >
-          {getMoodEmoji(payload.mood)}
-        </text>
+        {/* Для месячного графика показываем эмоджи только для каждого третьего дня */}
+        {(timeRange !== 'month' || index % 3 === 0) && (
+          <text 
+            x={cx} 
+            y={cy - 20} 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fontSize="24"
+            className="pointer-events-none"
+            style={{ fontSize: '24px' }}
+          >
+            {getMoodEmoji(payload.mood)}
+          </text>
+        )}
       </g>
     );
   };
