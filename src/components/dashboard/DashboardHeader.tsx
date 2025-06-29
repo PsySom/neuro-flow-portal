@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Brain, Search } from 'lucide-react';
+import { Brain, Search, BookOpen, Calendar, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from './UserMenu';
-import DashboardNavigation from './DashboardNavigation';
 
 const DashboardHeader = () => {
   return (
@@ -25,11 +25,31 @@ const DashboardHeader = () => {
             </span>
           </Link>
 
-          <DashboardNavigation />
+          {/* Навигация только для больших экранов */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            <Link to="/diaries">
+              <Button variant="ghost" className="dark:text-gray-300">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Дневники
+              </Button>
+            </Link>
+            <Link to="/calendar">
+              <Button variant="ghost" className="dark:text-gray-300">
+                <Calendar className="w-4 h-4 mr-2" />
+                Календарь
+              </Button>
+            </Link>
+            <Link to="/practices">
+              <Button variant="ghost" className="dark:text-gray-300">
+                <Zap className="w-4 h-4 mr-2" />
+                Упражнения
+              </Button>
+            </Link>
+          </nav>
 
           {/* Правая часть */}
           <div className="flex items-center space-x-4">
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
               <Input 
                 placeholder="Поиск..." 

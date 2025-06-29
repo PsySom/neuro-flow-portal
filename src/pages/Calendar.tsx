@@ -7,6 +7,7 @@ import DayView from '@/components/calendar/DayView';
 import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
+import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
@@ -57,6 +58,7 @@ const Calendar = () => {
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <CalendarHeader />
+        <AdaptiveNavigation />
         
         <CalendarControls
           dateTitle={getDateTitle()}
