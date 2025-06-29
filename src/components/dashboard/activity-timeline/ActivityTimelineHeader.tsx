@@ -1,8 +1,7 @@
 
 import React from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, Plus } from 'lucide-react';
 
 interface ActivityTimelineHeaderProps {
   formattedDate: string;
@@ -14,19 +13,28 @@ const ActivityTimelineHeader: React.FC<ActivityTimelineHeaderProps> = ({
   onAddClick
 }) => {
   return (
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle className="flex items-center space-x-2">
-        <Clock className="w-5 h-5 text-emerald-600" />
-        <span>Активности на {formattedDate}</span>
-      </CardTitle>
-      <Button 
-        size="icon" 
-        className="rounded-full bg-emerald-500 hover:bg-emerald-600"
+    <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Лента активности
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          {formattedDate}
+        </p>
+      </div>
+      <Button
         onClick={onAddClick}
+        size="sm"
+        className="text-white hover:opacity-90 transition-opacity"
+        style={{
+          backgroundColor: `hsl(var(--psybalans-primary))`,
+          borderColor: `hsl(var(--psybalans-primary))`
+        }}
       >
-        <Plus className="w-4 h-4" />
+        <Plus className="w-4 h-4 mr-1" />
+        Создать
       </Button>
-    </CardHeader>
+    </div>
   );
 };
 
