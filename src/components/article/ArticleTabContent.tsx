@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import ArticleBasicConcepts from './ArticleBasicConcepts';
@@ -11,6 +12,7 @@ interface ArticleTabContentProps {
 
 const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
   const [activeSection, setActiveSection] = useState('на-что-влияет-депрессия');
+  const [activeTab, setActiveTab] = useState('tests');
 
   // Scroll spy effect
   useEffect(() => {
@@ -51,13 +53,18 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
     }
   };
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
       {/* Аккордеон навигации - боковая панель */}
       <div className="lg:col-span-1 order-2 lg:order-1">
         <ArticleAccordionNav 
           activeSection={activeSection} 
-          onSectionClick={scrollToSection} 
+          onSectionClick={scrollToSection}
+          onTabClick={handleTabChange}
         />
       </div>
 
@@ -75,7 +82,7 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
               </div>
               
               <div id="section-resources">
-                <ArticleResourcesAndTools />
+                <ArticleResourcesAndTools activeTab={activeTab} onTabChange={handleTabChange} />
               </div>
             </div>
           </CardContent>

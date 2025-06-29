@@ -7,9 +7,10 @@ import { BookOpen, Stethoscope, Wrench, ChevronRight } from 'lucide-react';
 interface AccordionNavProps {
   activeSection: string;
   onSectionClick: (sectionId: string) => void;
+  onTabClick?: (tabId: string) => void;
 }
 
-const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSectionClick }) => {
+const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSectionClick, onTabClick }) => {
   const [openAccordion, setOpenAccordion] = useState<string>('concepts');
 
   const sections = [
@@ -56,7 +57,16 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
   };
 
   const handleSubsectionClick = (subsectionId: string) => {
-    onSectionClick(subsectionId);
+    // Для подзаголовков раздела "Рекомендуемые тесты, дневники и упражнения"
+    // переключаем вкладки и прокручиваем к разделу
+    if (['tests', 'diaries', 'exercises'].includes(subsectionId)) {
+      onSectionClick('section-resources');
+      if (onTabClick) {
+        onTabClick(subsectionId);
+      }
+    } else {
+      onSectionClick(subsectionId);
+    }
   };
 
   return (

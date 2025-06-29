@@ -6,7 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Heart, Brain, Lightbulb, Target, TestTube } from 'lucide-react';
 
-const ArticleResourcesAndTools: React.FC = () => {
+interface ArticleResourcesAndToolsProps {
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
+}
+
+const ArticleResourcesAndTools: React.FC<ArticleResourcesAndToolsProps> = ({ 
+  activeTab = 'tests', 
+  onTabChange 
+}) => {
   const navigate = useNavigate();
 
   const diagnosticTests = [
@@ -113,6 +121,12 @@ const ArticleResourcesAndTools: React.FC = () => {
     </Card>
   );
 
+  const handleTabChange = (value: string) => {
+    if (onTabChange) {
+      onTabChange(value);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -125,7 +139,7 @@ const ArticleResourcesAndTools: React.FC = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="tests" className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="tests">Диагностические тесты</TabsTrigger>
           <TabsTrigger value="diaries">Дневники</TabsTrigger>
