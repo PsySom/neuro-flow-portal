@@ -9,7 +9,8 @@ import {
   Activity, 
   Target, 
   Zap,
-  BookOpen
+  BookOpen,
+  LayoutDashboard
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -49,6 +50,7 @@ const Dashboard = () => {
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
+            {/* Логотип слева */}
             <Link to="/" className="flex items-center space-x-2">
               <Brain className="w-8 h-8" style={{ color: `hsl(var(--psybalans-primary))` }} />
               <span 
@@ -61,13 +63,10 @@ const Dashboard = () => {
               </span>
             </Link>
 
+            {/* Центральная навигация */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/diaries">
-                <Button 
-                  variant="ghost" 
-                  className="font-medium"
-                  style={{ color: `hsl(var(--psybalans-primary))` }}
-                >
+                <Button variant="ghost" className="dark:text-gray-300">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Дневники
                 </Button>
@@ -78,16 +77,15 @@ const Dashboard = () => {
                   Календарь
                 </Button>
               </Link>
-              <Button 
-                variant="ghost" 
-                className="dark:text-gray-300"
-                onClick={() => navigate('/practices')}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Упражнения
-              </Button>
+              <Link to="/practices">
+                <Button variant="ghost" className="dark:text-gray-300">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Упражнения
+                </Button>
+              </Link>
             </nav>
 
+            {/* Правая часть */}
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
