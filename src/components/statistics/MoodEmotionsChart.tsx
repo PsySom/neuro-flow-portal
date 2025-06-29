@@ -57,9 +57,6 @@ const MoodEmotionsChart = () => {
 
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
-    if (timeRange === 'month' && !payload.peak) {
-      return null;
-    }
     
     return (
       <g>
@@ -86,6 +83,11 @@ const MoodEmotionsChart = () => {
         </text>
       </g>
     );
+  };
+
+  // Определяем ширину линии в зависимости от периода
+  const getLineWidth = () => {
+    return timeRange === 'month' ? 4 : 2; // На 40% толще для месяца (2 * 1.4 ≈ 3, округлим до 4)
   };
 
   return (
@@ -132,7 +134,7 @@ const MoodEmotionsChart = () => {
                   type="monotone" 
                   dataKey="mood" 
                   stroke="#3b82f6" 
-                  strokeWidth={2}
+                  strokeWidth={getLineWidth()}
                   dot={<CustomDot />}
                   connectNulls={false}
                 />
