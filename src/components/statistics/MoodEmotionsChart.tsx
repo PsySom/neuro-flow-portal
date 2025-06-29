@@ -8,18 +8,18 @@ import { getMoodEmoji } from '../diaries/moodDiaryUtils';
 // Тестовые данные
 const mockData = {
   day: [
-    { time: 'Утро', mood: 2, emotions: ['радость', 'спокойствие'], connection: 'семья', impact: 'помогает продуктивности' },
-    { time: 'День', mood: -1, emotions: ['тревога', 'усталость'], connection: 'работа', impact: 'мешает концентрации' },
-    { time: 'Вечер', mood: 3, emotions: ['благодарность', 'умиротворение'], connection: 'дом', impact: 'помогает расслабиться' }
+    { time: 'Утро', mood: 2, emotions: ['радость', 'спокойствие'], emotionIntensity: 'средняя', connection: 'семья', impact: 'помогает продуктивности' },
+    { time: 'День', mood: -1, emotions: ['тревога', 'усталость'], emotionIntensity: 'высокая', connection: 'работа', impact: 'мешает концентрации' },
+    { time: 'Вечер', mood: 3, emotions: ['благодарность', 'умиротворение'], emotionIntensity: 'умеренная', connection: 'дом', impact: 'помогает расслабиться' }
   ],
   week: [
-    { time: 'Пн', mood: 1, emotions: ['интерес'], connection: 'работа', impact: 'помогает развитию' },
-    { time: 'Вт', mood: -2, emotions: ['раздражение'], connection: 'отношения', impact: 'мешает общению' },
-    { time: 'Ср', mood: 0, emotions: ['спокойствие'], connection: 'здоровье', impact: 'нейтрально' },
-    { time: 'Чт', mood: 3, emotions: ['радость'], connection: 'друзья', impact: 'поднимает настроение' },
-    { time: 'Пт', mood: 2, emotions: ['гордость'], connection: 'цели', impact: 'мотивирует' },
-    { time: 'Сб', mood: 4, emotions: ['любовь'], connection: 'семья', impact: 'дает энергию' },
-    { time: 'Вс', mood: 1, emotions: ['ностальгия'], connection: 'творчество', impact: 'вдохновляет' }
+    { time: 'Пн', mood: 1, emotions: ['интерес'], emotionIntensity: 'слабая', connection: 'работа', impact: 'помогает развитию' },
+    { time: 'Вт', mood: -2, emotions: ['раздражение'], emotionIntensity: 'высокая', connection: 'отношения', impact: 'мешает общению' },
+    { time: 'Ср', mood: 0, emotions: ['спокойствие'], emotionIntensity: 'умеренная', connection: 'здоровье', impact: 'нейтрально' },
+    { time: 'Чт', mood: 3, emotions: ['радость'], emotionIntensity: 'высокая', connection: 'друзья', impact: 'поднимает настроение' },
+    { time: 'Пт', mood: 2, emotions: ['гордость'], emotionIntensity: 'средняя', connection: 'цели', impact: 'мотивирует' },
+    { time: 'Сб', mood: 4, emotions: ['любовь'], emotionIntensity: 'очень высокая', connection: 'семья', impact: 'дает энергию' },
+    { time: 'Вс', mood: 1, emotions: ['ностальгия'], emotionIntensity: 'слабая', connection: 'творчество', impact: 'вдохновляет' }
   ],
   month: [
     { time: '1', mood: 2, peak: true },
@@ -33,12 +33,6 @@ const mockData = {
 };
 
 type TimeRange = 'day' | 'week' | 'month';
-
-interface DetailInfo {
-  emotions: string[];
-  connection: string;
-  impact: string;
-}
 
 const MoodEmotionsChart = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('day');
@@ -72,20 +66,21 @@ const MoodEmotionsChart = () => {
         <circle 
           cx={cx} 
           cy={cy} 
-          r={6} 
+          r={8} 
           fill="white" 
           stroke="#3b82f6" 
           strokeWidth={2}
-          className="cursor-pointer hover:r-8"
+          className="cursor-pointer"
           onClick={() => setSelectedPoint(payload)}
         />
         <text 
           x={cx} 
-          y={cy} 
+          y={cy - 20} 
           textAnchor="middle" 
           dominantBaseline="middle" 
-          fontSize="12"
+          fontSize="24"
           className="pointer-events-none"
+          style={{ fontSize: '24px' }}
         >
           {getMoodEmoji(payload.mood)}
         </text>
@@ -127,7 +122,7 @@ const MoodEmotionsChart = () => {
         <CardContent>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <LineChart data={currentData} margin={{ top: 40, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
                 <YAxis domain={[-5, 5]} />
@@ -147,51 +142,73 @@ const MoodEmotionsChart = () => {
         </CardContent>
       </Card>
 
-      {selectedPoint && timeRange !== 'month' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Подробности</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                  Настроение: {selectedPoint.mood} {getMoodEmoji(selectedPoint.mood)}
-                </h4>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Какие чувства?</h4>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {selectedPoint.emotions?.join(', ') || 'Не указано'}
-                </p>
+      {/* Панель подробностей */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Подробности точки настроения</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {selectedPoint && timeRange !== 'month' ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
+                      <span className="text-2xl mr-2">{getMoodEmoji(selectedPoint.mood)}</span>
+                      Настроение: {selectedPoint.mood}
+                    </h4>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Какие чувства?</h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {selectedPoint.emotions?.join(', ') || 'Не указано'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Какой силы?</h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {selectedPoint.emotionIntensity || 'Не указано'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">С чем было связано?</h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {selectedPoint.connection || 'Не указано'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">На что повлияло?</h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {selectedPoint.impact || 'Не указано'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">С чем было связано?</h4>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {selectedPoint.connection || 'Не указано'}
-                </p>
+              <div className="pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedPoint(null)}
+                >
+                  Очистить выбор
+                </Button>
               </div>
-
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">На что повлияло?</h4>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {selectedPoint.impact || 'Не указано'}
-                </p>
-              </div>
-
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setSelectedPoint(null)}
-              >
-                Закрыть
-              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p className="mb-2">Нажмите на точку графика, чтобы увидеть подробности</p>
+              <p className="text-sm">Подробности доступны для режимов "День" и "Неделя"</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
