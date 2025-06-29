@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
@@ -30,7 +29,7 @@ export const useActivityState = () => {
   }, [activities]);
 
   const addActivity = (activity: Activity, recurringOptions?: RecurringActivityOptions) => {
-    setActivities(prev => addActivityWithRecurring(prev, activity, recurringOptions, getCurrentDateString));
+    setActivities(prev => addActivityWithRecurring(prev, activity, getCurrentDateString, recurringOptions));
   };
 
   const updateActivity = (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {

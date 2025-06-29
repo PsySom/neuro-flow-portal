@@ -20,8 +20,8 @@ export const sortActivities = (activities: Activity[]): Activity[] => {
 export const addActivityWithRecurring = (
   activities: Activity[],
   activity: Activity,
-  recurringOptions?: RecurringActivityOptions,
-  getCurrentDateString: () => string
+  getCurrentDateString: () => string,
+  recurringOptions?: RecurringActivityOptions
 ): Activity[] => {
   let newActivities = [...activities];
   
