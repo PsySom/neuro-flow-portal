@@ -10,6 +10,7 @@ import Calendar from './pages/Calendar';
 import Diaries from './pages/Diaries';
 import KnowledgeBase from './pages/KnowledgeBase';
 import Practices from './pages/Practices';
+import DashboardPractices from './pages/DashboardPractices';
 import About from './pages/About';
 import { AuthProvider } from './contexts/AuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/diaries" element={<Diaries />} />
                 <Route path="/knowledge" element={<KnowledgeBase />} />
                 <Route path="/practices" element={<Practices />} />
+                <Route path="/dashboard/practices" element={<DashboardPractices />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/article/:id" element={<ArticleView />} />
               </Routes>

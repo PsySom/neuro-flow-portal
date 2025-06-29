@@ -24,7 +24,7 @@ const AdaptiveNavigation = () => {
       icon: Calendar
     },
     {
-      path: '/practices',
+      path: '/dashboard/practices',
       label: 'Упражнения',
       icon: Zap
     }
@@ -33,6 +33,9 @@ const AdaptiveNavigation = () => {
   const isActive = (path: string) => {
     if (path === '/dashboard') {
       return location.pathname === '/dashboard';
+    }
+    if (path === '/dashboard/practices') {
+      return location.pathname === '/dashboard/practices';
     }
     return location.pathname.startsWith(path);
   };
