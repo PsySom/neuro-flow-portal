@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -26,22 +25,6 @@ const diaryTypes = [
     darkColor: 'dark:from-blue-900/20 dark:to-blue-800/20'
   },
   {
-    title: 'Дневник прокрастинации',
-    description: 'Преодолевайте откладывание дел',
-    emoji: '⏰',
-    path: '/procrastination-diary',
-    color: 'from-orange-100 to-orange-200',
-    darkColor: 'dark:from-orange-900/20 dark:to-orange-800/20'
-  },
-  {
-    title: 'Дневник ОКР',
-    description: 'Работа с обсессивно-компульсивными расстройствами',
-    emoji: '🔄',
-    path: '/ocd-diary',
-    color: 'from-purple-100 to-purple-200',
-    darkColor: 'dark:from-purple-900/20 dark:to-purple-800/20'
-  },
-  {
     title: 'Дневник самооценки',
     description: 'Укрепляйте уверенность в себе',
     emoji: '✨',
@@ -50,7 +33,23 @@ const diaryTypes = [
     darkColor: 'dark:from-emerald-900/20 dark:to-emerald-800/20'
   },
   {
-    title: 'Дневник депрессии',
+    title: 'Дневник работы с прокрастинацией',
+    description: 'Преодолевайте откладывание дел',
+    emoji: '⏰',
+    path: '/procrastination-diary',
+    color: 'from-orange-100 to-orange-200',
+    darkColor: 'dark:from-orange-900/20 dark:to-orange-800/20'
+  },
+  {
+    title: 'Дневник работы с ОКР',
+    description: 'Работа с обсессивно-компульсивными расстройствами',
+    emoji: '🔄',
+    path: '/ocd-diary',
+    color: 'from-purple-100 to-purple-200',
+    darkColor: 'dark:from-purple-900/20 dark:to-purple-800/20'
+  },
+  {
+    title: 'Дневник работы с депрессией',
     description: 'Поддержка в работе с депрессивными состояниями',
     emoji: '🌱',
     path: '/depression-care-diary',
