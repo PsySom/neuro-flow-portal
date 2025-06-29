@@ -4,7 +4,7 @@ import { activities as initialActivities } from '@/components/dashboard/activity
 
 const STORAGE_KEY = 'psybalans-activities';
 
-export const loadActivitiesFromStorage = (getCurrentDateString: () => string): Activity[] => {
+export const loadActivitiesFromStorage = (): Activity[] => {
   try {
     const savedActivities = localStorage.getItem(STORAGE_KEY);
     if (savedActivities) {
@@ -17,6 +17,11 @@ export const loadActivitiesFromStorage = (getCurrentDateString: () => string): A
   }
   
   // If no saved data, use initial data for current day
+  const getCurrentDateString = (): string => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+  
   const currentDate = getCurrentDateString();
   const activitiesWithCorrectDate = initialActivities.map(activity => ({
     ...activity,

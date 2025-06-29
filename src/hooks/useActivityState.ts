@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
@@ -19,7 +20,7 @@ export const useActivityState = () => {
   };
 
   const [activities, setActivities] = useState<Activity[]>(() => {
-    const loadedActivities = loadActivitiesFromStorage(getCurrentDateString);
+    const loadedActivities = loadActivitiesFromStorage();
     return sortActivities(loadedActivities);
   });
 
