@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useActivities } from '@/contexts/ActivitiesContext';
@@ -9,11 +9,11 @@ interface MonthViewProps {
   currentDate: Date;
 }
 
-const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
+const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
   const { getActivitiesForDate } = useActivities();
   const today = new Date();
   
-  const getMonthData = () => {
+  const { days, currentMonth } = useMemo(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
@@ -37,30 +37,29 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
       current.setDate(current.getDate() + 1);
     }
     
-    return { days, currentMonth: month, currentYear: year };
-  };
+    return { days, currentMonth: month };
+  }, [currentDate]);
 
-  const { days, currentMonth, currentYear } = getMonthData();
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
-  const isToday = (date: Date) => {
+  const isToday = useCallback((date: Date) => {
     return date.toDateString() === today.toDateString();
-  };
+  }, [today]);
 
-  const isCurrentMonth = (date: Date) => {
+  const isCurrentMonth = useCallback((date: Date) => {
     return date.getMonth() === currentMonth;
-  };
+  }, [currentMonth]);
 
-  const getActivitiesForDateObj = (date: Date) => {
+  const getActivitiesForDateObj = useCallback((date: Date) => {
     const dateString = formatDateToString(date);
     const activities = getActivitiesForDate(dateString);
     console.log(`MonthView: Activities for ${dateString}:`, activities.length);
     return activities;
-  };
+  }, [getActivitiesForDate]);
 
-  const truncateText = (text: string, maxLength: number = 12) => {
+  const truncateText = useCallback((text: string, maxLength: number = 12) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
+  }, []);
 
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
@@ -87,7 +86,7 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
             
             return (
               <div
-                key={index}
+                key={`${date.toISOString()}-${index}`}
                 className={`bg-white min-h-[120px] p-2 flex flex-col ${
                   !isCurrentMonth(date) ? 'bg-gray-50 text-gray-400' : ''
                 } ${isToday(date) ? 'bg-blue-50 border-2 border-blue-500' : ''}`}
@@ -162,6 +161,8 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+MonthView.displayName = 'MonthView';
 
 export default MonthView;

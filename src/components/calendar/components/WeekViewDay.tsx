@@ -1,20 +1,22 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import ActivityCard from './ActivityCard';
 import CurrentTimeIndicator from './CurrentTimeIndicator';
+import { ActivityLayout } from '../types';
+import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 
 interface WeekViewDayProps {
   day: Date;
   dayIndex: number;
-  dayActivities: any[];
+  dayActivities: ActivityLayout[];
   hours: number[];
   onEmptyAreaClick: (e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => void;
   onActivityToggle: (activityId: number) => void;
-  onActivityDelete: (activityId: number, deleteOption?: any) => void;
-  onActivityUpdate: (activityId: number, updates: any, recurringOptions?: any) => void;
+  onActivityDelete: (activityId: number, deleteOption?: DeleteRecurringOption) => void;
+  onActivityUpdate: (activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => void;
 }
 
-const WeekViewDay: React.FC<WeekViewDayProps> = ({
+const WeekViewDay: React.FC<WeekViewDayProps> = memo(({
   day,
   dayIndex,
   dayActivities,
@@ -24,12 +26,14 @@ const WeekViewDay: React.FC<WeekViewDayProps> = ({
   onActivityDelete,
   onActivityUpdate
 }) => {
+  const isToday = day.toDateString() === new Date().toDateString();
+
   return (
     <div 
       className="flex-1 border-r border-gray-200 last:border-r-0 relative min-w-[120px] cursor-pointer"
       onClick={(e) => onEmptyAreaClick(e, dayIndex)}
     >
-      {/* Сетка часов */}
+      {/* Hour grid */}
       {hours.map((hour) => (
         <div 
           key={hour}
@@ -38,12 +42,10 @@ const WeekViewDay: React.FC<WeekViewDayProps> = ({
         />
       ))}
       
-      {/* Индикатор текущего времени только для сегодня */}
-      {day.toDateString() === new Date().toDateString() && (
-        <CurrentTimeIndicator />
-      )}
+      {/* Current time indicator */}
+      {isToday && <CurrentTimeIndicator />}
       
-      {/* Активности для этого дня */}
+      {/* Activities */}
       {dayActivities.map((layout, activityIndex) => (
         <div key={`${dayIndex}-${layout.activity.id}-${activityIndex}`} data-activity-card>
           <ActivityCard
@@ -57,6 +59,8 @@ const WeekViewDay: React.FC<WeekViewDayProps> = ({
       ))}
     </div>
   );
-};
+});
+
+WeekViewDay.displayName = 'WeekViewDay';
 
 export default WeekViewDay;

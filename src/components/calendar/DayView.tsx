@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
@@ -24,29 +24,25 @@ const DayView: React.FC<DayViewProps> = ({
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
-  // Используем активности из контекста
-  const { activities, getActivitiesForDate, toggleActivityComplete, addActivity, updateActivity, deleteActivity } = useActivities();
+  const { getActivitiesForDate, toggleActivityComplete, addActivity, updateActivity, deleteActivity } = useActivities();
 
-  // Получаем активности для выбранной даты
-  const currentDateString = currentDate.toISOString().split('T')[0];
-  const dayActivities = getActivitiesForDate(currentDateString);
+  const currentDateString = useMemo(() => currentDate.toISOString().split('T')[0], [currentDate]);
+  const dayActivities = useMemo(() => getActivitiesForDate(currentDateString), [getActivitiesForDate, currentDateString]);
 
   console.log('DayView current date:', currentDateString);
   console.log('DayView activities for date:', dayActivities.length);
 
-  // Обработчик переключения состояния активности
-  const handleActivityToggle = (activityId: number) => {
+  const handleActivityToggle = useCallback((activityId: number) => {
     toggleActivityComplete(activityId);
-  };
+  }, [toggleActivityComplete]);
 
-  // Фильтруем активности по выбранным типам
-  const visibleActivities = dayActivities.filter(activity => 
+  const visibleActivities = useMemo(() => dayActivities.filter(activity => 
     !filteredTypes.has(activity.type)
-  );
+  ), [dayActivities, filteredTypes]);
 
   console.log('Visible activities count:', visibleActivities.length);
 
-  const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     
     if (target.closest('[data-activity-card]')) {
@@ -56,7 +52,6 @@ const DayView: React.FC<DayViewProps> = ({
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     
-    // Используем соотношение 90px на час
     const hourFromTop = Math.floor(clickY / 90);
     const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
@@ -64,38 +59,36 @@ const DayView: React.FC<DayViewProps> = ({
     
     setSelectedTime(clickTime);
     setIsCreateDialogOpen(true);
-  };
+  }, []);
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    // Устанавливаем дату из currentDate, если она не указана
+  const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     const activityWithDate = {
       ...newActivity,
       date: newActivity.date || currentDateString
     };
     console.log('Creating activity in DayView:', activityWithDate, 'with recurring:', recurringOptions);
     addActivity(activityWithDate, recurringOptions);
-  };
+  }, [addActivity, currentDateString]);
 
-  const handleActivityUpdate = (activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('DayView handleActivityUpdate:', activityId, updates, recurringOptions);
     
-    // Используем обновленный метод updateActivity с поддержкой recurring options
     updateActivity(activityId, updates, recurringOptions);
     
     if (onUpdateActivity) {
       onUpdateActivity(activityId, updates);
     }
-  };
+  }, [updateActivity, onUpdateActivity]);
 
-  const handleActivityDelete = (id: number, deleteOption?: DeleteRecurringOption) => {
+  const handleActivityDelete = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
     console.log('DayView handleActivityDelete:', id, deleteOption);
     deleteActivity(id, deleteOption);
     if (onDeleteActivity) {
       onDeleteActivity(id, deleteOption);
     }
-  };
+  }, [deleteActivity, onDeleteActivity]);
 
-  const handleTypeFilterChange = (type: string, checked: boolean) => {
+  const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
     console.log('Filter change:', type, checked);
     setFilteredTypes(prev => {
       const newFiltered = new Set(prev);
@@ -107,19 +100,19 @@ const DayView: React.FC<DayViewProps> = ({
       console.log('New filtered types:', Array.from(newFiltered));
       return newFiltered;
     });
-  };
+  }, []);
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = useCallback((date: Date) => {
     console.log('Date selected in DayView:', date);
     if (onDateChange) {
       onDateChange(date);
     }
-  };
+  }, [onDateChange]);
 
   return (
     <>
       <div className="flex gap-4">
-        {/* Левая панель с календарем и фильтрами */}
+        {/* Left sidebar */}
         <DayViewSidebar
           currentDate={currentDate}
           activities={dayActivities}
@@ -128,7 +121,7 @@ const DayView: React.FC<DayViewProps> = ({
           onDateSelect={handleDateSelect}
         />
 
-        {/* Основная область календаря */}
+        {/* Main calendar area */}
         <DayViewCalendar
           visibleActivities={visibleActivities}
           currentDate={currentDate}

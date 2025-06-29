@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 import { calculateActivityLayouts } from '../utils/timeUtils';
@@ -13,7 +13,7 @@ export const useWeekView = (currentDate: Date) => {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
 
-  const getWeekDays = () => {
+  const weekDays = useMemo(() => {
     const startOfWeek = new Date(currentDate);
     const dayOfWeek = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
@@ -26,11 +26,9 @@ export const useWeekView = (currentDate: Date) => {
       days.push(day);
     }
     return days;
-  };
+  }, [currentDate]);
 
-  const weekDays = getWeekDays();
-
-  const getWeekActivities = () => {
+  const getWeekActivities = useCallback(() => {
     const weekActivities = [];
     weekDays.forEach(day => {
       const dayString = formatDateToString(day);
@@ -39,9 +37,9 @@ export const useWeekView = (currentDate: Date) => {
     });
     console.log('Week activities total:', weekActivities.length);
     return weekActivities;
-  };
+  }, [weekDays, getActivitiesForDate]);
 
-  const getActivitiesForDay = (day: Date) => {
+  const getActivitiesForDay = useCallback((day: Date) => {
     const dayString = formatDateToString(day);
     const dayActivities = getActivitiesForDate(dayString);
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
@@ -53,9 +51,9 @@ export const useWeekView = (currentDate: Date) => {
     console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     
     return calculateActivityLayouts(filteredActivities);
-  };
+  }, [getActivitiesForDate, filteredTypes]);
 
-  const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
+  const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
     const target = e.target as HTMLElement;
     
     if (target.closest('[data-activity-card]')) {
@@ -76,33 +74,33 @@ export const useWeekView = (currentDate: Date) => {
     setSelectedTime(clickTime);
     setSelectedDate(clickDate);
     setIsCreateDialogOpen(true);
-  };
+  }, [weekDays]);
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     const activityWithDate = {
       ...newActivity,
       date: newActivity.date || selectedDate
     };
     console.log('Creating activity in WeekView:', activityWithDate);
     addActivity(activityWithDate, recurringOptions);
-  };
+  }, [selectedDate, addActivity]);
 
-  const handleActivityUpdate = (activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
     console.log('WeekView updating activity:', activityId, updates);
     updateActivity(activityId, updates, recurringOptions);
-  };
+  }, [updateActivity]);
 
-  const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
+  const handleActivityDelete = useCallback((activityId: number, deleteOption?: DeleteRecurringOption) => {
     console.log('WeekView deleting activity:', activityId, deleteOption);
     deleteActivity(activityId, deleteOption);
-  };
+  }, [deleteActivity]);
 
-  const handleActivityToggle = (activityId: number) => {
+  const handleActivityToggle = useCallback((activityId: number) => {
     console.log('WeekView toggling activity:', activityId);
     toggleActivityComplete(activityId);
-  };
+  }, [toggleActivityComplete]);
 
-  const handleTypeFilterChange = (type: string, checked: boolean) => {
+  const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
     setFilteredTypes(prev => {
       const newSet = new Set(prev);
       if (checked) {
@@ -113,7 +111,7 @@ export const useWeekView = (currentDate: Date) => {
       console.log('Week view filter change:', type, checked, Array.from(newSet));
       return newSet;
     });
-  };
+  }, []);
 
   return {
     scrollAreaRef,

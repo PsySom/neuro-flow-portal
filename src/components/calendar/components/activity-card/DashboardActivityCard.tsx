@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,18 +28,24 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   const { activity } = layout;
 
   const getDisplayType = (type: string) => {
-    switch (type) {
-      case 'восстановление': return 'восстанавливающая';
-      case 'нейтральная': return 'нейтральная';
-      case 'смешанная': return 'смешанная';
-      case 'задача': return 'истощающая';
-      default: return type;
-    }
+    const typeMap: Record<string, string> = {
+      'восстановление': 'восстанавливающая',
+      'нейтральная': 'нейтральная',
+      'смешанная': 'смешанная',
+      'задача': 'истощающая'
+    };
+    return typeMap[type] || type;
   };
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+  };
+
+  const renderStars = () => {
+    return Array.from({ length: activity.importance }, (_, i) => (
+      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+    ));
   };
 
   return (
@@ -49,7 +56,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       }`}
       onClick={onCardClick}
     >
-      {/* Верхняя строка: чекбокс + название + кнопки */}
+      {/* Header row */}
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-start space-x-3 flex-1">
           <Checkbox 
@@ -89,18 +96,16 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
         </div>
       </div>
 
-      {/* Вторая строка: время + продолжительность + звезды */}
+      {/* Time and stars row */}
       <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
         <span className="font-medium">[{activity.startTime}-{activity.endTime}]</span>
         <span>[{activity.duration}]</span>
         <div className="flex items-center">
-          {Array.from({ length: activity.importance }, (_, i) => (
-            <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          ))}
+          {renderStars()}
         </div>
       </div>
 
-      {/* Третья строка: тип + эмодзи */}
+      {/* Type and emoji row */}
       <div className="flex items-center space-x-2">
         <Badge variant="secondary" className="text-xs">
           {getDisplayType(activity.type)}

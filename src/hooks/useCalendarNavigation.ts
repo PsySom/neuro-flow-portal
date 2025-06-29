@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export type ViewType = 'day' | 'week' | 'month';
 
@@ -7,21 +7,23 @@ export const useCalendarNavigation = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ViewType>('day');
 
-  const navigateDate = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate);
-    
-    if (view === 'day') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
-    } else if (view === 'week') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-    } else if (view === 'month') {
-      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
-    }
-    
-    setCurrentDate(newDate);
-  };
+  const navigateDate = useCallback((direction: 'prev' | 'next') => {
+    setCurrentDate(prevDate => {
+      const newDate = new Date(prevDate);
+      
+      if (view === 'day') {
+        newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+      } else if (view === 'week') {
+        newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+      } else if (view === 'month') {
+        newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+      }
+      
+      return newDate;
+    });
+  }, [view]);
 
-  const getDateTitle = () => {
+  const getDateTitle = useCallback(() => {
     const options: Intl.DateTimeFormatOptions = {};
     
     if (view === 'day') {
@@ -44,7 +46,7 @@ export const useCalendarNavigation = () => {
     }
     
     return currentDate.toLocaleDateString('ru-RU', options);
-  };
+  }, [currentDate, view]);
 
   return {
     currentDate,

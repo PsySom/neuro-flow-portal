@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import DayViewSidebar from './components/DayViewSidebar';
 import CreateActivityDialog from './components/CreateActivityDialog';
@@ -13,7 +13,7 @@ interface WeekViewProps {
   onDateChange?: (date: Date) => void;
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
+const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) => {
   const {
     scrollAreaRef,
     filteredTypes,
@@ -66,7 +66,7 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
                     
                     return (
                       <WeekViewDay
-                        key={dayIndex}
+                        key={`${day.toISOString()}-${dayIndex}`}
                         day={day}
                         dayIndex={dayIndex}
                         dayActivities={dayActivities}
@@ -94,6 +94,8 @@ const WeekView: React.FC<WeekViewProps> = ({ currentDate, onDateChange }) => {
       />
     </>
   );
-};
+});
+
+WeekView.displayName = 'WeekView';
 
 export default WeekView;

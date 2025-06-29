@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarControls from '@/components/calendar/CalendarControls';
@@ -26,33 +26,38 @@ const Calendar = () => {
     getDateTitle
   } = useCalendarNavigation();
 
-  const handleViewChange = (value: string) => {
+  const handleViewChange = useCallback((value: string) => {
     setView(value as 'day' | 'week' | 'month');
-  };
+  }, [setView]);
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     const activityWithDate = {
       ...newActivity,
       date: newActivity.date || currentDate.toISOString().split('T')[0]
     };
     console.log('Creating activity in Calendar:', activityWithDate, 'with recurring:', recurringOptions);
     addActivity(activityWithDate, recurringOptions);
-  };
+  }, [currentDate, addActivity]);
 
-  const handleDateChange = (newDate: Date) => {
+  const handleDateChange = useCallback((newDate: Date) => {
     console.log('Date changed in Calendar:', newDate);
     setCurrentDate(newDate);
-  };
+  }, [setCurrentDate]);
 
-  const handleActivityUpdate = (activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('Calendar handleActivityUpdate:', activityId, updates, recurringOptions);
     updateActivity(activityId, updates, recurringOptions);
-  };
+  }, [updateActivity]);
 
-  const handleActivityDelete = (id: number, deleteOption?: DeleteRecurringOption) => {
+  const handleActivityDelete = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
     console.log('Calendar handleActivityDelete:', id, deleteOption);
     deleteActivity(id, deleteOption);
-  };
+  }, [deleteActivity]);
+
+  const handleNavigatePrev = useCallback(() => navigateDate('prev'), [navigateDate]);
+  const handleNavigateNext = useCallback(() => navigateDate('next'), [navigateDate]);
+  const handleToday = useCallback(() => setCurrentDate(new Date()), [setCurrentDate]);
+  const handleCreateActivity = useCallback(() => setIsCreateDialogOpen(true), []);
 
   return (
     <>
@@ -62,10 +67,10 @@ const Calendar = () => {
         
         <CalendarControls
           dateTitle={getDateTitle()}
-          onNavigatePrev={() => navigateDate('prev')}
-          onNavigateNext={() => navigateDate('next')}
-          onToday={() => setCurrentDate(new Date())}
-          onCreateActivity={() => setIsCreateDialogOpen(true)}
+          onNavigatePrev={handleNavigatePrev}
+          onNavigateNext={handleNavigateNext}
+          onToday={handleToday}
+          onCreateActivity={handleCreateActivity}
         />
 
         {/* Calendar Content */}
