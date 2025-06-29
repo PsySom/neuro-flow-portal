@@ -134,7 +134,8 @@ const ClarifyingQuestionsStep = ({
           <div className="flex items-center space-x-2">
             <Checkbox
               id="cognitiveBias"
-              {...form.register('hasCognitiveBias')}
+              checked={form.watch('hasCognitiveBias')}
+              onCheckedChange={(checked) => form.setValue('hasCognitiveBias', !!checked)}
             />
             <Label htmlFor="cognitiveBias">
               Были ли среди этих мыслей категоричные («я всегда», «я не могу», «у меня не получится»)?
