@@ -41,8 +41,8 @@ const ArticleAccordionNav: React.FC<AccordionNavProps> = ({ activeSection, onSec
       icon: Wrench,
       subsections: [
         { id: 'tests', title: 'Диагностические тесты' },
-        { id: 'diaries', title: 'Дневники для работы с депрессией' },
-        { id: 'exercises', title: 'Упражнения и практики' }
+        { id: 'diaries', title: 'Дневники' },
+        { id: 'exercises', title: 'Упражнения' }
       ]
     }
   ];
