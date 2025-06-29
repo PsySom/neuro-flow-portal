@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
@@ -33,7 +33,6 @@ const DayView: React.FC<DayViewProps> = ({
 
   console.log('DayView current date:', currentDateString);
   console.log('DayView activities for date:', dayActivities.length);
-  console.log('All activities:', activities.length);
 
   // Обработчик переключения состояния активности
   const handleActivityToggle = (activityId: number) => {
@@ -89,6 +88,7 @@ const DayView: React.FC<DayViewProps> = ({
   };
 
   const handleActivityDelete = (id: number, deleteOption?: DeleteRecurringOption) => {
+    console.log('DayView handleActivityDelete:', id, deleteOption);
     deleteActivity(id, deleteOption);
     if (onDeleteActivity) {
       onDeleteActivity(id, deleteOption);

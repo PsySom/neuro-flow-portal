@@ -35,6 +35,7 @@ interface ActivitiesContextType {
   toggleActivityComplete: (id: number) => void;
   getActivitiesForDate: (date: string) => Activity[];
   getActivitiesForDateRange: (startDate: string, endDate: string) => Activity[];
+  getCurrentDateString: () => string;
 }
 
 const ActivitiesContext = createContext<ActivitiesContextType | undefined>(undefined);
@@ -67,14 +68,20 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       console.error('Error loading activities from localStorage:', error);
     }
     
-    // Если нет сохраненных данных, используем начальные данные
-    const currentDate = '2025-06-23';
+    // Если нет сохраненных данных, используем начальные данные для текущего дня
+    const currentDate = getCurrentDateString();
     const activitiesWithCorrectDate = initialActivities.map(activity => ({
       ...activity,
       date: currentDate
     }));
-    console.log('Using initial activities:', activitiesWithCorrectDate.length, 'activities');
+    console.log('Using initial activities for current date:', activitiesWithCorrectDate.length, 'activities');
     return activitiesWithCorrectDate;
+  };
+
+  // Функция для получения текущей даты в формате строки
+  const getCurrentDateString = (): string => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
   };
 
   const [activities, setActivities] = useState<Activity[]>(() => {
@@ -110,7 +117,8 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       // Убеждаемся, что у активности уникальный ID
       const activityWithUniqueId = {
         ...activity,
-        id: activity.id || generateUniqueId()
+        id: activity.id || generateUniqueId(),
+        date: activity.date || getCurrentDateString() // Используем текущую дату, если не указана
       };
       
       if (recurringOptions && recurringOptions.type !== 'none') {
@@ -142,7 +150,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
         return prev;
       }
 
-      console.log('Updating activity:', id, 'with recurring options:', recurringOptions);
+      console.log('Updating activity:', id, 'with updates:', updates, 'recurring options:', recurringOptions);
 
       // Обновляем основную активность
       let updatedActivities = prev.map(activity => 
@@ -155,7 +163,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       if (recurringOptions && recurringOptions.type !== 'none') {
         const updatedActivity = updatedActivities.find(a => a.id === id);
         if (updatedActivity) {
-          // Удаляем все старые повторения этой активности (включая саму активность, если она была повторяющейся)
+          // Удаляем все старые повторения этой активности
           const originalId = activityToUpdate.recurring?.originalId || id;
           updatedActivities = updatedActivities.filter(activity => 
             activity.id !== originalId && activity.recurring?.originalId !== originalId
@@ -173,8 +181,6 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
           const recurringActivities = generateRecurringActivities(baseActivity, recurringOptions, startDate);
           
           console.log('Generated new recurring activities for update:', recurringActivities.length, 'activities');
-          console.log('New recurring activities dates:', recurringActivities.map(a => a.date));
-          
           updatedActivities = [...updatedActivities, ...recurringActivities];
         }
       }
@@ -196,16 +202,22 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
       
       if (!activityToDelete) return prev;
 
+      console.log('Deleting activity:', id, 'with option:', deleteOption);
+
       if (deleteOption === 'all' && (activityToDelete.recurring || 
           prev.some(a => a.recurring?.originalId === id))) {
         // Удаляем все повторяющиеся активности
         const originalId = activityToDelete.recurring?.originalId || id;
-        return prev.filter(activity => 
+        const filteredActivities = prev.filter(activity => 
           activity.id !== originalId && activity.recurring?.originalId !== originalId
         );
+        console.log('Deleted all recurring activities for:', originalId);
+        return filteredActivities;
       } else {
         // Удаляем только выбранную активность
-        return prev.filter(activity => activity.id !== id);
+        const filteredActivities = prev.filter(activity => activity.id !== id);
+        console.log('Deleted single activity:', id);
+        return filteredActivities;
       }
     });
   };
@@ -218,6 +230,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
           : activity
       )
     );
+    console.log('Toggled activity completion:', id);
   };
 
   const getActivitiesForDate = (date: string): Activity[] => {
@@ -241,6 +254,7 @@ export const ActivitiesProvider: React.FC<ActivitiesProviderProps> = ({ children
     toggleActivityComplete,
     getActivitiesForDate,
     getActivitiesForDateRange,
+    getCurrentDateString,
   };
 
   return (

@@ -33,7 +33,7 @@ const Calendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
-  const { addActivity, updateActivity, deleteActivity } = useActivities();
+  const { addActivity, updateActivity, deleteActivity, getCurrentDateString } = useActivities();
   const { user } = useAuth();
 
   const getUserInitial = () => {
@@ -89,13 +89,29 @@ const Calendar = () => {
     return currentDate.toLocaleDateString('ru-RU', options);
   };
 
-  const handleActivityCreate = (activity: any, recurringOptions?: any) => {
-    addActivity(activity, recurringOptions);
+  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
+    // Если дата не указана, используем текущую выбранную дату в календаре
+    const activityWithDate = {
+      ...newActivity,
+      date: newActivity.date || currentDate.toISOString().split('T')[0]
+    };
+    console.log('Creating activity in Calendar:', activityWithDate, 'with recurring:', recurringOptions);
+    addActivity(activityWithDate, recurringOptions);
   };
 
   const handleDateChange = (newDate: Date) => {
     console.log('Date changed in Calendar:', newDate);
     setCurrentDate(newDate);
+  };
+
+  const handleActivityUpdate = (activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    console.log('Calendar handleActivityUpdate:', activityId, updates, recurringOptions);
+    updateActivity(activityId, updates, recurringOptions);
+  };
+
+  const handleActivityDelete = (id: number, deleteOption?: DeleteRecurringOption) => {
+    console.log('Calendar handleActivityDelete:', id, deleteOption);
+    deleteActivity(id, deleteOption);
   };
 
   return (
@@ -212,8 +228,8 @@ const Calendar = () => {
             <TabsContent value="day" className="mt-0">
               <DayView 
                 currentDate={currentDate} 
-                onUpdateActivity={updateActivity}
-                onDeleteActivity={deleteActivity}
+                onUpdateActivity={handleActivityUpdate}
+                onDeleteActivity={handleActivityDelete}
                 onDateChange={handleDateChange}
               />
             </TabsContent>
@@ -236,6 +252,7 @@ const Calendar = () => {
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onActivityCreate={handleActivityCreate}
+        initialDate={currentDate.toISOString().split('T')[0]}
       />
     </>
   );
