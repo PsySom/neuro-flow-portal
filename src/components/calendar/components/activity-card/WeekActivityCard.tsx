@@ -6,14 +6,27 @@ interface WeekActivityCardProps {
   layout: ActivityLayout;
   cardRef: React.RefObject<HTMLDivElement>;
   onCardClick: (e: React.MouseEvent) => void;
+  onInfoClick: (e: React.MouseEvent) => void;
+  onEditClick: (e: React.MouseEvent) => void;
+  onDeleteClick: (e: React.MouseEvent) => void;
+  onCheckboxToggle: () => void;
 }
 
 const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
   layout,
   cardRef,
-  onCardClick
+  onCardClick,
+  onInfoClick,
+  onEditClick,
+  onDeleteClick,
+  onCheckboxToggle
 }) => {
   const { activity, top, height, left, width } = layout;
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
 
   return (
     <div
@@ -31,12 +44,12 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
       }}
       onClick={onCardClick}
     >
-      {/* Только название */}
+      {/* Название активности */}
       <div className="font-medium text-xs truncate leading-tight mb-1">
         {activity.name}
       </div>
 
-      {/* Только время начала и окончания */}
+      {/* Время начала и окончания */}
       <div className="text-xs text-gray-600">
         <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
       </div>

@@ -125,6 +125,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             layout={layout}
             cardRef={cardRef}
             onCardClick={handleCardClick}
+            onInfoClick={handleInfoClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+            onCheckboxToggle={handleCheckboxToggle}
           />
         );
       default:
