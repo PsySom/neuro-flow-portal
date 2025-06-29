@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { ActivityLayout } from '../types';
 import { Activity } from '@/contexts/ActivitiesContext';
@@ -36,33 +37,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    console.log('ActivityCard: Card clicked, viewType:', viewType, 'target:', e.target);
+    console.log('ActivityCard: Card clicked, viewType:', viewType);
     e.stopPropagation();
     
-    // Проверяем, что клик не по чекбоксу - упрощенная проверка
     const target = e.target as HTMLElement;
-    
-    // Проверяем различные способы идентификации чекбокса
-    if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
-      console.log('ActivityCard: Direct checkbox input clicked, ignoring');
-      return;
-    }
-    
-    // Проверяем родительские элементы на наличие чекбокса или его контейнера
-    const checkboxContainer = target.closest('[data-radix-collection-item]') || 
-                             target.closest('button[role="checkbox"]') ||
-                             target.closest('[role="checkbox"]');
-    
-    if (checkboxContainer) {
-      console.log('ActivityCard: Checkbox container clicked, ignoring');
-      return;
-    }
 
-    // Для дневного вида проверяем кнопки (кроме чекбокса)
+    // Для дневного вида проверяем кнопки
     if (viewType === 'day') {
-      const isActionButton = target.closest('button') && 
-                             !target.closest('button[role="checkbox"]') &&
-                             !target.closest('[data-radix-collection-item]');
+      const isActionButton = target.closest('button');
       if (isActionButton) {
         console.log('ActivityCard: Action button clicked in day view, ignoring');
         return;

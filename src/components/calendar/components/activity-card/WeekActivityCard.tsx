@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Star } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 
@@ -19,31 +18,9 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
 }) => {
   const { activity, top, height, left, width } = layout;
 
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    console.log('WeekActivityCard: Checkbox clicked, stopping propagation');
-    e.stopPropagation();
-  };
-
-  const handleCheckboxChange = () => {
-    console.log('WeekActivityCard: Checkbox changed');
-    onCheckboxToggle();
-  };
-
   const handleCardClick = (e: React.MouseEvent) => {
-    console.log('WeekActivityCard: Card clicked, target:', e.target);
-    
-    // Не передаем событие дальше, вызываем напрямую
-    const target = e.target as HTMLElement;
-    
-    // Если клик по чекбоксу - игнорируем
-    if (target.tagName === 'INPUT' || 
-        target.closest('[role="checkbox"]') ||
-        target.closest('[data-radix-collection-item]')) {
-      console.log('WeekActivityCard: Checkbox area clicked, ignoring card click');
-      return;
-    }
-    
-    console.log('WeekActivityCard: Calling onCardClick');
+    console.log('WeekActivityCard: Card clicked');
+    e.stopPropagation();
     onCardClick(e);
   };
 
@@ -63,15 +40,9 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
       }}
       onClick={handleCardClick}
     >
-      {/* Верхняя строка с чекбоксом и названием */}
-      <div className="flex items-center space-x-1 mb-1">
-        <Checkbox 
-          checked={activity.completed}
-          onCheckedChange={handleCheckboxChange}
-          className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
-          onClick={handleCheckboxClick}
-        />
-        <span className="font-medium text-xs truncate leading-tight flex-1">{activity.name}</span>
+      {/* Название активности */}
+      <div className="mb-1">
+        <span className="font-medium text-xs truncate leading-tight block">{activity.name}</span>
       </div>
 
       {/* Время + звезды важности */}

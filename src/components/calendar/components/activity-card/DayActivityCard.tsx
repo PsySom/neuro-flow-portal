@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 
@@ -26,9 +25,10 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
 }) => {
   const { activity, top, height, left, width } = layout;
 
-  const handleCheckboxClick = (e: React.MouseEvent) => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    console.log('DayActivityCard: Card clicked');
     e.stopPropagation();
-    e.preventDefault();
+    onCardClick(e);
   };
 
   return (
@@ -44,17 +44,11 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
         width: `${width}%`,
         zIndex: 1
       }}
-      onClick={onCardClick}
+      onClick={handleCardClick}
     >
-      {/* Верхняя строка с чекбоксом, названием и кнопками */}
+      {/* Верхняя строка с названием и кнопками */}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center space-x-1 flex-1 min-w-0">
-          <Checkbox 
-            checked={activity.completed}
-            onCheckedChange={onCheckboxToggle}
-            className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
-            onClick={handleCheckboxClick}
-          />
           <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
         </div>
         
