@@ -39,12 +39,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     onToggleComplete(layout.activity.id);
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    onToggleComplete(layout.activity.id);
+  };
+
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
     // Проверяем, что клик не по кнопкам или чекбоксу
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="checkbox"]')) {
+    if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('[data-state]')) {
       return;
     }
 
@@ -121,7 +125,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <div onClick={handleCheckboxToggle}>
             <Checkbox
               checked={layout.activity.completed}
-              onCheckedChange={() => onToggleComplete(layout.activity.id)}
+              onCheckedChange={handleCheckboxChange}
               className="w-5 h-5 rounded-sm mt-1 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
           </div>
@@ -201,7 +205,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <div onClick={handleCheckboxToggle}>
             <Checkbox 
               checked={layout.activity.completed}
-              onCheckedChange={() => onToggleComplete(layout.activity.id)}
+              onCheckedChange={handleCheckboxChange}
               className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
           </div>
