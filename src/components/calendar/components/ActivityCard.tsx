@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import { ActivityLayout } from '../types';
 import { Activity } from '@/contexts/ActivitiesContext';
@@ -40,24 +39,32 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     console.log('ActivityCard: Card clicked, viewType:', viewType, 'target:', e.target);
     e.stopPropagation();
     
-    // Проверяем, что клик не по чекбоксу
+    // Проверяем, что клик не по чекбоксу - упрощенная проверка
     const target = e.target as HTMLElement;
-    const isCheckboxClick = target.closest('[role="checkbox"]') || 
-                           target.closest('[data-state]') || 
-                           target.closest('button[role="checkbox"]') ||
-                           target.hasAttribute('data-state') ||
-                           target.closest('.peer'); // Для Shadcn checkbox
-
-    if (isCheckboxClick) {
-      console.log('ActivityCard: Click on checkbox detected, ignoring');
+    
+    // Проверяем различные способы идентификации чекбокса
+    if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
+      console.log('ActivityCard: Direct checkbox input clicked, ignoring');
+      return;
+    }
+    
+    // Проверяем родительские элементы на наличие чекбокса или его контейнера
+    const checkboxContainer = target.closest('[data-radix-collection-item]') || 
+                             target.closest('button[role="checkbox"]') ||
+                             target.closest('[role="checkbox"]');
+    
+    if (checkboxContainer) {
+      console.log('ActivityCard: Checkbox container clicked, ignoring');
       return;
     }
 
-    // Для дневного вида проверяем, что клик не по кнопкам (кроме чекбокса)
+    // Для дневного вида проверяем кнопки (кроме чекбокса)
     if (viewType === 'day') {
-      const isButtonClick = target.closest('button:not([role="checkbox"])');
-      if (isButtonClick) {
-        console.log('ActivityCard: Click on button detected in day view, ignoring');
+      const isActionButton = target.closest('button') && 
+                             !target.closest('button[role="checkbox"]') &&
+                             !target.closest('[data-radix-collection-item]');
+      if (isActionButton) {
+        console.log('ActivityCard: Action button clicked in day view, ignoring');
         return;
       }
     }

@@ -22,11 +22,28 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
   const handleCheckboxClick = (e: React.MouseEvent) => {
     console.log('WeekActivityCard: Checkbox clicked, stopping propagation');
     e.stopPropagation();
-    e.preventDefault();
+  };
+
+  const handleCheckboxChange = () => {
+    console.log('WeekActivityCard: Checkbox changed');
+    onCheckboxToggle();
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    console.log('WeekActivityCard: Card clicked');
+    console.log('WeekActivityCard: Card clicked, target:', e.target);
+    
+    // Не передаем событие дальше, вызываем напрямую
+    const target = e.target as HTMLElement;
+    
+    // Если клик по чекбоксу - игнорируем
+    if (target.tagName === 'INPUT' || 
+        target.closest('[role="checkbox"]') ||
+        target.closest('[data-radix-collection-item]')) {
+      console.log('WeekActivityCard: Checkbox area clicked, ignoring card click');
+      return;
+    }
+    
+    console.log('WeekActivityCard: Calling onCardClick');
     onCardClick(e);
   };
 
@@ -50,7 +67,7 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
       <div className="flex items-center space-x-1 mb-1">
         <Checkbox 
           checked={activity.completed}
-          onCheckedChange={onCheckboxToggle}
+          onCheckedChange={handleCheckboxChange}
           className="w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
           onClick={handleCheckboxClick}
         />
