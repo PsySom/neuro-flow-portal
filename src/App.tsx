@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Calendar from './pages/Calendar';
+import Diaries from './pages/Diaries';
 import KnowledgeBase from './pages/KnowledgeBase';
 import Practices from './pages/Practices';
 import About from './pages/About';
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/calendar" element={<Calendar />} />
+                <Route path="/diaries" element={<Diaries />} />
                 <Route path="/knowledge" element={<KnowledgeBase />} />
                 <Route path="/practices" element={<Practices />} />
                 <Route path="/about" element={<About />} />
