@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -31,7 +32,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
   const [priority, setPriority] = useState(1);
   const [selectedColor, setSelectedColor] = useState('bg-blue-200');
   const [note, setNote] = useState('');
-  const [repeatType, setRepeatType] = useState('');
+  const [repeatType, setRepeatType] = useState('none');
 
   const { addActivity, getCurrentDateString } = useActivities();
 
@@ -69,6 +70,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
 
   const handleSave = () => {
     if (!activityName.trim() || !activityType || !startTime || !endTime) {
+      console.log('Validation failed: missing required fields');
       return;
     }
 
@@ -97,11 +99,13 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       recurringOptions = {
         type: repeatType as 'daily' | 'weekly' | 'monthly',
         interval: 1,
-        maxOccurrences: repeatType === 'daily' ? 10 : 30 // 10 дней для ежедневных повторений
+        maxOccurrences: repeatType === 'daily' ? 10 : 30
       };
     }
 
-    console.log('Creating activity with recurring options:', recurringOptions);
+    console.log('Creating activity from dashboard:', newActivity);
+    console.log('With recurring options:', recurringOptions);
+    
     addActivity(newActivity, recurringOptions);
     handleClose();
   };
@@ -114,7 +118,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     setPriority(1);
     setSelectedColor('bg-blue-200');
     setNote('');
-    setRepeatType('');
+    setRepeatType('none');
     onOpenChange(false);
   };
 
@@ -210,7 +214,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     <SelectValue placeholder="Выберите тип повторения" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Не повторять</SelectItem>
+                    <SelectItem value="none">Не повторять</SelectItem>
                     <SelectItem value="daily">Ежедневно (10 дней)</SelectItem>
                     <SelectItem value="weekly">Еженедельно</SelectItem>
                     <SelectItem value="monthly">Ежемесячно</SelectItem>
