@@ -53,7 +53,6 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
   const getActivitiesForDateObj = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
     const activities = getActivitiesForDate(dateString);
-    console.log(`MonthView: Activities for ${dateString}:`, activities.length, activities);
     return activities;
   };
 
@@ -97,6 +96,11 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
                   }`}>
                     {date.getDate()}
                   </span>
+                  {activities.length > 0 && (
+                    <span className="text-xs text-gray-500 bg-gray-200 rounded-full px-1">
+                      {activities.length}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex-1 space-y-1 overflow-hidden">
@@ -138,7 +142,7 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
         <div className="mt-4 flex flex-wrap gap-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-blue-200 rounded"></div>
-            <span className="text-sm text-gray-600">Работа</span>
+            <span className="text-sm text-gray-600">Задачи</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-200 rounded"></div>
@@ -146,11 +150,11 @@ const MonthView: React.FC<MonthViewProps> = ({ currentDate }) => {
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-purple-200 rounded"></div>
-            <span className="text-sm text-gray-600">Личное</span>
+            <span className="text-sm text-gray-600">Смешанные</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-orange-200 rounded"></div>
-            <span className="text-sm text-gray-600">Здоровье</span>
+            <span className="text-sm text-gray-600">Нейтральные</span>
           </div>
         </div>
       </CardContent>

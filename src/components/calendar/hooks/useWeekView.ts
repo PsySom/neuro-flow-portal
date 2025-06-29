@@ -2,9 +2,10 @@
 import { useState, useRef } from 'react';
 import { useActivities } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
+import { calculateActivityLayouts } from '../utils/timeUtils';
 
 export const useWeekView = (currentDate: Date) => {
-  const { activities, getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete, addActivity } = useActivities();
+  const { getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete, addActivity } = useActivities();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -35,41 +36,22 @@ export const useWeekView = (currentDate: Date) => {
       const dayActivities = getActivitiesForDate(dayString);
       weekActivities.push(...dayActivities);
     });
+    console.log('Week activities total:', weekActivities.length);
     return weekActivities;
   };
 
   const getActivitiesForDay = (day: Date) => {
     const dayString = day.toISOString().split('T')[0];
     const dayActivities = getActivitiesForDate(dayString);
+    console.log(`Activities for ${dayString}:`, dayActivities.length);
+    
     const filteredActivities = dayActivities.filter(activity => 
       !filteredTypes.has(activity.type)
     );
     
-    return filteredActivities.map(activity => {
-      const [startHour, startMin] = activity.startTime.split(':').map(Number);
-      const [endHour, endMin] = activity.endTime.split(':').map(Number);
-      
-      let startMinutes = startHour * 60 + startMin;
-      let endMinutes = endHour * 60 + endMin;
-      
-      if (endMinutes < startMinutes) {
-        endMinutes += 24 * 60;
-      }
-      
-      const duration = endMinutes - startMinutes;
-      const topPosition = (startMinutes / 60) * 90;
-      const height = Math.max((duration / 60) * 90, 30);
-      
-      return {
-        activity,
-        top: topPosition,
-        height,
-        left: 0,
-        width: 100,
-        column: 0,
-        totalColumns: 1
-      };
-    });
+    console.log(`Filtered activities for ${dayString}:`, filteredActivities.length);
+    
+    return calculateActivityLayouts(filteredActivities);
   };
 
   const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
@@ -88,6 +70,8 @@ export const useWeekView = (currentDate: Date) => {
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
     const clickDate = weekDays[dayIndex].toISOString().split('T')[0];
     
+    console.log('Week view click:', clickTime, clickDate);
+    
     setSelectedTime(clickTime);
     setSelectedDate(clickDate);
     setIsCreateDialogOpen(true);
@@ -98,18 +82,22 @@ export const useWeekView = (currentDate: Date) => {
       ...newActivity,
       date: newActivity.date || selectedDate
     };
+    console.log('Creating activity in WeekView:', activityWithDate);
     addActivity(activityWithDate, recurringOptions);
   };
 
   const handleActivityUpdate = (activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
+    console.log('WeekView updating activity:', activityId, updates);
     updateActivity(activityId, updates, recurringOptions);
   };
 
   const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
+    console.log('WeekView deleting activity:', activityId, deleteOption);
     deleteActivity(activityId, deleteOption);
   };
 
   const handleActivityToggle = (activityId: number) => {
+    console.log('WeekView toggling activity:', activityId);
     toggleActivityComplete(activityId);
   };
 
@@ -121,6 +109,7 @@ export const useWeekView = (currentDate: Date) => {
       } else {
         newSet.add(type);
       }
+      console.log('Week view filter change:', type, checked, Array.from(newSet));
       return newSet;
     });
   };
@@ -133,7 +122,6 @@ export const useWeekView = (currentDate: Date) => {
     selectedTime,
     selectedDate,
     weekDays,
-    activities,
     getWeekActivities,
     getActivitiesForDay,
     handleEmptyAreaClick,
