@@ -66,7 +66,9 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
       top,
       height,
       left: leftPercent,
-      width: widthPercent
+      width: widthPercent,
+      column: columnIndex,
+      totalColumns
     });
   }
 
@@ -95,4 +97,16 @@ export const isCurrentTimeInRange = (startTime: string, endTime: string): boolea
   const endMinutes = parseTime(endTime);
   
   return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+};
+
+// Генерируем часовые отметки
+export const generateTimeMarkers = () => {
+  return Array.from({ length: 25 }, (_, i) => {
+    const hour = i;
+    return {
+      hour,
+      time: `${hour.toString().padStart(2, '0')}:00`,
+      position: hour * 90 // 90px на час
+    };
+  });
 };
