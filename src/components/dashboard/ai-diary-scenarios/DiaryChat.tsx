@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +25,8 @@ interface DiaryChatProps {
   currentSession: DiarySession;
   currentQuestion: Question | null;
   setCurrentQuestion: React.Dispatch<React.SetStateAction<Question | null>>;
-  currentResponse: any;
-  setCurrentResponse: React.Dispatch<React.SetStateAction<any>>;
+  currentResponse: string | number | string[] | number[];
+  setCurrentResponse: React.Dispatch<React.SetStateAction<string | number | string[] | number[]>>;
   isCompleted: boolean;
   setIsCompleted: React.Dispatch<React.SetStateAction<boolean>>;
   completionMessage: string;
@@ -65,8 +65,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Improved auto-scroll function
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ 
         behavior: 'smooth', 
@@ -74,28 +73,22 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         inline: 'nearest'
       });
     }
-  };
+  }, []);
 
-  // Force scroll to bottom with delay for proper rendering
-  const forceScrollToBottom = () => {
-    setTimeout(() => scrollToBottom(), 50);
-    setTimeout(() => scrollToBottom(), 150);
-    setTimeout(() => scrollToBottom(), 300);
-  };
-
-  // Scroll to bottom when messages change
+  // Optimized scroll effect - only trigger when messages change or transitioning stops
   useEffect(() => {
-    forceScrollToBottom();
-  }, [chatMessages]);
-
-  // Additional scroll effect for transitions
-  useEffect(() => {
-    if (!isTransitioning) {
-      forceScrollToBottom();
+    if (chatMessages.length > 0 || !isTransitioning) {
+      const timeouts = [
+        setTimeout(scrollToBottom, 50),
+        setTimeout(scrollToBottom, 150),
+        setTimeout(scrollToBottom, 300)
+      ];
+      
+      return () => timeouts.forEach(clearTimeout);
     }
-  }, [isTransitioning]);
+  }, [chatMessages.length, isTransitioning, scrollToBottom]);
 
-  const handleSendTextMessage = () => {
+  const handleSendTextMessage = useCallback(() => {
     if (!inputMessage.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -108,7 +101,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     setChatMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const aiResponse: ChatMessage = {
         id: `ai_${Date.now()}`,
         type: 'ai',
@@ -117,9 +110,11 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
       };
       setChatMessages(prev => [...prev, aiResponse]);
     }, 1000);
-  };
 
-  const handleQuestionResponse = () => {
+    return () => clearTimeout(timeoutId);
+  }, [inputMessage, setChatMessages, setInputMessage]);
+
+  const handleQuestionResponse = useCallback(() => {
     if (!currentSession || !currentQuestion || currentResponse === '') return;
 
     setIsTransitioning(true);
@@ -135,7 +130,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     setChatMessages(prev => [...prev, userResponseMessage]);
     setCurrentQuestion(null);
 
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
         currentQuestion.id,
         currentResponse
@@ -148,7 +143,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         diaryEngine.saveSession(currentSession);
         setTodaySessions(diaryEngine.getTodaySessions());
 
-        setTimeout(() => {
+        const completionTimeoutId = setTimeout(() => {
           const completionChatMessage: ChatMessage = {
             id: `completion_${Date.now()}`,
             type: 'ai',
@@ -158,10 +153,12 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
           setChatMessages(prev => [...prev, completionChatMessage]);
           setIsTransitioning(false);
         }, 800);
+
+        return () => clearTimeout(completionTimeoutId);
       } else if (nextQuestion) {
         setCurrentQuestion(nextQuestion);
         
-        setTimeout(() => {
+        const questionTimeoutId = setTimeout(() => {
           const nextQuestionMessage: ChatMessage = {
             id: `question_${Date.now()}`,
             type: 'question',
@@ -173,18 +170,22 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
           setChatMessages(prev => [...prev, nextQuestionMessage]);
           setIsTransitioning(false);
         }, 800);
+
+        return () => clearTimeout(questionTimeoutId);
       }
 
       setCurrentResponse('');
     }, 500);
-  };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+    return () => clearTimeout(timeoutId);
+  }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning, setCurrentResponse]);
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendTextMessage();
     }
-  };
+  }, [handleSendTextMessage]);
 
   const getTimeIcon = (type: string) => {
     switch (type) {

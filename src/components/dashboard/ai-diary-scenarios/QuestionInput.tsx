@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
@@ -8,8 +8,8 @@ import { Question } from './types';
 
 interface QuestionInputProps {
   question: Question;
-  currentResponse: any;
-  setCurrentResponse: React.Dispatch<React.SetStateAction<any>>;
+  currentResponse: string | number | string[] | number[];
+  setCurrentResponse: React.Dispatch<React.SetStateAction<string | number | string[] | number[]>>;
   onSubmitResponse: () => void;
 }
 
@@ -19,13 +19,23 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
   setCurrentResponse,
   onSubmitResponse
 }) => {
+  const isResponseValid = useMemo(() => {
+    if (currentResponse === '' || currentResponse === null || currentResponse === undefined) {
+      return false;
+    }
+    if (Array.isArray(currentResponse)) {
+      return currentResponse.length > 0;
+    }
+    return true;
+  }, [currentResponse]);
+
   const renderQuestionInput = () => {
     switch (question.type) {
       case 'scale':
         return (
           <div className="space-y-4 animate-slide-up-fade">
             <Slider
-              value={[currentResponse || question.scaleRange?.min || 0]}
+              value={[typeof currentResponse === 'number' ? currentResponse : question.scaleRange?.min || 0]}
               onValueChange={(value) => setCurrentResponse(value[0])}
               min={question.scaleRange?.min || 0}
               max={question.scaleRange?.max || 10}
@@ -34,7 +44,9 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
             />
             <div className="flex justify-between text-sm text-gray-500">
               <span>{question.scaleRange?.min || 0}</span>
-              <span className="font-medium">Значение: {currentResponse || question.scaleRange?.min || 0}</span>
+              <span className="font-medium">
+                Значение: {typeof currentResponse === 'number' ? currentResponse : question.scaleRange?.min || 0}
+              </span>
               <span>{question.scaleRange?.max || 10}</span>
             </div>
           </div>
@@ -100,13 +112,13 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
                 }}
               >
                 <Checkbox
-                  checked={(currentResponse || []).includes(option.value)}
+                  checked={Array.isArray(currentResponse) ? currentResponse.includes(option.value) : false}
                   onCheckedChange={(checked) => {
-                    const current = currentResponse || [];
+                    const current = Array.isArray(currentResponse) ? currentResponse : [];
                     if (checked) {
                       setCurrentResponse([...current, option.value]);
                     } else {
-                      setCurrentResponse(current.filter((v: any) => v !== option.value));
+                      setCurrentResponse(current.filter((v) => v !== option.value));
                     }
                   }}
                   className="transition-all duration-200"
@@ -123,7 +135,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
           <div className="space-y-2 animate-slide-up-fade">
             <Textarea
               placeholder="Поделитесь своими мыслями..."
-              value={currentResponse || ''}
+              value={typeof currentResponse === 'string' ? currentResponse : ''}
               onChange={(e) => setCurrentResponse(e.target.value)}
               rows={4}
               className="w-full transition-all duration-200 focus:scale-[1.01]"
@@ -148,7 +160,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
           </p>
           <Button
             onClick={onSubmitResponse}
-            disabled={!currentResponse || (Array.isArray(currentResponse) && currentResponse.length === 0)}
+            disabled={!isResponseValid}
             className="w-fit text-white transition-all duration-300 hover:scale-105 transform"
             style={{
               background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
@@ -164,7 +176,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
       return (
         <Button
           onClick={onSubmitResponse}
-          disabled={!currentResponse}
+          disabled={!isResponseValid}
           className="w-fit text-white transition-all duration-300 hover:scale-105 transform animate-fade-in"
           style={{
             background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`

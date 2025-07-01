@@ -18,7 +18,7 @@ interface ChatMessage {
 const AIDiaryContainer = () => {
   const [currentSession, setCurrentSession] = useState<DiarySession | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [currentResponse, setCurrentResponse] = useState<any>('');
+  const [currentResponse, setCurrentResponse] = useState<string | number | string[] | number[]>('');
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionMessage, setCompletionMessage] = useState('');
   const [todaySessions, setTodaySessions] = useState<DiarySession[]>([]);
@@ -33,7 +33,7 @@ const AIDiaryContainer = () => {
   const startDiarySession = (type: 'morning' | 'midday' | 'evening') => {
     setIsTransitioning(true);
     
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const session = diaryEngine.startSession(type);
       const firstQuestion = diaryEngine.getCurrentQuestion();
       
@@ -53,19 +53,25 @@ const AIDiaryContainer = () => {
 
       setChatMessages([welcomeMessage]);
       
-      setTimeout(() => {
-        const questionMessage: ChatMessage = {
-          id: `question_${Date.now()}`,
-          type: 'question',
-          content: firstQuestion?.text || '',
-          timestamp: new Date(),
-          questionId: firstQuestion?.id,
-          question: firstQuestion
-        };
-        setChatMessages(prev => [...prev, questionMessage]);
+      const questionTimeoutId = setTimeout(() => {
+        if (firstQuestion) {
+          const questionMessage: ChatMessage = {
+            id: `question_${Date.now()}`,
+            type: 'question',
+            content: firstQuestion.text,
+            timestamp: new Date(),
+            questionId: firstQuestion.id,
+            question: firstQuestion
+          };
+          setChatMessages(prev => [...prev, questionMessage]);
+        }
         setIsTransitioning(false);
       }, 800);
+
+      return () => clearTimeout(questionTimeoutId);
     }, 300);
+
+    return () => clearTimeout(timeoutId);
   };
 
   const resetSession = () => {
@@ -75,6 +81,8 @@ const AIDiaryContainer = () => {
     setIsCompleted(false);
     setCompletionMessage('');
     setChatMessages([]);
+    setInputMessage('');
+    setIsTransitioning(false);
   };
 
   return (

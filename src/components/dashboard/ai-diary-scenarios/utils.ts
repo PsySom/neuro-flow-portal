@@ -1,7 +1,7 @@
 
 import { Question } from './types';
 
-export const formatResponseForChat = (response: any, question: Question): string => {
+export const formatResponseForChat = (response: string | number | string[] | number[], question: Question): string => {
   if (question.type === 'scale' || question.type === 'emoji-scale') {
     return `Выбрал(а): ${response}`;
   }
