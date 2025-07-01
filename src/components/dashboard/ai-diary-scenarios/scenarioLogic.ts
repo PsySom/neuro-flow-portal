@@ -75,7 +75,7 @@ export class DiaryScenarioEngine {
     return { nextQuestion, isCompleted };
   }
 
-  private getScenario(type: 'morning' | 'midday' | 'evening') {
+  getScenario(type: 'morning' | 'midday' | 'evening') {
     switch (type) {
       case 'morning':
         return morningScenario;

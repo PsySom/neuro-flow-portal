@@ -9,9 +9,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, Send, Clock, Sun, Sunset, Moon } from 'lucide-react';
+import { Bot, Send, Clock, Sun, Sunset, Moon, User } from 'lucide-react';
 import { diaryEngine } from './ai-diary-scenarios/scenarioLogic';
 import { DiarySession, Question } from './ai-diary-scenarios/types';
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai' | 'question';
+  content: string;
+  timestamp: Date;
+  questionId?: string;
+  question?: Question;
+}
 
 const AIDiaryScenarios = () => {
   const [currentSession, setCurrentSession] = useState<DiarySession | null>(null);
@@ -20,23 +29,82 @@ const AIDiaryScenarios = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionMessage, setCompletionMessage] = useState('');
   const [todaySessions, setTodaySessions] = useState<DiarySession[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
 
   useEffect(() => {
-    // Загружаем сегодняшние сессии
     setTodaySessions(diaryEngine.getTodaySessions());
   }, []);
 
   const startDiarySession = (type: 'morning' | 'midday' | 'evening') => {
     const session = diaryEngine.startSession(type);
+    const firstQuestion = diaryEngine.getCurrentQuestion();
+    
     setCurrentSession(session);
-    setCurrentQuestion(diaryEngine.getCurrentQuestion());
+    setCurrentQuestion(firstQuestion);
     setCurrentResponse('');
     setIsCompleted(false);
     setCompletionMessage('');
+
+    // Добавляем приветственное сообщение и первый вопрос в чат
+    const scenario = diaryEngine.getScenario(type);
+    const welcomeMessage: ChatMessage = {
+      id: `welcome_${Date.now()}`,
+      type: 'ai',
+      content: scenario.greeting,
+      timestamp: new Date()
+    };
+
+    const questionMessage: ChatMessage = {
+      id: `question_${Date.now()}`,
+      type: 'question',
+      content: firstQuestion?.text || '',
+      timestamp: new Date(),
+      questionId: firstQuestion?.id,
+      question: firstQuestion
+    };
+
+    setChatMessages([welcomeMessage, questionMessage]);
   };
 
-  const handleResponse = () => {
+  const handleSendTextMessage = () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: `user_${Date.now()}`,
+      type: 'user',
+      content: inputMessage,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+
+    // Добавляем ответ AI на текстовое сообщение
+    setTimeout(() => {
+      const aiResponse: ChatMessage = {
+        id: `ai_${Date.now()}`,
+        type: 'ai',
+        content: 'Спасибо за ваши мысли! Это важные заметки. Продолжим с текущим вопросом, когда будете готовы.',
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, aiResponse]);
+    }, 500);
+  };
+
+  const handleQuestionResponse = () => {
     if (!currentSession || !currentQuestion || currentResponse === '') return;
+
+    // Добавляем ответ пользователя в чат
+    const responseText = formatResponseForChat(currentResponse, currentQuestion);
+    const userResponseMessage: ChatMessage = {
+      id: `response_${Date.now()}`,
+      type: 'user',
+      content: responseText,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userResponseMessage]);
 
     const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
       currentQuestion.id,
@@ -45,35 +113,78 @@ const AIDiaryScenarios = () => {
 
     if (sessionCompleted) {
       setIsCompleted(true);
-      setCompletionMessage(diaryEngine.generatePersonalizedMessage(currentSession));
+      const finalMessage = diaryEngine.generatePersonalizedMessage(currentSession);
+      setCompletionMessage(finalMessage);
       diaryEngine.saveSession(currentSession);
       setTodaySessions(diaryEngine.getTodaySessions());
-    } else {
+
+      // Добавляем финальное сообщение в чат
+      const completionChatMessage: ChatMessage = {
+        id: `completion_${Date.now()}`,
+        type: 'ai',
+        content: finalMessage,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, completionChatMessage]);
+    } else if (nextQuestion) {
       setCurrentQuestion(nextQuestion);
+      
+      // Добавляем следующий вопрос в чат
+      const nextQuestionMessage: ChatMessage = {
+        id: `question_${Date.now()}`,
+        type: 'question',
+        content: nextQuestion.text,
+        timestamp: new Date(),
+        questionId: nextQuestion.id,
+        question: nextQuestion
+      };
+      setChatMessages(prev => [...prev, nextQuestionMessage]);
     }
 
     setCurrentResponse('');
   };
 
-  const renderQuestionInput = () => {
-    if (!currentQuestion) return null;
+  const formatResponseForChat = (response: any, question: Question): string => {
+    if (question.type === 'scale' || question.type === 'emoji-scale') {
+      return `Выбрал(а): ${response}`;
+    }
+    if (question.type === 'multiple-choice') {
+      const option = question.options?.find(opt => opt.value === response);
+      return option ? `${option.emoji || ''} ${option.label}`.trim() : String(response);
+    }
+    if (question.type === 'multi-select') {
+      if (Array.isArray(response)) {
+        const selectedOptions = question.options?.filter(opt => response.includes(opt.value)) || [];
+        return selectedOptions.map(opt => `${opt.emoji || ''} ${opt.label}`.trim()).join(', ');
+      }
+    }
+    return String(response);
+  };
 
-    switch (currentQuestion.type) {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendTextMessage();
+    }
+  };
+
+  const renderQuestionInput = (question: Question) => {
+    switch (question.type) {
       case 'scale':
         return (
           <div className="space-y-4">
             <Slider
-              value={[currentResponse || currentQuestion.scaleRange?.min || 0]}
+              value={[currentResponse || question.scaleRange?.min || 0]}
               onValueChange={(value) => setCurrentResponse(value[0])}
-              min={currentQuestion.scaleRange?.min || 0}
-              max={currentQuestion.scaleRange?.max || 10}
-              step={currentQuestion.scaleRange?.step || 1}
+              min={question.scaleRange?.min || 0}
+              max={question.scaleRange?.max || 10}
+              step={question.scaleRange?.step || 1}
               className="w-full"
             />
             <div className="flex justify-between text-sm text-gray-500">
-              <span>{currentQuestion.scaleRange?.min || 0}</span>
-              <span className="font-medium">Текущее значение: {currentResponse || currentQuestion.scaleRange?.min || 0}</span>
-              <span>{currentQuestion.scaleRange?.max || 10}</span>
+              <span>{question.scaleRange?.min || 0}</span>
+              <span className="font-medium">Значение: {currentResponse || question.scaleRange?.min || 0}</span>
+              <span>{question.scaleRange?.max || 10}</span>
             </div>
           </div>
         );
@@ -81,7 +192,7 @@ const AIDiaryScenarios = () => {
       case 'emoji-scale':
         return (
           <div className="grid grid-cols-5 gap-3">
-            {currentQuestion.options?.map((option) => (
+            {question.options?.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setCurrentResponse(option.value)}
@@ -101,7 +212,7 @@ const AIDiaryScenarios = () => {
       case 'multiple-choice':
         return (
           <div className="space-y-3">
-            {currentQuestion.options?.map((option) => (
+            {question.options?.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setCurrentResponse(option.value)}
@@ -123,7 +234,7 @@ const AIDiaryScenarios = () => {
       case 'multi-select':
         return (
           <div className="space-y-3">
-            {currentQuestion.options?.map((option) => (
+            {question.options?.map((option) => (
               <div key={option.value} className="flex items-center space-x-3">
                 <Checkbox
                   checked={(currentResponse || []).includes(option.value)}
@@ -204,7 +315,6 @@ const AIDiaryScenarios = () => {
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {/* Сегодняшние сессии */}
           {todaySessions.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-medium text-gray-900 dark:text-white">Сегодня выполнено:</h3>
@@ -219,7 +329,6 @@ const AIDiaryScenarios = () => {
             </div>
           )}
 
-          {/* Выбор сценария */}
           <div className="space-y-4">
             <h3 className="font-medium text-gray-900 dark:text-white">Выберите время дня для рефлексии:</h3>
             
@@ -287,54 +396,119 @@ const AIDiaryScenarios = () => {
       
       <CardContent className="flex-1 flex flex-col space-y-4">
         <ScrollArea className="flex-1">
-          {!isCompleted ? (
-            currentQuestion && (
-              <div className="space-y-6">
-                {/* AI Вопрос */}
-                <div className="flex items-start space-x-3">
-                  <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarFallback 
-                      className="text-white font-medium"
-                      style={{ backgroundColor: `hsl(var(--psybalans-primary))` }}
-                    >
-                      <Bot className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3 max-w-[85%]">
-                    <p className="text-sm leading-relaxed text-gray-900 dark:text-gray-100">
-                      {currentQuestion.text}
-                    </p>
+          <div className="space-y-4">
+            {chatMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex items-start space-x-3 ${
+                  message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                }`}
+              >
+                <Avatar className="w-8 h-8 flex-shrink-0">
+                  <AvatarFallback 
+                    className={`text-white font-medium ${
+                      message.type === 'user' 
+                        ? 'bg-gray-600 dark:bg-gray-400'
+                        : 'text-white'
+                    }`}
+                    style={message.type !== 'user' ? {
+                      backgroundColor: `hsl(var(--psybalans-primary))`
+                    } : undefined}
+                  >
+                    {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className={`max-w-[85%] ${message.type === 'user' ? 'text-right' : ''}`}>
+                  <div
+                    className={`rounded-2xl px-4 py-3 ${
+                      message.type === 'user'
+                        ? 'bg-blue-500 text-white ml-auto'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
                   </div>
-                </div>
-
-                {/* Поле ответа */}
-                <div className="ml-11 space-y-4">
-                  {renderQuestionInput()}
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto">
-                <Bot className="w-8 h-8 text-white" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Сессия завершена! 🌟
-                </h3>
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-                  <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-line">
-                    {completionMessage}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+
+            {/* Текущий вопрос для ответа */}
+            {!isCompleted && currentQuestion && (
+              <div className="border-t pt-4 space-y-4">
+                <div className="ml-11 space-y-4">
+                  {renderQuestionInput(currentQuestion)}
+                  
+                  {/* Подсказка и кнопка "Далее" для вопросов с выбором */}
+                  {(currentQuestion.type === 'scale' || 
+                    currentQuestion.type === 'emoji-scale' || 
+                    currentQuestion.type === 'multiple-choice' || 
+                    currentQuestion.type === 'multi-select') && (
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Сделайте выбор и нажмите "Далее"
+                      </p>
+                      <Button
+                        onClick={handleQuestionResponse}
+                        disabled={!currentResponse || (Array.isArray(currentResponse) && currentResponse.length === 0)}
+                        className="w-fit text-white"
+                        style={{
+                          background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
+                        }}
+                      >
+                        Далее
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Кнопка для текстовых ответов */}
+                  {currentQuestion.type === 'text' && (
+                    <Button
+                      onClick={handleQuestionResponse}
+                      disabled={!currentResponse}
+                      className="w-fit text-white"
+                      style={{
+                        background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
+                      }}
+                    >
+                      Отправить ответ
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </ScrollArea>
         
+        {/* Поле для ввода текстовых сообщений */}
+        <div className="flex-shrink-0 border-t pt-4">
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Напишите заметку или комментарий..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleSendTextMessage}
+              disabled={!inputMessage.trim()}
+              className="text-white"
+              style={{
+                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
+              }}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Кнопки управления сессией */}
         {!isCompleted && currentQuestion && (
-          <div className="flex-shrink-0 flex justify-between items-center pt-4 border-t">
+          <div className="flex-shrink-0 flex justify-between items-center pt-2 border-t">
             <Button
               variant="outline"
               onClick={() => {
@@ -342,27 +516,16 @@ const AIDiaryScenarios = () => {
                 setCurrentQuestion(null);
                 setCurrentResponse('');
                 setIsCompleted(false);
+                setChatMessages([]);
               }}
             >
-              Прервать сессию
-            </Button>
-            
-            <Button
-              onClick={handleResponse}
-              disabled={!currentResponse || (Array.isArray(currentResponse) && currentResponse.length === 0)}
-              className="text-white"
-              style={{
-                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
-              }}
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Ответить
+              Завершить сессию
             </Button>
           </div>
         )}
 
         {isCompleted && (
-          <div className="flex-shrink-0 pt-4 border-t">
+          <div className="flex-shrink-0 pt-2 border-t">
             <Button
               onClick={() => {
                 setCurrentSession(null);
@@ -370,13 +533,14 @@ const AIDiaryScenarios = () => {
                 setCurrentResponse('');
                 setIsCompleted(false);
                 setCompletionMessage('');
+                setChatMessages([]);
               }}
               className="w-full text-white"
               style={{
                 background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
               }}
             >
-              Завершить сессию
+              Начать новую сессию
             </Button>
           </div>
         )}
