@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from '@/components/dashboard/UserMenu';
 import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
+import DiaryStatusManager from '@/components/diaries/DiaryStatusManager';
 
 const diaryTypes = [
   {
@@ -107,13 +109,14 @@ const Diaries = () => {
                   {diary.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-center">
+              <CardContent className="text-center space-y-4">
                 <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
                   {diary.description}
                 </p>
+                
                 <Link to={diary.path}>
                   <Button 
-                    className="w-full text-white"
+                    className="w-full text-white mb-3"
                     style={{ 
                       background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
                     }}
@@ -121,6 +124,15 @@ const Diaries = () => {
                     Открыть дневник
                   </Button>
                 </Link>
+
+                {/* Компонент управления статусом дневника */}
+                <DiaryStatusManager
+                  diaryPath={diary.path}
+                  title={diary.title}
+                  onStatusChange={(status) => {
+                    console.log(`Статус дневника ${diary.title} изменен:`, status);
+                  }}
+                />
               </CardContent>
             </Card>
           ))}
