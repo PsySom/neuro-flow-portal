@@ -1,18 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
 import { DiarySession, Question } from './types';
+import { ChatMessageType } from './chatTypes';
 import SessionSelector from './SessionSelector';
 import DiaryChat from './DiaryChat';
-
-interface ChatMessageType {
-  id: string;
-  type: 'user' | 'ai' | 'question';
-  content: string;
-  timestamp: Date;
-  questionId?: string;
-  question?: Question;
-}
 
 const AIDiaryContainer = () => {
   const [currentSession, setCurrentSession] = useState<DiarySession | null>(null);

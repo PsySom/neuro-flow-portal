@@ -4,15 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
 import QuestionInput from './QuestionInput';
 import { Question } from './types';
-
-interface ChatMessageType {
-  id: string;
-  type: 'user' | 'ai' | 'question';
-  content: string;
-  timestamp: Date;
-  questionId?: string;
-  question?: Question;
-}
+import { ChatMessageType } from './chatTypes';
 
 interface MessagesListProps {
   chatMessages: ChatMessageType[];
@@ -49,7 +41,6 @@ const MessagesList: React.FC<MessagesListProps> = ({
     }
   }, []);
 
-  // Основной эффект скроллинга
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       scrollToBottom();
@@ -64,7 +55,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
         className="flex-1 h-full" 
         ref={scrollAreaRef}
       >
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 p-4 pb-20">
           {chatMessages.map((message, index) => (
             <ChatMessage
               key={message.id}
@@ -95,9 +86,6 @@ const MessagesList: React.FC<MessagesListProps> = ({
               </div>
             </div>
           )}
-          
-          {/* Постоянный отступ внизу для стабильности */}
-          <div className="h-6"></div>
         </div>
       </ScrollArea>
     </div>
