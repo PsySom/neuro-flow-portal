@@ -37,10 +37,8 @@ const MessagesList: React.FC<MessagesListProps> = ({
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
-      // Ищем viewport в ScrollArea
       const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
       if (viewport) {
-        // Используем requestAnimationFrame для гарантированного скролла после рендера
         requestAnimationFrame(() => {
           viewport.scrollTo({
             top: viewport.scrollHeight,
@@ -80,12 +78,12 @@ const MessagesList: React.FC<MessagesListProps> = ({
   }, [isTransitioning, scrollToBottom]);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       <ScrollArea 
-        className="flex-1 px-4" 
+        className="flex-1 h-full" 
         ref={scrollAreaRef}
       >
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 p-4">
           {chatMessages.map((message, index) => (
             <ChatMessage
               key={message.id}
@@ -96,7 +94,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
 
           {!isCompleted && currentQuestion && !isTransitioning && (
             <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
-              <div className="ml-11 space-y-4">
+              <div className="ml-11 space-y-4 pb-4">
                 <QuestionInput
                   question={currentQuestion}
                   currentResponse={currentResponse}
@@ -116,6 +114,9 @@ const MessagesList: React.FC<MessagesListProps> = ({
               </div>
             </div>
           )}
+          
+          {/* Добавляем отступ внизу, чтобы последнее сообщение не прилипало к краю */}
+          <div className="h-4"></div>
         </div>
       </ScrollArea>
     </div>

@@ -23,7 +23,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   }, [onSendMessage]);
 
   return (
-    <div className="flex-shrink-0 border-t pt-4 animate-slide-up-fade">
+    <div className="animate-slide-up-fade">
       <div className="flex space-x-2">
         <Input
           placeholder="Напишите заметку или комментарий..."

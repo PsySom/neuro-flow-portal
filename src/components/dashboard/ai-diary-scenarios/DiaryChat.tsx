@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
@@ -175,7 +174,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     <div className="h-full flex flex-col">
       <DiaryHeader currentSession={currentSession} />
       
-      <CardContent className="flex-1 flex flex-col space-y-4 min-h-0">
+      <div className="flex-1 flex flex-col min-h-0">
         <MessagesList
           chatMessages={chatMessages}
           currentQuestion={currentQuestion}
@@ -186,20 +185,24 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
           onSubmitResponse={handleQuestionResponse}
         />
         
-        <div className="flex-shrink-0">
-          <ChatInput
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            onSendMessage={handleSendTextMessage}
-          />
-
-          <SessionActions
-            isCompleted={isCompleted}
-            currentQuestion={currentQuestion}
-            onResetSession={onResetSession}
-          />
+        <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 pb-2">
+            <ChatInput
+              inputMessage={inputMessage}
+              setInputMessage={setInputMessage}
+              onSendMessage={handleSendTextMessage}
+            />
+          </div>
+          
+          <div className="px-4 pb-4">
+            <SessionActions
+              isCompleted={isCompleted}
+              currentQuestion={currentQuestion}
+              onResetSession={onResetSession}
+            />
+          </div>
         </div>
-      </CardContent>
+      </div>
     </div>
   );
 };
