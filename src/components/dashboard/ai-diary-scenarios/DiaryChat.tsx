@@ -75,18 +75,25 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     }
   }, []);
 
-  // Optimized scroll effect - only trigger when messages change or transitioning stops
+  // Improved scroll effect - trigger on every message change and current question change
   useEffect(() => {
-    if (chatMessages.length > 0 || !isTransitioning) {
-      const timeouts = [
-        setTimeout(scrollToBottom, 50),
-        setTimeout(scrollToBottom, 150),
-        setTimeout(scrollToBottom, 300)
-      ];
-      
-      return () => timeouts.forEach(clearTimeout);
+    const scrollTimeout = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    return () => clearTimeout(scrollTimeout);
+  }, [chatMessages, currentQuestion, isTransitioning, scrollToBottom]);
+
+  // Additional scroll trigger for when new questions appear
+  useEffect(() => {
+    if (currentQuestion && !isTransitioning) {
+      const questionScrollTimeout = setTimeout(() => {
+        scrollToBottom();
+      }, 200);
+
+      return () => clearTimeout(questionScrollTimeout);
     }
-  }, [chatMessages.length, isTransitioning, scrollToBottom]);
+  }, [currentQuestion, isTransitioning, scrollToBottom]);
 
   const handleSendTextMessage = useCallback(() => {
     if (!inputMessage.trim()) return;
