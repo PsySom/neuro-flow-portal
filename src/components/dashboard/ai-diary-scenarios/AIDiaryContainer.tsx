@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
@@ -86,7 +85,7 @@ const AIDiaryContainer = () => {
   };
 
   return (
-    <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in">
+    <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex flex-col">
       {!currentSession ? (
         <SessionSelector 
           todaySessions={todaySessions}

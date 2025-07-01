@@ -34,34 +34,35 @@ const MessagesList: React.FC<MessagesListProps> = ({
   onSubmitResponse
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
-      // Находим viewport внутри ScrollArea
+      // Ищем viewport в ScrollArea
       const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
       if (viewport) {
-        // Скроллим к концу контента
-        viewport.scrollTop = viewport.scrollHeight;
+        // Используем requestAnimationFrame для гарантированного скролла после рендера
+        requestAnimationFrame(() => {
+          viewport.scrollTo({
+            top: viewport.scrollHeight,
+            behavior: 'smooth'
+          });
+        });
       }
     }
   }, []);
 
   // Основной эффект скроллинга - срабатывает при изменении сообщений
   useEffect(() => {
-    const scrollTimeout = setTimeout(() => {
-      scrollToBottom();
-    }, 100); // Уменьшил задержку для более быстрого отклика
-
-    return () => clearTimeout(scrollTimeout);
-  }, [chatMessages.length, scrollToBottom]);
+    scrollToBottom();
+  }, [chatMessages, scrollToBottom]);
 
   // Дополнительный скролл для новых вопросов
   useEffect(() => {
     if (currentQuestion && !isTransitioning) {
+      // Даем время на рендер нового вопроса
       const questionScrollTimeout = setTimeout(() => {
         scrollToBottom();
-      }, 200);
+      }, 100);
 
       return () => clearTimeout(questionScrollTimeout);
     }
@@ -72,52 +73,52 @@ const MessagesList: React.FC<MessagesListProps> = ({
     if (!isTransitioning) {
       const transitionScrollTimeout = setTimeout(() => {
         scrollToBottom();
-      }, 100);
+      }, 50);
 
       return () => clearTimeout(transitionScrollTimeout);
     }
   }, [isTransitioning, scrollToBottom]);
 
   return (
-    <ScrollArea 
-      className="flex-1 pr-4" 
-      ref={scrollAreaRef}
-    >
-      <div className="space-y-4 pb-4">
-        {chatMessages.map((message, index) => (
-          <ChatMessage
-            key={message.id}
-            message={message}
-            index={index}
-          />
-        ))}
+    <div className="flex-1 flex flex-col min-h-0">
+      <ScrollArea 
+        className="flex-1 px-4" 
+        ref={scrollAreaRef}
+      >
+        <div className="space-y-4 py-4">
+          {chatMessages.map((message, index) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              index={index}
+            />
+          ))}
 
-        {!isCompleted && currentQuestion && !isTransitioning && (
-          <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
-            <div className="ml-11 space-y-4">
-              <QuestionInput
-                question={currentQuestion}
-                currentResponse={currentResponse}
-                setCurrentResponse={setCurrentResponse}
-                onSubmitResponse={onSubmitResponse}
-              />
+          {!isCompleted && currentQuestion && !isTransitioning && (
+            <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
+              <div className="ml-11 space-y-4">
+                <QuestionInput
+                  question={currentQuestion}
+                  currentResponse={currentResponse}
+                  setCurrentResponse={setCurrentResponse}
+                  onSubmitResponse={onSubmitResponse}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {isTransitioning && (
-          <div className="flex justify-center py-4 animate-fade-in">
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          {isTransitioning && (
+            <div className="flex justify-center py-4 animate-fade-in">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
             </div>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} className="h-1" />
-      </div>
-    </ScrollArea>
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 
