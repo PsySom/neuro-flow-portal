@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -128,7 +129,14 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
                           setCurrentResponse([...numberArray, option.value]);
                         }
                       } else {
-                        setCurrentResponse(current.filter((v) => v !== option.value));
+                        // For removal, we need to maintain the same type as the added value
+                        if (typeof option.value === 'string') {
+                          const stringArray = current.filter((v): v is string => typeof v === 'string');
+                          setCurrentResponse(stringArray.filter((v) => v !== option.value));
+                        } else {
+                          const numberArray = current.filter((v): v is number => typeof v === 'number');
+                          setCurrentResponse(numberArray.filter((v) => v !== option.value));
+                        }
                       }
                     }}
                     className="transition-all duration-200"
