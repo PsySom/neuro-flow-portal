@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,40 +30,50 @@ const AIDiaryScenarios = () => {
   const [todaySessions, setTodaySessions] = useState<DiarySession[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     setTodaySessions(diaryEngine.getTodaySessions());
   }, []);
 
   const startDiarySession = (type: 'morning' | 'midday' | 'evening') => {
-    const session = diaryEngine.startSession(type);
-    const firstQuestion = diaryEngine.getCurrentQuestion();
+    setIsTransitioning(true);
     
-    setCurrentSession(session);
-    setCurrentQuestion(firstQuestion);
-    setCurrentResponse('');
-    setIsCompleted(false);
-    setCompletionMessage('');
+    setTimeout(() => {
+      const session = diaryEngine.startSession(type);
+      const firstQuestion = diaryEngine.getCurrentQuestion();
+      
+      setCurrentSession(session);
+      setCurrentQuestion(firstQuestion);
+      setCurrentResponse('');
+      setIsCompleted(false);
+      setCompletionMessage('');
 
-    // Добавляем приветственное сообщение и первый вопрос в чат
-    const scenario = diaryEngine.getScenario(type);
-    const welcomeMessage: ChatMessage = {
-      id: `welcome_${Date.now()}`,
-      type: 'ai',
-      content: scenario.greeting,
-      timestamp: new Date()
-    };
+      // Добавляем приветственное сообщение и первый вопрос в чат
+      const scenario = diaryEngine.getScenario(type);
+      const welcomeMessage: ChatMessage = {
+        id: `welcome_${Date.now()}`,
+        type: 'ai',
+        content: scenario.greeting,
+        timestamp: new Date()
+      };
 
-    const questionMessage: ChatMessage = {
-      id: `question_${Date.now()}`,
-      type: 'question',
-      content: firstQuestion?.text || '',
-      timestamp: new Date(),
-      questionId: firstQuestion?.id,
-      question: firstQuestion
-    };
-
-    setChatMessages([welcomeMessage, questionMessage]);
+      setChatMessages([welcomeMessage]);
+      
+      // Задержка для плавного появления первого вопроса
+      setTimeout(() => {
+        const questionMessage: ChatMessage = {
+          id: `question_${Date.now()}`,
+          type: 'question',
+          content: firstQuestion?.text || '',
+          timestamp: new Date(),
+          questionId: firstQuestion?.id,
+          question: firstQuestion
+        };
+        setChatMessages(prev => [...prev, questionMessage]);
+        setIsTransitioning(false);
+      }, 800);
+    }, 300);
   };
 
   const handleSendTextMessage = () => {
@@ -80,7 +89,7 @@ const AIDiaryScenarios = () => {
     setChatMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    // Добавляем ответ AI на текстовое сообщение
+    // Добавляем ответ AI на текстовое сообщение с задержкой
     setTimeout(() => {
       const aiResponse: ChatMessage = {
         id: `ai_${Date.now()}`,
@@ -89,11 +98,13 @@ const AIDiaryScenarios = () => {
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, aiResponse]);
-    }, 500);
+    }, 1000);
   };
 
   const handleQuestionResponse = () => {
     if (!currentSession || !currentQuestion || currentResponse === '') return;
+
+    setIsTransitioning(true);
 
     // Добавляем ответ пользователя в чат
     const responseText = formatResponseForChat(currentResponse, currentQuestion);
@@ -106,42 +117,50 @@ const AIDiaryScenarios = () => {
 
     setChatMessages(prev => [...prev, userResponseMessage]);
 
-    const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
-      currentQuestion.id,
-      currentResponse
-    );
+    setTimeout(() => {
+      const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
+        currentQuestion.id,
+        currentResponse
+      );
 
-    if (sessionCompleted) {
-      setIsCompleted(true);
-      const finalMessage = diaryEngine.generatePersonalizedMessage(currentSession);
-      setCompletionMessage(finalMessage);
-      diaryEngine.saveSession(currentSession);
-      setTodaySessions(diaryEngine.getTodaySessions());
+      if (sessionCompleted) {
+        setIsCompleted(true);
+        const finalMessage = diaryEngine.generatePersonalizedMessage(currentSession);
+        setCompletionMessage(finalMessage);
+        diaryEngine.saveSession(currentSession);
+        setTodaySessions(diaryEngine.getTodaySessions());
 
-      // Добавляем финальное сообщение в чат
-      const completionChatMessage: ChatMessage = {
-        id: `completion_${Date.now()}`,
-        type: 'ai',
-        content: finalMessage,
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, completionChatMessage]);
-    } else if (nextQuestion) {
-      setCurrentQuestion(nextQuestion);
-      
-      // Добавляем следующий вопрос в чат
-      const nextQuestionMessage: ChatMessage = {
-        id: `question_${Date.now()}`,
-        type: 'question',
-        content: nextQuestion.text,
-        timestamp: new Date(),
-        questionId: nextQuestion.id,
-        question: nextQuestion
-      };
-      setChatMessages(prev => [...prev, nextQuestionMessage]);
-    }
+        // Добавляем финальное сообщение в чат
+        setTimeout(() => {
+          const completionChatMessage: ChatMessage = {
+            id: `completion_${Date.now()}`,
+            type: 'ai',
+            content: finalMessage,
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, completionChatMessage]);
+          setIsTransitioning(false);
+        }, 800);
+      } else if (nextQuestion) {
+        setCurrentQuestion(nextQuestion);
+        
+        // Добавляем следующий вопрос в чат с задержкой
+        setTimeout(() => {
+          const nextQuestionMessage: ChatMessage = {
+            id: `question_${Date.now()}`,
+            type: 'question',
+            content: nextQuestion.text,
+            timestamp: new Date(),
+            questionId: nextQuestion.id,
+            question: nextQuestion
+          };
+          setChatMessages(prev => [...prev, nextQuestionMessage]);
+          setIsTransitioning(false);
+        }, 800);
+      }
 
-    setCurrentResponse('');
+      setCurrentResponse('');
+    }, 500);
   };
 
   const formatResponseForChat = (response: any, question: Question): string => {
@@ -172,7 +191,7 @@ const AIDiaryScenarios = () => {
     switch (question.type) {
       case 'scale':
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-slide-up-fade">
             <Slider
               value={[currentResponse || question.scaleRange?.min || 0]}
               onValueChange={(value) => setCurrentResponse(value[0])}
@@ -191,18 +210,21 @@ const AIDiaryScenarios = () => {
 
       case 'emoji-scale':
         return (
-          <div className="grid grid-cols-5 gap-3">
-            {question.options?.map((option) => (
+          <div className="grid grid-cols-5 gap-3 animate-slide-up-fade">
+            {question.options?.map((option, index) => (
               <button
                 key={option.value}
                 onClick={() => setCurrentResponse(option.value)}
-                className={`p-4 rounded-lg border-2 transition-all text-center hover:scale-105 ${
+                className={`p-4 rounded-lg border-2 transition-all duration-300 text-center hover:scale-110 transform ${
                   currentResponse === option.value
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-105'
                     : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
               >
-                <div className="text-3xl mb-2">{option.emoji}</div>
+                <div className="text-3xl mb-2 transition-transform duration-200">{option.emoji}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-300">{option.label}</div>
               </button>
             ))}
@@ -211,19 +233,22 @@ const AIDiaryScenarios = () => {
 
       case 'multiple-choice':
         return (
-          <div className="space-y-3">
-            {question.options?.map((option) => (
+          <div className="space-y-3 animate-slide-up-fade">
+            {question.options?.map((option, index) => (
               <button
                 key={option.value}
                 onClick={() => setCurrentResponse(option.value)}
-                className={`w-full p-3 rounded-lg border-2 transition-all text-left hover:scale-[1.02] ${
+                className={`w-full p-3 rounded-lg border-2 transition-all duration-300 text-left hover:scale-[1.02] transform ${
                   currentResponse === option.value
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]'
                     : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
               >
                 <div className="flex items-center space-x-3">
-                  {option.emoji && <span className="text-xl">{option.emoji}</span>}
+                  {option.emoji && <span className="text-xl transition-transform duration-200">{option.emoji}</span>}
                   <span className="font-medium">{option.label}</span>
                 </div>
               </button>
@@ -233,9 +258,15 @@ const AIDiaryScenarios = () => {
 
       case 'multi-select':
         return (
-          <div className="space-y-3">
-            {question.options?.map((option) => (
-              <div key={option.value} className="flex items-center space-x-3">
+          <div className="space-y-3 animate-slide-up-fade">
+            {question.options?.map((option, index) => (
+              <div 
+                key={option.value} 
+                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
+              >
                 <Checkbox
                   checked={(currentResponse || []).includes(option.value)}
                   onCheckedChange={(checked) => {
@@ -246,8 +277,9 @@ const AIDiaryScenarios = () => {
                       setCurrentResponse(current.filter((v: any) => v !== option.value));
                     }
                   }}
+                  className="transition-all duration-200"
                 />
-                {option.emoji && <span className="text-lg">{option.emoji}</span>}
+                {option.emoji && <span className="text-lg transition-transform duration-200">{option.emoji}</span>}
                 <span>{option.label}</span>
               </div>
             ))}
@@ -256,13 +288,13 @@ const AIDiaryScenarios = () => {
 
       case 'text':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2 animate-slide-up-fade">
             <Textarea
               placeholder="Поделитесь своими мыслями..."
               value={currentResponse || ''}
               onChange={(e) => setCurrentResponse(e.target.value)}
               rows={4}
-              className="w-full"
+              className="w-full transition-all duration-200 focus:scale-[1.01]"
             />
           </div>
         );
@@ -273,7 +305,7 @@ const AIDiaryScenarios = () => {
             placeholder="Ваш ответ..."
             value={currentResponse || ''}
             onChange={(e) => setCurrentResponse(e.target.value)}
-            className="w-full"
+            className="w-full transition-all duration-200 focus:scale-[1.01]"
           />
         );
     }
@@ -299,11 +331,11 @@ const AIDiaryScenarios = () => {
 
   if (!currentSession) {
     return (
-      <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+      <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              className="w-8 h-8 rounded-lg flex items-center justify-center animate-pulse-glow"
               style={{
                 background: `linear-gradient(to bottom right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
               }}
@@ -316,11 +348,18 @@ const AIDiaryScenarios = () => {
         
         <CardContent className="space-y-6">
           {todaySessions.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-3 animate-slide-in-left">
               <h3 className="font-medium text-gray-900 dark:text-white">Сегодня выполнено:</h3>
               <div className="flex flex-wrap gap-2">
-                {todaySessions.map((session) => (
-                  <Badge key={session.id} variant="outline" className="flex items-center space-x-1">
+                {todaySessions.map((session, index) => (
+                  <Badge 
+                    key={session.id} 
+                    variant="outline" 
+                    className="flex items-center space-x-1 animate-scale-up"
+                    style={{
+                      animationDelay: `${index * 150}ms`
+                    }}
+                  >
                     {getTimeIcon(session.type)}
                     <span>{getSessionTitle(session.type)}</span>
                   </Badge>
@@ -329,48 +368,32 @@ const AIDiaryScenarios = () => {
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-4 animate-slide-in-right">
             <h3 className="font-medium text-gray-900 dark:text-white">Выберите время дня для рефлексии:</h3>
             
             <div className="grid gap-4">
-              <Button
-                onClick={() => startDiarySession('morning')}
-                className="h-auto p-4 justify-start space-x-3 bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20 border border-orange-200 dark:border-orange-800 hover:from-orange-200 hover:to-yellow-200 dark:hover:from-orange-800/30 dark:hover:to-yellow-800/30 text-gray-900 dark:text-gray-100"
-                variant="outline"
-                disabled={todaySessions.some(s => s.type === 'morning')}
-              >
-                <Sun className="w-5 h-5 text-orange-500" />
-                <div className="text-left">
-                  <div className="font-medium">Утренний дневник</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">7:00-10:00 • Планирование дня, настройка настроения</div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => startDiarySession('midday')}
-                className="h-auto p-4 justify-start space-x-3 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 text-gray-900 dark:text-gray-100"
-                variant="outline"
-                disabled={todaySessions.some(s => s.type === 'midday')}
-              >
-                <Sunset className="w-5 h-5 text-blue-500" />
-                <div className="text-left">
-                  <div className="font-medium">Дневной дневник</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">12:00-15:00 • Проверка состояния, корректировка планов</div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => startDiarySession('evening')}
-                className="h-auto p-4 justify-start space-x-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-800/30 dark:hover:to-pink-800/30 text-gray-900 dark:text-gray-100"
-                variant="outline"
-                disabled={todaySessions.some(s => s.type === 'evening')}
-              >
-                <Moon className="w-5 h-5 text-purple-500" />
-                <div className="text-left">
-                  <div className="font-medium">Вечерний дневник</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">19:00-22:00 • Подведение итогов, подготовка ко сну</div>
-                </div>
-              </Button>
+              {[
+                { type: 'morning', icon: Sun, color: 'from-orange-100 to-yellow-100 dark:from-orange-900/20 dark:to-yellow-900/20', borderColor: 'border-orange-200 dark:border-orange-800', hoverColor: 'hover:from-orange-200 hover:to-yellow-200 dark:hover:from-orange-800/30 dark:hover:to-yellow-800/30', iconColor: 'text-orange-500', title: 'Утренний дневник', time: '7:00-10:00 • Планирование дня, настройка настроения' },
+                { type: 'midday', icon: Sunset, color: 'from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20', borderColor: 'border-blue-200 dark:border-blue-800', hoverColor: 'hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30', iconColor: 'text-blue-500', title: 'Дневной дневник', time: '12:00-15:00 • Проверка состояния, корректировка планов' },
+                { type: 'evening', icon: Moon, color: 'from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20', borderColor: 'border-purple-200 dark:border-purple-800', hoverColor: 'hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-800/30 dark:hover:to-pink-800/30', iconColor: 'text-purple-500', title: 'Вечерний дневник', time: '19:00-22:00 • Подведение итогов, подготовка ко сну' }
+              ].map((scenario, index) => (
+                <Button
+                  key={scenario.type}
+                  onClick={() => startDiarySession(scenario.type as 'morning' | 'midday' | 'evening')}
+                  className={`h-auto p-4 justify-start space-x-3 bg-gradient-to-r ${scenario.color} border ${scenario.borderColor} ${scenario.hoverColor} text-gray-900 dark:text-gray-100 transition-all duration-300 hover:scale-[1.02] transform animate-slide-up-fade`}
+                  variant="outline"
+                  disabled={todaySessions.some(s => s.type === scenario.type)}
+                  style={{
+                    animationDelay: `${index * 200}ms`
+                  }}
+                >
+                  <scenario.icon className={`w-5 h-5 ${scenario.iconColor}`} />
+                  <div className="text-left">
+                    <div className="font-medium">{scenario.title}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{scenario.time}</div>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
         </CardContent>
@@ -379,7 +402,7 @@ const AIDiaryScenarios = () => {
   }
 
   return (
-    <Card className="h-[600px] flex flex-col bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+    <Card className="h-[600px] flex flex-col bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in">
       <CardHeader className="flex-shrink-0 pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -388,7 +411,7 @@ const AIDiaryScenarios = () => {
               {getSessionTitle(currentSession.type)}
             </span>
           </div>
-          <Badge variant="outline">
+          <Badge variant="outline" className="animate-pulse">
             {currentSession.currentStep} / {currentSession.totalSteps}
           </Badge>
         </CardTitle>
@@ -397,16 +420,19 @@ const AIDiaryScenarios = () => {
       <CardContent className="flex-1 flex flex-col space-y-4">
         <ScrollArea className="flex-1">
           <div className="space-y-4">
-            {chatMessages.map((message) => (
+            {chatMessages.map((message, index) => (
               <div
                 key={message.id}
-                className={`flex items-start space-x-3 ${
+                className={`flex items-start space-x-3 animate-slide-up-fade ${
                   message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                 }`}
+                style={{
+                  animationDelay: `${index * 200}ms`
+                }}
               >
                 <Avatar className="w-8 h-8 flex-shrink-0">
                   <AvatarFallback 
-                    className={`text-white font-medium ${
+                    className={`text-white font-medium transition-all duration-300 hover:scale-110 ${
                       message.type === 'user' 
                         ? 'bg-gray-600 dark:bg-gray-400'
                         : 'text-white'
@@ -421,7 +447,7 @@ const AIDiaryScenarios = () => {
                 
                 <div className={`max-w-[85%] ${message.type === 'user' ? 'text-right' : ''}`}>
                   <div
-                    className={`rounded-2xl px-4 py-3 ${
+                    className={`rounded-2xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] ${
                       message.type === 'user'
                         ? 'bg-blue-500 text-white ml-auto'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
@@ -429,7 +455,7 @@ const AIDiaryScenarios = () => {
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-opacity duration-200">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -437,8 +463,8 @@ const AIDiaryScenarios = () => {
             ))}
 
             {/* Текущий вопрос для ответа */}
-            {!isCompleted && currentQuestion && (
-              <div className="border-t pt-4 space-y-4">
+            {!isCompleted && currentQuestion && !isTransitioning && (
+              <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
                 <div className="ml-11 space-y-4">
                   {renderQuestionInput(currentQuestion)}
                   
@@ -447,14 +473,14 @@ const AIDiaryScenarios = () => {
                     currentQuestion.type === 'emoji-scale' || 
                     currentQuestion.type === 'multiple-choice' || 
                     currentQuestion.type === 'multi-select') && (
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2 animate-fade-in">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Сделайте выбор и нажмите "Далее"
                       </p>
                       <Button
                         onClick={handleQuestionResponse}
                         disabled={!currentResponse || (Array.isArray(currentResponse) && currentResponse.length === 0)}
-                        className="w-fit text-white"
+                        className="w-fit text-white transition-all duration-300 hover:scale-105 transform"
                         style={{
                           background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
                         }}
@@ -469,7 +495,7 @@ const AIDiaryScenarios = () => {
                     <Button
                       onClick={handleQuestionResponse}
                       disabled={!currentResponse}
-                      className="w-fit text-white"
+                      className="w-fit text-white transition-all duration-300 hover:scale-105 transform animate-fade-in"
                       style={{
                         background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
                       }}
@@ -480,23 +506,34 @@ const AIDiaryScenarios = () => {
                 </div>
               </div>
             )}
+
+            {/* Индикатор загрузки во время переходов */}
+            {isTransitioning && (
+              <div className="flex justify-center py-4 animate-fade-in">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
         
         {/* Поле для ввода текстовых сообщений */}
-        <div className="flex-shrink-0 border-t pt-4">
+        <div className="flex-shrink-0 border-t pt-4 animate-slide-up-fade">
           <div className="flex space-x-2">
             <Input
               placeholder="Напишите заметку или комментарий..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1"
+              className="flex-1 transition-all duration-200 focus:scale-[1.01]"
             />
             <Button
               onClick={handleSendTextMessage}
               disabled={!inputMessage.trim()}
-              className="text-white"
+              className="text-white transition-all duration-300 hover:scale-110 transform"
               style={{
                 background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
               }}
@@ -508,7 +545,7 @@ const AIDiaryScenarios = () => {
 
         {/* Кнопки управления сессией */}
         {!isCompleted && currentQuestion && (
-          <div className="flex-shrink-0 flex justify-between items-center pt-2 border-t">
+          <div className="flex-shrink-0 flex justify-between items-center pt-2 border-t animate-fade-in">
             <Button
               variant="outline"
               onClick={() => {
@@ -518,6 +555,7 @@ const AIDiaryScenarios = () => {
                 setIsCompleted(false);
                 setChatMessages([]);
               }}
+              className="transition-all duration-300 hover:scale-105 transform"
             >
               Завершить сессию
             </Button>
@@ -525,7 +563,7 @@ const AIDiaryScenarios = () => {
         )}
 
         {isCompleted && (
-          <div className="flex-shrink-0 pt-2 border-t">
+          <div className="flex-shrink-0 pt-2 border-t animate-slide-up-fade">
             <Button
               onClick={() => {
                 setCurrentSession(null);
@@ -535,7 +573,7 @@ const AIDiaryScenarios = () => {
                 setCompletionMessage('');
                 setChatMessages([]);
               }}
-              className="w-full text-white"
+              className="w-full text-white transition-all duration-300 hover:scale-105 transform"
               style={{
                 background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
               }}
