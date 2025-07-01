@@ -9,7 +9,7 @@ import MessagesList from './MessagesList';
 import ChatInput from './ChatInput';
 import SessionActions from './SessionActions';
 
-interface ChatMessage {
+interface ChatMessageType {
   id: string;
   type: 'user' | 'ai' | 'question';
   content: string;
@@ -30,8 +30,8 @@ interface DiaryChatProps {
   setCompletionMessage: React.Dispatch<React.SetStateAction<string>>;
   todaySessions: DiarySession[];
   setTodaySessions: React.Dispatch<React.SetStateAction<DiarySession[]>>;
-  chatMessages: ChatMessage[];
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  chatMessages: ChatMessageType[];
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessageType[]>>;
   inputMessage: string;
   setInputMessage: React.Dispatch<React.SetStateAction<string>>;
   isTransitioning: boolean;
@@ -62,7 +62,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   const handleSendTextMessage = useCallback(() => {
     if (!inputMessage.trim()) return;
 
-    const userMessage: ChatMessage = {
+    const userMessage: ChatMessageType = {
       id: `user_${Date.now()}`,
       type: 'user',
       content: inputMessage,
@@ -73,7 +73,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     setInputMessage('');
 
     const timeoutId = setTimeout(() => {
-      const aiResponse: ChatMessage = {
+      const aiResponse: ChatMessageType = {
         id: `ai_${Date.now()}`,
         type: 'ai',
         content: 'Спасибо за ваши мысли! Это важные заметки. Продолжим с текущим вопросом, когда будете готовы.',
@@ -91,7 +91,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     setIsTransitioning(true);
 
     const responseText = formatResponseForChat(currentResponse, currentQuestion);
-    const userResponseMessage: ChatMessage = {
+    const userResponseMessage: ChatMessageType = {
       id: `response_${Date.now()}`,
       type: 'user',
       content: responseText,
@@ -115,7 +115,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         setTodaySessions(diaryEngine.getTodaySessions());
 
         const completionTimeoutId = setTimeout(() => {
-          const completionChatMessage: ChatMessage = {
+          const completionChatMessage: ChatMessageType = {
             id: `completion_${Date.now()}`,
             type: 'ai',
             content: finalMessage,
@@ -130,7 +130,7 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         setCurrentQuestion(nextQuestion);
         
         const questionTimeoutId = setTimeout(() => {
-          const nextQuestionMessage: ChatMessage = {
+          const nextQuestionMessage: ChatMessageType = {
             id: `question_${Date.now()}`,
             type: 'question',
             content: nextQuestion.text,

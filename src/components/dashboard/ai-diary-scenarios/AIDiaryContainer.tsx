@@ -6,7 +6,7 @@ import { DiarySession, Question } from './types';
 import SessionSelector from './SessionSelector';
 import DiaryChat from './DiaryChat';
 
-interface ChatMessage {
+interface ChatMessageType {
   id: string;
   type: 'user' | 'ai' | 'question';
   content: string;
@@ -22,7 +22,7 @@ const AIDiaryContainer = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionMessage, setCompletionMessage] = useState('');
   const [todaySessions, setTodaySessions] = useState<DiarySession[]>([]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -44,7 +44,7 @@ const AIDiaryContainer = () => {
       setCompletionMessage('');
 
       const scenario = diaryEngine.getScenario(type);
-      const welcomeMessage: ChatMessage = {
+      const welcomeMessage: ChatMessageType = {
         id: `welcome_${Date.now()}`,
         type: 'ai',
         content: scenario.greeting,
@@ -55,7 +55,7 @@ const AIDiaryContainer = () => {
       
       const questionTimeoutId = setTimeout(() => {
         if (firstQuestion) {
-          const questionMessage: ChatMessage = {
+          const questionMessage: ChatMessageType = {
             id: `question_${Date.now()}`,
             type: 'question',
             content: firstQuestion.text,

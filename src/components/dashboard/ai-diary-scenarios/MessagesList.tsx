@@ -1,11 +1,10 @@
-
 import React, { useRef, useEffect, useCallback } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
 import QuestionInput from './QuestionInput';
 import { Question } from './types';
 
-interface ChatMessage {
+interface ChatMessageType {
   id: string;
   type: 'user' | 'ai' | 'question';
   content: string;
@@ -15,7 +14,7 @@ interface ChatMessage {
 }
 
 interface MessagesListProps {
-  chatMessages: ChatMessage[];
+  chatMessages: ChatMessageType[];
   currentQuestion: Question | null;
   currentResponse: string | number | string[] | number[];
   setCurrentResponse: React.Dispatch<React.SetStateAction<string | number | string[] | number[]>>;
