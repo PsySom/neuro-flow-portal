@@ -37,12 +37,13 @@ const MessagesList: React.FC<MessagesListProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'end',
-        inline: 'nearest'
-      });
+    if (scrollAreaRef.current) {
+      // Находим viewport внутри ScrollArea
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+      if (viewport) {
+        // Скроллим к концу контента
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, []);
 
@@ -50,17 +51,17 @@ const MessagesList: React.FC<MessagesListProps> = ({
   useEffect(() => {
     const scrollTimeout = setTimeout(() => {
       scrollToBottom();
-    }, 300); // Увеличил задержку для лучшего скроллинга
+    }, 100); // Уменьшил задержку для более быстрого отклика
 
     return () => clearTimeout(scrollTimeout);
-  }, [chatMessages.length, scrollToBottom]); // Привязываем к количеству сообщений
+  }, [chatMessages.length, scrollToBottom]);
 
   // Дополнительный скролл для новых вопросов
   useEffect(() => {
     if (currentQuestion && !isTransitioning) {
       const questionScrollTimeout = setTimeout(() => {
         scrollToBottom();
-      }, 500); // Увеличил задержку для анимации появления вопроса
+      }, 200);
 
       return () => clearTimeout(questionScrollTimeout);
     }
@@ -71,7 +72,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
     if (!isTransitioning) {
       const transitionScrollTimeout = setTimeout(() => {
         scrollToBottom();
-      }, 200);
+      }, 100);
 
       return () => clearTimeout(transitionScrollTimeout);
     }
