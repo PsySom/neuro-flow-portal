@@ -11,7 +11,9 @@ export const formatResponseForChat = (response: string | number | string[] | num
   }
   if (question.type === 'multi-select') {
     if (Array.isArray(response)) {
-      const selectedOptions = question.options?.filter(opt => response.includes(opt.value)) || [];
+      const selectedOptions = question.options?.filter(opt => 
+        response.some(val => val === opt.value)
+      ) || [];
       return selectedOptions.map(opt => `${opt.emoji || ''} ${opt.label}`.trim()).join(', ');
     }
   }

@@ -103,30 +103,35 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
       case 'multi-select':
         return (
           <div className="space-y-3 animate-slide-up-fade">
-            {question.options?.map((option, index) => (
-              <div 
-                key={option.value} 
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
-              >
-                <Checkbox
-                  checked={Array.isArray(currentResponse) ? currentResponse.includes(option.value) : false}
-                  onCheckedChange={(checked) => {
-                    const current = Array.isArray(currentResponse) ? currentResponse : [];
-                    if (checked) {
-                      setCurrentResponse([...current, option.value]);
-                    } else {
-                      setCurrentResponse(current.filter((v) => v !== option.value));
-                    }
+            {question.options?.map((option, index) => {
+              const isChecked = Array.isArray(currentResponse) && 
+                currentResponse.some(val => val === option.value);
+              
+              return (
+                <div 
+                  key={option.value} 
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  style={{
+                    animationDelay: `${index * 100}ms`
                   }}
-                  className="transition-all duration-200"
-                />
-                {option.emoji && <span className="text-lg transition-transform duration-200">{option.emoji}</span>}
-                <span>{option.label}</span>
-              </div>
-            ))}
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      const current = Array.isArray(currentResponse) ? currentResponse : [];
+                      if (checked) {
+                        setCurrentResponse([...current, option.value]);
+                      } else {
+                        setCurrentResponse(current.filter((v) => v !== option.value));
+                      }
+                    }}
+                    className="transition-all duration-200"
+                  />
+                  {option.emoji && <span className="text-lg transition-transform duration-200">{option.emoji}</span>}
+                  <span>{option.label}</span>
+                </div>
+              );
+            })}
           </div>
         );
 
