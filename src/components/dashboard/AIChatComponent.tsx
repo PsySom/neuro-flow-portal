@@ -4,8 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import AIChatHeader from './ai-chat/AIChatHeader';
 import AIChatTabs from './ai-chat/AIChatTabs';
+import FreeChat from './ai-chat/FreeChat';
 import AIDiaryScenarios from './AIDiaryScenarios';
-import FreeChat from './FreeChat';
 
 const AIChatComponent = () => {
   const [activeTab, setActiveTab] = useState('free-chat');
