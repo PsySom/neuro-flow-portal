@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+
+import React, { useCallback, useEffect } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
 import { DiarySession, Question } from './types';
@@ -58,6 +59,24 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   setIsTransitioning,
   onResetSession
 }) => {
+  // Инициализация ответа при изменении вопроса
+  useEffect(() => {
+    if (currentQuestion) {
+      console.log('DiaryChat: New question detected:', currentQuestion.type, currentQuestion.id);
+      
+      // Сброс ответа для нового вопроса
+      if (currentQuestion.type === 'scale') {
+        const initialValue = currentQuestion.scaleRange?.min || 0;
+        console.log('DiaryChat: Setting initial value for scale question:', initialValue);
+        setCurrentResponse(initialValue);
+      } else if (currentQuestion.type === 'multi-select') {
+        setCurrentResponse([]);
+      } else {
+        setCurrentResponse('');
+      }
+    }
+  }, [currentQuestion?.id, setCurrentResponse]);
+
   const handleSendTextMessage = useCallback(() => {
     if (!inputMessage.trim()) return;
 
@@ -87,6 +106,8 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   const handleQuestionResponse = useCallback(() => {
     if (!currentSession || !currentQuestion || currentResponse === '') return;
 
+    console.log('DiaryChat: Processing response:', currentResponse, 'for question:', currentQuestion.id);
+    
     setIsTransitioning(true);
 
     const responseText = formatResponseForChat(currentResponse, currentQuestion);
@@ -105,6 +126,8 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         currentQuestion.id,
         currentResponse
       );
+
+      console.log('DiaryChat: Next question:', nextQuestion?.id, 'Session completed:', sessionCompleted);
 
       if (sessionCompleted) {
         setIsCompleted(true);
@@ -143,12 +166,10 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
 
         return () => clearTimeout(questionTimeoutId);
       }
-
-      setCurrentResponse('');
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning, setCurrentResponse]);
+  }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning]);
 
   return (
     <div className="h-full flex flex-col">
