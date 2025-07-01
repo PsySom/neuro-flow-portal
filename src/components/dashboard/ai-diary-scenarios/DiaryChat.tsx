@@ -1,5 +1,5 @@
+
 import React, { useCallback, useEffect } from 'react';
-import { CardContent } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
 import { DiarySession, Question } from './types';
 import { formatResponseForChat } from './utils';
@@ -171,8 +171,10 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning]);
 
   return (
-    <div className="h-full flex flex-col">
-      <DiaryHeader currentSession={currentSession} />
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+        <DiaryHeader currentSession={currentSession} />
+      </div>
       
       <div className="flex-1 flex flex-col min-h-0">
         <MessagesList
@@ -186,15 +188,13 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
         />
         
         <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-          <div className="p-4 pb-2">
+          <div className="p-4 space-y-3">
             <ChatInput
               inputMessage={inputMessage}
               setInputMessage={setInputMessage}
               onSendMessage={handleSendTextMessage}
             />
-          </div>
-          
-          <div className="px-4 pb-4">
+            
             <SessionActions
               isCompleted={isCompleted}
               currentQuestion={currentQuestion}

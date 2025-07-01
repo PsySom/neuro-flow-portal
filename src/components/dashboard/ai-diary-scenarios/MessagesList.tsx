@@ -49,33 +49,14 @@ const MessagesList: React.FC<MessagesListProps> = ({
     }
   }, []);
 
-  // Основной эффект скроллинга - срабатывает при изменении сообщений
+  // Основной эффект скроллинга
   useEffect(() => {
-    scrollToBottom();
-  }, [chatMessages, scrollToBottom]);
+    const timeoutId = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
 
-  // Дополнительный скролл для новых вопросов
-  useEffect(() => {
-    if (currentQuestion && !isTransitioning) {
-      // Даем время на рендер нового вопроса
-      const questionScrollTimeout = setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-
-      return () => clearTimeout(questionScrollTimeout);
-    }
-  }, [currentQuestion, isTransitioning, scrollToBottom]);
-
-  // Скролл при завершении переходов
-  useEffect(() => {
-    if (!isTransitioning) {
-      const transitionScrollTimeout = setTimeout(() => {
-        scrollToBottom();
-      }, 50);
-
-      return () => clearTimeout(transitionScrollTimeout);
-    }
-  }, [isTransitioning, scrollToBottom]);
+    return () => clearTimeout(timeoutId);
+  }, [chatMessages, currentQuestion, isTransitioning, scrollToBottom]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -115,8 +96,8 @@ const MessagesList: React.FC<MessagesListProps> = ({
             </div>
           )}
           
-          {/* Добавляем отступ внизу, чтобы последнее сообщение не прилипало к краю */}
-          <div className="h-4"></div>
+          {/* Постоянный отступ внизу для стабильности */}
+          <div className="h-6"></div>
         </div>
       </ScrollArea>
     </div>
