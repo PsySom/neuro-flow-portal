@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useCallback } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
@@ -45,25 +46,36 @@ const MessagesList: React.FC<MessagesListProps> = ({
     }
   }, []);
 
-  // Improved scroll effect - trigger on every message change and current question change
+  // Основной эффект скроллинга - срабатывает при изменении сообщений
   useEffect(() => {
     const scrollTimeout = setTimeout(() => {
       scrollToBottom();
-    }, 100);
+    }, 300); // Увеличил задержку для лучшего скроллинга
 
     return () => clearTimeout(scrollTimeout);
-  }, [chatMessages, currentQuestion, isTransitioning, scrollToBottom]);
+  }, [chatMessages.length, scrollToBottom]); // Привязываем к количеству сообщений
 
-  // Additional scroll trigger for when new questions appear
+  // Дополнительный скролл для новых вопросов
   useEffect(() => {
     if (currentQuestion && !isTransitioning) {
       const questionScrollTimeout = setTimeout(() => {
         scrollToBottom();
-      }, 200);
+      }, 500); // Увеличил задержку для анимации появления вопроса
 
       return () => clearTimeout(questionScrollTimeout);
     }
   }, [currentQuestion, isTransitioning, scrollToBottom]);
+
+  // Скролл при завершении переходов
+  useEffect(() => {
+    if (!isTransitioning) {
+      const transitionScrollTimeout = setTimeout(() => {
+        scrollToBottom();
+      }, 200);
+
+      return () => clearTimeout(transitionScrollTimeout);
+    }
+  }, [isTransitioning, scrollToBottom]);
 
   return (
     <ScrollArea 
