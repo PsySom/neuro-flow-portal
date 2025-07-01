@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -120,7 +119,14 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
                     onCheckedChange={(checked) => {
                       const current = Array.isArray(currentResponse) ? currentResponse : [];
                       if (checked) {
-                        setCurrentResponse([...current, option.value]);
+                        // Determine if we're working with strings or numbers based on the option type
+                        if (typeof option.value === 'string') {
+                          const stringArray = current.filter((v): v is string => typeof v === 'string');
+                          setCurrentResponse([...stringArray, option.value]);
+                        } else {
+                          const numberArray = current.filter((v): v is number => typeof v === 'number');
+                          setCurrentResponse([...numberArray, option.value]);
+                        }
                       } else {
                         setCurrentResponse(current.filter((v) => v !== option.value));
                       }
