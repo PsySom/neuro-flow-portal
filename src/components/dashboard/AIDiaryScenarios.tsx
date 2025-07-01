@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,27 @@ const AIDiaryScenarios = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Ref for scroll area
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages are added
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'end' 
+    });
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [chatMessages, isTransitioning]);
 
   useEffect(() => {
     setTodaySessions(diaryEngine.getTodaySessions());
@@ -418,8 +439,11 @@ const AIDiaryScenarios = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col space-y-4">
-        <ScrollArea className="flex-1">
-          <div className="space-y-4">
+        <ScrollArea 
+          className="flex-1 pr-4" 
+          ref={scrollAreaRef}
+        >
+          <div className="space-y-4 pb-4">
             {chatMessages.map((message, index) => (
               <div
                 key={message.id}
@@ -517,6 +541,9 @@ const AIDiaryScenarios = () => {
                 </div>
               </div>
             )}
+            
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} className="h-1" />
           </div>
         </ScrollArea>
         
