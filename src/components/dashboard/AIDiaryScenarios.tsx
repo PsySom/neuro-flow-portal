@@ -36,22 +36,36 @@ const AIDiaryScenarios = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages are added
+  // Improved auto-scroll function
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'end' 
-    });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'end',
+        inline: 'nearest'
+      });
+    }
+  };
+
+  // Force scroll to bottom with delay for proper rendering
+  const forceScrollToBottom = () => {
+    // Multiple timeouts to ensure scroll works in all cases
+    setTimeout(() => scrollToBottom(), 50);
+    setTimeout(() => scrollToBottom(), 150);
+    setTimeout(() => scrollToBottom(), 300);
   };
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [chatMessages, isTransitioning]);
+    forceScrollToBottom();
+  }, [chatMessages]);
+
+  // Additional scroll effect for transitions
+  useEffect(() => {
+    if (!isTransitioning) {
+      forceScrollToBottom();
+    }
+  }, [isTransitioning]);
 
   useEffect(() => {
     setTodaySessions(diaryEngine.getTodaySessions());
@@ -136,7 +150,11 @@ const AIDiaryScenarios = () => {
       timestamp: new Date()
     };
 
+    // Добавляем ответ пользователя
     setChatMessages(prev => [...prev, userResponseMessage]);
+
+    // Убираем текущий вопрос из состояния сразу
+    setCurrentQuestion(null);
 
     setTimeout(() => {
       const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
@@ -486,7 +504,7 @@ const AIDiaryScenarios = () => {
               </div>
             ))}
 
-            {/* Текущий вопрос для ответа */}
+            {/* Текущий вопрос для ответа - только если есть активный вопрос */}
             {!isCompleted && currentQuestion && !isTransitioning && (
               <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
                 <div className="ml-11 space-y-4">
