@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -83,69 +82,66 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   };
 
   return (
-    <div className="space-y-3">
-      {/* Статус и управление */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          {getStatusBadge()}
-          {status.scheduledDate && (
-            <Badge variant="outline" className="text-xs">
-              <Calendar className="w-3 h-3 mr-1" />
-              {formatDate(status.scheduledDate)}
-            </Badge>
-          )}
-        </div>
-      </div>
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      {/* Статус */}
+      {getStatusBadge()}
+      
+      {/* Запланированная дата */}
+      {status.scheduledDate && (
+        <Badge variant="outline" className="text-xs">
+          <Calendar className="w-3 h-3 mr-1" />
+          {formatDate(status.scheduledDate)}
+        </Badge>
+      )}
 
       {/* Кнопки управления */}
-      <div className="flex flex-wrap gap-2">
-        {!status.isActive ? (
+      {!status.isActive ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleActivate}
+          className="text-green-600 border-green-600 hover:bg-green-50 h-6 px-2 text-xs"
+        >
+          <Play className="w-3 h-3 mr-1" />
+          Активировать
+        </Button>
+      ) : (
+        <>
           <Button
             size="sm"
             variant="outline"
-            onClick={handleActivate}
-            className="text-green-600 border-green-600 hover:bg-green-50"
+            onClick={handlePause}
+            className="text-yellow-600 border-yellow-600 hover:bg-yellow-50 h-6 px-2 text-xs"
           >
-            <Play className="w-3 h-3 mr-1" />
-            Активировать
+            <Pause className="w-3 h-3 mr-1" />
+            {status.isPaused ? 'Возобновить' : 'Пауза'}
           </Button>
-        ) : (
-          <>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handlePause}
-              className="text-yellow-600 border-yellow-600 hover:bg-yellow-50"
-            >
-              <Pause className="w-3 h-3 mr-1" />
-              {status.isPaused ? 'Возобновить' : 'Пауза'}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleDeactivate}
-              className="text-red-600 border-red-600 hover:bg-red-50"
-            >
-              <Square className="w-3 h-3 mr-1" />
-              Отключить
-            </Button>
-          </>
-        )}
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={handleSchedule}
-          className="text-blue-600 hover:bg-blue-50"
-        >
-          <Calendar className="w-3 h-3 mr-1" />
-          Запланировать
-        </Button>
-      </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDeactivate}
+            className="text-red-600 border-red-600 hover:bg-red-50 h-6 px-2 text-xs"
+          >
+            <Square className="w-3 h-3 mr-1" />
+            Отключить
+          </Button>
+        </>
+      )}
+
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={handleSchedule}
+        className="text-blue-600 hover:bg-blue-50 h-6 px-2 text-xs"
+      >
+        <Calendar className="w-3 h-3 mr-1" />
+        Запланировать
+      </Button>
 
       {/* Дата последней записи */}
-      <div className="text-xs text-gray-500">
-        Последняя запись: {formatDate(status.lastEntryDate)}
-      </div>
+      <span className="text-gray-500 ml-2">
+        Последняя: {formatDate(status.lastEntryDate)}
+      </span>
     </div>
   );
 };
