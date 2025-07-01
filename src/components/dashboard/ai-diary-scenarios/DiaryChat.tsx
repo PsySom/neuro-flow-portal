@@ -1,16 +1,13 @@
 
-import React, { useRef, useEffect, useCallback } from 'react';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, Send, Sun, Sunset, Moon, Clock, User } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { CardContent } from '@/components/ui/card';
 import { diaryEngine } from './scenarioLogic';
 import { DiarySession, Question } from './types';
-import QuestionInput from './QuestionInput';
 import { formatResponseForChat } from './utils';
+import DiaryHeader from './DiaryHeader';
+import MessagesList from './MessagesList';
+import ChatInput from './ChatInput';
+import SessionActions from './SessionActions';
 
 interface ChatMessage {
   id: string;
@@ -62,39 +59,6 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   setIsTransitioning,
   onResetSession
 }) => {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'end',
-        inline: 'nearest'
-      });
-    }
-  }, []);
-
-  // Improved scroll effect - trigger on every message change and current question change
-  useEffect(() => {
-    const scrollTimeout = setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-
-    return () => clearTimeout(scrollTimeout);
-  }, [chatMessages, currentQuestion, isTransitioning, scrollToBottom]);
-
-  // Additional scroll trigger for when new questions appear
-  useEffect(() => {
-    if (currentQuestion && !isTransitioning) {
-      const questionScrollTimeout = setTimeout(() => {
-        scrollToBottom();
-      }, 200);
-
-      return () => clearTimeout(questionScrollTimeout);
-    }
-  }, [currentQuestion, isTransitioning, scrollToBottom]);
-
   const handleSendTextMessage = useCallback(() => {
     if (!inputMessage.trim()) return;
 
@@ -187,169 +151,32 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
     return () => clearTimeout(timeoutId);
   }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning, setCurrentResponse]);
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendTextMessage();
-    }
-  }, [handleSendTextMessage]);
-
-  const getTimeIcon = (type: string) => {
-    switch (type) {
-      case 'morning': return <Sun className="w-4 h-4" />;
-      case 'midday': return <Sunset className="w-4 h-4" />;
-      case 'evening': return <Moon className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
-    }
-  };
-
-  const getSessionTitle = (type: string) => {
-    switch (type) {
-      case 'morning': return 'Утренний дневник';
-      case 'midday': return 'Дневной дневник';
-      case 'evening': return 'Вечерний дневник';
-      default: return 'Дневник';
-    }
-  };
-
   return (
     <>
-      <CardHeader className="flex-shrink-0 pb-3">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {getTimeIcon(currentSession.type)}
-            <span className="text-lg font-semibold text-gray-900 dark:text-white">
-              {getSessionTitle(currentSession.type)}
-            </span>
-          </div>
-          <Badge variant="outline" className="animate-pulse">
-            {currentSession.currentStep} / {currentSession.totalSteps}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
+      <DiaryHeader currentSession={currentSession} />
       
       <CardContent className="flex-1 flex flex-col space-y-4">
-        <ScrollArea 
-          className="flex-1 pr-4" 
-          ref={scrollAreaRef}
-        >
-          <div className="space-y-4 pb-4">
-            {chatMessages.map((message, index) => (
-              <div
-                key={message.id}
-                className={`flex items-start space-x-3 animate-slide-up-fade ${
-                  message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                }`}
-                style={{
-                  animationDelay: `${index * 200}ms`
-                }}
-              >
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback 
-                    className={`text-white font-medium transition-all duration-300 hover:scale-110 ${
-                      message.type === 'user' 
-                        ? 'bg-gray-600 dark:bg-gray-400'
-                        : 'text-white'
-                    }`}
-                    style={message.type !== 'user' ? {
-                      backgroundColor: `hsl(var(--psybalans-primary))`
-                    } : undefined}
-                  >
-                    {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className={`max-w-[85%] ${message.type === 'user' ? 'text-right' : ''}`}>
-                  <div
-                    className={`rounded-2xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] ${
-                      message.type === 'user'
-                        ? 'bg-blue-500 text-white ml-auto'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-opacity duration-200">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {!isCompleted && currentQuestion && !isTransitioning && (
-              <div className="border-t pt-4 space-y-4 animate-slide-up-fade">
-                <div className="ml-11 space-y-4">
-                  <QuestionInput
-                    question={currentQuestion}
-                    currentResponse={currentResponse}
-                    setCurrentResponse={setCurrentResponse}
-                    onSubmitResponse={handleQuestionResponse}
-                  />
-                </div>
-              </div>
-            )}
-
-            {isTransitioning && (
-              <div className="flex justify-center py-4 animate-fade-in">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} className="h-1" />
-          </div>
-        </ScrollArea>
+        <MessagesList
+          chatMessages={chatMessages}
+          currentQuestion={currentQuestion}
+          currentResponse={currentResponse}
+          setCurrentResponse={setCurrentResponse}
+          isCompleted={isCompleted}
+          isTransitioning={isTransitioning}
+          onSubmitResponse={handleQuestionResponse}
+        />
         
-        <div className="flex-shrink-0 border-t pt-4 animate-slide-up-fade">
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Напишите заметку или комментарий..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1 transition-all duration-200 focus:scale-[1.01]"
-            />
-            <Button
-              onClick={handleSendTextMessage}
-              disabled={!inputMessage.trim()}
-              className="text-white transition-all duration-300 hover:scale-110 transform"
-              style={{
-                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
-              }}
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        <ChatInput
+          inputMessage={inputMessage}
+          setInputMessage={setInputMessage}
+          onSendMessage={handleSendTextMessage}
+        />
 
-        {!isCompleted && currentQuestion && (
-          <div className="flex-shrink-0 flex justify-between items-center pt-2 border-t animate-fade-in">
-            <Button
-              variant="outline"
-              onClick={onResetSession}
-              className="transition-all duration-300 hover:scale-105 transform"
-            >
-              Завершить сессию
-            </Button>
-          </div>
-        )}
-
-        {isCompleted && (
-          <div className="flex-shrink-0 pt-2 border-t animate-slide-up-fade">
-            <Button
-              onClick={onResetSession}
-              className="w-full text-white transition-all duration-300 hover:scale-105 transform"
-              style={{
-                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
-              }}
-            >
-              Начать новую сессию
-            </Button>
-          </div>
-        )}
+        <SessionActions
+          isCompleted={isCompleted}
+          currentQuestion={currentQuestion}
+          onResetSession={onResetSession}
+        />
       </CardContent>
     </>
   );
