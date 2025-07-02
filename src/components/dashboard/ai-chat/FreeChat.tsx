@@ -30,10 +30,13 @@ const FreeChat = () => {
     if (scrollAreaRef.current) {
       const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
       if (viewport) {
+        // Используем requestAnimationFrame для более плавного скроллинга
         requestAnimationFrame(() => {
-          viewport.scrollTo({
-            top: viewport.scrollHeight,
-            behavior: 'smooth'
+          requestAnimationFrame(() => {
+            viewport.scrollTo({
+              top: viewport.scrollHeight,
+              behavior: 'smooth'
+            });
           });
         });
       }
@@ -43,7 +46,7 @@ const FreeChat = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       scrollToBottom();
-    }, 300);
+    }, 150);
 
     return () => clearTimeout(timeoutId);
   }, [messages, isTyping, scrollToBottom]);
@@ -89,7 +92,7 @@ const FreeChat = () => {
           className="h-full" 
           ref={scrollAreaRef}
         >
-          <div className="space-y-4 p-4 pb-24">
+          <div className="space-y-4 p-4 pb-28">
             {messages.map((message) => (
               <div
                 key={message.id}
