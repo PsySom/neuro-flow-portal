@@ -79,8 +79,8 @@ const FreeChat = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div className="h-full flex flex-col relative">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden pb-20">
         <ScrollArea 
           className="flex-1 h-full" 
           ref={scrollAreaRef}
@@ -144,14 +144,11 @@ const FreeChat = () => {
                 </div>
               </div>
             )}
-
-            {/* Отступ внизу для предотвращения прилипания к краю */}
-            <div className="h-4"></div>
           </div>
         </ScrollArea>
       </div>
       
-      <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="p-4">
           <div className="flex space-x-2">
             <Input
