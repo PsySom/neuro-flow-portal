@@ -50,12 +50,12 @@ const MessagesList: React.FC<MessagesListProps> = ({
   }, [chatMessages, currentQuestion, isTransitioning, scrollToBottom]);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div className="h-full overflow-hidden">
       <ScrollArea 
-        className="flex-1 h-full" 
+        className="h-full" 
         ref={scrollAreaRef}
       >
-        <div className="space-y-4 p-4 pb-20">
+        <div className="space-y-4 p-4 pb-32">
           {chatMessages.map((message, index) => (
             <ChatMessage
               key={message.id}
