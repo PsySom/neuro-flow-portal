@@ -83,13 +83,13 @@ const FreeChat = () => {
   };
 
   return (
-    <div className="h-full flex flex-col relative">
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div className="h-full flex flex-col">
+      <div className="flex-1 overflow-hidden">
         <ScrollArea 
-          className="flex-1 h-full" 
+          className="h-full" 
           ref={scrollAreaRef}
         >
-          <div className="space-y-4 p-4 pb-28">
+          <div className="space-y-4 p-4 pb-24">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -152,7 +152,7 @@ const FreeChat = () => {
         </ScrollArea>
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="p-4">
           <div className="flex space-x-2">
             <Input
