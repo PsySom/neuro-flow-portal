@@ -41,7 +41,11 @@ const FreeChat = () => {
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    const timeoutId = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [messages, isTyping, scrollToBottom]);
 
   const handleSendMessage = async () => {
@@ -80,12 +84,12 @@ const FreeChat = () => {
 
   return (
     <div className="h-full flex flex-col relative">
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden pb-20">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <ScrollArea 
           className="flex-1 h-full" 
           ref={scrollAreaRef}
         >
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-4 pb-28">
             {messages.map((message) => (
               <div
                 key={message.id}
