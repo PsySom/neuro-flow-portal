@@ -43,7 +43,7 @@ const FreeChat = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       scrollToBottom();
-    }, 100);
+    }, 300);
 
     return () => clearTimeout(timeoutId);
   }, [messages, isTyping, scrollToBottom]);
