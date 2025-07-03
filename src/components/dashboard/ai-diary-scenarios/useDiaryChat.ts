@@ -35,12 +35,9 @@ export const useDiaryChat = ({
   // Initialize response when question changes
   useEffect(() => {
     if (currentQuestion) {
-      console.log('DiaryChat: New question detected:', currentQuestion.type, currentQuestion.id);
-      
       // Reset response for new question
       if (currentQuestion.type === 'scale') {
         const initialValue = currentQuestion.scaleRange?.min || 0;
-        console.log('DiaryChat: Setting initial value for scale question:', initialValue);
         setCurrentResponse(initialValue);
       } else if (currentQuestion.type === 'multi-select') {
         setCurrentResponse([]);
@@ -63,7 +60,7 @@ export const useDiaryChat = ({
     setChatMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    const timeoutId = setTimeout(() => {
+    setTimeout(() => {
       const aiResponse: ChatMessageType = {
         id: `ai_${Date.now()}`,
         type: 'ai',
@@ -72,14 +69,10 @@ export const useDiaryChat = ({
       };
       setChatMessages(prev => [...prev, aiResponse]);
     }, 1000);
-
-    return () => clearTimeout(timeoutId);
   }, [setChatMessages, setInputMessage]);
 
   const handleQuestionResponse = useCallback(() => {
     if (!currentSession || !currentQuestion || currentResponse === '') return;
-
-    console.log('DiaryChat: Processing response:', currentResponse, 'for question:', currentQuestion.id);
     
     setIsTransitioning(true);
 
@@ -94,13 +87,11 @@ export const useDiaryChat = ({
     setChatMessages(prev => [...prev, userResponseMessage]);
     setCurrentQuestion(null);
 
-    const timeoutId = setTimeout(() => {
+    setTimeout(() => {
       const { nextQuestion, isCompleted: sessionCompleted } = diaryEngine.processResponse(
         currentQuestion.id,
         currentResponse
       );
-
-      console.log('DiaryChat: Next question:', nextQuestion?.id, 'Session completed:', sessionCompleted);
 
       if (sessionCompleted) {
         setIsCompleted(true);
@@ -109,7 +100,7 @@ export const useDiaryChat = ({
         diaryEngine.saveSession(currentSession);
         setTodaySessions(diaryEngine.getTodaySessions());
 
-        const completionTimeoutId = setTimeout(() => {
+        setTimeout(() => {
           const completionChatMessage: ChatMessageType = {
             id: `completion_${Date.now()}`,
             type: 'ai',
@@ -119,12 +110,10 @@ export const useDiaryChat = ({
           setChatMessages(prev => [...prev, completionChatMessage]);
           setIsTransitioning(false);
         }, 800);
-
-        return () => clearTimeout(completionTimeoutId);
       } else if (nextQuestion) {
         setCurrentQuestion(nextQuestion);
         
-        const questionTimeoutId = setTimeout(() => {
+        setTimeout(() => {
           const nextQuestionMessage: ChatMessageType = {
             id: `question_${Date.now()}`,
             type: 'question',
@@ -136,12 +125,8 @@ export const useDiaryChat = ({
           setChatMessages(prev => [...prev, nextQuestionMessage]);
           setIsTransitioning(false);
         }, 800);
-
-        return () => clearTimeout(questionTimeoutId);
       }
     }, 500);
-
-    return () => clearTimeout(timeoutId);
   }, [currentSession, currentQuestion, currentResponse, setChatMessages, setCurrentQuestion, setIsCompleted, setCompletionMessage, setTodaySessions, setIsTransitioning]);
 
   return {

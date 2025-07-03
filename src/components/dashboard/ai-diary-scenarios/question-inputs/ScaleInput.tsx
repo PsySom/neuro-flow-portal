@@ -17,20 +17,17 @@ const ScaleInput: React.FC<ScaleInputProps> = ({
   useEffect(() => {
     if (currentResponse === '' || currentResponse === null || currentResponse === undefined) {
       const initialValue = question.scaleRange?.min || 0;
-      console.log('ScaleInput: Initializing with value:', initialValue);
       setCurrentResponse(initialValue);
     }
   }, [question, currentResponse, setCurrentResponse]);
 
   const currentValue = typeof currentResponse === 'number' ? currentResponse : (question.scaleRange?.min || 0);
-  console.log('ScaleInput: Rendering with currentValue:', currentValue, 'currentResponse:', currentResponse);
 
   return (
     <div className="space-y-4 animate-slide-up-fade">
       <Slider
         value={[currentValue]}
         onValueChange={(value) => {
-          console.log('ScaleInput: Slider value changed to:', value[0]);
           setCurrentResponse(value[0]);
         }}
         min={question.scaleRange?.min || 0}
