@@ -11,8 +11,8 @@ const UserActions: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
 
   const getUserInitial = () => {
-    if (user?.name) {
-      return user.name.charAt(0).toUpperCase();
+    if (user?.full_name) {
+      return user.full_name.charAt(0).toUpperCase();
     }
     if (user?.email) {
       return user.email.charAt(0).toUpperCase();

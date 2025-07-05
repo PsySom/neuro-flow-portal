@@ -23,7 +23,7 @@ const Login = () => {
       setIsLoading(true);
       
       try {
-        await login(email, password);
+        await login({ email, password });
         // Redirect to dashboard after successful login
         navigate('/dashboard');
       } catch (error) {

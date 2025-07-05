@@ -17,7 +17,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +26,12 @@ const Register = () => {
       setIsLoading(true);
       
       try {
-        // Simulate registration
-        const newUser = {
-          id: Date.now().toString(),
-          email,
-          name
-        };
-        
-        setUser(newUser);
-        localStorage.setItem('auth-user', JSON.stringify(newUser));
+        // Register using the new API
+        await register({ 
+          email, 
+          password, 
+          full_name: name 
+        });
         
         // Open onboarding dialog
         setIsOnboardingOpen(true);

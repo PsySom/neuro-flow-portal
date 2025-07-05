@@ -34,7 +34,7 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login({ email, password });
       toast({
         title: "Вход выполнен успешно",
         description: "Теперь вы можете планировать упражнения",

@@ -1,0 +1,105 @@
+import apiClient, { handleApiError } from './api.client';
+import { 
+  LoginRequest, 
+  RegisterRequest, 
+  AuthResponse, 
+  RefreshTokenRequest,
+  User 
+} from '../types/api.types';
+
+class AuthService {
+  // Login user
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // Register new user
+  async register(userData: RegisterRequest): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register', userData);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // Refresh access token
+  async refreshToken(refreshTokenData: RefreshTokenRequest): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/refresh', refreshTokenData);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // Get current user profile
+  async getCurrentUser(): Promise<User> {
+    try {
+      const response = await apiClient.get<User>('/auth/me');
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // Logout user
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error: any) {
+      // Even if logout fails on server, we should clear local storage
+      console.warn('Logout request failed:', error);
+    } finally {
+      // Clear local storage regardless of server response
+      this.clearAuthData();
+    }
+  }
+
+  // Store auth data locally
+  storeAuthData(authResponse: AuthResponse): void {
+    localStorage.setItem('access_token', authResponse.access_token);
+    localStorage.setItem('refresh_token', authResponse.refresh_token);
+    localStorage.setItem('auth-user', JSON.stringify(authResponse.user));
+  }
+
+  // Get stored user data
+  getStoredUser(): User | null {
+    try {
+      const userData = localStorage.getItem('auth-user');
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error('Error parsing stored user data:', error);
+      return null;
+    }
+  }
+
+  // Get stored tokens
+  getStoredTokens(): { accessToken: string | null; refreshToken: string | null } {
+    return {
+      accessToken: localStorage.getItem('access_token'),
+      refreshToken: localStorage.getItem('refresh_token'),
+    };
+  }
+
+  // Clear all auth data
+  clearAuthData(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('auth-user');
+  }
+
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    const tokens = this.getStoredTokens();
+    return !!(tokens.accessToken && tokens.refreshToken);
+  }
+}
+
+export const authService = new AuthService();
+export default authService;
