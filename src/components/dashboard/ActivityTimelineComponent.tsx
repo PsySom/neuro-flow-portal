@@ -1,41 +1,81 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
+import { LoaderCircle } from 'lucide-react';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import ActivityTimelineContent from './activity-timeline/ActivityTimelineContent';
 import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
-import { useActivityTimelineLogic } from './activity-timeline/useActivityTimelineLogic';
+import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
 import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
+import { useState } from 'react';
 
 const ActivityTimelineComponent = () => {
-  const {
-    isDialogOpen,
-    setIsDialogOpen,
-    selectedActivity,
-    isDetailsDialogOpen,
-    setIsDetailsDialogOpen,
-    todayActivities,
-    toggleActivityComplete,
-    deleteActivity,
-    updateActivity,
-    getFormattedDate
-  } = useActivityTimelineLogic();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  // API hooks
+  const { data: todayActivities = [], isLoading, error } = useTodayActivities();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivity();
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
-    updateActivity(activityId, updates);
+    updateActivityMutation.mutate({ id: activityId, data: updates });
   };
 
   const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
-    deleteActivity(activityId, deleteOption);
+    deleteActivityMutation.mutate(activityId);
   };
 
   const handleActivityToggle = (activityId: number) => {
-    toggleActivityComplete(activityId);
+    const activity = todayActivities.find(a => a.id === activityId);
+    if (activity) {
+      const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
+      updateActivityMutation.mutate({ 
+        id: activityId, 
+        data: { status: newStatus } 
+      });
+    }
+  };
+
+  const getFormattedDate = () => {
+    return new Date().toLocaleDateString('ru-RU', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   const formattedDate = getFormattedDate();
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+        <div className="flex items-center justify-center h-full">
+          <LoaderCircle className="w-6 h-6 animate-spin" />
+          <span className="ml-2">Загрузка активностей...</span>
+        </div>
+      </Card>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+        <div className="flex items-center justify-center h-full text-center text-red-600">
+          <div>
+            <p>Ошибка загрузки активностей</p>
+            <p className="text-sm mt-2">Проверьте подключение к серверу</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <>
