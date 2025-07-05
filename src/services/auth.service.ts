@@ -1,4 +1,5 @@
 import apiClient, { handleApiError } from './api.client';
+import mockAuthService from './mock-auth.service';
 import { 
   LoginRequest, 
   RegisterRequest, 
@@ -7,9 +8,16 @@ import {
   User 
 } from '../types/api.types';
 
+// Use mock service for development in Lovable environment
+const USE_MOCK = true;
+
 class AuthService {
   // Login user
   async login(credentials: LoginRequest): Promise<AuthResponse> {
+    if (USE_MOCK) {
+      return mockAuthService.login(credentials);
+    }
+    
     try {
       // Adapt frontend format to backend format
       const backendCredentials = {
@@ -25,6 +33,10 @@ class AuthService {
 
   // Register new user
   async register(userData: RegisterRequest): Promise<AuthResponse> {
+    if (USE_MOCK) {
+      return mockAuthService.register(userData);
+    }
+    
     try {
       // Adapt frontend format to backend format
       const backendUserData = {
@@ -41,6 +53,10 @@ class AuthService {
 
   // Refresh access token
   async refreshToken(refreshTokenData: RefreshTokenRequest): Promise<AuthResponse> {
+    if (USE_MOCK) {
+      return mockAuthService.refreshToken(refreshTokenData);
+    }
+    
     try {
       const response = await apiClient.post<AuthResponse>('/auth/refresh', refreshTokenData);
       return response.data;
@@ -51,6 +67,10 @@ class AuthService {
 
   // Get current user profile
   async getCurrentUser(): Promise<User> {
+    if (USE_MOCK) {
+      return mockAuthService.getCurrentUser();
+    }
+    
     try {
       const response = await apiClient.get<User>('/auth/me');
       return response.data;
@@ -61,6 +81,10 @@ class AuthService {
 
   // Logout user
   async logout(): Promise<void> {
+    if (USE_MOCK) {
+      return mockAuthService.logout();
+    }
+    
     try {
       await apiClient.post('/auth/logout');
     } catch (error: any) {
