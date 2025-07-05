@@ -28,9 +28,9 @@ import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 
 function App() {
   return (
-    <AuthProvider>
-      <PersonalizationProvider>
-        <ActivitiesProvider>
+    <PersonalizationProvider>
+      <ActivitiesProvider>
+        <AuthProvider>
           <Router>
             <div className="App">
               <Toaster />
@@ -58,9 +58,9 @@ function App() {
               </Routes>
             </div>
           </Router>
-        </ActivitiesProvider>
-      </PersonalizationProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </ActivitiesProvider>
+    </PersonalizationProvider>
   );
 }
 
