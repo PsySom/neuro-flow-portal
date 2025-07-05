@@ -8,6 +8,7 @@ import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import ActivityTimelineContent from './activity-timeline/ActivityTimelineContent';
 import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
 import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
+import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { useState } from 'react';
 
@@ -17,9 +18,12 @@ const ActivityTimelineComponent = () => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   // API hooks
-  const { data: todayActivities = [], isLoading, error } = useTodayActivities();
+  const { data: apiActivities = [], isLoading, error } = useTodayActivities();
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
+
+  // Convert API activities to UI format
+  const todayActivities = convertApiActivitiesToUi(apiActivities);
 
   const handleActivityUpdate = (activityId: number, updates: any) => {
     updateActivityMutation.mutate({ id: activityId, data: updates });
@@ -30,7 +34,7 @@ const ActivityTimelineComponent = () => {
   };
 
   const handleActivityToggle = (activityId: number) => {
-    const activity = todayActivities.find(a => a.id === activityId);
+    const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
       const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
       updateActivityMutation.mutate({ 
