@@ -11,7 +11,12 @@ class AuthService {
   // Login user
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      // Adapt frontend format to backend format
+      const backendCredentials = {
+        username: credentials.email,
+        password: credentials.password
+      };
+      const response = await apiClient.post<AuthResponse>('/auth/login', backendCredentials);
       return response.data;
     } catch (error: any) {
       throw handleApiError(error);
@@ -21,7 +26,13 @@ class AuthService {
   // Register new user
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/register', userData);
+      // Adapt frontend format to backend format
+      const backendUserData = {
+        username: userData.email,
+        password: userData.password,
+        full_name: userData.full_name
+      };
+      const response = await apiClient.post<AuthResponse>('/auth/register', backendUserData);
       return response.data;
     } catch (error: any) {
       throw handleApiError(error);
