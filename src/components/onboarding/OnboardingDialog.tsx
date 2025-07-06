@@ -5,30 +5,34 @@ import RegistrationForm from './RegistrationForm';
 import EmailVerification from './EmailVerification';
 import WelcomeScreen from './WelcomeScreen';
 import BasicInfo from './BasicInfo';
-import ChronotypeScreen from './ChronotypeScreen';
+import NaturalRhythmsScreen from './NaturalRhythmsScreen';
 import CurrentStateScreen from './CurrentStateScreen';
 import ChallengesScreen from './ChallengesScreen';
 import ProfessionalHelpScreen from './ProfessionalHelpScreen';
+import ProcrastinationScreen from './ProcrastinationScreen';
+import AnxietyScreen from './AnxietyScreen';
+import SocialSupportScreen from './SocialSupportScreen';
 import GoalsScreen from './GoalsScreen';
 import PreferencesScreen from './PreferencesScreen';
-import ProfileCreation from './ProfileCreation';
-import WelcomeComplete from './WelcomeComplete';
-import FirstCheckin from './FirstCheckin';
+import PersonalizationScreen from './PersonalizationScreen';
+import ConfirmationScreen from './ConfirmationScreen';
 
 export type OnboardingStep = 
   | 'registration'
   | 'email-verification'
   | 'welcome'
   | 'basic-info'
-  | 'chronotype'
+  | 'natural-rhythms'
   | 'current-state'
   | 'challenges'
   | 'professional-help'
+  | 'procrastination'
+  | 'anxiety'
+  | 'social-support'
   | 'goals'
   | 'preferences'
-  | 'profile-creation'
-  | 'welcome-complete'
-  | 'first-checkin';
+  | 'personalization'
+  | 'confirmation';
 
 interface OnboardingDialogProps {
   isOpen: boolean;
@@ -43,21 +47,23 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) 
     const newUserData = { ...userData, ...stepData };
     setUserData(newUserData);
     
-    // Правильный порядок шагов согласно техническому заданию
+    // Новый порядок шагов согласно обновленному техническому заданию
     const stepOrder: OnboardingStep[] = [
-      'registration',
-      'email-verification', 
-      'welcome',          // B1: Знакомство и приветствие
-      'basic-info',       // B2: Базовые данные
-      'chronotype',       // B3: Хронотип и режим дня
-      'current-state',    // C1: Оценка текущего самочувствия
-      'challenges',       // C2: Основные вызовы и трудности
-      'professional-help',// C3: Диагнозы и профессиональная помощь
-      'goals',           // D1: Основные цели использования
-      'preferences',     // D2: Мотивация и готовность к изменениям
-      'profile-creation',// E1: Создание профиля
-      'welcome-complete',// E2: Добро пожаловать
-      'first-checkin'    // Первая проверка состояния с данными
+      'registration',      // 1. Регистрация
+      'email-verification', // Подтверждение email
+      'welcome',           // 2. Знакомство
+      'basic-info',        // 3. Базовые данные
+      'natural-rhythms',   // 4. Естественные ритмы
+      'current-state',     // 5. Текущее состояние
+      'challenges',        // 6. Основные вызовы и трудности
+      'professional-help', // 7. Диагнозы и профессиональная помощь
+      'procrastination',   // 8. Прокрастинация и мотивация
+      'anxiety',          // 9. Тревожность и беспокойство
+      'social-support',   // 10. Социальная поддержка и связи
+      'goals',            // 11. Цели с PsyBalans
+      'preferences',      // 12. Предпочтения в работе с приложением
+      'personalization',  // 13. Персонализация поддержки
+      'confirmation'      // 14. Подтверждение и запуск
     ];
     
     const currentIndex = stepOrder.indexOf(currentStep);
@@ -74,15 +80,17 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) 
       'email-verification',
       'welcome',
       'basic-info',
-      'chronotype',
+      'natural-rhythms',
       'current-state',
       'challenges',
       'professional-help',
+      'procrastination',
+      'anxiety',
+      'social-support',
       'goals',
       'preferences',
-      'profile-creation',
-      'welcome-complete',
-      'first-checkin'
+      'personalization',
+      'confirmation'
     ];
     
     const currentIndex = stepOrder.indexOf(currentStep);
@@ -108,24 +116,28 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) 
         return <WelcomeScreen {...props} />;
       case 'basic-info':
         return <BasicInfo {...props} />;
-      case 'chronotype':
-        return <ChronotypeScreen {...props} />;
+      case 'natural-rhythms':
+        return <NaturalRhythmsScreen {...props} />;
       case 'current-state':
         return <CurrentStateScreen {...props} />;
       case 'challenges':
         return <ChallengesScreen {...props} />;
       case 'professional-help':
         return <ProfessionalHelpScreen {...props} />;
+      case 'procrastination':
+        return <ProcrastinationScreen {...props} />;
+      case 'anxiety':
+        return <AnxietyScreen {...props} />;
+      case 'social-support':
+        return <SocialSupportScreen {...props} />;
       case 'goals':
         return <GoalsScreen {...props} />;
       case 'preferences':
         return <PreferencesScreen {...props} />;
-      case 'profile-creation':
-        return <ProfileCreation {...props} />;
-      case 'welcome-complete':
-        return <WelcomeComplete {...props} />;
-      case 'first-checkin':
-        return <FirstCheckin {...props} />;
+      case 'personalization':
+        return <PersonalizationScreen {...props} />;
+      case 'confirmation':
+        return <ConfirmationScreen {...props} />;
       default:
         return null;
     }
