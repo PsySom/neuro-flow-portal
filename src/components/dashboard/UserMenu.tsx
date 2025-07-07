@@ -8,9 +8,11 @@ import { Search, Settings, Palette, Sun, Moon, Monitor, User, LogOut } from 'luc
 import { useAuth } from '@/contexts/AuthContext';
 import { usePersonalization, AccentColor, Theme } from '@/contexts/PersonalizationContext';
 import { useNavigate } from 'react-router-dom';
+import UserProfileDialog from './UserProfileDialog';
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { user, logout } = useAuth();
   const { settings, updateSettings, applySettings } = usePersonalization();
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ const UserMenu = () => {
   };
 
   const handleUserSettings = () => {
-    console.log('Открыть настройки пользователя');
+    setIsProfileDialogOpen(true);
     setIsOpen(false);
   };
 
@@ -204,6 +206,11 @@ const UserMenu = () => {
           </div>
         </div>
       </SheetContent>
+      
+      <UserProfileDialog 
+        isOpen={isProfileDialogOpen} 
+        onClose={() => setIsProfileDialogOpen(false)} 
+      />
     </Sheet>
   );
 };
