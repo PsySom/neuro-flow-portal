@@ -25,6 +25,7 @@ const mockDelay = (ms: number = 500) => new Promise(resolve => setTimeout(resolv
 
 class MockOnboardingService {
   private baseUrl = '/api/v1/onboarding';
+  private savedData: any = {}; // Храним данные онбординга
 
   // Управление процессом
   async startOnboarding() {
@@ -39,7 +40,22 @@ class MockOnboardingService {
 
   async getProfile() {
     await mockDelay();
-    return mockApiResponse({ profile: {} });
+    console.log('Mock: Получение профиля, сохраненные данные:', this.savedData);
+    
+    // Возвращаем все сохраненные данные онбординга
+    return mockApiResponse({ 
+      basicInfo: this.savedData.introduction,
+      naturalRhythms: this.savedData.natural_rhythms,
+      currentState: this.savedData.current_state,
+      challenges: this.savedData.main_challenges?.challenges || [],
+      medicalInfo: this.savedData.medical_info,
+      procrastination: this.savedData.procrastination,
+      anxiety: this.savedData.anxiety,
+      socialSupport: this.savedData.social_support,
+      goals: this.savedData.goals_priorities?.selected_goals || [],
+      preferences: this.savedData.app_preferences,
+      personalization: this.savedData.personalization
+    });
   }
 
   async getSummary() {
@@ -106,6 +122,9 @@ class MockOnboardingService {
   private async saveStageData(stage: string, progress: number, data: any) {
     await mockDelay();
     console.log(`Mock: Saving ${stage} data:`, data);
+    
+    // Сохраняем данные в память
+    this.savedData[stage] = data;
     
     const payload: OnboardingStageData = {
       stage,

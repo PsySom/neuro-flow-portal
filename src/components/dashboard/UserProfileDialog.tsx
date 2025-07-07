@@ -28,7 +28,9 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
   const fetchProfileData = async () => {
     setIsLoading(true);
     try {
+      console.log('Загрузка данных профиля...');
       const response = await onboardingService.getProfile();
+      console.log('Ответ от сервиса профиля:', response);
       setProfileData(response.data);
     } catch (error) {
       console.error('Ошибка загрузки данных профиля:', error);
@@ -113,6 +115,8 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
   };
 
   const displayData = profileData || mockProfileData;
+  
+  console.log('Отображаемые данные:', displayData);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
