@@ -17,7 +17,7 @@ import type {
 } from '@/types/onboarding.types';
 
 // Use mock service for development since backend is not available
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 class OnboardingService {
   private baseUrl = '/api/v1/onboarding';
