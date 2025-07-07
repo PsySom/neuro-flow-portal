@@ -9,9 +9,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 interface CurrentStateScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const CurrentStateScreen: React.FC<CurrentStateScreenProps> = ({ onNext, onBack }) => {
+const CurrentStateScreen: React.FC<CurrentStateScreenProps> = ({ onNext, onBack, isLoading = false }) => {
   const [mood, setMood] = useState([0]);
   const [energy, setEnergy] = useState('');
   const [sleep, setSleep] = useState('');
@@ -143,9 +144,9 @@ const CurrentStateScreen: React.FC<CurrentStateScreenProps> = ({ onNext, onBack 
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={!energy || !sleep || !stress}
+          disabled={!energy || !sleep || !stress || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>

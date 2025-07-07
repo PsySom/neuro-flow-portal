@@ -10,9 +10,10 @@ import { Slider } from '@/components/ui/slider';
 interface BasicInfoProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const BasicInfo: React.FC<BasicInfoProps> = ({ onNext, onBack }) => {
+const BasicInfo: React.FC<BasicInfoProps> = ({ onNext, onBack, isLoading = false }) => {
   const [formData, setFormData] = useState({
     name: '',
     age: [25],
@@ -102,9 +103,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onNext, onBack }) => {
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={!formData.name}
+          disabled={!formData.name || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>

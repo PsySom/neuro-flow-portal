@@ -9,9 +9,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 interface NaturalRhythmsScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const NaturalRhythmsScreen: React.FC<NaturalRhythmsScreenProps> = ({ onNext, onBack }) => {
+const NaturalRhythmsScreen: React.FC<NaturalRhythmsScreenProps> = ({ onNext, onBack, isLoading = false }) => {
   const [activeTime, setActiveTime] = useState('');
   const [wakeTime, setWakeTime] = useState([7]);
   const [sleepTime, setSleepTime] = useState([23]);
@@ -159,9 +160,9 @@ const NaturalRhythmsScreen: React.FC<NaturalRhythmsScreenProps> = ({ onNext, onB
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={!activeTime || !sleepQuality}
+          disabled={!activeTime || !sleepQuality || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>

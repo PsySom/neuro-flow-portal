@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 interface PersonalizationScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({ onNext, onBack }) => {
+const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({ onNext, onBack, isLoading = false }) => {
   const [supportStyle, setSupportStyle] = useState('');
   const [feedbackStyle, setFeedbackStyle] = useState('');
   const [structurePreference, setStructurePreference] = useState('');
@@ -117,9 +118,9 @@ const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({ onNext, o
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={!supportStyle || !feedbackStyle || !structurePreference}
+          disabled={!supportStyle || !feedbackStyle || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>

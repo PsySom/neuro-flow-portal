@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 interface ChallengesScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const ChallengesScreen: React.FC<ChallengesScreenProps> = ({ onNext, onBack }) => {
+const ChallengesScreen: React.FC<ChallengesScreenProps> = ({ onNext, onBack, isLoading = false }) => {
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [otherChallenge, setOtherChallenge] = useState('');
 
@@ -102,9 +103,9 @@ const ChallengesScreen: React.FC<ChallengesScreenProps> = ({ onNext, onBack }) =
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={selectedChallenges.length === 0 && !otherChallenge.trim()}
+          disabled={(selectedChallenges.length === 0 && !otherChallenge.trim()) || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>

@@ -9,9 +9,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 interface ProcrastinationScreenProps {
   onNext: (data: any) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-const ProcrastinationScreen: React.FC<ProcrastinationScreenProps> = ({ onNext, onBack }) => {
+const ProcrastinationScreen: React.FC<ProcrastinationScreenProps> = ({ onNext, onBack, isLoading = false }) => {
   const [procrastinationFrequency, setProcrastinationFrequency] = useState('');
   const [barriers, setBarriers] = useState<string[]>([]);
   const [approach, setApproach] = useState('');
@@ -144,9 +145,9 @@ const ProcrastinationScreen: React.FC<ProcrastinationScreenProps> = ({ onNext, o
         <Button 
           onClick={handleSubmit}
           className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-          disabled={!procrastinationFrequency || !approach}
+          disabled={!procrastinationFrequency || !approach || isLoading}
         >
-          Продолжить
+          {isLoading ? 'Сохранение...' : 'Продолжить'}
         </Button>
       </div>
     </div>
