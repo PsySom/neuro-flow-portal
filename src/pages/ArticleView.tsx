@@ -12,7 +12,9 @@ const ArticleView = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(0);
 
-  const article = getArticleData();
+  // Конвертируем ID 8 в ID 3 для статьи о циклах
+  const articleId = id === '8' ? 3 : (id === '2' ? 2 : undefined);
+  const article = getArticleData(articleId);
 
   useEffect(() => {
     setLikes(Math.floor(Math.random() * 100) + 50);

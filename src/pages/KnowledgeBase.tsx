@@ -23,7 +23,8 @@ const KnowledgeBase = () => {
     { id: 'relationships', name: 'Отношения' },
     { id: 'habits', name: 'Привычки и изменения' },
     { id: 'self-compassion', name: 'Самосострадание' },
-    { id: 'depression', name: 'Депрессия и аффективные расстройства' }
+    { id: 'depression', name: 'Депрессия и аффективные расстройства' },
+    { id: 'physiology', name: 'Физиология и ритмы' }
   ];
 
   const colorSchemes = [
@@ -268,6 +269,17 @@ const KnowledgeBase = () => {
           </ul>
         </div>
       `
+    },
+    {
+      id: 8,
+      title: 'В ритме человека: циклы напряжения и расслабления',
+      description: 'Научно обоснованная статья о том, как работают наши внутренние ритмы и почему важно соблюдать баланс между активностью и отдыхом.',
+      category: 'physiology',
+      readTime: '20 мин чтения',
+      tags: ['Ритмы', 'Саморегуляция', 'Нейрофизиология', 'Восстановление'],
+      isFavorite: false,
+      views: 1850,
+      content: null
     },
     {
       id: 3,
