@@ -44,8 +44,12 @@ const ActivityTimelineComponent = () => {
     }
   };
 
+  // Create reactive formatted date that updates with activities data
   const getFormattedDate = () => {
-    return new Date().toLocaleDateString('ru-RU', {
+    // Use the same date calculation as the API hook to ensure consistency
+    const today = new Date().toISOString().split('T')[0];
+    const date = new Date(today + 'T12:00:00'); // Use noon to avoid timezone issues
+    return date.toLocaleDateString('ru-RU', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

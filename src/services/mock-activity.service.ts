@@ -27,15 +27,19 @@ class MockActivityService {
   // Initialize with sample activities for today
   private initializeSampleActivities() {
     const today = new Date().toISOString().split('T')[0];
-    
+    this.initializeSampleActivitiesForDate(today);
+  }
+
+  // Initialize sample activities for a specific date
+  private initializeSampleActivitiesForDate(targetDate: string) {
     const sampleActivities: Omit<Activity, 'id' | 'created_at' | 'updated_at'>[] = [
       {
         user_id: 1,
         title: 'Утренняя зарядка',
         description: 'Комплекс упражнений для бодрого начала дня',
         activity_type: this.mockActivityTypes[1], // Спорт
-        start_time: `${today}T07:00:00.000Z`,
-        end_time: `${today}T07:30:00.000Z`,
+        start_time: `${targetDate}T07:00:00.000Z`,
+        end_time: `${targetDate}T07:30:00.000Z`,
         status: 'completed',
         metadata: { importance: 4, color: '#10B981', emoji: '🏃‍♂️' }
       },
@@ -44,8 +48,8 @@ class MockActivityService {
         title: 'Планирование дня',
         description: 'Определение приоритетов и задач на день',
         activity_type: this.mockActivityTypes[0], // Работа
-        start_time: `${today}T09:00:00.000Z`,
-        end_time: `${today}T09:30:00.000Z`,
+        start_time: `${targetDate}T09:00:00.000Z`,
+        end_time: `${targetDate}T09:30:00.000Z`,
         status: 'completed',
         metadata: { importance: 5, color: '#3B82F6', emoji: '📋' }
       },
@@ -54,8 +58,8 @@ class MockActivityService {
         title: 'Работа над проектом',
         description: 'Разработка новой функциональности',
         activity_type: this.mockActivityTypes[0], // Работа
-        start_time: `${today}T10:00:00.000Z`,
-        end_time: `${today}T12:00:00.000Z`,
+        start_time: `${targetDate}T10:00:00.000Z`,
+        end_time: `${targetDate}T12:00:00.000Z`,
         status: 'in_progress',
         metadata: { importance: 5, color: '#3B82F6', emoji: '💻' }
       },
@@ -64,8 +68,8 @@ class MockActivityService {
         title: 'Обеденный перерыв',
         description: 'Время для восстановления и питания',
         activity_type: this.mockActivityTypes[2], // Отдых
-        start_time: `${today}T13:00:00.000Z`,
-        end_time: `${today}T14:00:00.000Z`,
+        start_time: `${targetDate}T13:00:00.000Z`,
+        end_time: `${targetDate}T14:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 3, color: '#8B5CF6', emoji: '🍽️' }
       },
@@ -74,8 +78,8 @@ class MockActivityService {
         title: 'Изучение новых технологий',
         description: 'Чтение документации и практика',
         activity_type: this.mockActivityTypes[3], // Обучение
-        start_time: `${today}T15:00:00.000Z`,
-        end_time: `${today}T16:30:00.000Z`,
+        start_time: `${targetDate}T15:00:00.000Z`,
+        end_time: `${targetDate}T16:30:00.000Z`,
         status: 'planned',
         metadata: { importance: 4, color: '#F59E0B', emoji: '📚' }
       },
@@ -84,19 +88,27 @@ class MockActivityService {
         title: 'Встреча с друзьями',
         description: 'Вечерняя прогулка и общение',
         activity_type: this.mockActivityTypes[4], // Общение
-        start_time: `${today}T19:00:00.000Z`,
-        end_time: `${today}T21:00:00.000Z`,
+        start_time: `${targetDate}T19:00:00.000Z`,
+        end_time: `${targetDate}T21:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 4, color: '#EF4444', emoji: '👥' }
       }
     ];
 
-    this.mockActivities = sampleActivities.map(activity => ({
+    // Remove any existing activities for this date first
+    this.mockActivities = this.mockActivities.filter(activity => 
+      !activity.start_time.startsWith(targetDate)
+    );
+
+    // Add new activities for the target date
+    const newActivities = sampleActivities.map(activity => ({
       ...activity,
       id: this.currentId++,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }));
+
+    this.mockActivities.push(...newActivities);
   }
 
   // Simulate API delay
@@ -112,9 +124,21 @@ class MockActivityService {
       return this.mockActivities;
     }
     
-    return this.mockActivities.filter(activity => 
+    // If requesting today's activities but we don't have any for today, generate them
+    const today = new Date().toISOString().split('T')[0];
+    const activitiesForDate = this.mockActivities.filter(activity => 
       activity.start_time.startsWith(date)
     );
+    
+    // If no activities for the requested date and it's today, regenerate sample activities
+    if (activitiesForDate.length === 0 && date === today) {
+      this.initializeSampleActivitiesForDate(date);
+      return this.mockActivities.filter(activity => 
+        activity.start_time.startsWith(date)
+      );
+    }
+    
+    return activitiesForDate;
   }
 
   // Get activities for date range

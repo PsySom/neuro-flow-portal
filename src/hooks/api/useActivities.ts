@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import activityService from '../../services/activity.service';
 import { CreateActivityRequest, UpdateActivityRequest, UpdateActivityStateRequest } from '../../types/api.types';
@@ -12,10 +13,29 @@ export const useActivities = (date?: string) => {
   });
 };
 
-// Get today's activities
+// Get today's activities with automatic date updates
 export const useTodayActivities = () => {
-  const today = new Date().toISOString().split('T')[0];
-  return useActivities(today);
+  const [currentDate, setCurrentDate] = React.useState(() => 
+    new Date().toISOString().split('T')[0]
+  );
+
+  // Update current date every minute to catch day changes
+  React.useEffect(() => {
+    const updateDate = () => {
+      const newDate = new Date().toISOString().split('T')[0];
+      if (newDate !== currentDate) {
+        setCurrentDate(newDate);
+      }
+    };
+
+    // Check immediately and then every minute
+    updateDate();
+    const interval = setInterval(updateDate, 60000);
+
+    return () => clearInterval(interval);
+  }, [currentDate]);
+
+  return useActivities(currentDate);
 };
 
 // Get activities for date range
