@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Activity } from '@/contexts/ActivitiesContext';
+import { getActivityTypeColorHex } from '@/utils/activityTypeColors';
 
 interface DayViewFiltersProps {
   activities: Activity[];
@@ -16,8 +16,8 @@ const DayViewFilters: React.FC<DayViewFiltersProps> = ({
   filteredTypes,
   onTypeFilterChange
 }) => {
-  // Получаем только уникальные типы из переданных активностей (для текущего периода)
-  const allActivityTypes = [...new Set(activities.map(activity => activity.type))];
+  // Показываем все возможные типы активностей постоянно
+  const allActivityTypes = ['восстановление', 'нейтральная', 'смешанная', 'задача'];
 
   const getTypeDisplayName = (type: string) => {
     switch (type) {
@@ -49,15 +49,27 @@ const DayViewFilters: React.FC<DayViewFiltersProps> = ({
             const count = activities.filter(a => a.type === type).length;
             return (
               <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`filter-${type}`}
-                  checked={!filteredTypes.has(type)}
-                  onCheckedChange={(checked) => onTypeFilterChange(type, checked as boolean)}
-                  className="w-3 h-3"
-                />
+                <div 
+                  className="relative w-3 h-3 cursor-pointer"
+                  onClick={() => onTypeFilterChange(type, filteredTypes.has(type))}
+                >
+                  <div 
+                    className={`w-3 h-3 rounded-full border-2`}
+                    style={{ 
+                      backgroundColor: !filteredTypes.has(type) ? getActivityTypeColorHex(type) : 'transparent',
+                      borderColor: getActivityTypeColorHex(type)
+                    }}
+                  />
+                  {!filteredTypes.has(type) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white rounded-full" />
+                    </div>
+                  )}
+                </div>
                 <label
                   htmlFor={`filter-${type}`}
                   className="flex-1 flex items-center justify-between cursor-pointer"
+                  onClick={() => onTypeFilterChange(type, filteredTypes.has(type))}
                 >
                   <span className="text-xs text-gray-700">{getTypeDisplayName(type)}</span>
                   <Badge variant="secondary" className={`text-xs px-1 py-0 ${getTypeColor(type)}`}>
