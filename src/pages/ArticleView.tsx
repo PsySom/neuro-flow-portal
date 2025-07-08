@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ArticleTabContent from '../components/article/ArticleTabContent';
 import ArticleHeader from '../components/article/ArticleHeader';
-import { getArticleData } from '../data/articleData';
+import { getArticleData } from '../data/articles';
 
 const ArticleView = () => {
   const { id } = useParams();
