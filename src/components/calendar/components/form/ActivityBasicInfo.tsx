@@ -15,11 +15,21 @@ interface ActivityBasicInfoProps {
   setErrors: (errors: FormErrors) => void;
 }
 
+const getActivityTypeColor = (type: string) => {
+  switch (type) {
+    case 'восстановление': return 'bg-green-500';
+    case 'нейтральная': return 'bg-blue-500';
+    case 'смешанная': return 'bg-yellow-500';
+    case 'задача': return 'bg-red-500';
+    default: return 'bg-gray-400';
+  }
+};
+
 const activityTypes = [
-  { value: 'восстановление', label: 'Восстанавливающая (забота о себе и своих потребностях, отдых)' },
-  { value: 'нейтральная', label: 'Нейтральная' },
-  { value: 'смешанная', label: 'Смешанная' },
-  { value: 'задача', label: 'Истощающая (дела)' },
+  { value: 'восстановление', label: 'Восстанавливающая (забота о себе и своих потребностях, отдых)', color: 'bg-green-500' },
+  { value: 'нейтральная', label: 'Нейтральная', color: 'bg-blue-500' },
+  { value: 'смешанная', label: 'Смешанная', color: 'bg-yellow-500' },
+  { value: 'задача', label: 'Истощающая (дела)', color: 'bg-red-500' },
 ];
 
 const ActivityBasicInfo: React.FC<ActivityBasicInfoProps> = ({
@@ -79,7 +89,10 @@ const ActivityBasicInfo: React.FC<ActivityBasicInfoProps> = ({
           <SelectContent>
             {activityTypes.map((type) => (
               <SelectItem key={type.value} value={type.value}>
-                {type.label}
+                <div className="flex items-center">
+                  <div className={`w-3 h-3 rounded-full ${type.color} mr-2`}></div>
+                  {type.label}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

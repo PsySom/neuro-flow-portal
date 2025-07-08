@@ -162,10 +162,30 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
                     <SelectValue placeholder="Выберите тип активности" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="восстановление">Восстанавливающая</SelectItem>
-                    <SelectItem value="нейтральная">Нейтральная</SelectItem>
-                    <SelectItem value="смешанная">Смешанная</SelectItem>
-                    <SelectItem value="задача">Истощающая</SelectItem>
+                    <SelectItem value="восстановление">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        Восстанавливающая
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="нейтральная">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                        Нейтральная
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="смешанная">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                        Смешанная
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="задача">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                        Истощающая
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

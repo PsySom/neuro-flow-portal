@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
+import { getActivityTypeColor } from '@/utils/activityTypeColors';
 
 interface DayActivityCardProps {
   layout: ActivityLayout;
@@ -43,7 +44,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`absolute ${activity.color} rounded-lg p-2 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
+      className={`absolute ${activity.color} rounded-lg p-2 border-2 ${getActivityTypeColor(activity.type)} shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
         activity.completed ? 'opacity-60' : ''
       }`}
       style={{ 

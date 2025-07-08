@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { Activity } from './types';
 import { timeToMinutes } from './timeUtils';
+import { getActivityTypeColor } from '@/utils/activityTypeColors';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -37,10 +38,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-2 flex-1">
-          <Checkbox 
-            checked={activity.completed}
-            className="w-8 h-8 rounded-sm mt-0.5"
-          />
+          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-sm p-0.5`}>
+            <Checkbox 
+              checked={activity.completed}
+              className="w-7 h-7 rounded-sm"
+            />
+          </div>
           <div className="flex flex-col space-y-1">
             <span className="font-medium text-sm leading-tight">
               {activity.name}

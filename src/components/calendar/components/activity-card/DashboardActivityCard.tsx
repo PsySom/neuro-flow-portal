@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
+import { getActivityTypeColor } from '@/utils/activityTypeColors';
 
 interface DashboardActivityCardProps {
   layout: ActivityLayout;
@@ -56,7 +57,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`${activity.color} rounded-lg p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow mb-3 ${
+      className={`${activity.color} rounded-lg p-4 border-2 ${getActivityTypeColor(activity.type)} cursor-pointer hover:shadow-md transition-shadow mb-3 ${
         activity.completed ? 'opacity-60' : ''
       }`}
       onClick={onCardClick}
@@ -64,12 +65,14 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       {/* Header row */}
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-start space-x-3 flex-1">
-          <Checkbox 
-            checked={activity.completed}
-            onCheckedChange={handleCheckboxChange}
-            className="w-5 h-5 rounded-sm mt-1 cursor-pointer border-white bg-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
-            onClick={handleCheckboxClick}
-          />
+          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-sm p-0.5 bg-white/20`}>
+            <Checkbox 
+              checked={activity.completed}
+              onCheckedChange={handleCheckboxChange}
+              className="w-4 h-4 rounded-sm cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black"
+              onClick={handleCheckboxClick}
+            />
+          </div>
           <span className="font-medium text-lg">{activity.name}</span>
         </div>
         
