@@ -18,15 +18,15 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
   return {
     id: apiActivity.id,
     name: apiActivity.title,
-    emoji: defaultEmoji,
+    emoji: apiActivity.metadata?.emoji || defaultEmoji,
     startTime: formatTime(apiActivity.start_time),
     endTime: apiActivity.end_time ? formatTime(apiActivity.end_time) : '',
     duration,
-    color: defaultColor,
+    color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,
     completed: apiActivity.status === 'completed',
     type: apiActivity.activity_type?.name || 'general',
-    needEmoji: apiActivity.activity_type?.icon,
+    needEmoji: apiActivity.metadata?.needEmoji,
     date: apiActivity.start_time.split('T')[0], // Extract date part
     reminder: apiActivity.metadata?.reminder,
     note: apiActivity.description,

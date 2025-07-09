@@ -1,5 +1,5 @@
 import apiClient, { handleApiError } from './api.client';
-import mockActivityService from './mock-activity.service';
+import { mockActivityService } from './mock-activity.service';
 import { 
   Activity, 
   CreateActivityRequest, 
