@@ -29,7 +29,8 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     handleActivityUpdate,
     handleActivityDelete,
     handleActivityToggle,
-    handleTypeFilterChange
+    handleTypeFilterChange,
+    isLoading
   } = useWeekView(currentDate);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -41,6 +42,28 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex gap-6">
+        <div className="w-64">
+          <DayViewSidebar
+            currentDate={currentDate}
+            activities={[]}
+            filteredTypes={filteredTypes}
+            onTypeFilterChange={handleTypeFilterChange}
+            onDateSelect={handleDateSelect}
+          />
+        </div>
+        <div className="flex-1">
+          <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center h-96">Загрузка активностей...</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex gap-6">

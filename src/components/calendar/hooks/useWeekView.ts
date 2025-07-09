@@ -1,12 +1,13 @@
-
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { useActivities } from '@/contexts/ActivitiesContext';
+import { useActivitiesRange, useCreateActivity, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
 import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 import { calculateActivityLayouts } from '../utils/timeUtils';
-import { formatDateToString } from '@/utils/dateUtils';
+import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 
 export const useWeekView = (currentDate: Date) => {
-  const { getActivitiesForDate, updateActivity, deleteActivity, toggleActivityComplete, addActivity } = useActivities();
+  const createActivityMutation = useCreateActivity();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivity();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -28,20 +29,35 @@ export const useWeekView = (currentDate: Date) => {
     return days;
   }, [currentDate]);
 
+  // Get date range for the week
+  const { startDate, endDate } = useMemo(() => {
+    const start = weekDays[0].toISOString().split('T')[0];
+    const end = weekDays[6].toISOString().split('T')[0];
+    return { startDate: start, endDate: end };
+  }, [weekDays]);
+
+  // Use API call for the week range
+  const { data: weekApiActivities = [], isLoading } = useActivitiesRange(startDate, endDate);
+
+  // Convert API activities to UI format
+  const weekActivities = useMemo(() => {
+    return convertApiActivitiesToUi(weekApiActivities);
+  }, [weekApiActivities]);
+
   const getWeekActivities = useCallback(() => {
-    const weekActivities = [];
-    weekDays.forEach(day => {
-      const dayString = formatDateToString(day);
-      const dayActivities = getActivitiesForDate(dayString);
-      weekActivities.push(...dayActivities);
-    });
     console.log('Week activities total:', weekActivities.length);
     return weekActivities;
-  }, [weekDays, getActivitiesForDate]);
+  }, [weekActivities]);
 
   const getActivitiesForDay = useCallback((day: Date) => {
-    const dayString = formatDateToString(day);
-    const dayActivities = getActivitiesForDate(dayString);
+    const dayString = day.toISOString().split('T')[0];
+    
+    // Filter activities for this specific day
+    const dayActivities = weekActivities.filter(activity => {
+      const activityDate = new Date(activity.startTime).toISOString().split('T')[0];
+      return activityDate === dayString;
+    });
+    
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
     
     const filteredActivities = dayActivities.filter(activity => 
@@ -51,7 +67,7 @@ export const useWeekView = (currentDate: Date) => {
     console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     
     return calculateActivityLayouts(filteredActivities);
-  }, [getActivitiesForDate, filteredTypes]);
+  }, [weekActivities, filteredTypes]);
 
   const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
     const target = e.target as HTMLElement;
@@ -67,7 +83,7 @@ export const useWeekView = (currentDate: Date) => {
     const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
-    const clickDate = formatDateToString(weekDays[dayIndex]);
+    const clickDate = weekDays[dayIndex].toISOString().split('T')[0];
     
     console.log('Week view click:', clickTime, clickDate);
     
@@ -77,28 +93,74 @@ export const useWeekView = (currentDate: Date) => {
   }, [weekDays]);
 
   const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    const activityWithDate = {
-      ...newActivity,
-      date: newActivity.date || selectedDate
+    // Map activity type to API type ID
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
     };
-    console.log('Creating activity in WeekView:', activityWithDate);
-    addActivity(activityWithDate, recurringOptions);
-  }, [selectedDate, addActivity]);
+
+    const activityData = {
+      title: newActivity.name,
+      description: newActivity.note,
+      activity_type_id: getActivityTypeId(newActivity.type),
+      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
+      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+      metadata: {
+        importance: newActivity.importance,
+        color: newActivity.color,
+        emoji: newActivity.emoji,
+        needEmoji: newActivity.needEmoji
+      }
+    };
+    
+    console.log('Creating activity in WeekView:', activityData, 'with recurring:', recurringOptions);
+    createActivityMutation.mutate(activityData);
+    setIsCreateDialogOpen(false);
+  }, [createActivityMutation]);
 
   const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
     console.log('WeekView updating activity:', activityId, updates);
-    updateActivity(activityId, updates, recurringOptions);
-  }, [updateActivity]);
+    const apiUpdates = {
+      title: updates.name,
+      description: updates.note,
+      status: updates.completed !== undefined ? (updates.completed ? 'completed' : 'planned') : undefined,
+      metadata: {
+        importance: updates.importance,
+        color: updates.color,
+        emoji: updates.emoji,
+        needEmoji: updates.needEmoji
+      }
+    };
+    
+    const cleanApiUpdates = Object.fromEntries(
+      Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
+    );
+    
+    updateActivityMutation.mutate({ id: activityId, data: cleanApiUpdates });
+  }, [updateActivityMutation]);
 
   const handleActivityDelete = useCallback((activityId: number, deleteOption?: DeleteRecurringOption) => {
     console.log('WeekView deleting activity:', activityId, deleteOption);
-    deleteActivity(activityId, deleteOption);
-  }, [deleteActivity]);
+    deleteActivityMutation.mutate(activityId);
+  }, [deleteActivityMutation]);
 
   const handleActivityToggle = useCallback((activityId: number) => {
     console.log('WeekView toggling activity:', activityId);
-    toggleActivityComplete(activityId);
-  }, [toggleActivityComplete]);
+    // Find the activity to toggle
+    const activity = weekActivities.find(a => a.id === activityId);
+    if (activity) {
+      const newStatus = activity.completed ? 'planned' : 'completed';
+      updateActivityMutation.mutate({ 
+        id: activityId, 
+        data: { status: newStatus } 
+      });
+    }
+  }, [weekActivities, updateActivityMutation]);
 
   const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
     setFilteredTypes(prev => {
@@ -128,6 +190,7 @@ export const useWeekView = (currentDate: Date) => {
     handleActivityUpdate,
     handleActivityDelete,
     handleActivityToggle,
-    handleTypeFilterChange
+    handleTypeFilterChange,
+    isLoading
   };
 };

@@ -1,65 +1,34 @@
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useActivities } from '@/contexts/ActivitiesContext';
-import { formatDateToString } from '@/utils/dateUtils';
+import { useMonthView } from './hooks/useMonthView';
 
 interface MonthViewProps {
   currentDate: Date;
 }
 
 const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
-  const { getActivitiesForDate } = useActivities();
-  const today = new Date();
-  
-  const { days, currentMonth } = useMemo(() => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDate = new Date(firstDay);
-    const endDate = new Date(lastDay);
-    
-    // Adjust to start from Monday
-    const startDay = firstDay.getDay();
-    startDate.setDate(firstDay.getDate() - (startDay === 0 ? 6 : startDay - 1));
-    
-    const endDay = lastDay.getDay();
-    endDate.setDate(lastDay.getDate() + (endDay === 0 ? 0 : 7 - endDay));
-    
-    const days = [];
-    const current = new Date(startDate);
-    
-    while (current <= endDate) {
-      days.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-    
-    return { days, currentMonth: month };
-  }, [currentDate]);
+  const {
+    days,
+    isToday,
+    isCurrentMonth,
+    getActivitiesForDateObj,
+    truncateText,
+    isLoading
+  } = useMonthView(currentDate);
 
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
-  const isToday = useCallback((date: Date) => {
-    return date.toDateString() === today.toDateString();
-  }, [today]);
-
-  const isCurrentMonth = useCallback((date: Date) => {
-    return date.getMonth() === currentMonth;
-  }, [currentMonth]);
-
-  const getActivitiesForDateObj = useCallback((date: Date) => {
-    const dateString = formatDateToString(date);
-    const activities = getActivitiesForDate(dateString);
-    console.log(`MonthView: Activities for ${dateString}:`, activities.length);
-    return activities;
-  }, [getActivitiesForDate]);
-
-  const truncateText = useCallback((text: string, maxLength: number = 12) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  }, []);
+  if (isLoading) {
+    return (
+      <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center h-96">Загрузка активностей...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">

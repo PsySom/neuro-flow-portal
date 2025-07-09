@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 import { getActivityTypeColor } from '@/utils/activityTypeColors';
@@ -105,9 +104,7 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
 
       {/* Тип активности и эмодзи */}
       <div className="flex items-center space-x-2">
-        <Badge variant="secondary" className="text-xs px-1 py-0.5">
-          {getDisplayType(activity.type)}
-        </Badge>
+        <span className="text-xs text-gray-600">{getDisplayType(activity.type)}</span>
         <span className="text-lg">{activity.emoji}</span>
         {activity.type === 'восстановление' && activity.needEmoji && (
           <span className="text-sm">{activity.needEmoji}</span>
