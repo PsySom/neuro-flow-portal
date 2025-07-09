@@ -60,7 +60,7 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
         color: activityData.color,
         emoji: activityData.emoji,
         needEmoji: activityData.needEmoji,
-        recurring: recurringOptions || null // Include recurring options in metadata, null if undefined
+        recurring: recurringOptions // Include recurring options in metadata, can be undefined
       }
     };
     
@@ -68,6 +68,11 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
     );
+    
+    // Remove metadata if empty or contains only undefined values
+    if (cleanApiUpdates.metadata && Object.values(cleanApiUpdates.metadata).every(v => v === undefined)) {
+      delete cleanApiUpdates.metadata;
+    }
     
     console.log('WeekView: Sending update request:', cleanApiUpdates);
     updateActivityMutation.mutate({ id: numericId, data: cleanApiUpdates });

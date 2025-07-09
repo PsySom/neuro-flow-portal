@@ -307,7 +307,7 @@ class MockActivityService {
     this.mockActivities[activityIndex] = updatedActivity;
     
   // Handle recurring activities update
-    if (request.metadata?.recurring && request.metadata.recurring.type !== 'none' && request.metadata.recurring.type !== null) {
+    if (request.metadata?.recurring && request.metadata.recurring.type && request.metadata.recurring.type !== 'none') {
       console.log('MockService: Updating recurring activities:', request.metadata.recurring);
       
       // Delete existing recurring activities for this original activity

@@ -53,7 +53,7 @@ const ActivityTimelineComponent = () => {
         color: updatedActivity.color,
         emoji: updatedActivity.emoji,
         needEmoji: updatedActivity.needEmoji,
-        recurring: recurringOptions || null // Include recurring options in metadata, null if undefined
+        recurring: recurringOptions // Include recurring options in metadata, can be undefined
       }
     };
     
@@ -61,6 +61,11 @@ const ActivityTimelineComponent = () => {
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
     );
+    
+    // Remove metadata if empty or contains only undefined values
+    if (cleanApiUpdates.metadata && Object.values(cleanApiUpdates.metadata).every(v => v === undefined)) {
+      delete cleanApiUpdates.metadata;
+    }
     
     console.log('ActivityTimelineComponent: Sending update request:', cleanApiUpdates);
     updateActivityMutation.mutate({ 

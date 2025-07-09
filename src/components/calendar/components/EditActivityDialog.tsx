@@ -131,6 +131,10 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       };
       
       console.log('EditActivityDialog: Setting recurring options for existing activity:', recurringOptions);
+    } else {
+      // Explicitly set to null for no recurring
+      recurringOptions = undefined;
+      console.log('EditActivityDialog: No recurring options set');
     }
 
     console.log('EditActivityDialog: Calling onActivityUpdate with:', updatedActivity, recurringOptions);
