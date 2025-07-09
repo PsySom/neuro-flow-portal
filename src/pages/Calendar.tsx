@@ -8,14 +8,16 @@ import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
-import { useActivities } from '@/contexts/ActivitiesContext';
+import { useCreateActivity, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { useCalendarNavigation } from '@/hooks/useCalendarNavigation';
 
 const Calendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { addActivity, updateActivity, deleteActivity } = useActivities();
+  const createActivityMutation = useCreateActivity();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivity();
   
   const {
     currentDate,
@@ -31,13 +33,35 @@ const Calendar = () => {
   }, [setView]);
 
   const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    const activityWithDate = {
-      ...newActivity,
-      date: newActivity.date || currentDate.toISOString().split('T')[0]
+    // Map activity type to API type ID
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
     };
-    console.log('Creating activity in Calendar:', activityWithDate, 'with recurring:', recurringOptions);
-    addActivity(activityWithDate, recurringOptions);
-  }, [currentDate, addActivity]);
+
+    const activityData = {
+      title: newActivity.name,
+      description: newActivity.note,
+      activity_type_id: getActivityTypeId(newActivity.type),
+      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
+      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+      metadata: {
+        importance: newActivity.importance,
+        color: newActivity.color,
+        emoji: newActivity.emoji,
+        needEmoji: newActivity.needEmoji
+      }
+    };
+    
+    console.log('Creating activity in Calendar:', activityData, 'with recurring:', recurringOptions);
+    createActivityMutation.mutate(activityData);
+    setIsCreateDialogOpen(false);
+  }, [createActivityMutation]);
 
   const handleDateChange = useCallback((newDate: Date) => {
     console.log('Date changed in Calendar:', newDate);
@@ -46,13 +70,13 @@ const Calendar = () => {
 
   const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('Calendar handleActivityUpdate:', activityId, updates, recurringOptions);
-    updateActivity(activityId, updates, recurringOptions);
-  }, [updateActivity]);
+    // This is handled in DayView now
+  }, []);
 
   const handleActivityDelete = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
     console.log('Calendar handleActivityDelete:', id, deleteOption);
-    deleteActivity(id, deleteOption);
-  }, [deleteActivity]);
+    // This is handled in DayView now
+  }, []);
 
   const handleNavigatePrev = useCallback(() => navigateDate('prev'), [navigateDate]);
   const handleNavigateNext = useCallback(() => navigateDate('next'), [navigateDate]);
