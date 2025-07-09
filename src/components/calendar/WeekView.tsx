@@ -89,7 +89,7 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
                     
                     return (
                       <WeekViewDay
-                        key={`${day.toISOString()}-${dayIndex}`}
+                        key={`${day.getTime()}-${dayIndex}`}
                         day={day}
                         dayIndex={dayIndex}
                         dayActivities={dayActivities}

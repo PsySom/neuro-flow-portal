@@ -15,25 +15,38 @@ export const useWeekView = (currentDate: Date) => {
   const [selectedDate, setSelectedDate] = useState<string>('');
 
   const weekDays = useMemo(() => {
-    const startOfWeek = new Date(currentDate);
-    const dayOfWeek = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    startOfWeek.setDate(diff);
+    try {
+      const startOfWeek = new Date(currentDate);
+      const dayOfWeek = startOfWeek.getDay();
+      const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      startOfWeek.setDate(diff);
 
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(startOfWeek);
+        day.setDate(startOfWeek.getDate() + i);
+        days.push(day);
+      }
+      return days;
+    } catch (error) {
+      console.error('Error creating week days:', error);
+      // Fallback to current date
+      const today = new Date();
+      return [today];
     }
-    return days;
   }, [currentDate]);
 
   // Get date range for the week
   const { startDate, endDate } = useMemo(() => {
-    const start = weekDays[0].toISOString().split('T')[0];
-    const end = weekDays[6].toISOString().split('T')[0];
-    return { startDate: start, endDate: end };
+    try {
+      const start = weekDays[0].toISOString().split('T')[0];
+      const end = weekDays[6].toISOString().split('T')[0];
+      return { startDate: start, endDate: end };
+    } catch (error) {
+      console.error('Error creating date range for week:', error);
+      const today = new Date().toISOString().split('T')[0];
+      return { startDate: today, endDate: today };
+    }
   }, [weekDays]);
 
   // Use API call for the week range
@@ -54,8 +67,25 @@ export const useWeekView = (currentDate: Date) => {
     
     // Filter activities for this specific day
     const dayActivities = weekActivities.filter(activity => {
-      const activityDate = new Date(activity.startTime).toISOString().split('T')[0];
-      return activityDate === dayString;
+      try {
+        // Validate activity startTime before processing
+        if (!activity.startTime) {
+          console.warn('Activity has no startTime:', activity);
+          return false;
+        }
+        
+        const activityDate = new Date(activity.startTime);
+        if (isNaN(activityDate.getTime())) {
+          console.warn('Invalid activity date:', activity.startTime, activity);
+          return false;
+        }
+        
+        const activityDateString = activityDate.toISOString().split('T')[0];
+        return activityDateString === dayString;
+      } catch (error) {
+        console.error('Error processing activity date:', error, activity);
+        return false;
+      }
     });
     
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
@@ -83,7 +113,7 @@ export const useWeekView = (currentDate: Date) => {
     const minuteFromTop = Math.floor((clickY % 90) * (60 / 90));
     
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
-    const clickDate = weekDays[dayIndex].toISOString().split('T')[0];
+    const clickDate = weekDays[dayIndex] ? weekDays[dayIndex].toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
     
     console.log('Week view click:', clickTime, clickDate);
     

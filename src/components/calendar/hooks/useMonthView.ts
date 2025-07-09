@@ -60,8 +60,25 @@ export const useMonthView = (currentDate: Date) => {
     
     // Filter activities for this specific day
     const dayActivities = monthActivities.filter(activity => {
-      const activityDate = new Date(activity.startTime).toISOString().split('T')[0];
-      return activityDate === dateString;
+      try {
+        // Validate activity startTime before processing
+        if (!activity.startTime) {
+          console.warn('Activity has no startTime:', activity);
+          return false;
+        }
+        
+        const activityDate = new Date(activity.startTime);
+        if (isNaN(activityDate.getTime())) {
+          console.warn('Invalid activity date:', activity.startTime, activity);
+          return false;
+        }
+        
+        const activityDateString = activityDate.toISOString().split('T')[0];
+        return activityDateString === dateString;
+      } catch (error) {
+        console.error('Error processing activity date:', error, activity);
+        return false;
+      }
     });
     
     console.log(`MonthView: Activities for ${dateString}:`, dayActivities.length);
