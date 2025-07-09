@@ -171,23 +171,41 @@ export const useWeekView = (currentDate: Date) => {
   }, [createActivityMutation]);
 
   const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
-    console.log('WeekView updating activity:', activityId, updates);
-    const apiUpdates = {
+    console.log('WeekView updating activity:', activityId, updates, 'recurring:', recurringOptions);
+    
+    // Map activity type to API type ID if type is being updated
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
+    };
+
+    const apiUpdates: any = {
       title: updates.name,
       description: updates.note,
+      activity_type_id: updates.type ? getActivityTypeId(updates.type) : undefined,
+      start_time: updates.date && updates.startTime ? `${updates.date}T${updates.startTime}:00.000Z` : undefined,
+      end_time: updates.date && updates.endTime ? `${updates.date}T${updates.endTime}:00.000Z` : undefined,
       status: updates.completed !== undefined ? (updates.completed ? 'completed' : 'planned') : undefined,
       metadata: {
         importance: updates.importance,
         color: updates.color,
         emoji: updates.emoji,
-        needEmoji: updates.needEmoji
+        needEmoji: updates.needEmoji,
+        recurring: recurringOptions // Include recurring options in metadata
       }
     };
     
+    // Remove undefined values
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
     );
     
+    console.log('WeekView: Sending update request:', cleanApiUpdates);
     updateActivityMutation.mutate({ id: activityId, data: cleanApiUpdates });
   }, [updateActivityMutation]);
 

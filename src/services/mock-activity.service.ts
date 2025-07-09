@@ -272,7 +272,7 @@ class MockActivityService {
     }
   }
 
-  // Update activity
+  // Update activity with recurring support
   async updateActivity(id: number, request: UpdateActivityRequest): Promise<Activity> {
     await this.simulateDelay();
 
@@ -286,6 +286,12 @@ class MockActivityService {
       ? this.mockActivityTypes.find(t => t.id === request.activity_type_id) || existingActivity.activity_type
       : existingActivity.activity_type;
 
+    // Merge metadata properly to preserve existing fields
+    const mergedMetadata = {
+      ...existingActivity.metadata,
+      ...request.metadata
+    };
+
     const updatedActivity: Activity = {
       ...existingActivity,
       title: request.title !== undefined ? request.title : existingActivity.title,
@@ -294,11 +300,29 @@ class MockActivityService {
       start_time: request.start_time !== undefined ? request.start_time : existingActivity.start_time,
       end_time: request.end_time !== undefined ? request.end_time : existingActivity.end_time,
       status: request.status !== undefined ? request.status : existingActivity.status,
-      metadata: request.metadata !== undefined ? request.metadata : existingActivity.metadata,
+      metadata: mergedMetadata,
       updated_at: new Date().toISOString()
     };
 
     this.mockActivities[activityIndex] = updatedActivity;
+    
+    // Handle recurring activities update
+    if (request.metadata?.recurring && request.metadata.recurring.type !== 'none') {
+      console.log('MockService: Updating recurring activities:', request.metadata.recurring);
+      
+      // Delete existing recurring activities for this original activity
+      const originalId = existingActivity.metadata?.recurring?.originalId || id;
+      this.mockActivities = this.mockActivities.filter(activity => 
+        !(activity.metadata?.recurring?.originalId === originalId && activity.id !== id)
+      );
+      
+      // Create new recurring activities
+      this.createRecurringActivities(updatedActivity, request.metadata.recurring);
+    }
+    
+    console.log('MockActivityService: Updated activity:', updatedActivity.id, updatedActivity.title);
+    console.log('MockActivityService: Total activities after update:', this.mockActivities.length);
+    
     return updatedActivity;
   }
 
