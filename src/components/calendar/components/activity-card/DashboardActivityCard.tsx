@@ -62,66 +62,74 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       }`}
       onClick={onCardClick}
     >
-      {/* Header row */}
-      <div className="flex items-start justify-between mb-2">
+      {/* Header row - чекбокс слева, название, кнопки справа */}
+      <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3 flex-1">
-          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-sm p-0.5 bg-white/20`}>
+          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20`}>
             <Checkbox 
               checked={activity.completed}
               onCheckedChange={handleCheckboxChange}
-              className="w-4 h-4 rounded-sm cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black"
+              className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black"
               onClick={handleCheckboxClick}
             />
           </div>
-          <span className="font-medium text-lg">{activity.name}</span>
+          <span className="font-medium text-lg text-gray-800">{activity.name}</span>
         </div>
         
         <div className="flex space-x-1 ml-2">
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
+            className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onInfoClick}
+            title="Информация"
           >
-            <Info className="w-3 h-3" />
+            <Info className="w-4 h-4" />
           </Button>
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
+            className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onEditClick}
+            title="Редактировать"
           >
-            <Edit className="w-3 h-3" />
+            <Edit className="w-4 h-4" />
           </Button>
           <Button 
             size="icon" 
             variant="ghost" 
-            className="h-6 w-6 bg-white/50 hover:bg-white/80 rounded-full"
+            className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
             onClick={onDeleteClick}
+            title="Удалить"
           >
-            <Trash2 className="w-3 h-3 text-red-500" />
+            <Trash2 className="w-4 h-4 text-red-500" />
           </Button>
         </div>
       </div>
 
-      {/* Time and stars row */}
-      <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-        <span className="font-medium">[{activity.startTime}-{activity.endTime}]</span>
-        <span>[{activity.duration}]</span>
-        <div className="flex items-center">
+      {/* Time, duration and stars row */}
+      <div className="flex items-center space-x-4 text-sm text-gray-700 mb-3">
+        <span className="font-medium">{activity.startTime} - {activity.endTime}</span>
+        <span className="bg-white/30 px-2 py-1 rounded text-xs">{activity.duration}</span>
+        <div className="flex items-center space-x-1">
           {renderStars()}
         </div>
       </div>
 
-      {/* Type and emoji row */}
-      <div className="flex items-center space-x-2">
-        <Badge variant="secondary" className="text-xs">
-          {getDisplayType(activity.type)}
-        </Badge>
-        <span className="text-2xl">{activity.emoji}</span>
-        {activity.type === 'восстановление' && activity.needEmoji && (
-          <span className="text-lg">{activity.needEmoji}</span>
-        )}
+      {/* Activity type and emoji row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-700 font-medium">Вид активности:</span>
+          <Badge variant="secondary" className="text-xs bg-white/40 text-gray-800">
+            {getDisplayType(activity.type)}
+          </Badge>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-2xl">{activity.emoji}</span>
+          {activity.type === 'восстановление' && activity.needEmoji && (
+            <span className="text-lg">{activity.needEmoji}</span>
+          )}
+        </div>
       </div>
     </div>
   );
