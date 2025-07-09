@@ -7,9 +7,20 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
   const defaultColor = apiActivity.activity_type?.color || '#3B82F6';
   const defaultEmoji = apiActivity.activity_type?.icon || '📝';
   
-  // Calculate duration
+  // Validate dates before processing
   const startTime = new Date(apiActivity.start_time);
-  const endTime = apiActivity.end_time ? new Date(apiActivity.end_time) : new Date(startTime.getTime() + 60 * 60 * 1000); // Default 1 hour
+  if (isNaN(startTime.getTime())) {
+    console.error('Invalid start_time in activity:', apiActivity);
+    throw new Error(`Invalid start_time: ${apiActivity.start_time}`);
+  }
+  
+  const endTime = apiActivity.end_time ? 
+    (() => {
+      const end = new Date(apiActivity.end_time);
+      return isNaN(end.getTime()) ? new Date(startTime.getTime() + 60 * 60 * 1000) : end;
+    })() : 
+    new Date(startTime.getTime() + 60 * 60 * 1000); // Default 1 hour
+    
   const durationMs = endTime.getTime() - startTime.getTime();
   const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
   const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -27,7 +38,7 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     completed: apiActivity.status === 'completed',
     type: apiActivity.activity_type?.name || 'general',
     needEmoji: apiActivity.metadata?.needEmoji,
-    date: apiActivity.start_time.split('T')[0], // Extract date part
+    date: apiActivity.start_time ? apiActivity.start_time.split('T')[0] : new Date().toISOString().split('T')[0], // Extract date part
     reminder: apiActivity.metadata?.reminder,
     note: apiActivity.description,
     // Handle recurring if present in metadata
@@ -69,11 +80,20 @@ export const convertUiActivityToApi = (uiActivity: Partial<UiActivity>, activity
 
 // Helper function to format ISO time to HH:mm
 const formatTime = (isoString: string): string => {
-  const date = new Date(isoString);
-  return date.toLocaleTimeString('ru-RU', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date string:', isoString);
+      return '00:00';
+    }
+    return date.toLocaleTimeString('ru-RU', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  } catch (error) {
+    console.error('Error formatting time:', error, isoString);
+    return '00:00';
+  }
 };
 
 // Helper function to convert HH:mm time to ISO time format
@@ -84,7 +104,23 @@ const convertTimeToISO = (timeString: string): string => {
 
 // Convert array of API activities to UI activities
 export const convertApiActivitiesToUi = (apiActivities: ApiActivity[]): UiActivity[] => {
-  return apiActivities.map(convertApiActivityToUi);
+  return apiActivities.filter(activity => {
+    // Filter out activities with invalid dates
+    try {
+      const date = new Date(activity.start_time);
+      return !isNaN(date.getTime());
+    } catch (error) {
+      console.warn('Filtering out activity with invalid date:', activity);
+      return false;
+    }
+  }).map(activity => {
+    try {
+      return convertApiActivityToUi(activity);
+    } catch (error) {
+      console.error('Error converting activity:', error, activity);
+      return null;
+    }
+  }).filter(Boolean) as UiActivity[];
 };
 
 // Default activity type for fallback
