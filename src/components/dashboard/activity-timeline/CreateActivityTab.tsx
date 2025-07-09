@@ -26,10 +26,10 @@ const CreateActivityTab: React.FC = () => {
   const [status, setStatus] = useState('pending');
 
   const activityTypes = [
-    { value: 'restorative', label: 'Восстанавливающая (забота о себе и своих потребностях, отдых)' },
-    { value: 'neutral', label: 'Нейтральная' },
-    { value: 'mixed', label: 'Смешанная' },
-    { value: 'depleting', label: 'Истощающая (дела)' },
+    { value: 'восстановление', label: 'Восстанавливающая (забота о себе и своих потребностях, отдых)' },
+    { value: 'нейтральная', label: 'Нейтральная' },
+    { value: 'смешанная', label: 'Смешанная' },
+    { value: 'задача', label: 'Истощающая (дела)' },
   ];
 
   const repeatOptions = [
