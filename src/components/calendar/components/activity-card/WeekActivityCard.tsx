@@ -46,16 +46,9 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
         <span className="font-medium text-xs truncate leading-tight block">{activity.name}</span>
       </div>
 
-      {/* Время + звезды важности */}
-      <div className="flex items-center justify-between text-xs text-gray-600">
-        <div className="flex items-center space-x-1">
-          <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
-        </div>
-        <div className="flex items-center">
-          {Array.from({ length: Math.min(activity.importance, 3) }, (_, i) => (
-            <Star key={i} className="w-2 h-2 fill-yellow-400 text-yellow-400" />
-          ))}
-        </div>
+      {/* Время (без продолжительности и звезд) */}
+      <div className="flex items-center text-xs text-gray-600">
+        <span className="font-medium">{activity.startTime}-{activity.endTime}</span>
       </div>
     </div>
   );
