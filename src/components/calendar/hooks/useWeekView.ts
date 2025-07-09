@@ -68,19 +68,14 @@ export const useWeekView = (currentDate: Date) => {
     // Filter activities for this specific day
     const dayActivities = weekActivities.filter(activity => {
       try {
-        // Validate activity startTime before processing
-        if (!activity.startTime) {
-          console.warn('Activity has no startTime:', activity);
+        // Validate activity date field
+        if (!activity.date) {
+          console.warn('Activity has no date field:', activity);
           return false;
         }
         
-        const activityDate = new Date(activity.startTime);
-        if (isNaN(activityDate.getTime())) {
-          console.warn('Invalid activity date:', activity.startTime, activity);
-          return false;
-        }
-        
-        const activityDateString = activityDate.toISOString().split('T')[0];
+        // Compare date fields directly instead of constructing dates
+        const activityDateString = activity.date;
         return activityDateString === dayString;
       } catch (error) {
         console.error('Error processing activity date:', error, activity);
@@ -93,6 +88,14 @@ export const useWeekView = (currentDate: Date) => {
     const filteredActivities = dayActivities.filter(activity => 
       !filteredTypes.has(activity.type)
     );
+    
+    // Sort activities by start time
+    filteredActivities.sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        return a.startTime.localeCompare(b.startTime);
+      }
+      return 0;
+    });
     
     console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     

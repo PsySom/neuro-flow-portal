@@ -61,24 +61,27 @@ export const useMonthView = (currentDate: Date) => {
     // Filter activities for this specific day
     const dayActivities = monthActivities.filter(activity => {
       try {
-        // Validate activity startTime before processing
-        if (!activity.startTime) {
-          console.warn('Activity has no startTime:', activity);
+        // Validate activity date field
+        if (!activity.date) {
+          console.warn('Activity has no date field:', activity);
           return false;
         }
         
-        const activityDate = new Date(activity.startTime);
-        if (isNaN(activityDate.getTime())) {
-          console.warn('Invalid activity date:', activity.startTime, activity);
-          return false;
-        }
-        
-        const activityDateString = activityDate.toISOString().split('T')[0];
+        // Compare date fields directly instead of constructing dates
+        const activityDateString = activity.date;
         return activityDateString === dateString;
       } catch (error) {
         console.error('Error processing activity date:', error, activity);
         return false;
       }
+    });
+    
+    // Sort activities by start time
+    dayActivities.sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        return a.startTime.localeCompare(b.startTime);
+      }
+      return 0;
     });
     
     console.log(`MonthView: Activities for ${dateString}:`, dayActivities.length);
