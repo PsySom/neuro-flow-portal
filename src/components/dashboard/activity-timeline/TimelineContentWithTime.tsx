@@ -6,13 +6,13 @@ import TimeIndicator from './TimeIndicator';
 import ActivityTimelineEmpty from './ActivityTimelineEmpty';
 import { useTimelineLogic } from './useTimelineLogic';
 import { Activity } from '@/contexts/ActivitiesContext';
-import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
+import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
 
 interface TimelineContentWithTimeProps {
   activities: Activity[];
   onActivityToggle: (activityId: number) => void;
   onActivityDelete: (activityId: number, deleteOption?: DeleteRecurringOption) => void;
-  onActivityUpdate: (activityId: number, updates: any) => void;
+  onActivityUpdate: (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => void;
   isEmpty: boolean;
   formattedDate: string;
 }
@@ -32,6 +32,15 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
     handleUserInteraction,
     scrollToCurrentTime
   } = useTimelineLogic();
+
+  // Adapter function to convert ActivityCard's onUpdate signature to our onActivityUpdate signature
+  const handleActivityCardUpdate = (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    const activityToUpdate = activities.find(a => a.id === id);
+    if (activityToUpdate) {
+      const updatedActivity = { ...activityToUpdate, ...updates };
+      onActivityUpdate(updatedActivity, recurringOptions);
+    }
+  };
 
   if (isEmpty) {
     return <ActivityTimelineEmpty formattedDate={formattedDate} />;
@@ -82,7 +91,7 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
                 }}
                 onToggleComplete={onActivityToggle}
                 onDelete={onActivityDelete}
-                onUpdate={onActivityUpdate}
+                onUpdate={handleActivityCardUpdate}
                 viewType="dashboard"
               />
             ))}

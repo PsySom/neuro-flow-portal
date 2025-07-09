@@ -9,7 +9,8 @@ import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
 import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
-import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
+import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
+import { Activity } from '@/components/calendar/types';
 import { useState } from 'react';
 
 const ActivityTimelineComponent = () => {
@@ -25,8 +26,43 @@ const ActivityTimelineComponent = () => {
   // Convert API activities to UI format
   const todayActivities = convertApiActivitiesToUi(apiActivities);
 
-  const handleActivityUpdate = (activityId: number, updates: any) => {
-    updateActivityMutation.mutate({ id: activityId, data: updates });
+  const handleActivityUpdate = (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => {
+    console.log('ActivityTimelineComponent updating activity:', updatedActivity.id, updatedActivity, 'recurring:', recurringOptions);
+    
+    // Map activity type to API type ID
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
+    };
+
+    const apiUpdates: any = {
+      title: updatedActivity.name,
+      description: updatedActivity.note,
+      activity_type_id: getActivityTypeId(updatedActivity.type),
+      start_time: `${updatedActivity.date}T${updatedActivity.startTime}:00.000Z`,
+      end_time: updatedActivity.endTime ? `${updatedActivity.date}T${updatedActivity.endTime}:00.000Z` : undefined,
+      status: updatedActivity.completed ? 'completed' : 'planned',
+      metadata: {
+        importance: updatedActivity.importance,
+        color: updatedActivity.color,
+        emoji: updatedActivity.emoji,
+        needEmoji: updatedActivity.needEmoji,
+        recurring: recurringOptions // Include recurring options in metadata
+      }
+    };
+    
+    // Remove undefined values
+    const cleanApiUpdates = Object.fromEntries(
+      Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
+    );
+    
+    console.log('ActivityTimelineComponent: Sending update request:', cleanApiUpdates);
+    updateActivityMutation.mutate({ id: updatedActivity.id, data: cleanApiUpdates });
   };
 
   const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
@@ -113,6 +149,8 @@ const ActivityTimelineComponent = () => {
           open={isDetailsDialogOpen}
           onOpenChange={setIsDetailsDialogOpen}
           activity={selectedActivity}
+          onActivityUpdate={handleActivityUpdate}
+          onDelete={handleActivityDelete}
         />
       )}
     </>
