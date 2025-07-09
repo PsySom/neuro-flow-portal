@@ -3,6 +3,7 @@ import { useActivitiesRange, useCreateActivity, useUpdateActivity, useDeleteActi
 import { DeleteRecurringOption, RecurringActivityOptions } from '../utils/recurringUtils';
 import { calculateActivityLayouts } from '../utils/timeUtils';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
+import { calendarService } from '@/services/calendar.service';
 
 export const useWeekView = (currentDate: Date) => {
   const createActivityMutation = useCreateActivity();
@@ -125,35 +126,47 @@ export const useWeekView = (currentDate: Date) => {
     setIsCreateDialogOpen(true);
   }, [weekDays]);
 
-  const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    // Map activity type to API type ID
-    const getActivityTypeId = (type: string) => {
-      switch (type) {
-        case 'задача': return 1;
-        case 'восстановление': return 2;
-        case 'нейтральная': return 3;
-        case 'смешанная': return 4;
-        default: return 1;
-      }
-    };
+  const handleActivityCreate = useCallback(async (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
+    try {
+      // Map activity type to API type ID
+      const getActivityTypeId = (type: string) => {
+        switch (type) {
+          case 'задача': return 1;
+          case 'восстановление': return 2;
+          case 'нейтральная': return 3;
+          case 'смешанная': return 4;
+          default: return 1;
+        }
+      };
 
-    const activityData = {
-      title: newActivity.name,
-      description: newActivity.note,
-      activity_type_id: getActivityTypeId(newActivity.type),
-      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
-      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
-      metadata: {
-        importance: newActivity.importance,
-        color: newActivity.color,
-        emoji: newActivity.emoji,
-        needEmoji: newActivity.needEmoji
+      const activityData = {
+        title: newActivity.name,
+        description: newActivity.note,
+        activity_type_id: getActivityTypeId(newActivity.type),
+        start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
+        end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+        metadata: {
+          importance: newActivity.importance,
+          color: newActivity.color,
+          emoji: newActivity.emoji,
+          needEmoji: newActivity.needEmoji
+        }
+      };
+      
+      console.log('Creating activity in WeekView:', activityData, 'with recurring:', recurringOptions);
+      
+      if (recurringOptions && recurringOptions.type !== 'none') {
+        // Use calendar service for recurring activities
+        await calendarService.createActivity(activityData, recurringOptions);
+      } else {
+        // Use regular mutation for single activities
+        createActivityMutation.mutate(activityData);
       }
-    };
-    
-    console.log('Creating activity in WeekView:', activityData, 'with recurring:', recurringOptions);
-    createActivityMutation.mutate(activityData);
-    setIsCreateDialogOpen(false);
+      
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating activity:', error);
+    }
   }, [createActivityMutation]);
 
   const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {

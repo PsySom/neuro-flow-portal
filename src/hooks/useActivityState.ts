@@ -3,13 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { loadActivitiesFromStorage, saveActivitiesToStorage } from '@/utils/activityStorage';
+import { unifiedActivityService } from '@/services/unified-activity.service';
 import { 
-  addActivityWithRecurring,
-  updateActivityWithRecurring,
-  deleteActivityWithRecurring,
-  toggleActivityCompletion,
-  getActivitiesForDate,
-  getActivitiesForDateRange,
   sortActivities
 } from '@/utils/activityOperations';
 
@@ -32,29 +27,76 @@ export const useActivityState = () => {
     saveActivitiesToStorage(activities);
   }, [activities]);
 
-  const addActivity = useCallback((activity: Activity, recurringOptions?: RecurringActivityOptions) => {
-    setActivities(prev => addActivityWithRecurring(prev, activity, getCurrentDateString, recurringOptions));
+  const addActivity = useCallback(async (activity: Activity, recurringOptions?: RecurringActivityOptions) => {
+    try {
+      const createdActivities = await unifiedActivityService.createActivity(activity, recurringOptions);
+      setActivities(prev => sortActivities([...prev, ...createdActivities]));
+    } catch (error) {
+      console.error('Error adding activity:', error);
+    }
+  }, []);
+
+  const updateActivity = useCallback(async (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    try {
+      const updatedActivity = await unifiedActivityService.updateActivity(id, updates, recurringOptions);
+      setActivities(prev => prev.map(a => a.id === id ? updatedActivity : a));
+    } catch (error) {
+      console.error('Error updating activity:', error);
+    }
+  }, []);
+
+  const deleteActivity = useCallback(async (id: number, deleteOption?: DeleteRecurringOption) => {
+    try {
+      await unifiedActivityService.deleteActivity(id, deleteOption);
+      setActivities(prev => prev.filter(a => a.id !== id));
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+    }
+  }, []);
+
+  const toggleActivityComplete = useCallback(async (id: number) => {
+    try {
+      const updatedActivity = await unifiedActivityService.toggleActivityCompletion(id);
+      setActivities(prev => prev.map(a => a.id === id ? updatedActivity : a));
+    } catch (error) {
+      console.error('Error toggling activity completion:', error);
+    }
+  }, []);
+
+  const getActivitiesForDateFunc = useCallback(async (date: string): Promise<Activity[]> => {
+    try {
+      return await unifiedActivityService.getActivitiesForDate(date);
+    } catch (error) {
+      console.error('Error getting activities for date:', error);
+      return activities.filter(a => a.date === date);
+    }
+  }, [activities]);
+
+  const getActivitiesForDateRangeFunc = useCallback(async (startDate: string, endDate: string): Promise<Activity[]> => {
+    try {
+      return await unifiedActivityService.getActivitiesForDateRange(startDate, endDate);
+    } catch (error) {
+      console.error('Error getting activities for date range:', error);
+      return activities.filter(a => a.date >= startDate && a.date <= endDate);
+    }
+  }, [activities]);
+
+  // Load activities from server on mount
+  useEffect(() => {
+    const loadServerActivities = async () => {
+      try {
+        const today = getCurrentDateString();
+        const serverActivities = await unifiedActivityService.getActivitiesForDate(today);
+        if (serverActivities.length > 0) {
+          setActivities(sortActivities(serverActivities));
+        }
+      } catch (error) {
+        console.error('Error loading server activities:', error);
+      }
+    };
+
+    loadServerActivities();
   }, [getCurrentDateString]);
-
-  const updateActivity = useCallback((id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
-    setActivities(prev => updateActivityWithRecurring(prev, id, updates, recurringOptions));
-  }, []);
-
-  const deleteActivity = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
-    setActivities(prev => deleteActivityWithRecurring(prev, id, deleteOption));
-  }, []);
-
-  const toggleActivityComplete = useCallback((id: number) => {
-    setActivities(prev => toggleActivityCompletion(prev, id));
-  }, []);
-
-  const getActivitiesForDateFunc = useCallback((date: string): Activity[] => {
-    return getActivitiesForDate(activities, date);
-  }, [activities]);
-
-  const getActivitiesForDateRangeFunc = useCallback((startDate: string, endDate: string): Activity[] => {
-    return getActivitiesForDateRange(activities, startDate, endDate);
-  }, [activities]);
 
   return {
     activities,

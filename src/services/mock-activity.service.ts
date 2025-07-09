@@ -159,10 +159,13 @@ class MockActivityService {
   async getActivitiesByDateRange(startDate: string, endDate: string): Promise<Activity[]> {
     await this.simulateDelay();
     
-    return this.mockActivities.filter(activity => {
+    const filteredActivities = this.mockActivities.filter(activity => {
       const activityDate = activity.start_time.split('T')[0];
       return activityDate >= startDate && activityDate <= endDate;
     });
+    
+    console.log(`MockActivityService: Found ${filteredActivities.length} activities for range ${startDate} to ${endDate}`);
+    return filteredActivities;
   }
 
   // Get activities for today
@@ -204,13 +207,17 @@ class MockActivityService {
       activity_type: activityType,
       start_time: request.start_time,
       end_time: request.end_time,
-      status: 'planned',
+      status: request.status || 'planned',
       metadata: request.metadata,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
     this.mockActivities.push(newActivity);
+    
+    console.log('MockActivityService: Created activity:', newActivity.id, newActivity.title);
+    console.log('MockActivityService: Total activities:', this.mockActivities.length);
+    
     return newActivity;
   }
 
@@ -254,6 +261,8 @@ class MockActivityService {
     }
 
     this.mockActivities.splice(activityIndex, 1);
+    console.log('MockActivityService: Deleted activity:', id);
+    console.log('MockActivityService: Remaining activities:', this.mockActivities.length);
   }
 
   // Get single activity state 

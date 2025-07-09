@@ -72,6 +72,7 @@ export interface CreateActivityRequest {
   activity_type_id: number;
   start_time: string;
   end_time?: string;
+  status?: ActivityStatus;
   metadata?: Record<string, any>;
 }
 
