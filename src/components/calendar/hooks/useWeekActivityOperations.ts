@@ -41,19 +41,24 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
 
   const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
     console.log('WeekView updating activity:', activityId, updates, 'recurring:', recurringOptions);
+    console.log('Updates type check - is full activity?', updates.id !== undefined);
+    
+    // Check if we received a full activity object or partial updates
+    const isFullActivity = updates.id !== undefined;
+    const activityData = isFullActivity ? updates : updates;
 
     const apiUpdates: any = {
-      title: updates.name,
-      description: updates.note,
-      activity_type_id: updates.type ? getActivityTypeId(updates.type) : undefined,
-      start_time: updates.date && updates.startTime ? `${updates.date}T${updates.startTime}:00.000Z` : undefined,
-      end_time: updates.date && updates.endTime ? `${updates.date}T${updates.endTime}:00.000Z` : undefined,
-      status: updates.completed !== undefined ? (updates.completed ? 'completed' : 'planned') : undefined,
+      title: activityData.name,
+      description: activityData.note,
+      activity_type_id: activityData.type ? getActivityTypeId(activityData.type) : undefined,
+      start_time: activityData.date && activityData.startTime ? `${activityData.date}T${activityData.startTime}:00.000Z` : undefined,
+      end_time: activityData.date && activityData.endTime ? `${activityData.date}T${activityData.endTime}:00.000Z` : undefined,
+      status: activityData.completed !== undefined ? (activityData.completed ? 'completed' : 'planned') : undefined,
       metadata: {
-        importance: updates.importance,
-        color: updates.color,
-        emoji: updates.emoji,
-        needEmoji: updates.needEmoji,
+        importance: activityData.importance,
+        color: activityData.color,
+        emoji: activityData.emoji,
+        needEmoji: activityData.needEmoji,
         recurring: recurringOptions // Include recurring options in metadata
       }
     };

@@ -28,6 +28,7 @@ const ActivityTimelineComponent = () => {
 
   const handleActivityUpdate = (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => {
     console.log('ActivityTimelineComponent updating activity:', updatedActivity.id, updatedActivity, 'recurring:', recurringOptions);
+    console.log('Timeline: Processing full activity object');
     
     // Map activity type to API type ID
     const getActivityTypeId = (type: string) => {

@@ -78,6 +78,7 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
   }, [activity]);
 
   const handleSave = () => {
+    console.log('EditActivityDialog: handleSave called');
     const formData: ActivityFormData = {
       activityName,
       activityType,
@@ -92,9 +93,12 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       status
     };
 
+    console.log('EditActivityDialog: Form data:', formData);
+
     const validationErrors = validateActivityForm(formData);
     
     if (Object.keys(validationErrors).length > 0) {
+      console.log('EditActivityDialog: Validation errors:', validationErrors);
       setErrors(validationErrors);
       return;
     }
@@ -115,6 +119,8 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
       date: selectedDate.toISOString().split('T')[0]
     };
 
+    console.log('EditActivityDialog: Updated activity object:', updatedActivity);
+
     // Формируем параметры повтора только если выбран тип повторения отличный от 'none'
     let recurringOptions: RecurringActivityOptions | undefined;
     if (repeatType && repeatType !== 'none' && repeatType !== '') {
@@ -124,9 +130,10 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
         maxOccurrences: repeatType === 'daily' ? 10 : repeatType === 'weekly' ? 8 : 12
       };
       
-      console.log('Setting recurring options for existing activity:', recurringOptions);
+      console.log('EditActivityDialog: Setting recurring options for existing activity:', recurringOptions);
     }
 
+    console.log('EditActivityDialog: Calling onActivityUpdate with:', updatedActivity, recurringOptions);
     if (onActivityUpdate) {
       onActivityUpdate(updatedActivity, recurringOptions);
     }
