@@ -56,9 +56,23 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
       }}
       onClick={handleCardClick}
     >
-      {/* Верхняя строка с названием и кнопками */}
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center space-x-1 flex-1 min-w-0">
+      {/* Верхняя строка с чекбоксом, названием и кнопками */}
+      <div className="flex items-start justify-between mb-1">
+        <div className="flex items-center space-x-2 flex-1 min-w-0">
+          {/* Чекбокс слева */}
+          <div 
+            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${getActivityTypeColor(activity.type)} ${
+              activity.completed ? 'bg-white' : 'bg-transparent'
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              // Здесь будет логика переключения статуса
+            }}
+          >
+            {activity.completed && (
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            )}
+          </div>
           <span className="font-medium text-xs truncate leading-tight">{activity.name}</span>
         </div>
         
