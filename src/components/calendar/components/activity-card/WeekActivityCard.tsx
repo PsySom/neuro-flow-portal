@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Star } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 import { getActivityTypeColor } from '@/utils/activityTypeColors';
 
