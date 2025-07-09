@@ -35,9 +35,10 @@ export const useTimelineLogic = () => {
     if (timeIndicatorRef.current && scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
-        const indicatorTop = timeIndicatorRef.current.offsetTop;
+        const currentTime = new Date();
+        const timePosition = (currentTime.getHours() * 60) + currentTime.getMinutes();
         const containerHeight = scrollContainer.clientHeight;
-        const scrollTop = indicatorTop - containerHeight / 2;
+        const scrollTop = timePosition - containerHeight / 2;
         
         scrollContainer.scrollTo({
           top: Math.max(0, scrollTop),

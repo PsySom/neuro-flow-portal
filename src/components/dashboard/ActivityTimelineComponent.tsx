@@ -5,8 +5,8 @@ import { LoaderCircle } from 'lucide-react';
 import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
-import ActivityTimelineContent from './activity-timeline/ActivityTimelineContent';
 import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
+import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
 import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
@@ -93,16 +93,14 @@ const ActivityTimelineComponent = () => {
           onAddClick={() => setIsDialogOpen(true)}
         />
         
-        {todayActivities.length > 0 ? (
-          <ActivityTimelineContent
-            activities={todayActivities}
-            onActivityToggle={handleActivityToggle}
-            onActivityDelete={handleActivityDelete}
-            onActivityUpdate={handleActivityUpdate}
-          />
-        ) : (
-          <ActivityTimelineEmpty formattedDate={formattedDate} />
-        )}
+        <TimelineContentWithTime
+          activities={todayActivities}
+          onActivityToggle={handleActivityToggle}
+          onActivityDelete={handleActivityDelete}
+          onActivityUpdate={handleActivityUpdate}
+          isEmpty={todayActivities.length === 0}
+          formattedDate={formattedDate}
+        />
       </Card>
 
       <CreateActivityDialog 
