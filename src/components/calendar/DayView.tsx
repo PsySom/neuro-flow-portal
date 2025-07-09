@@ -83,16 +83,31 @@ const DayView: React.FC<DayViewProps> = ({
   const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('DayView handleActivityUpdate:', activityId, updates, recurringOptions);
     
+    // Map activity type to API type ID if type is being updated
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
+    };
+    
     // Convert UI updates to API format
     const apiUpdates: UpdateActivityRequest = {
       title: updates.name,
       description: updates.note,
+      activity_type_id: updates.type ? getActivityTypeId(updates.type) : undefined,
+      start_time: updates.date && updates.startTime ? `${updates.date}T${updates.startTime}:00.000Z` : undefined,
+      end_time: updates.date && updates.endTime ? `${updates.date}T${updates.endTime}:00.000Z` : undefined,
       status: updates.completed !== undefined ? (updates.completed ? 'completed' : 'planned') : undefined,
       metadata: {
         importance: updates.importance,
         color: updates.color,
         emoji: updates.emoji,
-        needEmoji: updates.needEmoji
+        needEmoji: updates.needEmoji,
+        recurring: recurringOptions // Include recurring options in metadata
       }
     };
     

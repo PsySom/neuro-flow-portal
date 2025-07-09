@@ -1,24 +1,54 @@
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMonthView } from './hooks/useMonthView';
+import EditActivityDialog from './components/EditActivityDialog';
+import CreateActivityDialog from './components/CreateActivityDialog';
 
 interface MonthViewProps {
   currentDate: Date;
 }
 
 const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+
   const {
     days,
     isToday,
     isCurrentMonth,
     getActivitiesForDateObj,
     truncateText,
-    isLoading
+    isLoading,
+    handleActivityUpdate,
+    handleActivityDelete,
+    handleActivityCreate
   } = useMonthView(currentDate);
 
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+
+  const handleActivityClick = (activity: any) => {
+    setSelectedActivity(activity);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleAddActivity = (date: Date) => {
+    setSelectedDate(date.toISOString().split('T')[0]);
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleActivityUpdateWrapper = (updatedActivity: any, recurringOptions?: any) => {
+    handleActivityUpdate(updatedActivity.id, updatedActivity, recurringOptions);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleActivityCreateWrapper = (newActivity: any, recurringOptions?: any) => {
+    handleActivityCreate(newActivity, recurringOptions);
+    setIsCreateDialogOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -77,8 +107,9 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
                   {visibleActivities.map((activity, activityIndex) => (
                     <div
                       key={`${activity.id}-${activityIndex}`}
-                      className={`${activity.color} text-white text-xs px-1 py-0.5 rounded truncate flex items-center space-x-1`}
+                      className={`${activity.color} text-white text-xs px-1 py-0.5 rounded truncate flex items-center space-x-1 cursor-pointer hover:opacity-80 transition-opacity`}
                       title={`${activity.emoji} ${activity.name} (${activity.startTime}-${activity.endTime})`}
+                      onClick={() => handleActivityClick(activity)}
                     >
                       <span>{activity.emoji}</span>
                       <span className="flex-1 truncate">{truncateText(activity.name)}</span>
@@ -99,6 +130,7 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
                     variant="ghost" 
                     size="sm" 
                     className="h-6 w-full text-xs text-gray-400 hover:text-gray-600 mt-1"
+                    onClick={() => handleAddActivity(date)}
                   >
                     +
                   </Button>
@@ -128,6 +160,26 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
           </div>
         </div>
       </CardContent>
+
+      {/* Edit Activity Dialog */}
+      {selectedActivity && (
+        <EditActivityDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          activity={selectedActivity}
+          onActivityUpdate={handleActivityUpdateWrapper}
+          onDelete={handleActivityDelete}
+        />
+      )}
+
+      {/* Create Activity Dialog */}
+      <CreateActivityDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        initialDate={selectedDate}
+        initialTime="09:00"
+        onActivityCreate={handleActivityCreateWrapper}
+      />
     </Card>
   );
 });
