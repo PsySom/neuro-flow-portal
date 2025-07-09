@@ -42,11 +42,10 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
   const handleActivityUpdate = useCallback((activityId: number | string, updates: any, recurringOptions?: RecurringActivityOptions) => {
     const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
     console.log('WeekView updating activity:', numericId, updates, 'recurring:', recurringOptions);
-    console.log('Updates type check - is full activity?', updates.id !== undefined);
+    console.log('Updates object keys:', Object.keys(updates));
     
-    // Check if we received a full activity object or partial updates
-    const isFullActivity = updates.id !== undefined;
-    const activityData = isFullActivity ? updates : updates;
+    // The updates parameter is the full updated activity object from EditActivityDialog
+    const activityData = updates;
 
     const apiUpdates: any = {
       title: activityData.name,
@@ -60,9 +59,11 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
         color: activityData.color,
         emoji: activityData.emoji,
         needEmoji: activityData.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata, can be undefined
+        recurring: recurringOptions
       }
     };
+    
+    console.log('WeekView: Raw API updates before cleaning:', apiUpdates);
     
     // Remove undefined values but keep null values for proper serialization
     const cleanApiUpdates = Object.fromEntries(

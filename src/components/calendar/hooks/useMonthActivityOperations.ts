@@ -42,11 +42,10 @@ export const useMonthActivityOperations = () => {
   const handleActivityUpdate = useCallback((activityId: number | string, updates: any, recurringOptions?: RecurringActivityOptions) => {
     const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
     console.log('MonthView updating activity:', numericId, updates, 'recurring:', recurringOptions);
-    console.log('Updates type check - is full activity?', updates.id !== undefined);
+    console.log('Updates object keys:', Object.keys(updates));
     
-    // Check if we received a full activity object or partial updates
-    const isFullActivity = updates.id !== undefined;
-    const activityData = isFullActivity ? updates : updates;
+    // The updates parameter is the full updated activity object from EditActivityDialog
+    const activityData = updates;
 
     const apiUpdates: any = {
       title: activityData.name,
@@ -60,9 +59,11 @@ export const useMonthActivityOperations = () => {
         color: activityData.color,
         emoji: activityData.emoji,
         needEmoji: activityData.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata, can be undefined
+        recurring: recurringOptions
       }
     };
+    
+    console.log('MonthView: Raw API updates before cleaning:', apiUpdates);
     
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)

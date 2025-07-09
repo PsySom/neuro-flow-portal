@@ -41,6 +41,7 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
   };
 
   const handleActivityUpdateWrapper = (updatedActivity: any, recurringOptions?: any) => {
+    console.log('MonthView: handleActivityUpdateWrapper called with:', updatedActivity, recurringOptions);
     handleActivityUpdate(updatedActivity.id, updatedActivity, recurringOptions);
     setIsEditDialogOpen(false);
   };

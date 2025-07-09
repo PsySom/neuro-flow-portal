@@ -44,18 +44,20 @@ const ActivityTimelineComponent = () => {
     const apiUpdates: any = {
       title: updatedActivity.name,
       description: updatedActivity.note,
-      activity_type_id: getActivityTypeId(updatedActivity.type),
-      start_time: `${updatedActivity.date}T${updatedActivity.startTime}:00.000Z`,
-      end_time: updatedActivity.endTime ? `${updatedActivity.date}T${updatedActivity.endTime}:00.000Z` : undefined,
-      status: updatedActivity.completed ? 'completed' : 'planned',
+      activity_type_id: updatedActivity.type ? getActivityTypeId(updatedActivity.type) : undefined,
+      start_time: updatedActivity.date && updatedActivity.startTime ? `${updatedActivity.date}T${updatedActivity.startTime}:00.000Z` : undefined,
+      end_time: updatedActivity.date && updatedActivity.endTime ? `${updatedActivity.date}T${updatedActivity.endTime}:00.000Z` : undefined,
+      status: updatedActivity.completed !== undefined ? (updatedActivity.completed ? 'completed' : 'planned') : undefined,
       metadata: {
         importance: updatedActivity.importance,
         color: updatedActivity.color,
         emoji: updatedActivity.emoji,
         needEmoji: updatedActivity.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata, can be undefined
+        recurring: recurringOptions
       }
     };
+    
+    console.log('ActivityTimelineComponent: Raw API updates before cleaning:', apiUpdates);
     
     // Remove undefined values but keep null values for proper serialization
     const cleanApiUpdates = Object.fromEntries(
