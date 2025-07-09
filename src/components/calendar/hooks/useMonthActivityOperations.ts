@@ -39,8 +39,9 @@ export const useMonthActivityOperations = () => {
     }
   }, [createActivityMutation]);
 
-  const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
-    console.log('MonthView updating activity:', activityId, updates, 'recurring:', recurringOptions);
+  const handleActivityUpdate = useCallback((activityId: number | string, updates: any, recurringOptions?: RecurringActivityOptions) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('MonthView updating activity:', numericId, updates, 'recurring:', recurringOptions);
     console.log('Updates type check - is full activity?', updates.id !== undefined);
     
     // Check if we received a full activity object or partial updates
@@ -59,7 +60,7 @@ export const useMonthActivityOperations = () => {
         color: activityData.color,
         emoji: activityData.emoji,
         needEmoji: activityData.needEmoji,
-        recurring: recurringOptions
+        recurring: recurringOptions || null
       }
     };
     
@@ -68,21 +69,23 @@ export const useMonthActivityOperations = () => {
     );
     
     console.log('MonthView: Sending update request:', cleanApiUpdates);
-    updateActivityMutation.mutate({ id: activityId, data: cleanApiUpdates });
+    updateActivityMutation.mutate({ id: numericId, data: cleanApiUpdates });
   }, [updateActivityMutation]);
 
-  const handleActivityDelete = useCallback((activityId: number, deleteOption?: DeleteRecurringOption) => {
-    console.log('MonthView deleting activity:', activityId, deleteOption);
-    deleteActivityMutation.mutate(activityId);
+  const handleActivityDelete = useCallback((activityId: number | string, deleteOption?: DeleteRecurringOption) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('MonthView deleting activity:', numericId, deleteOption);
+    deleteActivityMutation.mutate(numericId);
   }, [deleteActivityMutation]);
 
-  const handleActivityToggle = useCallback((activityId: number, monthActivities: Activity[]) => {
-    console.log('MonthView toggling activity:', activityId);
-    const activity = monthActivities.find(a => a.id === activityId);
+  const handleActivityToggle = useCallback((activityId: number | string, monthActivities: Activity[]) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('MonthView toggling activity:', numericId);
+    const activity = monthActivities.find(a => a.id === numericId);
     if (activity) {
       const newStatus = activity.completed ? 'planned' : 'completed';
       updateActivityMutation.mutate({ 
-        id: activityId, 
+        id: numericId, 
         data: { status: newStatus } 
       });
     }

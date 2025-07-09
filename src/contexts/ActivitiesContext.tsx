@@ -4,12 +4,12 @@ import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/ca
 import { useActivityState } from '@/hooks/useActivityState';
 
 export interface Activity {
-  id: number;
+  id: number | string;
   name: string;
   emoji: string;
   startTime: string;
-  endTime: string;
-  duration: string;
+  endTime?: string;
+  duration?: string;
   color: string;
   importance: number;
   completed: boolean;
@@ -30,9 +30,9 @@ interface ActivitiesContextType {
   activities: Activity[];
   setActivities: React.Dispatch<React.SetStateAction<Activity[]>>;
   addActivity: (activity: Activity, recurringOptions?: RecurringActivityOptions) => Promise<void>;
-  updateActivity: (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => Promise<void>;
-  deleteActivity: (id: number, deleteOption?: DeleteRecurringOption) => Promise<void>;
-  toggleActivityComplete: (id: number) => Promise<void>;
+  updateActivity: (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => Promise<void>;
+  deleteActivity: (id: number | string, deleteOption?: DeleteRecurringOption) => Promise<void>;
+  toggleActivityComplete: (id: number | string) => Promise<void>;
   getActivitiesForDate: (date: string) => Promise<Activity[]>;
   getActivitiesForDateRange: (startDate: string, endDate: string) => Promise<Activity[]>;
   getCurrentDateString: () => string;

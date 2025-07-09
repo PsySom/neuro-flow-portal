@@ -64,8 +64,15 @@ export const useCreateActivity = () => {
   return useMutation({
     mutationFn: (data: CreateActivityRequest) => activityService.createActivity(data),
     onSuccess: (newActivity) => {
-      // Invalidate activities queries
+      // Comprehensive cache invalidation for all activity-related queries
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      
+      // Also invalidate today's activities specifically
+      const today = new Date().toISOString().split('T')[0];
+      queryClient.invalidateQueries({ queryKey: ['activities', today] });
+      
+      console.log('Created activity, invalidated all activity caches:', newActivity.id);
       
       toast({
         title: "Активность создана",
@@ -73,6 +80,7 @@ export const useCreateActivity = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Activity creation error:', error);
       toast({
         title: "Ошибка создания",
         description: error.message || "Не удалось создать активность",
@@ -91,8 +99,15 @@ export const useUpdateActivity = () => {
     mutationFn: ({ id, data }: { id: number; data: UpdateActivityRequest }) => 
       activityService.updateActivity(id, data),
     onSuccess: (updatedActivity) => {
-      // Invalidate activities queries
+      // Comprehensive cache invalidation for all activity-related queries
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      
+      // Also invalidate today's activities specifically
+      const today = new Date().toISOString().split('T')[0];
+      queryClient.invalidateQueries({ queryKey: ['activities', today] });
+      
+      console.log('Updated activity, invalidated all activity caches:', updatedActivity.id);
       
       toast({
         title: "Активность обновлена",
@@ -100,6 +115,7 @@ export const useUpdateActivity = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Activity update error:', error);
       toast({
         title: "Ошибка обновления",
         description: error.message || "Не удалось обновить активность",
@@ -117,8 +133,15 @@ export const useDeleteActivity = () => {
   return useMutation({
     mutationFn: (id: number) => activityService.deleteActivity(id),
     onSuccess: () => {
-      // Invalidate activities queries
+      // Comprehensive cache invalidation for all activity-related queries
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      
+      // Also invalidate today's activities specifically
+      const today = new Date().toISOString().split('T')[0];
+      queryClient.invalidateQueries({ queryKey: ['activities', today] });
+      
+      console.log('Deleted activity, invalidated all activity caches');
       
       toast({
         title: "Активность удалена",
@@ -126,6 +149,7 @@ export const useDeleteActivity = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Activity deletion error:', error);
       toast({
         title: "Ошибка удаления",
         description: error.message || "Не удалось удалить активность",

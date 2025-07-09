@@ -41,8 +41,10 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     date: apiActivity.start_time ? apiActivity.start_time.split('T')[0] : new Date().toISOString().split('T')[0], // Extract date part
     reminder: apiActivity.metadata?.reminder,
     note: apiActivity.description,
-    // Handle recurring if present in metadata
-    recurring: apiActivity.metadata?.recurring ? {
+    // Handle recurring if present in metadata and valid
+    recurring: apiActivity.metadata?.recurring && 
+               apiActivity.metadata.recurring.type !== 'none' && 
+               apiActivity.metadata.recurring.type !== null ? {
       originalId: apiActivity.metadata.recurring.originalId,
       type: apiActivity.metadata.recurring.type,
       interval: apiActivity.metadata.recurring.interval,

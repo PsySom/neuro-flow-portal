@@ -13,8 +13,8 @@ interface ActivityInfoPopoverProps {
   activity: Activity;
   onClose: () => void;
   position: { x: number; y: number };
-  onDelete?: (id: number, deleteOption?: DeleteRecurringOption) => void;
-  onUpdate?: (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
+  onDelete?: (id: number | string, deleteOption?: DeleteRecurringOption) => void;
+  onUpdate?: (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
   onEdit?: () => void;
 }
 

@@ -53,29 +53,34 @@ const ActivityTimelineComponent = () => {
         color: updatedActivity.color,
         emoji: updatedActivity.emoji,
         needEmoji: updatedActivity.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata
+        recurring: recurringOptions || null // Include recurring options in metadata, null if undefined
       }
     };
     
-    // Remove undefined values
+    // Remove undefined values but keep null values for proper serialization
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
     );
     
     console.log('ActivityTimelineComponent: Sending update request:', cleanApiUpdates);
-    updateActivityMutation.mutate({ id: updatedActivity.id, data: cleanApiUpdates });
+    updateActivityMutation.mutate({ 
+      id: typeof updatedActivity.id === 'string' ? parseInt(updatedActivity.id) : updatedActivity.id, 
+      data: cleanApiUpdates 
+    });
   };
 
-  const handleActivityDelete = (activityId: number, deleteOption?: DeleteRecurringOption) => {
-    deleteActivityMutation.mutate(activityId);
+  const handleActivityDelete = (activityId: number | string, deleteOption?: DeleteRecurringOption) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    deleteActivityMutation.mutate(numericId);
   };
 
-  const handleActivityToggle = (activityId: number) => {
-    const activity = apiActivities.find(a => a.id === activityId);
+  const handleActivityToggle = (activityId: number | string) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    const activity = apiActivities.find(a => a.id === numericId);
     if (activity) {
       const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
       updateActivityMutation.mutate({ 
-        id: activityId, 
+        id: numericId, 
         data: { status: newStatus } 
       });
     }

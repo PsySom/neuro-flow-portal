@@ -26,7 +26,7 @@ interface EditActivityDialogProps {
   onOpenChange: (open: boolean) => void;
   activity: Activity;
   onActivityUpdate?: (activity: Activity, recurringOptions?: RecurringActivityOptions) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number | string) => void;
 }
 
 const EditActivityDialog: React.FC<EditActivityDialogProps> = ({

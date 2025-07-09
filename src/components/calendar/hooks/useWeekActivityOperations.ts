@@ -39,8 +39,9 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
     }
   }, [createActivityMutation]);
 
-  const handleActivityUpdate = useCallback((activityId: number, updates: any, recurringOptions?: RecurringActivityOptions) => {
-    console.log('WeekView updating activity:', activityId, updates, 'recurring:', recurringOptions);
+  const handleActivityUpdate = useCallback((activityId: number | string, updates: any, recurringOptions?: RecurringActivityOptions) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('WeekView updating activity:', numericId, updates, 'recurring:', recurringOptions);
     console.log('Updates type check - is full activity?', updates.id !== undefined);
     
     // Check if we received a full activity object or partial updates
@@ -59,32 +60,34 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
         color: activityData.color,
         emoji: activityData.emoji,
         needEmoji: activityData.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata
+        recurring: recurringOptions || null // Include recurring options in metadata, null if undefined
       }
     };
     
-    // Remove undefined values
+    // Remove undefined values but keep null values for proper serialization
     const cleanApiUpdates = Object.fromEntries(
       Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
     );
     
     console.log('WeekView: Sending update request:', cleanApiUpdates);
-    updateActivityMutation.mutate({ id: activityId, data: cleanApiUpdates });
+    updateActivityMutation.mutate({ id: numericId, data: cleanApiUpdates });
   }, [updateActivityMutation]);
 
-  const handleActivityDelete = useCallback((activityId: number, deleteOption?: DeleteRecurringOption) => {
-    console.log('WeekView deleting activity:', activityId, deleteOption);
-    deleteActivityMutation.mutate(activityId);
+  const handleActivityDelete = useCallback((activityId: number | string, deleteOption?: DeleteRecurringOption) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('WeekView deleting activity:', numericId, deleteOption);
+    deleteActivityMutation.mutate(numericId);
   }, [deleteActivityMutation]);
 
-  const handleActivityToggle = useCallback((activityId: number) => {
-    console.log('WeekView toggling activity:', activityId);
+  const handleActivityToggle = useCallback((activityId: number | string) => {
+    const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
+    console.log('WeekView toggling activity:', numericId);
     // Find the activity to toggle
-    const activity = weekActivities.find(a => a.id === activityId);
+    const activity = weekActivities.find(a => a.id === numericId);
     if (activity) {
       const newStatus = activity.completed ? 'planned' : 'completed';
       updateActivityMutation.mutate({ 
-        id: activityId, 
+        id: numericId, 
         data: { status: newStatus } 
       });
     }

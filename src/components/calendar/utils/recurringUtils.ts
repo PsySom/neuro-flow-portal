@@ -10,8 +10,9 @@ export interface RecurringActivityOptions {
   maxOccurrences?: number;
 }
 
-const generateUniqueId = (baseId: number, occurrence: number): number => {
-  return baseId * 10000 + occurrence;
+const generateUniqueId = (baseId: number | string, occurrence: number): number | string => {
+  const numericId = typeof baseId === 'string' ? parseInt(baseId) : baseId;
+  return numericId * 10000 + occurrence;
 };
 
 export const generateRecurringActivities = (
@@ -45,7 +46,7 @@ export const generateRecurringActivities = (
   const firstActivity: Activity = {
     ...baseActivity,
     recurring: {
-      originalId: baseActivity.id,
+      originalId: typeof baseActivity.id === 'string' ? parseInt(baseActivity.id) : baseActivity.id,
       type: options.type,
       interval: options.interval,
       occurrenceNumber: 1
@@ -78,7 +79,7 @@ export const generateRecurringActivities = (
         id: generateUniqueId(baseActivity.id, occurrenceCount + 1),
         date: nextDateString,
         recurring: {
-          originalId: baseActivity.id,
+          originalId: typeof baseActivity.id === 'string' ? parseInt(baseActivity.id) : baseActivity.id,
           type: options.type,
           interval: options.interval,
           occurrenceNumber: occurrenceCount + 1
@@ -102,10 +103,12 @@ export const isRecurringActivity = (activity: Activity): boolean => {
   return !!activity.recurring;
 };
 
-export const getRecurringGroup = (activities: Activity[], originalId: number): Activity[] => {
-  return activities.filter(activity => 
-    activity.id === originalId || activity.recurring?.originalId === originalId
-  );
+export const getRecurringGroup = (activities: Activity[], originalId: number | string): Activity[] => {
+  const numericId = typeof originalId === 'string' ? parseInt(originalId) : originalId;
+  return activities.filter(activity => {
+    const activityId = typeof activity.id === 'string' ? parseInt(activity.id) : activity.id;
+    return activityId === numericId || activity.recurring?.originalId === numericId;
+  });
 };
 
 export const deleteRecurringOption = {

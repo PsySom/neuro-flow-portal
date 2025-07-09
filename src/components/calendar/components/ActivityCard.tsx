@@ -12,9 +12,9 @@ import WeekActivityCard from './activity-card/WeekActivityCard';
 
 interface ActivityCardProps {
   layout: ActivityLayout;
-  onToggleComplete: (activityId: number) => void;
-  onUpdate?: (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
-  onDelete?: (id: number, deleteOption?: DeleteRecurringOption) => void;
+  onToggleComplete: (activityId: number | string) => void;
+  onUpdate?: (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
+  onDelete?: (id: number | string, deleteOption?: DeleteRecurringOption) => void;
   viewType?: 'day' | 'week' | 'dashboard';
 }
 

@@ -1,11 +1,11 @@
 
 export interface Activity {
-  id: number;
+  id: number | string;
   name: string;
   emoji: string;
   startTime: string;
-  endTime: string;
-  duration: string;
+  endTime?: string;
+  duration?: string;
   color: string;
   importance: number;
   completed: boolean;

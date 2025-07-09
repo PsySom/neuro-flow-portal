@@ -306,8 +306,8 @@ class MockActivityService {
 
     this.mockActivities[activityIndex] = updatedActivity;
     
-    // Handle recurring activities update
-    if (request.metadata?.recurring && request.metadata.recurring.type !== 'none') {
+  // Handle recurring activities update
+    if (request.metadata?.recurring && request.metadata.recurring.type !== 'none' && request.metadata.recurring.type !== null) {
       console.log('MockService: Updating recurring activities:', request.metadata.recurring);
       
       // Delete existing recurring activities for this original activity
@@ -318,6 +318,8 @@ class MockActivityService {
       
       // Create new recurring activities
       this.createRecurringActivities(updatedActivity, request.metadata.recurring);
+    } else {
+      console.log('MockService: No recurring update needed, metadata.recurring:', request.metadata?.recurring);
     }
     
     console.log('MockActivityService: Updated activity:', updatedActivity.id, updatedActivity.title);
