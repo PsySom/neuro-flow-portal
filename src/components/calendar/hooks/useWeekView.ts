@@ -128,6 +128,8 @@ export const useWeekView = (currentDate: Date) => {
 
   const handleActivityCreate = useCallback(async (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     try {
+      console.log('WeekView: Creating activity with recurring:', newActivity, recurringOptions);
+      
       // Map activity type to API type ID
       const getActivityTypeId = (type: string) => {
         switch (type) {
@@ -153,15 +155,14 @@ export const useWeekView = (currentDate: Date) => {
         }
       };
       
-      console.log('Creating activity in WeekView:', activityData, 'with recurring:', recurringOptions);
-      
-      if (recurringOptions && recurringOptions.type !== 'none') {
-        // Use calendar service for recurring activities
-        await calendarService.createActivity(activityData, recurringOptions);
-      } else {
-        // Use regular mutation for single activities
-        createActivityMutation.mutate(activityData);
-      }
+      // Always use regular mutation - the recurring logic is now in the backend/mock
+      createActivityMutation.mutate({
+        ...activityData,
+        metadata: {
+          ...activityData.metadata,
+          recurring: recurringOptions
+        }
+      });
       
       setIsCreateDialogOpen(false);
     } catch (error) {

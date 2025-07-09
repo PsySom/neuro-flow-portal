@@ -193,7 +193,7 @@ class MockActivityService {
     return todayActivities;
   }
 
-  // Create new activity
+  // Create new activity with recurring support
   async createActivity(request: CreateActivityRequest): Promise<Activity> {
     await this.simulateDelay();
 
@@ -215,10 +215,61 @@ class MockActivityService {
 
     this.mockActivities.push(newActivity);
     
+    // Handle recurring activities
+    if (request.metadata?.recurring && request.metadata.recurring.type !== 'none') {
+      console.log('MockService: Creating recurring activities:', request.metadata.recurring);
+      this.createRecurringActivities(newActivity, request.metadata.recurring);
+    }
+    
     console.log('MockActivityService: Created activity:', newActivity.id, newActivity.title);
     console.log('MockActivityService: Total activities:', this.mockActivities.length);
     
     return newActivity;
+  }
+
+  // Create recurring activities
+  private createRecurringActivities(baseActivity: Activity, recurringOptions: any) {
+    const { type, interval = 1, maxOccurrences = 10 } = recurringOptions;
+    const startDate = new Date(baseActivity.start_time);
+    
+    for (let i = 1; i < maxOccurrences; i++) {
+      const nextDate = new Date(startDate);
+      
+      switch (type) {
+        case 'daily':
+          nextDate.setDate(nextDate.getDate() + (i * interval));
+          break;
+        case 'weekly':
+          nextDate.setDate(nextDate.getDate() + (i * 7 * interval));
+          break;
+        case 'monthly':
+          nextDate.setMonth(nextDate.getMonth() + (i * interval));
+          break;
+        default:
+          return;
+      }
+      
+      const recurringActivity: Activity = {
+        ...baseActivity,
+        id: this.currentId++,
+        start_time: nextDate.toISOString().replace(/\.\d{3}Z$/, '.000Z'),
+        end_time: baseActivity.end_time ? 
+          new Date(new Date(baseActivity.end_time).getTime() + (nextDate.getTime() - startDate.getTime())).toISOString().replace(/\.\d{3}Z$/, '.000Z') :
+          undefined,
+        metadata: {
+          ...baseActivity.metadata,
+          recurring: {
+            originalId: baseActivity.id,
+            type,
+            interval,
+            occurrenceNumber: i + 1
+          }
+        }
+      };
+      
+      this.mockActivities.push(recurringActivity);
+      console.log(`MockService: Created recurring activity ${i + 1}:`, recurringActivity.id, nextDate.toISOString().split('T')[0]);
+    }
   }
 
   // Update activity
