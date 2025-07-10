@@ -48,10 +48,11 @@ const DayActivityCard: React.FC<DayActivityCardProps> = ({
       }`}
       style={{ 
         top: `${top}px`, 
-        height: `${Math.max(height, 90)}px`,
+        height: `${height}px`,
         left: `${left}%`,
         width: `${width}%`,
-        zIndex: 1
+        zIndex: 1,
+        minHeight: '30px' // Минимальная высота для читаемости
       }}
       onClick={handleCardClick}
     >

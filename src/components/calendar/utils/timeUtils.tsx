@@ -20,46 +20,48 @@ export const activitiesOverlap = (activity1: Activity, activity2: Activity): boo
   return start1 < end2 && start2 < end1;
 };
 
-// Функция для поиска свободной трети в 30-минутном слоте
-const findAvailableThirdInHalfHourSlot = (activity: Activity, existingLayouts: ActivityLayout[], preferredColumn: number): number => {
-  const activityStartMinutes = getTimeInMinutes(activity.startTime);
-  const activityEndMinutes = getTimeInMinutes(activity.endTime);
-  
-  // Определяем 30-минутный слот активности
-  const slotStart = Math.floor(activityStartMinutes / 30) * 30;
-  const slotEnd = slotStart + 30;
-  
-  // Найти все активности, которые пересекаются с этим 30-минутным слотом
-  const overlappingInSlot = existingLayouts.filter(layout => {
-    const layoutStartMinutes = getTimeInMinutes(layout.activity.startTime);
-    const layoutEndMinutes = getTimeInMinutes(layout.activity.endTime);
-    
-    // Проверяем пересечение с 30-минутным слотом
-    return layoutStartMinutes < slotEnd && layoutEndMinutes > slotStart;
-  });
-  
-  // Если нет пересекающихся активностей в слоте, используем предпочитаемую колонку
-  if (overlappingInSlot.length === 0) {
-    return preferredColumn;
-  }
-  
-  // Найти занятые трети в этом слоте
-  const occupiedThirds = overlappingInSlot.map(layout => layout.column);
-  
-  // Сначала попробуем предпочитаемую колонку
-  if (!occupiedThirds.includes(preferredColumn)) {
-    return preferredColumn;
-  }
-  
-  // Если предпочитаемая колонка занята, найти первую свободную треть (0, 1, 2)
-  for (let third = 0; third < 3; third++) {
-    if (!occupiedThirds.includes(third)) {
-      return third;
+// Функция для поиска пересекающихся активностей
+const findOverlappingActivities = (activity: Activity, existingActivities: Activity[]): Activity[] => {
+  return existingActivities.filter(existingActivity => 
+    activitiesOverlap(activity, existingActivity)
+  );
+};
+
+// Функция для группировки пересекающихся активностей
+const groupOverlappingActivities = (activities: Activity[]): Activity[][] => {
+  const groups: Activity[][] = [];
+  const processed = new Set<string>();
+
+  activities.forEach(activity => {
+    if (processed.has(activity.id.toString())) return;
+
+    const group = [activity];
+    processed.add(activity.id.toString());
+
+    // Найти все активности, которые пересекаются с текущей или с любой в группе
+    let changed = true;
+    while (changed) {
+      changed = false;
+      activities.forEach(otherActivity => {
+        if (processed.has(otherActivity.id.toString())) return;
+        
+        // Проверить пересечение с любой активностью в группе
+        const overlapsWithGroup = group.some(groupActivity => 
+          activitiesOverlap(groupActivity, otherActivity)
+        );
+        
+        if (overlapsWithGroup) {
+          group.push(otherActivity);
+          processed.add(otherActivity.id.toString());
+          changed = true;
+        }
+      });
     }
-  }
-  
-  // Если все три трети заняты, возвращаем предпочитаемую (будет перекрытие)
-  return preferredColumn;
+
+    groups.push(group);
+  });
+
+  return groups;
 };
 
 // Функция для расчета раскладки активностей
@@ -68,72 +70,101 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
   
   console.log('calculateActivityLayouts: Processing', activities.length, 'activities');
   
+  if (activities.length === 0) {
+    return layouts;
+  }
+  
   // Сортируем активности по времени начала для корректного размещения
   const sortedActivities = [...activities].sort((a, b) => 
     getTimeInMinutes(a.startTime) - getTimeInMinutes(b.startTime)
   );
   
-  sortedActivities.forEach((activity, index) => {
-    const startMinutes = getTimeInMinutes(activity.startTime);
-    let endMinutes = getTimeInMinutes(activity.endTime);
+  // Группируем пересекающиеся активности
+  const overlapGroups = groupOverlappingActivities(sortedActivities);
+  
+  overlapGroups.forEach(group => {
+    const groupSize = group.length;
     
-    // Обработка активностей, пересекающих полночь (например, сон)
-    if (endMinutes < startMinutes) {
-      endMinutes += 24 * 60;
+    // Рассчитываем ширину и отступы на основе количества активностей в группе
+    let width: number;
+    let spacing: number = 1; // Минимальный отступ между активностями
+    
+    switch (groupSize) {
+      case 1:
+        width = 100;
+        spacing = 0;
+        break;
+      case 2:
+        width = 50 - spacing;
+        break;
+      case 3:
+        width = 33.33 - spacing;
+        break;
+      case 4:
+        width = 25 - spacing;
+        break;
+      default:
+        // Для большего количества активностей делим поровну
+        width = (100 / groupSize) - spacing;
+        break;
     }
     
-    const durationMinutes = endMinutes - startMinutes;
+    console.log(`Processing group of ${groupSize} overlapping activities with width ${width}%`);
     
-    // Вычисляем позицию с учетом высоты строки (90px на час)
-    let top = (startMinutes / 60) * 90;
-    
-    // Для активностей, пересекающих полночь, обрабатываем специально
-    if (startMinutes >= 22 * 60 && endMinutes > 24 * 60) {
-      top = (startMinutes / 60) * 90;
-    } else if (startMinutes < endMinutes - 24 * 60) {
-      top = 0;
-    }
-    
-    // Вычисляем высоту блока с минимумом 50% от часа (45px)
-    let displayDurationMinutes = durationMinutes;
-    
-    if (endMinutes > 24 * 60) {
-      if (startMinutes >= 22 * 60) {
-        displayDurationMinutes = 24 * 60 - startMinutes;
-      } else {
-        displayDurationMinutes = endMinutes - 24 * 60;
+    group.forEach((activity, indexInGroup) => {
+      const startMinutes = getTimeInMinutes(activity.startTime);
+      let endMinutes = getTimeInMinutes(activity.endTime);
+      
+      // Обработка активностей, пересекающих полночь (например, сон)
+      if (endMinutes < startMinutes) {
+        endMinutes += 24 * 60;
+      }
+      
+      const durationMinutes = endMinutes - startMinutes;
+      
+      // Вычисляем позицию с учетом высоты строки (90px на час)
+      let top = (startMinutes / 60) * 90;
+      
+      // Для активностей, пересекающих полночь, обрабатываем специально
+      if (startMinutes >= 22 * 60 && endMinutes > 24 * 60) {
+        top = (startMinutes / 60) * 90;
+      } else if (startMinutes < endMinutes - 24 * 60) {
         top = 0;
       }
-    }
-    
-    const calculatedHeight = (displayDurationMinutes / 60) * 90;
-    const height = Math.max(calculatedHeight, 45); // Минимальная высота 50% от часа (45px)
-    
-    // Определяем предпочитаемую колонку на основе 30-минутных слотов
-    const halfHourSlot = Math.floor(startMinutes / 30);
-    const preferredColumn = halfHourSlot % 3;
-    
-    // Ищем доступную треть в 30-минутном слоте
-    const column = findAvailableThirdInHalfHourSlot(activity, layouts, preferredColumn);
-    
-    // Размещение по третям: каждая треть занимает треть ширины
-    const width = (100 / 3) - 1;
-    const left = (100 / 3) * column + 0.5;
-    
-    console.log(`Activity "${activity.name}" (${activity.startTime}-${activity.endTime}) placed in column ${column + 1} at top ${top}px with height ${height}px`);
-    
-    // Убеждаемся, что активность находится в пределах видимой области
-    const finalTop = Math.max(0, Math.min(top, 2160 - height));
-    const finalHeight = Math.min(height, 2160 - finalTop);
-    
-    layouts.push({
-      activity,
-      top: finalTop,
-      height: finalHeight,
-      left,
-      width,
-      column,
-      totalColumns: 3
+      
+      // Вычисляем высоту блока с минимумом 50% от часа (45px)
+      let displayDurationMinutes = durationMinutes;
+      
+      if (endMinutes > 24 * 60) {
+        if (startMinutes >= 22 * 60) {
+          displayDurationMinutes = 24 * 60 - startMinutes;
+        } else {
+          displayDurationMinutes = endMinutes - 24 * 60;
+          top = 0;
+        }
+      }
+      
+      const calculatedHeight = (displayDurationMinutes / 60) * 90;
+      const height = Math.max(calculatedHeight, 30); // Минимальная высота 30px
+      
+      // Рассчитываем горизонтальное положение
+      const left = groupSize === 1 ? 0 : indexInGroup * (width + spacing);
+      
+      console.log(`Activity "${activity.name}" (${activity.startTime}-${activity.endTime}) placed at position ${indexInGroup + 1}/${groupSize}, left: ${left}%, width: ${width}%, top: ${top}px, height: ${height}px`);
+      
+      // Убеждаемся, что активность находится в пределах видимой области
+      const finalTop = Math.max(0, Math.min(top, 2160 - height));
+      const finalHeight = Math.min(height, 2160 - finalTop);
+      
+      layouts.push({
+        activity,
+        top: finalTop,
+        height: finalHeight,
+        left,
+        width,
+        column: indexInGroup,
+        totalColumns: groupSize
+      });
     });
   });
   
