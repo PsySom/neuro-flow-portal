@@ -51,36 +51,66 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
     // The updates parameter is the full updated activity object from EditActivityDialog
     const activityData = updates;
 
-    const apiUpdates: any = {
-      title: activityData.name,
-      description: activityData.note,
-      activity_type_id: activityData.type ? getActivityTypeId(activityData.type) : undefined,
-      start_time: activityData.date && activityData.startTime ? `${activityData.date}T${activityData.startTime}:00.000Z` : undefined,
-      end_time: activityData.date && activityData.endTime ? `${activityData.date}T${activityData.endTime}:00.000Z` : undefined,
-      status: activityData.completed !== undefined ? (activityData.completed ? 'completed' : 'planned') : undefined,
-      metadata: {
-        importance: activityData.importance,
-        color: activityData.color,
-        emoji: activityData.emoji,
-        needEmoji: activityData.needEmoji,
-        recurring: recurringOptions
-      }
-    };
+    // Build API updates object with proper data mapping
+    const apiUpdates: any = {};
     
-    console.log('WeekView: Raw API updates before cleaning:', apiUpdates);
-    
-    // Remove undefined values but keep null values for proper serialization
-    const cleanApiUpdates = Object.fromEntries(
-      Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
-    );
-    
-    // Remove metadata if empty or contains only undefined values
-    if (cleanApiUpdates.metadata && Object.values(cleanApiUpdates.metadata).every(v => v === undefined)) {
-      delete cleanApiUpdates.metadata;
+    // Only update fields that are actually provided
+    if (activityData.name !== undefined) {
+      apiUpdates.title = activityData.name;
     }
     
-    console.log('WeekView: Sending update request:', cleanApiUpdates);
-    updateActivityMutation.mutate({ id: numericId, data: cleanApiUpdates });
+    if (activityData.note !== undefined) {
+      apiUpdates.description = activityData.note;
+    }
+    
+    if (activityData.type !== undefined) {
+      apiUpdates.activity_type_id = getActivityTypeId(activityData.type);
+    }
+    
+    // Handle time updates - ensure proper formatting
+    if (activityData.date && activityData.startTime) {
+      // Ensure time is in HH:mm format before converting to ISO
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (timeRegex.test(activityData.startTime)) {
+        apiUpdates.start_time = `${activityData.date}T${activityData.startTime}:00.000Z`;
+      } else {
+        console.warn('Invalid startTime format:', activityData.startTime);
+      }
+    }
+    
+    if (activityData.date && activityData.endTime) {
+      // Ensure time is in HH:mm format before converting to ISO
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (timeRegex.test(activityData.endTime)) {
+        apiUpdates.end_time = `${activityData.date}T${activityData.endTime}:00.000Z`;
+      } else {
+        console.warn('Invalid endTime format:', activityData.endTime);
+      }
+    }
+    
+    if (activityData.completed !== undefined) {
+      apiUpdates.status = activityData.completed ? 'completed' : 'planned';
+    }
+    
+    // Handle metadata separately to avoid overwriting existing metadata
+    const metadataUpdates: any = {};
+    if (activityData.importance !== undefined) metadataUpdates.importance = activityData.importance;
+    if (activityData.color !== undefined) metadataUpdates.color = activityData.color;
+    if (activityData.emoji !== undefined) metadataUpdates.emoji = activityData.emoji;
+    if (activityData.needEmoji !== undefined) metadataUpdates.needEmoji = activityData.needEmoji;
+    if (recurringOptions !== undefined) metadataUpdates.recurring = recurringOptions;
+    
+    // Only add metadata if there are actual updates
+    if (Object.keys(metadataUpdates).length > 0) {
+      apiUpdates.metadata = metadataUpdates;
+    }
+    
+    console.log('WeekView: Prepared API updates:', apiUpdates);
+    console.log('WeekView: Time values in API format:');
+    console.log('  start_time:', apiUpdates.start_time);
+    console.log('  end_time:', apiUpdates.end_time);
+    
+    updateActivityMutation.mutate({ id: numericId, data: apiUpdates });
   }, [updateActivityMutation]);
 
   const handleActivityDelete = useCallback((activityId: number | string, deleteOption?: DeleteRecurringOption) => {

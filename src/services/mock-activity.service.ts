@@ -37,8 +37,8 @@ class MockActivityService {
         title: 'Сон',
         description: 'Ночной отдых и восстановление',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T00:00:00.000Z`,
-        end_time: `${targetDate}T08:00:00.000Z`,
+        start_time: `${targetDate}T04:00:00.000Z`,
+        end_time: `${targetDate}T12:00:00.000Z`,
         status: 'completed',
         metadata: { importance: 5, color: 'bg-indigo-200', emoji: '😴', needEmoji: '🛌' }
       },
@@ -47,8 +47,8 @@ class MockActivityService {
         title: 'Пробуждение',
         description: 'Утреннее пробуждение и начало дня',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T08:00:00.000Z`,
-        end_time: `${targetDate}T08:30:00.000Z`,
+        start_time: `${targetDate}T10:00:00.000Z`,
+        end_time: `${targetDate}T10:30:00.000Z`,
         status: 'completed',
         metadata: { importance: 3, color: 'bg-yellow-200', emoji: '☀️', needEmoji: '⚡' }
       },
@@ -57,8 +57,8 @@ class MockActivityService {
         title: 'Зарядка',
         description: 'Утренняя физическая активность',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T08:30:00.000Z`,
-        end_time: `${targetDate}T09:30:00.000Z`,
+        start_time: `${targetDate}T10:30:00.000Z`,
+        end_time: `${targetDate}T11:30:00.000Z`,
         status: 'completed',
         metadata: { importance: 4, color: 'bg-green-200', emoji: '🏃‍♂️', needEmoji: '💪' }
       },
@@ -67,8 +67,8 @@ class MockActivityService {
         title: 'Душ, завтрак, гигиена',
         description: 'Утренние процедуры',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T09:30:00.000Z`,
-        end_time: `${targetDate}T10:00:00.000Z`,
+        start_time: `${targetDate}T11:30:00.000Z`,
+        end_time: `${targetDate}T12:00:00.000Z`,
         status: 'completed',
         metadata: { importance: 4, color: 'bg-blue-200', emoji: '🚿', needEmoji: '🧼' }
       },
@@ -77,8 +77,8 @@ class MockActivityService {
         title: 'Работа за компьютером',
         description: 'Основная рабочая деятельность',
         activity_type: this.mockActivityTypes[0], // задача
-        start_time: `${targetDate}T10:00:00.000Z`,
-        end_time: `${targetDate}T13:00:00.000Z`,
+        start_time: `${targetDate}T12:00:00.000Z`,
+        end_time: `${targetDate}T15:00:00.000Z`,
         status: 'in_progress',
         metadata: { importance: 5, color: 'bg-red-200', emoji: '💻' }
       },
@@ -87,8 +87,8 @@ class MockActivityService {
         title: 'Обед',
         description: 'Обеденный перерыв',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T13:00:00.000Z`,
-        end_time: `${targetDate}T14:00:00.000Z`,
+        start_time: `${targetDate}T15:00:00.000Z`,
+        end_time: `${targetDate}T16:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 4, color: 'bg-green-200', emoji: '🍽️', needEmoji: '🥗' }
       },
@@ -97,8 +97,8 @@ class MockActivityService {
         title: 'Работа после обеда',
         description: 'Продолжение рабочих задач',
         activity_type: this.mockActivityTypes[0], // задача
-        start_time: `${targetDate}T14:00:00.000Z`,
-        end_time: `${targetDate}T18:00:00.000Z`,
+        start_time: `${targetDate}T16:00:00.000Z`,
+        end_time: `${targetDate}T20:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 4, color: 'bg-red-200', emoji: '📋' }
       },
@@ -107,8 +107,8 @@ class MockActivityService {
         title: 'Прогулка',
         description: 'Вечерняя прогулка на свежем воздухе',
         activity_type: this.mockActivityTypes[2], // нейтральная
-        start_time: `${targetDate}T18:00:00.000Z`,
-        end_time: `${targetDate}T19:00:00.000Z`,
+        start_time: `${targetDate}T20:00:00.000Z`,
+        end_time: `${targetDate}T21:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 3, color: 'bg-blue-200', emoji: '🚶‍♂️' }
       },
@@ -117,8 +117,8 @@ class MockActivityService {
         title: 'Ужин',
         description: 'Вечерний прием пищи',
         activity_type: this.mockActivityTypes[1], // восстановление
-        start_time: `${targetDate}T19:00:00.000Z`,
-        end_time: `${targetDate}T20:00:00.000Z`,
+        start_time: `${targetDate}T21:00:00.000Z`,
+        end_time: `${targetDate}T22:00:00.000Z`,
         status: 'planned',
         metadata: { importance: 4, color: 'bg-green-200', emoji: '🍽️', needEmoji: '🍲' }
       }

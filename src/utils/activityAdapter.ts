@@ -88,10 +88,10 @@ const formatTime = (isoString: string): string => {
       console.warn('Invalid date string:', isoString);
       return '00:00';
     }
-    return date.toLocaleTimeString('ru-RU', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    // Use more precise formatting to ensure HH:mm format
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   } catch (error) {
     console.error('Error formatting time:', error, isoString);
     return '00:00';
