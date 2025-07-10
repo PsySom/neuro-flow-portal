@@ -79,6 +79,13 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
 
   const handleSave = () => {
     console.log('EditActivityDialog: handleSave called');
+    console.log('EditActivityDialog: Current state values:');
+    console.log('  startTime:', startTime);
+    console.log('  endTime:', endTime);
+    console.log('  activityName:', activityName);
+    console.log('  activityType:', activityType);
+    console.log('  selectedDate:', selectedDate);
+    
     const formData: ActivityFormData = {
       activityName,
       activityType,
@@ -120,6 +127,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
     };
 
     console.log('EditActivityDialog: Updated activity object:', updatedActivity);
+    console.log('EditActivityDialog: Time values in updated activity:');
+    console.log('  startTime:', updatedActivity.startTime);
+    console.log('  endTime:', updatedActivity.endTime);
 
     // Формируем параметры повтора только если выбран тип повторения отличный от 'none'
     let recurringOptions: RecurringActivityOptions | undefined;

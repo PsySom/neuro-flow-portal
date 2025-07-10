@@ -43,6 +43,10 @@ export const useWeekActivityOperations = (weekActivities: any[]) => {
     const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
     console.log('WeekView updating activity:', numericId, updates, 'recurring:', recurringOptions);
     console.log('Updates object keys:', Object.keys(updates));
+    console.log('WeekView: Time values from updates:');
+    console.log('  startTime:', updates.startTime);
+    console.log('  endTime:', updates.endTime);
+    console.log('  date:', updates.date);
     
     // The updates parameter is the full updated activity object from EditActivityDialog
     const activityData = updates;

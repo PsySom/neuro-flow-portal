@@ -18,6 +18,14 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
 }) => {
   const { activity, top, height, left, width } = layout;
 
+  console.log('WeekActivityCard rendering with activity:', {
+    id: activity.id,
+    name: activity.name,
+    startTime: activity.startTime,
+    endTime: activity.endTime,
+    date: activity.date
+  });
+
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('WeekActivityCard: Card clicked');
     e.stopPropagation();
