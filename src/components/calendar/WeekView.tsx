@@ -6,6 +6,7 @@ import CreateActivityDialog from './components/CreateActivityDialog';
 import WeekViewHeader from './components/WeekViewHeader';
 import WeekViewDay from './components/WeekViewDay';
 import TimeColumn from './components/TimeColumn';
+import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useWeekView } from './hooks/useWeekView';
 
 interface WeekViewProps {
@@ -30,7 +31,8 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     handleActivityDelete,
     handleActivityToggle,
     handleTypeFilterChange,
-    isLoading
+    isLoading,
+    syncActivities
   } = useWeekView(currentDate);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -57,7 +59,13 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
         <div className="flex-1">
           <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
             <CardContent className="p-6">
-              <div className="flex items-center justify-center h-96">Загрузка активностей...</div>
+              <div className="flex flex-col items-center justify-center h-96 space-y-4">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                  <p>Синхронизация недельных активностей...</p>
+                </div>
+                <ActivitySyncIndicator />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -78,6 +86,10 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
         <div className="flex-1">
           <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
             <CardContent className="p-0">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-medium">Календарь недели</h3>
+                <ActivitySyncIndicator />
+              </div>
               <WeekViewHeader weekDays={weekDays} />
 
               <div className="h-[720px] overflow-y-auto" ref={scrollAreaRef}>

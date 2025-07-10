@@ -173,7 +173,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_activity_status: {
+        Args: { activity_id: string; new_status: string; user_notes?: string }
+        Returns: {
+          id: string
+          title: string
+          status: string
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

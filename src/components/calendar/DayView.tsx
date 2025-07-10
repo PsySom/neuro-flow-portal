@@ -2,7 +2,8 @@ import React, { useState, useCallback, useMemo } from 'react';
 import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
-import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
+import ActivitySyncIndicator from './components/ActivitySyncIndicator';
+import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useToggleActivityStatus } from '@/hooks/api/useActivities';
 import { Activity as ApiActivity, UpdateActivityRequest } from '@/types/api.types';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { convertApiActivitiesToUi, convertUiActivityToApi } from '@/utils/activityAdapter';
@@ -25,12 +26,13 @@ const DayView: React.FC<DayViewProps> = ({
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
-  // Use API hooks instead of context
+  // Use API hooks with realtime updates enabled
   const currentDateString = useMemo(() => currentDate.toISOString().split('T')[0], [currentDate]);
-  const { data: apiActivities = [], isLoading } = useActivities(currentDateString);
+  const { data: apiActivities = [], isLoading } = useActivities(currentDateString, true);
   const createActivityMutation = useCreateActivity();
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
+  const toggleActivityStatusMutation = useToggleActivityStatus();
 
   // Convert API activities to UI format
   const dayActivities = useMemo(() => convertApiActivitiesToUi(apiActivities), [apiActivities]);
@@ -41,13 +43,13 @@ const DayView: React.FC<DayViewProps> = ({
   const handleActivityToggle = useCallback((activityId: number) => {
     const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
-      const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
-      updateActivityMutation.mutate({ 
-        id: activityId, 
-        data: { status: newStatus } 
+      console.log('Toggling activity status:', activityId, 'current:', activity.status);
+      toggleActivityStatusMutation.mutate({ 
+        activityId, 
+        currentStatus: activity.status 
       });
     }
-  }, [apiActivities, updateActivityMutation]);
+  }, [apiActivities, toggleActivityStatusMutation]);
 
   const visibleActivities = useMemo(() => dayActivities.filter(activity => 
     !filteredTypes.has(activity.type)
@@ -94,33 +96,47 @@ const DayView: React.FC<DayViewProps> = ({
       }
     };
     
-    // Convert UI updates to API format
-    const apiUpdates: UpdateActivityRequest = {
-      title: updates.name,
-      description: updates.note,
-      activity_type_id: updates.type ? getActivityTypeId(updates.type) : undefined,
-      start_time: updates.date && updates.startTime ? `${updates.date}T${updates.startTime}:00.000Z` : undefined,
-      end_time: updates.date && updates.endTime ? `${updates.date}T${updates.endTime}:00.000Z` : undefined,
-      status: updates.completed !== undefined ? (updates.completed ? 'completed' : 'planned') : undefined,
-      metadata: {
-        importance: updates.importance,
-        color: updates.color,
-        emoji: updates.emoji,
-        needEmoji: updates.needEmoji,
-        recurring: recurringOptions // Include recurring options in metadata
-      }
-    };
+    // Build update object with only changed fields to avoid overwriting existing data
+    const apiUpdates: Partial<UpdateActivityRequest> = {};
     
-    // Remove undefined values
-    const cleanApiUpdates = Object.fromEntries(
-      Object.entries(apiUpdates).filter(([_, value]) => value !== undefined)
-    ) as UpdateActivityRequest;
+    if (updates.name !== undefined) apiUpdates.title = updates.name;
+    if (updates.note !== undefined) apiUpdates.description = updates.note;
+    if (updates.type !== undefined) apiUpdates.activity_type_id = getActivityTypeId(updates.type);
+    if (updates.completed !== undefined) apiUpdates.status = updates.completed ? 'completed' : 'planned';
     
-    updateActivityMutation.mutate({ id: activityId, data: cleanApiUpdates });
+    // Handle time updates with proper ISO string formatting
+    if (updates.date && updates.startTime) {
+      apiUpdates.start_time = `${updates.date}T${updates.startTime}:00.000Z`;
+    }
+    if (updates.date && updates.endTime) {
+      apiUpdates.end_time = `${updates.date}T${updates.endTime}:00.000Z`;
+    }
+    
+    // Handle metadata updates
+    if (updates.importance !== undefined || updates.color !== undefined || 
+        updates.emoji !== undefined || updates.needEmoji !== undefined || recurringOptions) {
+      
+      // Get current activity to preserve existing metadata
+      const currentActivity = apiActivities.find(a => a.id === activityId);
+      const currentMetadata = currentActivity?.metadata || {};
+      
+      apiUpdates.metadata = {
+        ...currentMetadata,
+        ...(updates.importance !== undefined && { importance: updates.importance }),
+        ...(updates.color !== undefined && { color: updates.color }),
+        ...(updates.emoji !== undefined && { emoji: updates.emoji }),
+        ...(updates.needEmoji !== undefined && { needEmoji: updates.needEmoji }),
+        ...(recurringOptions && { recurring: recurringOptions })
+      };
+    }
+    
+    console.log('Sending API update:', apiUpdates);
+    
+    updateActivityMutation.mutate({ id: activityId, data: apiUpdates as UpdateActivityRequest });
     if (onUpdateActivity) {
       onUpdateActivity(activityId, updates);
     }
-  }, [updateActivityMutation, onUpdateActivity]);
+  }, [updateActivityMutation, onUpdateActivity, apiActivities]);
 
   const handleActivityDelete = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
     console.log('DayView handleActivityDelete:', id, deleteOption);
@@ -152,7 +168,28 @@ const DayView: React.FC<DayViewProps> = ({
   }, [onDateChange]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-96">Загрузка активностей...</div>;
+    return (
+      <div className="flex gap-4">
+        <div className="w-64">
+          <DayViewSidebar
+            currentDate={currentDate}
+            activities={[]}
+            filteredTypes={new Set()}
+            onTypeFilterChange={() => {}}
+            onDateSelect={handleDateSelect}
+          />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p>Синхронизация активностей...</p>
+              <ActivitySyncIndicator className="mt-4 justify-center" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

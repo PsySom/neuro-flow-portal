@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useWeekDates } from './useWeekDates';
 import { useWeekActivities } from './useWeekActivities';
 import { useWeekActivityOperations } from './useWeekActivityOperations';
+import { useActivitiesSync } from '@/hooks/api/useActivities';
 
 export const useWeekView = (currentDate: Date) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -12,7 +13,7 @@ export const useWeekView = (currentDate: Date) => {
   // Get week dates
   const { weekDays, startDate, endDate } = useWeekDates(currentDate);
 
-  // Get activities for the week
+  // Get activities for the week with realtime updates
   const {
     weekActivities,
     filteredTypes,
@@ -29,6 +30,9 @@ export const useWeekView = (currentDate: Date) => {
     handleActivityDelete,
     handleActivityToggle
   } = useWeekActivityOperations(weekActivities);
+
+  // Get sync utilities
+  const { syncActivities } = useActivitiesSync();
 
   const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
     const target = e.target as HTMLElement;
@@ -74,6 +78,7 @@ export const useWeekView = (currentDate: Date) => {
     handleActivityDelete,
     handleActivityToggle,
     handleTypeFilterChange,
-    isLoading
+    isLoading,
+    syncActivities // Export sync function
   };
 };

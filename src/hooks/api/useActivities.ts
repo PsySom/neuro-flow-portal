@@ -3,13 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import activityService from '../../services/activity.service';
 import { CreateActivityRequest, UpdateActivityRequest, UpdateActivityStateRequest } from '../../types/api.types';
 import { useToast } from '../use-toast';
+import { useActivitiesRealtime, useActivitySync } from './useActivitiesRealtime';
 
-// Get activities for specific date
-export const useActivities = (date?: string) => {
+// Get activities for specific date with real-time updates
+export const useActivities = (date?: string, enableRealtime: boolean = true) => {
+  // Enable realtime updates
+  useActivitiesRealtime(enableRealtime);
+  
   return useQuery({
     queryKey: ['activities', date],
     queryFn: () => activityService.getActivities(date),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 1 * 60 * 1000, // 1 minute - shorter due to realtime updates
+    refetchOnWindowFocus: true, // Refetch when window becomes focused
+    refetchOnReconnect: true, // Refetch when network reconnects
   });
 };
 
@@ -38,12 +44,17 @@ export const useTodayActivities = () => {
   return useActivities(currentDate);
 };
 
-// Get activities for date range
-export const useActivitiesRange = (startDate: string, endDate: string) => {
+// Get activities for date range with real-time updates
+export const useActivitiesRange = (startDate: string, endDate: string, enableRealtime: boolean = true) => {
+  // Enable realtime updates
+  useActivitiesRealtime(enableRealtime);
+  
   return useQuery({
     queryKey: ['activities', 'range', startDate, endDate],
     queryFn: () => activityService.getActivitiesRange(startDate, endDate),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes - shorter due to realtime updates
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
 
@@ -178,6 +189,8 @@ export const useUpdateActivityState = () => {
     onSuccess: (_, variables) => {
       // Invalidate activity state query
       queryClient.invalidateQueries({ queryKey: ['activity-state', variables.activityId] });
+      // Also invalidate activities to refresh status
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
       
       toast({
         title: "Состояние обновлено",
@@ -192,4 +205,66 @@ export const useUpdateActivityState = () => {
       });
     },
   });
+};
+
+// Hook for quick status toggle with enhanced logic
+export const useToggleActivityStatus = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ activityId, currentStatus }: { activityId: number; currentStatus: string }) => {
+      const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
+      return activityService.updateActivity(activityId, { status: newStatus });
+    },
+    onMutate: async ({ activityId, currentStatus }) => {
+      // Optimistic update
+      const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
+      
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['activities'] });
+      
+      // Snapshot the previous value
+      const previousActivities = queryClient.getQueriesData({ queryKey: ['activities'] });
+      
+      // Optimistically update activities in cache
+      queryClient.setQueriesData({ queryKey: ['activities'] }, (old: any) => {
+        if (!old) return old;
+        return old.map((activity: any) => 
+          activity.id === activityId ? { ...activity, status: newStatus } : activity
+        );
+      });
+      
+      return { previousActivities, newStatus };
+    },
+    onError: (err, variables, context) => {
+      // Revert optimistic update on error
+      if (context?.previousActivities) {
+        context.previousActivities.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      
+      toast({
+        title: "Ошибка изменения статуса",
+        description: "Не удалось изменить статус активности",
+        variant: "destructive",
+      });
+    },
+    onSuccess: (data, variables, context) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+      
+      const statusText = context?.newStatus === 'completed' ? 'завершена' : 'запланирована';
+      toast({
+        title: `Активность ${statusText}`,
+        description: `${data.title} отмечена как ${statusText}`,
+      });
+    },
+  });
+};
+
+// Hook for sync utilities
+export const useActivitiesSync = () => {
+  return useActivitySync();
 };
