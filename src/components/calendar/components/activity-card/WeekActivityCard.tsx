@@ -27,7 +27,7 @@ const WeekActivityCard: React.FC<WeekActivityCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`absolute ${activity.color} rounded-lg p-1.5 border-2 ${getActivityTypeColor(activity.type)} shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
+      className={`absolute ${activity.color} rounded-lg p-1.5 border-[6px] ${getActivityTypeColor(activity.type)} shadow-sm cursor-pointer hover:shadow-md transition-shadow overflow-hidden ${
         activity.completed ? 'opacity-60' : ''
       }`}
       style={{ 
