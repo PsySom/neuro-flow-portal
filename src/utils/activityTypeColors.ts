@@ -1,10 +1,10 @@
 export const getActivityTypeColor = (type: string) => {
   switch (type) {
-    case 'восстановление': return 'border-green-500';
-    case 'нейтральная': return 'border-blue-500';
-    case 'смешанная': return 'border-yellow-500';
-    case 'задача': return 'border-red-500';
-    default: return 'border-gray-400';
+    case 'восстановление': return 'border-green-300';
+    case 'нейтральная': return 'border-blue-300';
+    case 'смешанная': return 'border-yellow-300';
+    case 'задача': return 'border-red-300';
+    default: return 'border-gray-300';
   }
 };
 
