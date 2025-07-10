@@ -2,17 +2,18 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle } from 'lucide-react';
-import CreateActivityDialog from './activity-timeline/CreateActivityDialog';
+import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
-import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
+import { useTodayActivities, useUpdateActivity, useDeleteActivity, useCreateActivity } from '@/hooks/api/useActivities';
 import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
 import { Activity } from '@/components/calendar/types';
+import { ActivityStatus } from '@/types/api.types';
 import { useState } from 'react';
 
 const ActivityTimelineComponent = () => {
@@ -24,6 +25,7 @@ const ActivityTimelineComponent = () => {
   const { data: apiActivities = [], isLoading, error } = useTodayActivities();
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
+  const createActivityMutation = useCreateActivity();
   
   // Enable realtime updates
   useActivitiesRealtime(true);
@@ -84,6 +86,39 @@ const ActivityTimelineComponent = () => {
   const handleActivityDelete = (activityId: number | string, deleteOption?: DeleteRecurringOption) => {
     const numericId = typeof activityId === 'string' ? parseInt(activityId) : activityId;
     deleteActivityMutation.mutate(numericId);
+  };
+
+  const handleActivityCreate = (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
+    console.log('ActivityTimelineComponent creating activity:', newActivity, 'recurring:', recurringOptions);
+    
+    // Map activity type to API type ID
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
+    };
+
+    const apiData = {
+      title: newActivity.name,
+      description: newActivity.note || '',
+      activity_type_id: getActivityTypeId(newActivity.type),
+      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
+      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+      status: (newActivity.completed ? 'completed' : 'planned') as ActivityStatus,
+      metadata: {
+        importance: newActivity.importance,
+        color: newActivity.color,
+        emoji: newActivity.emoji,
+        needEmoji: newActivity.needEmoji,
+        recurring: recurringOptions
+      }
+    };
+
+    createActivityMutation.mutate(apiData);
   };
 
   const handleActivityToggle = (activityId: number | string) => {
@@ -163,6 +198,8 @@ const ActivityTimelineComponent = () => {
       <CreateActivityDialog 
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        initialDate={formattedDate.split(',')[0]} // Используем текущую дату
+        onActivityCreate={handleActivityCreate}
       />
 
       {selectedActivity && (
