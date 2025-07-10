@@ -3,6 +3,8 @@ import React, { memo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMonthView } from './hooks/useMonthView';
+import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
+import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import EditActivityDialog from './components/EditActivityDialog';
 import CreateActivityDialog from './components/CreateActivityDialog';
 
@@ -27,6 +29,9 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
     handleActivityDelete,
     handleActivityCreate
   } = useMonthView(currentDate);
+
+  // Enable realtime updates
+  useActivitiesRealtime(true);
 
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
@@ -64,6 +69,7 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-6">
+        <ActivitySyncIndicator />
         {/* Days of week header */}
         <div className="grid grid-cols-7 gap-px mb-2">
           {weekDays.map((day) => (

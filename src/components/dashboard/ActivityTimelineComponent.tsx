@@ -8,6 +8,8 @@ import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import ActivityTimelineEmpty from './activity-timeline/ActivityTimelineEmpty';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
 import { useTodayActivities, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
+import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
+import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
 import { Activity } from '@/components/calendar/types';
@@ -22,6 +24,9 @@ const ActivityTimelineComponent = () => {
   const { data: apiActivities = [], isLoading, error } = useTodayActivities();
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
+  
+  // Enable realtime updates
+  useActivitiesRealtime(true);
 
   // Convert API activities to UI format
   const todayActivities = convertApiActivitiesToUi(apiActivities);
@@ -141,6 +146,9 @@ const ActivityTimelineComponent = () => {
           formattedDate={formattedDate}
           onAddClick={() => setIsDialogOpen(true)}
         />
+        <div className="px-6 py-2">
+          <ActivitySyncIndicator />
+        </div>
         
         <TimelineContentWithTime
           activities={todayActivities}
