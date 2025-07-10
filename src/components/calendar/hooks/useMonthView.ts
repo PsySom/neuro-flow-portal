@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
-import { useMonthActivityOperations } from './useMonthActivityOperations';
+import { useActivityOperations } from '@/hooks/useActivityOperations';
 
 export const useMonthView = (currentDate: Date) => {
   const today = new Date();
@@ -99,7 +99,7 @@ export const useMonthView = (currentDate: Date) => {
     handleActivityUpdate,
     handleActivityDelete,
     handleActivityToggle
-  } = useMonthActivityOperations();
+  } = useActivityOperations(monthActivities);
 
   return {
     days,
@@ -114,6 +114,6 @@ export const useMonthView = (currentDate: Date) => {
     handleActivityCreate,
     handleActivityUpdate,
     handleActivityDelete,
-    handleActivityToggle: (activityId: number) => handleActivityToggle(activityId, monthActivities)
+    handleActivityToggle
   };
 };

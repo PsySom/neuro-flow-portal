@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useWeekDates } from './useWeekDates';
 import { useWeekActivities } from './useWeekActivities';
-import { useWeekActivityOperations } from './useWeekActivityOperations';
+import { useActivityOperations } from '@/hooks/useActivityOperations';
 import { useActivitiesSync } from '@/hooks/api/useActivities';
 
 export const useWeekView = (currentDate: Date) => {
@@ -29,7 +29,7 @@ export const useWeekView = (currentDate: Date) => {
     handleActivityUpdate,
     handleActivityDelete,
     handleActivityToggle
-  } = useWeekActivityOperations(weekActivities);
+  } = useActivityOperations(weekActivities);
 
   // Get sync utilities
   const { syncActivities } = useActivitiesSync();
