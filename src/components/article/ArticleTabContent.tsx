@@ -1,36 +1,29 @@
 
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import ArticleBasicConcepts from './ArticleBasicConcepts';
-import ArticlePracticalAspects from './ArticlePracticalAspects';
-import ArticleResourcesAndTools from './ArticleResourcesAndTools';
-import ArticleAccordionNav from './ArticleAccordionNav';
+import TableOfContents from './TableOfContents';
+import RecommendedTools from './RecommendedTools';
+import { getArticleTableOfContents, getRecommendedTools } from '../../data/articles';
 
 interface ArticleTabContentProps {
   content: string;
 }
 
 const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
-  const [activeSection, setActiveSection] = useState('на-что-влияет-депрессия');
-  const [activeTab, setActiveTab] = useState('tests');
+  const { id } = useParams();
+  const articleId = id === '8' ? 3 : (id === '2' ? 2 : (id === '4' ? 4 : undefined));
+  
+  const tableOfContents = getArticleTableOfContents(articleId);
+  const recommendedTools = getRecommendedTools(articleId);
+  
+  const [activeSection, setActiveSection] = useState(tableOfContents[0]?.id || '');
+  const [showRecommendedTools, setShowRecommendedTools] = useState(false);
 
   // Scroll spy effect
   useEffect(() => {
     const handleScroll = () => {
-      const sections = [
-        'на-что-влияет-депрессия',
-        'как-проявляется-депрессия',
-        'какая-бывает-депрессия',
-        'причины-и-механизмы-развития',
-        'как-исследовали-и-открывали-депрессию',
-        'диагностика-депрессии',
-        'лечение-депрессии',
-        'профилактика-и-самопомощь',
-        'tests',
-        'diaries',
-        'exercises'
-      ];
-      
+      const sections = tableOfContents.map(item => item.id);
       const scrollPosition = window.scrollY + 150;
 
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -44,27 +37,39 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [tableOfContents]);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (sectionId === 'рекомендуемые-практики') {
+      setShowRecommendedTools(true);
+      setTimeout(() => {
+        const element = document.getElementById('recommended-tools-section');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-  };
+  // Добавляем пункт "Рекомендуемые практики" в оглавление
+  const enhancedTableOfContents = [
+    ...tableOfContents,
+    { id: 'рекомендуемые-практики', title: 'Рекомендуемые тесты, дневники и упражнения' }
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      {/* Аккордеон навигации - боковая панель */}
+      {/* Оглавление - боковая панель */}
       <div className="lg:col-span-1 order-2 lg:order-1">
-        <ArticleAccordionNav 
+        <TableOfContents 
+          items={enhancedTableOfContents}
           activeSection={activeSection} 
           onSectionClick={scrollToSection}
-          onTabClick={handleTabChange}
         />
       </div>
 
@@ -72,18 +77,14 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
       <div className="lg:col-span-3 order-1 lg:order-2">
         <Card>
           <CardContent className="p-8">
-            <div className="space-y-12">
-              <div id="section-concepts">
-                <ArticleBasicConcepts />
-              </div>
-              
-              <div id="section-practical">
-                <ArticlePracticalAspects />
-              </div>
-              
-              <div id="section-resources">
-                <ArticleResourcesAndTools activeTab={activeTab} onTabChange={handleTabChange} />
-              </div>
+            <div 
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+            
+            {/* Рекомендуемые инструменты */}
+            <div id="recommended-tools-section" className="mt-12">
+              <RecommendedTools tools={recommendedTools} />
             </div>
           </CardContent>
         </Card>

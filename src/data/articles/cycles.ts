@@ -219,92 +219,47 @@ export const cyclesArticleData = {
 export const cyclesRecommendedTools = [
   {
     id: 1,
-    title: 'Дневник энергии и циклов',
-    description: 'Отслеживание пиков и спадов энергии в течение дня для лучшего понимания своих ритмов',
-    type: 'diary',
+    title: 'Дневник энергии',
+    description: 'Отслеживайте свои циклы активности и отдыха в течение дня для лучшего понимания ритмов.',
+    type: 'дневник',
     icon: BookOpen,
-    category: 'energy',
-    link: '/diaries/mood'
+    category: 'Самонаблюдение',
+    link: '/diaries'
   },
   {
     id: 2,
-    title: 'Дыхательные практики 4-7-8',
-    description: 'Успокаивающая дыхательная техника для активации парасимпатической нервной системы',
-    type: 'exercise',
+    title: 'Практики дыхания 4-7-8',
+    description: 'Техника активации парасимпатической нервной системы для быстрого восстановления.',
+    type: 'упражнение',
     icon: Heart,
-    category: 'breathing',
+    category: 'Восстановление',
     link: '/practices'
   },
   {
     id: 3,
-    title: 'Прогрессивная мышечная релаксация',
-    description: 'Техника последовательного напряжения и расслабления мышц для глубокого восстановления',
-    type: 'exercise',
-    icon: Target,
-    category: 'relaxation',
+    title: 'Медитация сканирования тела',
+    description: 'Развивайте способность замечать сигналы напряжения и расслабления.',
+    type: 'практика',
+    icon: Brain,
+    category: 'Осознанность',
     link: '/practices'
   },
   {
     id: 4,
-    title: 'Сканирование тела',
-    description: 'Медитативная практика осознанного внимания к телесным ощущениям',
-    type: 'exercise',
-    icon: Brain,
-    category: 'mindfulness',
-    link: '/practices'
+    title: 'Планировщик ультрадианных ритмов',
+    description: 'Структурируйте рабочий день в соответствии с 90-минутными циклами.',
+    type: 'инструмент',
+    icon: Lightbulb,
+    category: 'Планирование',
+    link: '/calendar'
   },
   {
     id: 5,
-    title: 'Техника Pomodoro 90/20',
-    description: 'Адаптированная под ультрадианные ритмы техника управления временем',
-    type: 'exercise',
-    icon: Lightbulb,
-    category: 'productivity',
-    link: '/practices'
-  },
-  {
-    id: 6,
-    title: 'Дыхание огня (Капалабхати)',
-    description: 'Энергизирующая дыхательная техника для активации и повышения концентрации',
-    type: 'exercise',
+    title: 'Тест хронотипа',
+    description: 'Определите свой естественный циркадный ритм для оптимизации режима дня.',
+    type: 'тест',
     icon: Target,
-    category: 'activation',
-    link: '/practices'
-  },
-  {
-    id: 7,
-    title: 'Йога-нидра',
-    description: 'Практика "йогического сна" для глубокого восстановления нервной системы',
-    type: 'exercise',
-    icon: Heart,
-    category: 'restoration',
-    link: '/practices'
-  },
-  {
-    id: 8,
-    title: 'Медитация осознанности',
-    description: 'Развитие способности замечать внутренние сигналы и состояния',
-    type: 'exercise',
-    icon: Brain,
-    category: 'mindfulness',
-    link: '/practices'
-  },
-  {
-    id: 9,
-    title: 'Планирование активности по ритмам',
-    description: 'Структурирование дня в соответствии с естественными циклами энергии',
-    type: 'exercise',
-    icon: Lightbulb,
-    category: 'planning',
-    link: '/practices'
-  },
-  {
-    id: 10,
-    title: 'Техники микроотдыха',
-    description: 'Короткие восстановительные практики для использования между задачами',
-    type: 'exercise',
-    icon: Target,
-    category: 'recovery',
+    category: 'Диагностика',
     link: '/practices'
   }
 ];

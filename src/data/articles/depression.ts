@@ -298,92 +298,47 @@ export const depressionArticleData = {
 export const depressionRecommendedTools = [
   {
     id: 1,
-    title: 'Тест на депрессию PHQ-9',
-    description: 'Научно валидированный скрининговый тест для оценки уровня депрессии',
-    type: 'test',
+    title: 'Дневник настроения и депрессии',
+    description: 'Отслеживайте настроение, симптомы и триггеры для лучшего понимания депрессивного состояния.',
+    type: 'дневник',
     icon: BookOpen,
-    category: 'depression',
-    link: '/tests/depression-phq9'
-  },
-  {
-    id: 2,
-    title: 'Шкала депрессии Бека (BDI-II)',
-    description: 'Классический инструмент для измерения тяжести депрессивной симптоматики',
-    type: 'test',
-    icon: BookOpen,
-    category: 'depression', 
-    link: '/tests/beck-depression'
-  },
-  {
-    id: 3,
-    title: 'Дневник заботливого выхода из депрессии',
-    description: 'Комплексный инструмент для ежедневного отслеживания состояния и планирования восстановления',
-    type: 'diary',
-    icon: Heart,
-    category: 'depression',
+    category: 'Самопомощь',
     link: '/diaries/depression-care'
   },
   {
-    id: 4,
-    title: 'Дневник мыслей',
-    description: 'Структурированная работа с негативными автоматическими мыслями по методу КПТ',
-    type: 'diary',
+    id: 2,
+    title: 'Дневник мыслей (когнитивный)',
+    description: 'Работайте с негативными мыслями и когнитивными искажениями, характерными для депрессии.',
+    type: 'дневник',
     icon: Brain,
-    category: 'thoughts',
+    category: 'КПТ',
     link: '/diaries/thoughts'
   },
   {
-    id: 5,
-    title: 'Дневник эмоций',
-    description: 'Для развития эмоциональной осознанности и навыков регуляции',
-    type: 'diary',
+    id: 3,
+    title: 'Техники самоподдержки и сострадания',
+    description: 'Практики самосострадания и заботы о себе в трудные депрессивные периоды.',
+    type: 'упражнение',
     icon: Heart,
-    category: 'emotions',
-    link: '/diaries/mood'
+    category: 'Поддержка',
+    link: '/practices'
   },
   {
-    id: 6,
-    title: 'Техники дыхания 4-7-8',
-    description: 'Для снижения тревожности, стресса и улучшения эмоционального состояния',
-    type: 'exercise',
+    id: 4,
+    title: 'Планирование активности (поведенческая активация)',
+    description: 'Структурированное планирование и выполнение активностей для повышения настроения.',
+    type: 'инструмент',
     icon: Lightbulb,
-    category: 'stress',
-    link: '/practices'
+    category: 'Активность',
+    link: '/calendar'
   },
   {
-    id: 7,
-    title: 'Сканирование тела',
-    description: 'Медитативная практика для осознанности, расслабления и снижения соматических симптомов',
-    type: 'exercise',
+    id: 5,
+    title: 'Шкала депрессии Бека (BDI-II)',
+    description: 'Стандартизированный тест для оценки тяжести депрессивных симптомов.',
+    type: 'тест',
     icon: Target,
-    category: 'mindfulness',
-    link: '/practices'
-  },
-  {
-    id: 8,
-    title: 'Когнитивная реструктуризация',
-    description: 'Техники КПТ для работы с искаженными негативными мыслями',
-    type: 'exercise',
-    icon: Brain,
-    category: 'cognitive',
-    link: '/practices'
-  },
-  {
-    id: 9,
-    title: 'Практики самосострадания',
-    description: 'Развитие доброжелательного отношения к себе и снижение самокритики',
-    type: 'exercise',
-    icon: Heart,
-    category: 'self-compassion',
-    link: '/practices'
-  },
-  {
-    id: 10,
-    title: 'Поведенческая активация',
-    description: 'Планирование приятных и значимых активностей для преодоления апатии',
-    type: 'exercise',
-    icon: Target,
-    category: 'behavioral',
+    category: 'Диагностика',
     link: '/practices'
   }
 ];
