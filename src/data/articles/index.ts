@@ -3,34 +3,40 @@ import { cyclesTableOfContents, cyclesArticleData, cyclesRecommendedTools } from
 import { selfEsteemTableOfContents, selfEsteemArticleData, selfEsteemRecommendedTools } from './self-esteem';
 
 export const getArticleTableOfContents = (articleId?: number) => {
-  if (articleId === 3) {
-    return cyclesTableOfContents;
+  switch (articleId) {
+    case 2:
+      return depressionTableOfContents;
+    case 3:
+      return cyclesTableOfContents;
+    case 4:
+      return selfEsteemTableOfContents;
+    default:
+      return depressionTableOfContents;
   }
-  if (articleId === 4) {
-    return selfEsteemTableOfContents;
-  }
-  
-  return depressionTableOfContents;
 };
 
 export const getArticleData = (articleId?: number) => {
-  if (articleId === 3) {
-    return cyclesArticleData;
+  switch (articleId) {
+    case 2:
+      return depressionArticleData;
+    case 3:
+      return cyclesArticleData;
+    case 4:
+      return selfEsteemArticleData;
+    default:
+      return undefined; // Возвращаем undefined для неизвестных ID
   }
-  if (articleId === 4) {
-    return selfEsteemArticleData;
-  }
-
-  return depressionArticleData;
 };
 
 export const getRecommendedTools = (articleId?: number) => {
-  if (articleId === 3) {
-    return cyclesRecommendedTools;
+  switch (articleId) {
+    case 2:
+      return depressionRecommendedTools;
+    case 3:
+      return cyclesRecommendedTools;
+    case 4:
+      return selfEsteemRecommendedTools;
+    default:
+      return [];
   }
-  if (articleId === 4) {
-    return selfEsteemRecommendedTools;
-  }
-  
-  return depressionRecommendedTools;
 };
