@@ -7,12 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginPromptDialog from './practices/LoginPromptDialog';
 import CreateActivityFromPracticeDialog from './practices/CreateActivityFromPracticeDialog';
+import BreathingAnimationDialog from './practices/BreathingAnimationDialog';
 
 const PracticesPreview = () => {
   const [activeExercise, setActiveExercise] = useState(null);
   const [likesState, setLikesState] = useState({});
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showCreateActivityDialog, setShowCreateActivityDialog] = useState(false);
+  const [showBreathingAnimation, setShowBreathingAnimation] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -215,7 +217,17 @@ const PracticesPreview = () => {
                             ))}
                           </ol>
                           <div className="flex space-x-2">
-                            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                            <Button 
+                              size="sm" 
+                              className="bg-emerald-500 hover:bg-emerald-600"
+                              onClick={() => {
+                                if (exercise.id === 1) { // Дыхание 4-7-8
+                                  setShowBreathingAnimation(true);
+                                } else {
+                                  console.log(`Начать практику: ${exercise.title}`);
+                                }
+                              }}
+                            >
                               Начать практику
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => setActiveExercise(null)}>
@@ -299,6 +311,11 @@ const PracticesPreview = () => {
         open={showCreateActivityDialog}
         onOpenChange={setShowCreateActivityDialog}
         practiceItem={selectedExercise}
+      />
+
+      <BreathingAnimationDialog
+        open={showBreathingAnimation}
+        onOpenChange={setShowBreathingAnimation}
       />
     </>
   );
