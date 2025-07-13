@@ -7,6 +7,7 @@ import { contentTypes } from '@/constants/practicesConstants';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginPromptDialog from './LoginPromptDialog';
 import CreateActivityFromPracticeDialog from './CreateActivityFromPracticeDialog';
+import BreathingAnimationDialog from './BreathingAnimationDialog';
 
 interface ContentItem {
   id: number;
@@ -39,6 +40,7 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
   const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 100) + 10);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showCreateActivityDialog, setShowCreateActivityDialog] = useState(false);
+  const [showBreathingAnimation, setShowBreathingAnimation] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const handleSchedule = (title: string) => {
@@ -132,7 +134,13 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
         <CardContent className="p-6">
           <div className="flex items-start space-x-4">
             <button 
-              onClick={() => onOpenDetail(item)}
+              onClick={() => {
+                if (item.title.includes('Дыхание 4-7-8') || item.title.includes('Дыхательная техника 4-7-8')) {
+                  setShowBreathingAnimation(true);
+                } else {
+                  onOpenDetail(item);
+                }
+              }}
               className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform`}
             >
               <Play className="w-8 h-8 text-white" />
@@ -236,6 +244,11 @@ const PracticeContentCard: React.FC<PracticeContentCardProps> = ({ item, handleS
         open={showCreateActivityDialog}
         onOpenChange={setShowCreateActivityDialog}
         practiceItem={item}
+      />
+
+      <BreathingAnimationDialog
+        open={showBreathingAnimation}
+        onOpenChange={setShowBreathingAnimation}
       />
     </>
   );

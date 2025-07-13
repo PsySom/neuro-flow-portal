@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Play, Calendar, Heart, Star, Timer, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { contentTypes, therapyMethods, problems, objects, subObjects } from '@/constants/practicesConstants';
+import BreathingAnimationDialog from './BreathingAnimationDialog';
 
 interface ContentItem {
   id: number;
@@ -44,6 +45,7 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
   const [answers, setAnswers] = useState<{[key: number]: string}>({});
   const [testResult, setTestResult] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
+  const [showBreathingAnimation, setShowBreathingAnimation] = useState(false);
   const { toast } = useToast();
 
   if (!item) return null;
@@ -443,7 +445,20 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
 
           {/* Кнопки действий */}
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button size="lg" className={`bg-gradient-to-r ${item.color}`}>
+            <Button 
+              size="lg" 
+              className={`bg-gradient-to-r ${item.color}`}
+              onClick={() => {
+                if (item.title.includes('Дыхание 4-7-8') || item.title.includes('Дыхательная техника 4-7-8')) {
+                  setShowBreathingAnimation(true);
+                } else {
+                  toast({
+                    title: "Упражнение началось",
+                    description: `Выполняем "${item.title}"`,
+                  });
+                }
+              }}
+            >
               <Play className="w-4 h-4 mr-2" />
               Начать
             </Button>
@@ -496,6 +511,11 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
           )}
         </div>
       </DialogContent>
+      
+      <BreathingAnimationDialog
+        open={showBreathingAnimation}
+        onOpenChange={setShowBreathingAnimation}
+      />
     </Dialog>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -124,6 +124,12 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 bg-[#192045] border-none">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Дыхательная техника 4-7-8</DialogTitle>
+          <DialogDescription>
+            Интерактивная анимация для выполнения дыхательного упражнения 4-7-8
+          </DialogDescription>
+        </DialogHeader>
         <div className="relative">
           <Button
             variant="ghost"
