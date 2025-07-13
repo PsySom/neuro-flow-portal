@@ -12,7 +12,17 @@ interface ArticleTabContentProps {
 
 const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
   const { id } = useParams();
-  const articleId = id === '8' ? 3 : (id === '2' ? 2 : (id === '4' ? 4 : undefined));
+  
+  // Определяем правильный articleId на основе переданного ID (синхронизируем с ArticleView)
+  const getArticleId = (id: string | undefined) => {
+    if (id === '2') return 2; // Депрессия
+    if (id === '3') return 3; // Циклы 
+    if (id === '4') return 4; // Самооценка
+    if (id === '8') return 3; // Старая ссылка на циклы
+    return parseInt(id || '0') || undefined;
+  };
+
+  const articleId = getArticleId(id);
   
   const tableOfContents = getArticleTableOfContents(articleId);
   const recommendedTools = getRecommendedTools(articleId);
