@@ -51,16 +51,7 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
   }, [isActive]);
 
   const nextStep = useCallback(() => {
-    console.log('nextStep called', { 
-      isActive, 
-      phase: phaseRef.current, 
-      tick: tickRef.current, 
-      inPause: inPauseRef.current,
-      cycle: cycleRef.current 
-    });
-
     if (!isActive) {
-      console.log('Animation not active, stopping');
       return;
     }
     
@@ -70,7 +61,6 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
     const doneText = document.getElementById('doneText');
 
     if (!phaseText || !countText || !circle || !doneText) {
-      console.log('DOM elements not found, retrying in 100ms');
       animationRef.current = setTimeout(nextStep, 100);
       return;
     }
@@ -82,8 +72,6 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
       const currentPhase = phases[phaseRef.current];
       phaseText.textContent = currentPhase.name;
       countText.textContent = tickRef.current.toString();
-      
-      console.log(`Phase: ${currentPhase.name}, Tick: ${tickRef.current}`);
       
       // Запуск анимации радиуса только на первом тике фазы
       if (tickRef.current === 1) {
@@ -122,14 +110,12 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
           phaseText.textContent = '';
           countText.textContent = '';
           doneText.setAttribute('opacity', '1.0');
-          console.log('Animation completed');
-          return;
-        } else {
-          // Пауза между циклами
-          console.log(`Starting cycle ${cycleRef.current}`);
-          animationRef.current = setTimeout(nextStep, pauseBetweenCycles * 1000);
-          return;
-        }
+           return;
+         } else {
+           // Пауза между циклами
+           animationRef.current = setTimeout(nextStep, pauseBetweenCycles * 1000);
+           return;
+         }
       }
       
       // Переход к следующей фазе
@@ -138,8 +124,6 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
   }, [isActive, animateRadius, phases]);
 
   const startBreathingAnimation = useCallback(() => {
-    console.log('Starting breathing animation');
-    
     // Сброс всех состояний
     phaseRef.current = 0;
     tickRef.current = 1;
@@ -151,7 +135,6 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
   }, [nextStep]);
 
   const stopAnimation = useCallback(() => {
-    console.log('Stopping animation');
     setIsActive(false);
     
     if (animationRef.current) {
@@ -167,10 +150,8 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
 
   useEffect(() => {
     if (open) {
-      console.log('Dialog opened, starting animation');
       setIsActive(true);
     } else {
-      console.log('Dialog closed, stopping animation');
       stopAnimation();
     }
 
