@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -13,113 +13,178 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
   onOpenChange
 }) => {
   const [isActive, setIsActive] = useState(false);
-  const animationRef = useRef<any>(null);
+  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const phaseRef = useRef(0);
+  const tickRef = useRef(1);
+  const inPauseRef = useRef(false);
+  const cycleRef = useRef(1);
 
-  useEffect(() => {
-    if (open) {
-      setIsActive(true);
-      startBreathingAnimation();
-    } else {
-      setIsActive(false);
-      if (animationRef.current) {
-        clearTimeout(animationRef.current);
-      }
-    }
+  const phases = [
+    {name: 'Вдох через нос', duration: 4, startR: 80, endR: 150},
+    {name: 'Задержите дыхание', duration: 7, startR: 150, endR: 150},
+    {name: 'Выдох через рот', duration: 8, startR: 150, endR: 80},
+  ];
+  const pauseSeconds = 1;
+  const pauseBetweenCycles = 3;
+  const maxCycles = 5;
 
-    return () => {
-      if (animationRef.current) {
-        clearTimeout(animationRef.current);
+  const animateRadius = useCallback((start: number, end: number, duration: number) => {
+    const circle = document.getElementById('breatheCircle');
+    if (!circle) return;
+
+    const startTime = performance.now();
+    
+    const step = (now: number) => {
+      const elapsed = (now - startTime) / 1000;
+      if (elapsed < duration && isActive) {
+        const progress = elapsed / duration;
+        const r = start + (end - start) * progress;
+        circle.setAttribute('r', r.toString());
+        animationFrameRef.current = requestAnimationFrame(step);
+      } else {
+        circle.setAttribute('r', end.toString());
       }
     };
-  }, [open]);
+    
+    animationFrameRef.current = requestAnimationFrame(step);
+  }, [isActive]);
 
-  const startBreathingAnimation = () => {
-    const phases = [
-      {name: 'Вдох через нос', duration: 4, startR: 80, endR: 150},
-      {name: 'Задержите дыхание', duration: 7, startR: 150, endR: 150},
-      {name: 'Выдох через рот', duration: 8, startR: 150, endR: 80},
-    ];
-    const pauseSeconds = 1;
-    const pauseBetweenCycles = 3;
-    const maxCycles = 5;
+  const nextStep = useCallback(() => {
+    console.log('nextStep called', { 
+      isActive, 
+      phase: phaseRef.current, 
+      tick: tickRef.current, 
+      inPause: inPauseRef.current,
+      cycle: cycleRef.current 
+    });
 
-    let phase = 0;
-    let tick = 1;
-    let inPause = false;
-    let cycle = 1;
-
+    if (!isActive) {
+      console.log('Animation not active, stopping');
+      return;
+    }
+    
     const phaseText = document.getElementById('phaseText');
     const countText = document.getElementById('countText');
     const circle = document.getElementById('breatheCircle');
     const doneText = document.getElementById('doneText');
 
-    if (!phaseText || !countText || !circle || !doneText) return;
-
-    function animateRadius(start: number, end: number, duration: number) {
-      const startTime = performance.now();
-      function step(now: number) {
-        const elapsed = (now - startTime) / 1000;
-        if (elapsed < duration) {
-          const progress = elapsed / duration;
-          const r = start + (end - start) * progress;
-          circle.setAttribute('r', r.toString());
-          requestAnimationFrame(step);
-        } else {
-          circle.setAttribute('r', end.toString());
-        }
-      }
-      requestAnimationFrame(step);
+    if (!phaseText || !countText || !circle || !doneText) {
+      console.log('DOM elements not found, retrying in 100ms');
+      animationRef.current = setTimeout(nextStep, 100);
+      return;
     }
 
-    function nextStep() {
-      if (!isActive) return;
+    doneText.setAttribute('opacity', '0.0');
+    
+    if (!inPauseRef.current) {
+      // Активная фаза дыхания
+      const currentPhase = phases[phaseRef.current];
+      phaseText.textContent = currentPhase.name;
+      countText.textContent = tickRef.current.toString();
       
-      doneText.setAttribute('opacity', '0.0');
-      if (!inPause) {
-        phaseText.textContent = phases[phase].name;
-        countText.textContent = tick.toString();
-        
-        if (tick === 1) {
-          if (phases[phase].startR !== phases[phase].endR) {
-            animateRadius(phases[phase].startR, phases[phase].endR, phases[phase].duration);
-          } else {
-            circle.setAttribute('r', phases[phase].startR.toString());
-          }
+      console.log(`Phase: ${currentPhase.name}, Tick: ${tickRef.current}`);
+      
+      // Запуск анимации радиуса только на первом тике фазы
+      if (tickRef.current === 1) {
+        if (currentPhase.startR !== currentPhase.endR) {
+          animateRadius(currentPhase.startR, currentPhase.endR, currentPhase.duration);
+        } else {
+          circle.setAttribute('r', currentPhase.startR.toString());
         }
-        
-        if (tick < phases[phase].duration) {
-          tick++;
-          animationRef.current = setTimeout(nextStep, 1000);
-        } else if (tick === phases[phase].duration) {
-          animationRef.current = setTimeout(() => {
-            inPause = true;
-            countText.textContent = "";
-            tick = 1;
-            animationRef.current = setTimeout(nextStep, pauseSeconds * 1000);
-          }, 1000);
-        }
-      } else {
-        inPause = false;
-        phase++;
-        if (phase >= phases.length) {
-          phase = 0;
-          cycle++;
-          if (cycle > maxCycles) {
-            phaseText.textContent = '';
-            countText.textContent = '';
-            doneText.setAttribute('opacity', '1.0');
-            return;
-          } else {
-            animationRef.current = setTimeout(nextStep, pauseBetweenCycles * 1000);
-            return;
-          }
-        }
-        animationRef.current = setTimeout(nextStep, 0);
       }
+      
+      if (tickRef.current < currentPhase.duration) {
+        tickRef.current++;
+        animationRef.current = setTimeout(nextStep, 1000);
+      } else if (tickRef.current === currentPhase.duration) {
+        // Показываем последнюю цифру 1 секунду, затем пауза
+        animationRef.current = setTimeout(() => {
+          if (!isActive) return;
+          inPauseRef.current = true;
+          countText.textContent = "";
+          tickRef.current = 1;
+          animationRef.current = setTimeout(nextStep, pauseSeconds * 1000);
+        }, 1000);
+      }
+    } else {
+      // Пауза между фазами
+      inPauseRef.current = false;
+      phaseRef.current++;
+      
+      if (phaseRef.current >= phases.length) {
+        // Завершен полный цикл
+        phaseRef.current = 0;
+        cycleRef.current++;
+        
+        if (cycleRef.current > maxCycles) {
+          // Завершение всех циклов
+          phaseText.textContent = '';
+          countText.textContent = '';
+          doneText.setAttribute('opacity', '1.0');
+          console.log('Animation completed');
+          return;
+        } else {
+          // Пауза между циклами
+          console.log(`Starting cycle ${cycleRef.current}`);
+          animationRef.current = setTimeout(nextStep, pauseBetweenCycles * 1000);
+          return;
+        }
+      }
+      
+      // Переход к следующей фазе
+      animationRef.current = setTimeout(nextStep, 0);
+    }
+  }, [isActive, animateRadius, phases]);
+
+  const startBreathingAnimation = useCallback(() => {
+    console.log('Starting breathing animation');
+    
+    // Сброс всех состояний
+    phaseRef.current = 0;
+    tickRef.current = 1;
+    inPauseRef.current = false;
+    cycleRef.current = 1;
+    
+    // Запуск анимации с небольшой задержкой для рендера DOM
+    animationRef.current = setTimeout(nextStep, 100);
+  }, [nextStep]);
+
+  const stopAnimation = useCallback(() => {
+    console.log('Stopping animation');
+    setIsActive(false);
+    
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+      animationRef.current = null;
+    }
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      console.log('Dialog opened, starting animation');
+      setIsActive(true);
+    } else {
+      console.log('Dialog closed, stopping animation');
+      stopAnimation();
     }
 
-    nextStep();
-  };
+    return () => {
+      stopAnimation();
+    };
+  }, [open, stopAnimation]);
+
+  // Запуск анимации когда isActive становится true
+  useEffect(() => {
+    if (isActive && open) {
+      startBreathingAnimation();
+    }
+  }, [isActive, open, startBreathingAnimation]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -153,20 +218,26 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
               </div>
             </div>
 
-            <svg width="400" height="400" viewBox="0 0 400 400" className="mb-8">
+            <svg width="500" height="500" viewBox="0 0 500 500" className="mb-8">
               <defs>
                 <radialGradient id="breathGrad" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#ffd1df" />
                   <stop offset="55%" stopColor="#ffb8a6" />
                   <stop offset="100%" stopColor="#ff607f" />
                 </radialGradient>
+                <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#192045"/>
+                  <stop offset="100%" stopColor="#21346e"/>
+                </linearGradient>
               </defs>
+              
+              <rect x="0" y="0" width="500" height="500" fill="url(#bgGrad)"/>
               
               <text 
                 id="phaseText" 
-                x="200" 
+                x="250" 
                 y="80" 
-                fontSize="24" 
+                fontSize="29" 
                 fill="#ffe4b3" 
                 textAnchor="middle" 
                 dominantBaseline="middle"
@@ -178,8 +249,8 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
               
               <circle 
                 id="breatheCircle" 
-                cx="200" 
-                cy="200" 
+                cx="250" 
+                cy="250" 
                 r="80" 
                 fill="url(#breathGrad)" 
                 opacity="0.97"
@@ -187,9 +258,9 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
               
               <text 
                 id="countText" 
-                x="200" 
-                y="320" 
-                fontSize="32" 
+                x="250" 
+                y="380" 
+                fontSize="38" 
                 fill="#ffecb3" 
                 textAnchor="middle" 
                 fontFamily="Arial, sans-serif"
@@ -200,9 +271,9 @@ const BreathingAnimationDialog: React.FC<BreathingAnimationDialogProps> = ({
               
               <text 
                 id="doneText" 
-                x="200" 
-                y="370" 
-                fontSize="20" 
+                x="250" 
+                y="450" 
+                fontSize="28" 
                 fill="#ffe4b3" 
                 textAnchor="middle" 
                 fontFamily="Arial, sans-serif"
