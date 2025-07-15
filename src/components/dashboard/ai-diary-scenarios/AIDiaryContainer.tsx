@@ -78,7 +78,7 @@ const AIDiaryContainer = () => {
   };
 
   return (
-    <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex flex-col">
+    <Card className="h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex flex-col overflow-hidden">
       {!currentSession ? (
         <SessionSelector 
           todaySessions={todaySessions}

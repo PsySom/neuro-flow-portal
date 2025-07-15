@@ -68,38 +68,36 @@ const DiaryChat: React.FC<DiaryChatProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
       <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
         <DiaryHeader currentSession={currentSession} />
       </div>
       
-      <div className="flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 overflow-hidden">
-          <MessagesList
-            chatMessages={chatMessages}
-            currentQuestion={currentQuestion}
-            currentResponse={currentResponse}
-            setCurrentResponse={setCurrentResponse}
-            isCompleted={isCompleted}
-            isTransitioning={isTransitioning}
-            onSubmitResponse={handleQuestionResponse}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <MessagesList
+          chatMessages={chatMessages}
+          currentQuestion={currentQuestion}
+          currentResponse={currentResponse}
+          setCurrentResponse={setCurrentResponse}
+          isCompleted={isCompleted}
+          isTransitioning={isTransitioning}
+          onSubmitResponse={handleQuestionResponse}
+        />
+      </div>
+      
+      <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="p-4 space-y-3">
+          <ChatInput
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            onSendMessage={handleSendMessage}
           />
-        </div>
-        
-        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <div className="p-4 space-y-3">
-            <ChatInput
-              inputMessage={inputMessage}
-              setInputMessage={setInputMessage}
-              onSendMessage={handleSendMessage}
-            />
-            
-            <SessionActions
-              isCompleted={isCompleted}
-              currentQuestion={currentQuestion}
-              onResetSession={onResetSession}
-            />
-          </div>
+          
+          <SessionActions
+            isCompleted={isCompleted}
+            currentQuestion={currentQuestion}
+            onResetSession={onResetSession}
+          />
         </div>
       </div>
     </div>
