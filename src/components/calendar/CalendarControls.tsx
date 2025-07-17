@@ -22,18 +22,18 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
   const { settings } = usePersonalization();
 
   const getAccentColorClasses = () => {
-    switch (settings?.accentColor) {
-      case 'lavender-gold':
-        return 'bg-purple-600 hover:bg-purple-700';
-      case 'sky-apricot':
+    switch (settings.accentColor) {
+      case 'blue':
         return 'bg-blue-600 hover:bg-blue-700';
-      case 'mint-plum':
-        return 'bg-teal-600 hover:bg-teal-700';
-      case 'rose-indigo':
+      case 'purple':
+        return 'bg-purple-600 hover:bg-purple-700';
+      case 'pink':
         return 'bg-pink-600 hover:bg-pink-700';
-      case 'ice-neon':
-        return 'bg-cyan-600 hover:bg-cyan-700';
-      case 'sage-coral':
+      case 'orange':
+        return 'bg-orange-600 hover:bg-orange-700';
+      case 'teal':
+        return 'bg-teal-600 hover:bg-teal-700';
+      case 'emerald':
       default:
         return 'bg-emerald-600 hover:bg-emerald-700';
     }

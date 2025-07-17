@@ -28,12 +28,12 @@ const UserMenu = () => {
   };
 
   const accentColors: { value: AccentColor; label: string; color: string }[] = [
-    { value: 'sage-coral', label: 'Шалфей и Коралл', color: 'bg-gradient-to-r from-emerald-400 to-orange-400' },
-    { value: 'lavender-gold', label: 'Лаванда и Золото', color: 'bg-gradient-to-r from-purple-400 to-yellow-400' },
-    { value: 'sky-apricot', label: 'Небо и Абрикос', color: 'bg-gradient-to-r from-blue-400 to-orange-300' },
-    { value: 'mint-plum', label: 'Мята и Слива', color: 'bg-gradient-to-r from-teal-400 to-purple-500' },
-    { value: 'rose-indigo', label: 'Роза и Индиго', color: 'bg-gradient-to-r from-pink-400 to-indigo-500' },
-    { value: 'ice-neon', label: 'Лёд и Неон', color: 'bg-gradient-to-r from-cyan-300 to-pink-400' },
+    { value: 'emerald', label: 'Изумрудный', color: 'bg-emerald-500' },
+    { value: 'blue', label: 'Синий', color: 'bg-blue-500' },
+    { value: 'purple', label: 'Фиолетовый', color: 'bg-purple-500' },
+    { value: 'pink', label: 'Розовый', color: 'bg-pink-500' },
+    { value: 'orange', label: 'Оранжевый', color: 'bg-orange-500' },
+    { value: 'teal', label: 'Бирюзовый', color: 'bg-teal-500' },
   ];
 
   const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
