@@ -31,13 +31,12 @@ const MessagesList: React.FC<MessagesListProps> = ({
     if (scrollAreaRef.current) {
       const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
       if (viewport) {
-        // Улучшенная логика скролла с проверкой готовности DOM
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           viewport.scrollTo({
             top: viewport.scrollHeight,
             behavior: 'smooth'
           });
-        });
+        }, 50);
       }
     }
   }, []);
@@ -49,11 +48,10 @@ const MessagesList: React.FC<MessagesListProps> = ({
   return (
     <div className="h-full overflow-hidden">
       <ScrollArea 
-        className="h-full scroll-smooth"
+        className="h-full" 
         ref={scrollAreaRef}
-        style={{ scrollbarWidth: 'thin' }}
       >
-        <div className="space-y-4 p-4 pb-8 min-h-full flex flex-col justify-end">
+        <div className="space-y-4 p-4 pb-8">
           {chatMessages.map((message, index) => (
             <ChatMessage
               key={message.id}

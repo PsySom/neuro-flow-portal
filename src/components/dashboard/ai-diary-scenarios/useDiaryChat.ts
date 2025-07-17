@@ -7,40 +7,31 @@ import { ChatMessageType } from './chatTypes';
 
 interface UseDiaryChatProps {
   currentSession: DiarySession;
-  questionState: {
-    currentQuestion: Question | null;
-    setCurrentQuestion: React.Dispatch<React.SetStateAction<Question | null>>;
-    currentResponse: string | number | string[] | number[];
-    setCurrentResponse: React.Dispatch<React.SetStateAction<string | number | string[] | number[]>>;
-  };
-  sessionState: {
-    isCompleted: boolean;
-    setIsCompleted: React.Dispatch<React.SetStateAction<boolean>>;
-    completionMessage: string;
-    setCompletionMessage: React.Dispatch<React.SetStateAction<string>>;
-    todaySessions: DiarySession[];
-    setTodaySessions: React.Dispatch<React.SetStateAction<DiarySession[]>>;
-  };
-  chatState: {
-    chatMessages: ChatMessageType[];
-    setChatMessages: React.Dispatch<React.SetStateAction<ChatMessageType[]>>;
-    inputMessage: string;
-    setInputMessage: React.Dispatch<React.SetStateAction<string>>;
-    isTransitioning: boolean;
-    setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+  currentQuestion: Question | null;
+  setCurrentQuestion: React.Dispatch<React.SetStateAction<Question | null>>;
+  currentResponse: string | number | string[] | number[];
+  setCurrentResponse: React.Dispatch<React.SetStateAction<string | number | string[] | number[]>>;
+  setIsCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  setCompletionMessage: React.Dispatch<React.SetStateAction<string>>;
+  setTodaySessions: React.Dispatch<React.SetStateAction<DiarySession[]>>;
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessageType[]>>;
+  setInputMessage: React.Dispatch<React.SetStateAction<string>>;
+  setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useDiaryChat = ({
   currentSession,
-  questionState,
-  sessionState,
-  chatState
+  currentQuestion,
+  setCurrentQuestion,
+  currentResponse,
+  setCurrentResponse,
+  setIsCompleted,
+  setCompletionMessage,
+  setTodaySessions,
+  setChatMessages,
+  setInputMessage,
+  setIsTransitioning
 }: UseDiaryChatProps) => {
-  const { currentQuestion, setCurrentQuestion, currentResponse, setCurrentResponse } = questionState;
-  const { setIsCompleted, setCompletionMessage, setTodaySessions } = sessionState;
-  const { setChatMessages, setInputMessage, setIsTransitioning } = chatState;
-  
   // Initialize response when question changes
   useEffect(() => {
     if (currentQuestion) {
