@@ -89,15 +89,18 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   const [settings, setSettings] = useState<PersonalizationSettings>(() => {
     try {
       const saved = localStorage.getItem('personalization-settings');
-      const parsedSettings = saved ? JSON.parse(saved) : defaultSettings;
-      
-      // Validate that the accent color exists in our color variables
-      if (!colorVariables[parsedSettings.accentColor as AccentColor]) {
-        console.warn(`Invalid accent color: ${parsedSettings.accentColor}, falling back to default`);
-        parsedSettings.accentColor = defaultSettings.accentColor;
+      if (saved) {
+        const parsedSettings = JSON.parse(saved);
+        
+        // Validate that the accent color exists in our color variables
+        if (!colorVariables[parsedSettings.accentColor as AccentColor]) {
+          console.warn(`Invalid accent color: ${parsedSettings.accentColor}, falling back to default`);
+          parsedSettings.accentColor = defaultSettings.accentColor;
+        }
+        
+        return { ...defaultSettings, ...parsedSettings };
       }
-      
-      return parsedSettings;
+      return defaultSettings;
     } catch (error) {
       console.error('Error loading personalization settings:', error);
       return defaultSettings;
@@ -123,8 +126,13 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       // Save to localStorage
       localStorage.setItem('personalization-settings', JSON.stringify(settings));
       
-      // Apply theme
       const root = document.documentElement;
+      if (!root) {
+        console.error('Document root element not found');
+        return;
+      }
+
+      // Apply theme
       root.classList.remove('light', 'dark');
       
       if (settings.theme === 'system') {
@@ -134,24 +142,38 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
         root.classList.add(settings.theme);
       }
 
-      // Apply accent color variables with fallback
-      const colors = colorVariables[settings.accentColor] || colorVariables['sage-coral'];
+      // Apply accent color variables with multiple fallbacks
+      const colors = colorVariables[settings.accentColor] || colorVariables['sage-coral'] || {
+        primary: 'oklch(0.7357 0.1641 34.7091)',
+        secondary: 'oklch(0.8278 0.1131 57.9984)',
+        accent: 'oklch(0.8773 0.0763 54.9314)',
+        light: 'oklch(0.8200 0.1054 40.8859)',
+        dark: 'oklch(0.6368 0.1306 32.0721)'
+      };
       
-      if (colors) {
-        root.style.setProperty('--primary', colors.primary);
-        root.style.setProperty('--accent', colors.secondary);
-        root.style.setProperty('--chart-1', colors.primary);
-        root.style.setProperty('--chart-2', colors.secondary);
-        root.style.setProperty('--chart-3', colors.accent);
+      // Ensure colors object has all required properties before setting
+      if (colors && typeof colors === 'object') {
+        if (colors.primary) root.style.setProperty('--primary', colors.primary);
+        if (colors.secondary) root.style.setProperty('--accent', colors.secondary);
+        if (colors.primary) root.style.setProperty('--chart-1', colors.primary);
+        if (colors.secondary) root.style.setProperty('--chart-2', colors.secondary);
+        if (colors.accent) root.style.setProperty('--chart-3', colors.accent);
       }
 
       // Apply font size with fallback
-      const fontSize = fontSizeVariables[settings.fontSize] || fontSizeVariables.medium;
+      const fontSize = fontSizeVariables[settings.fontSize] || fontSizeVariables.medium || {
+        base: '16px',
+        scale: '1'
+      };
       
-      if (fontSize) {
-        root.style.setProperty('--font-size-base', fontSize.base);
-        root.style.setProperty('--font-scale', fontSize.scale);
-        root.style.fontSize = fontSize.base;
+      if (fontSize && typeof fontSize === 'object') {
+        if (fontSize.base) {
+          root.style.setProperty('--font-size-base', fontSize.base);
+          root.style.fontSize = fontSize.base;
+        }
+        if (fontSize.scale) {
+          root.style.setProperty('--font-scale', fontSize.scale);
+        }
       }
     } catch (error) {
       console.error('Error applying personalization settings:', error);
@@ -168,8 +190,13 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     if (settings.theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applySettings();
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+      
+      try {
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+      } catch (error) {
+        console.error('Error setting up media query listener:', error);
+      }
     }
   }, [settings.theme]);
 
