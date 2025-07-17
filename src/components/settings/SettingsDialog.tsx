@@ -23,13 +23,19 @@ interface SettingsDialogProps {
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onOpenChange }) => {
   const { settings, updateSettings, applySettings } = usePersonalization();
 
-  const accentColors: { value: AccentColor; label: string; color: string }[] = [
-    { value: 'emerald', label: 'Изумрудный', color: 'bg-emerald-500' },
-    { value: 'blue', label: 'Синий', color: 'bg-blue-500' },
-    { value: 'purple', label: 'Фиолетовый', color: 'bg-purple-500' },
-    { value: 'pink', label: 'Розовый', color: 'bg-pink-500' },
-    { value: 'orange', label: 'Оранжевый', color: 'bg-orange-500' },
-    { value: 'teal', label: 'Бирюзовый', color: 'bg-teal-500' },
+  const accentColors: { value: AccentColor; label: string; color: string; description: string }[] = [
+    { value: 'emerald', label: 'Изумрудный', color: 'bg-emerald-500', description: 'Классический зеленый' },
+    { value: 'blue', label: 'Синий', color: 'bg-blue-500', description: 'Океанские волны' },
+    { value: 'purple', label: 'Фиолетовый', color: 'bg-purple-500', description: 'Мистический лавандовый' },
+    { value: 'pink', label: 'Розовый', color: 'bg-pink-500', description: 'Нежная роза' },
+    { value: 'orange', label: 'Оранжевый', color: 'bg-orange-500', description: 'Теплый закат' },
+    { value: 'teal', label: 'Бирюзовый', color: 'bg-teal-500', description: 'Спокойная вода' },
+    { value: 'sage', label: 'Шалфей & Коралл', color: 'bg-green-400', description: 'Природная гармония' },
+    { value: 'lavender', label: 'Лаванда & Золото', color: 'bg-purple-400', description: 'Элегантность и тепло' },
+    { value: 'sky', label: 'Небо & Абрикос', color: 'bg-sky-400', description: 'Утренняя свежесть' },
+    { value: 'mint', label: 'Мята & Слива', color: 'bg-emerald-400', description: 'Освежающий контраст' },
+    { value: 'rose', label: 'Роза & Индиго', color: 'bg-rose-400', description: 'Романтика и глубина' },
+    { value: 'ice', label: 'Лед & Неон', color: 'bg-cyan-400', description: 'Современная прохлада' },
   ];
 
   const fontSizes: { value: FontSize; label: string; description: string }[] = [
@@ -101,17 +107,25 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onOpenChange }) =
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {accentColors.map((color) => (
-                    <Button
+                    <div
                       key={color.value}
-                      variant={settings.accentColor === color.value ? "default" : "outline"}
-                      className="flex items-center space-x-2 h-12"
+                      className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                        settings.accentColor === color.value
+                          ? 'border-primary bg-primary/5 shadow-md'
+                          : 'border-border hover:border-primary/50'
+                      }`}
                       onClick={() => updateSettings({ accentColor: color.value })}
                     >
-                      <div className={`w-4 h-4 rounded-full ${color.color}`} />
-                      <span>{color.label}</span>
-                    </Button>
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-6 h-6 rounded-full ${color.color} shadow-sm`} />
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{color.label}</div>
+                          <div className="text-xs text-muted-foreground">{color.description}</div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </CardContent>

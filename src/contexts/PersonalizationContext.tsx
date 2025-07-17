@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type AccentColor = 'emerald' | 'blue' | 'purple' | 'pink' | 'orange' | 'teal';
+export type AccentColor = 'emerald' | 'blue' | 'purple' | 'pink' | 'orange' | 'teal' | 'sage' | 'lavender' | 'sky' | 'mint' | 'rose' | 'ice';
 export type FontSize = 'small' | 'medium' | 'large';
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -67,6 +67,48 @@ const colorVariables = {
     accent: '173 58% 39%',
     light: '173 58% 54%',
     dark: '173 76% 29%'
+  },
+  sage: {
+    primary: '156 39% 65%',
+    secondary: '156 39% 45%',
+    accent: '156 39% 65%',
+    light: '156 39% 80%',
+    dark: '156 39% 35%'
+  },
+  lavender: {
+    primary: '267 57% 70%',
+    secondary: '267 57% 50%',
+    accent: '267 57% 70%',
+    light: '267 57% 85%',
+    dark: '267 57% 40%'
+  },
+  sky: {
+    primary: '204 94% 78%',
+    secondary: '204 94% 58%',
+    accent: '204 94% 78%',
+    light: '204 94% 90%',
+    dark: '204 94% 48%'
+  },
+  mint: {
+    primary: '167 72% 60%',
+    secondary: '167 72% 40%',
+    accent: '167 72% 60%',
+    light: '167 72% 75%',
+    dark: '167 72% 30%'
+  },
+  rose: {
+    primary: '351 83% 75%',
+    secondary: '351 83% 55%',
+    accent: '351 83% 75%',
+    light: '351 83% 87%',
+    dark: '351 83% 45%'
+  },
+  ice: {
+    primary: '180 100% 85%',
+    secondary: '180 100% 65%',
+    accent: '180 100% 85%',
+    light: '180 100% 95%',
+    dark: '180 100% 55%'
   }
 };
 
