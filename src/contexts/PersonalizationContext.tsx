@@ -68,7 +68,7 @@ const colorVariables = {
     light: 'oklch(0.9000 0.0400 200)',
     dark: 'oklch(0.7200 0.1200 185)'
   }
-};
+} as const;
 
 const fontSizeVariables = {
   small: {
@@ -83,46 +83,79 @@ const fontSizeVariables = {
     base: '18px',
     scale: '1.1'
   }
-};
+} as const;
 
 export function PersonalizationProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<PersonalizationSettings>(() => {
-    const saved = localStorage.getItem('personalization-settings');
-    return saved ? JSON.parse(saved) : defaultSettings;
+    try {
+      const saved = localStorage.getItem('personalization-settings');
+      const parsedSettings = saved ? JSON.parse(saved) : defaultSettings;
+      
+      // Validate that the accent color exists in our color variables
+      if (!colorVariables[parsedSettings.accentColor as AccentColor]) {
+        console.warn(`Invalid accent color: ${parsedSettings.accentColor}, falling back to default`);
+        parsedSettings.accentColor = defaultSettings.accentColor;
+      }
+      
+      return parsedSettings;
+    } catch (error) {
+      console.error('Error loading personalization settings:', error);
+      return defaultSettings;
+    }
   });
 
   const updateSettings = (newSettings: Partial<PersonalizationSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      
+      // Validate accent color
+      if (newSettings.accentColor && !colorVariables[newSettings.accentColor]) {
+        console.warn(`Invalid accent color: ${newSettings.accentColor}, keeping current`);
+        updated.accentColor = prev.accentColor;
+      }
+      
+      return updated;
+    });
   };
 
   const applySettings = () => {
-    // Save to localStorage
-    localStorage.setItem('personalization-settings', JSON.stringify(settings));
-    
-    // Apply theme
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    
-    if (settings.theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(settings.theme);
+    try {
+      // Save to localStorage
+      localStorage.setItem('personalization-settings', JSON.stringify(settings));
+      
+      // Apply theme
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+      
+      if (settings.theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        root.classList.add(systemTheme);
+      } else {
+        root.classList.add(settings.theme);
+      }
+
+      // Apply accent color variables with fallback
+      const colors = colorVariables[settings.accentColor] || colorVariables['sage-coral'];
+      
+      if (colors) {
+        root.style.setProperty('--primary', colors.primary);
+        root.style.setProperty('--accent', colors.secondary);
+        root.style.setProperty('--chart-1', colors.primary);
+        root.style.setProperty('--chart-2', colors.secondary);
+        root.style.setProperty('--chart-3', colors.accent);
+      }
+
+      // Apply font size with fallback
+      const fontSize = fontSizeVariables[settings.fontSize] || fontSizeVariables.medium;
+      
+      if (fontSize) {
+        root.style.setProperty('--font-size-base', fontSize.base);
+        root.style.setProperty('--font-scale', fontSize.scale);
+        root.style.fontSize = fontSize.base;
+      }
+    } catch (error) {
+      console.error('Error applying personalization settings:', error);
     }
-
-    // Apply accent color variables
-    const colors = colorVariables[settings.accentColor];
-    root.style.setProperty('--primary', colors.primary);
-    root.style.setProperty('--accent', colors.secondary);
-    root.style.setProperty('--chart-1', colors.primary);
-    root.style.setProperty('--chart-2', colors.secondary);
-    root.style.setProperty('--chart-3', colors.accent);
-
-    // Apply font size
-    const fontSize = fontSizeVariables[settings.fontSize];
-    root.style.setProperty('--font-size-base', fontSize.base);
-    root.style.setProperty('--font-scale', fontSize.scale);
-    root.style.fontSize = fontSize.base;
   };
 
   // Apply settings on mount and when they change

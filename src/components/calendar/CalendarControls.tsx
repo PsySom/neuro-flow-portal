@@ -22,7 +22,7 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
   const { settings } = usePersonalization();
 
   const getAccentColorClasses = () => {
-    switch (settings.accentColor) {
+    switch (settings?.accentColor) {
       case 'lavender-gold':
         return 'bg-purple-600 hover:bg-purple-700';
       case 'sky-apricot':
