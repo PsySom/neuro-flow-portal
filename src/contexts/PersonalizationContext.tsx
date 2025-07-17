@@ -111,7 +111,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     }
 
     // Apply accent color variables
-    const colors = colorVariables[settings.accentColor];
+    const colors = colorVariables[settings.accentColor] || colorVariables.emerald;
     root.style.setProperty('--color-primary', colors.primary);
     root.style.setProperty('--color-secondary', colors.secondary);
     root.style.setProperty('--color-accent', colors.accent);
