@@ -6,14 +6,12 @@ import AIChatHeader from './ai-chat/AIChatHeader';
 import AIChatTabs from './ai-chat/AIChatTabs';
 import FreeChat from './ai-chat/FreeChat';
 import AIDiaryScenarios from './AIDiaryScenarios';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const AIChatComponent = () => {
   const [activeTab, setActiveTab] = useState('free-chat');
-  const isMobile = useIsMobile();
 
   return (
-    <div className={`${isMobile ? 'h-[80vh]' : 'h-[600px]'} flex flex-col`}>
+    <div className="h-[600px] flex flex-col">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
         <div className="flex-shrink-0 px-6 pt-6">
           <AIChatHeader />
