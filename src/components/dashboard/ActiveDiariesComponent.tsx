@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Moon, Heart, Brain, Target, Activity } from 'lucide-react';
 import { DiaryEntry, StatusColorMap } from './types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ActiveDiariesComponent = () => {
+  const isMobile = useIsMobile();
   const activeDiaries: DiaryEntry[] = useMemo(() => [
     {
       name: 'Дневник настроения',
@@ -62,7 +64,7 @@ const ActiveDiariesComponent = () => {
   }, []);
 
   return (
-    <Card className="h-[600px] bg-background/80 backdrop-blur-sm border border-border/50">
+    <Card className={`${isMobile ? 'h-[80vh]' : 'h-[600px]'} bg-background/80 backdrop-blur-sm border border-border/50`}>
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" />

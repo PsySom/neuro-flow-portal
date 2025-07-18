@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Coffee, Dumbbell, Book, Sunrise, Heart, Droplets } from 'lucide-react';
 import { Reminder, ReminderStatusColorMap, TypeColorMap } from './types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const RemindersComponent = () => {
+  const isMobile = useIsMobile();
   const reminders: Reminder[] = useMemo(() => [
     {
       title: 'Утренняя медитация',
@@ -85,7 +87,7 @@ const RemindersComponent = () => {
   }, []);
 
   return (
-    <Card className="h-full bg-background/80 backdrop-blur-sm border border-border/50">
+    <Card className={`${isMobile ? 'h-[80vh]' : 'h-full'} bg-background/80 backdrop-blur-sm border border-border/50`}>
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Bell className="h-5 w-5 text-primary" />

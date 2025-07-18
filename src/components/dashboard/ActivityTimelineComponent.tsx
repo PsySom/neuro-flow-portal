@@ -12,8 +12,10 @@ import { useActivityOperationsAdapter } from '@/hooks/useActivityOperationsAdapt
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ActivityTimelineComponent = () => {
+  const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -42,7 +44,7 @@ const ActivityTimelineComponent = () => {
   // Loading state
   if (isLoading) {
     return (
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className={`${isMobile ? 'h-[80vh]' : 'h-[600px]'} bg-white/70 backdrop-blur-lg border-0 shadow-xl`}>
         <div className="flex items-center justify-center h-full">
           <LoaderCircle className="w-6 h-6 animate-spin" />
           <span className="ml-2">Загрузка активностей...</span>
@@ -54,7 +56,7 @@ const ActivityTimelineComponent = () => {
   // Error state
   if (error) {
     return (
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className={`${isMobile ? 'h-[80vh]' : 'h-[600px]'} bg-white/70 backdrop-blur-lg border-0 shadow-xl`}>
         <div className="flex items-center justify-center h-full text-center text-red-600">
           <div>
             <p>Ошибка загрузки активностей</p>
@@ -67,7 +69,7 @@ const ActivityTimelineComponent = () => {
 
   return (
     <>
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className={`${isMobile ? 'h-[80vh]' : 'h-[600px]'} bg-white/70 backdrop-blur-lg border-0 shadow-xl`}>
         <ActivityTimelineHeader 
           formattedDate={formattedDate}
           onAddClick={() => setIsDialogOpen(true)}
