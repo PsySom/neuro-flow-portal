@@ -142,20 +142,20 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     });
   };
 
-  const applySettings = () => {
+  const applySettings = React.useCallback((settingsToApply = settings) => {
     // Apply theme
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
     
-    if (settings.theme === 'system') {
+    if (settingsToApply.theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       root.classList.add(systemTheme);
     } else {
-      root.classList.add(settings.theme);
+      root.classList.add(settingsToApply.theme);
     }
 
     // Apply accent color variables
-    const colors = colorVariables[settings.accentColor] || colorVariables.emerald;
+    const colors = colorVariables[settingsToApply.accentColor] || colorVariables.emerald;
     root.style.setProperty('--psybalans-primary', colors.primary);
     root.style.setProperty('--psybalans-secondary', colors.secondary);
     root.style.setProperty('--psybalans-accent', colors.accent);
@@ -163,26 +163,26 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     root.style.setProperty('--psybalans-accent-dark', colors.dark);
 
     // Apply font size
-    const fontSize = fontSizeVariables[settings.fontSize];
+    const fontSize = fontSizeVariables[settingsToApply.fontSize];
     root.style.setProperty('--font-size-base', fontSize.base);
     root.style.setProperty('--font-scale', fontSize.scale);
     root.style.fontSize = fontSize.base;
-  };
+  }, []);
 
   // Apply settings on mount and when they change
   useEffect(() => {
-    applySettings();
-  }, [settings]);
+    applySettings(settings);
+  }, [settings, applySettings]);
 
   // Sync with system theme preference
   useEffect(() => {
     if (settings.theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => applySettings();
+      const handleChange = () => applySettings(settings);
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, [settings.theme]);
+  }, [settings.theme, applySettings, settings]);
 
   return (
     <PersonalizationContext.Provider value={{ settings, updateSettings, applySettings }}>
