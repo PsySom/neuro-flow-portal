@@ -134,13 +134,15 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   });
 
   const updateSettings = (newSettings: Partial<PersonalizationSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      // Save immediately to localStorage
+      localStorage.setItem('personalization-settings', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const applySettings = () => {
-    // Save to localStorage
-    localStorage.setItem('personalization-settings', JSON.stringify(settings));
-    
     // Apply theme
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
@@ -154,11 +156,11 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
 
     // Apply accent color variables
     const colors = colorVariables[settings.accentColor] || colorVariables.emerald;
-    root.style.setProperty('--color-primary', colors.primary);
-    root.style.setProperty('--color-secondary', colors.secondary);
-    root.style.setProperty('--color-accent', colors.accent);
-    root.style.setProperty('--color-accent-light', colors.light);
-    root.style.setProperty('--color-accent-dark', colors.dark);
+    root.style.setProperty('--psybalans-primary', colors.primary);
+    root.style.setProperty('--psybalans-secondary', colors.secondary);
+    root.style.setProperty('--psybalans-accent', colors.accent);
+    root.style.setProperty('--psybalans-accent-light', colors.light);
+    root.style.setProperty('--psybalans-accent-dark', colors.dark);
 
     // Apply font size
     const fontSize = fontSizeVariables[settings.fontSize];

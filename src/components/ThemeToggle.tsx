@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button';
 import { usePersonalization } from '@/contexts/PersonalizationContext';
 
 export function ThemeToggle() {
-  const { settings, updateSettings, applySettings } = usePersonalization();
+  const { settings, updateSettings } = usePersonalization();
 
   const toggleTheme = () => {
     const newTheme = settings.theme === 'light' ? 'dark' : 'light';
     updateSettings({ theme: newTheme });
-    applySettings();
   };
 
   return (
