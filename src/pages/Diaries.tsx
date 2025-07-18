@@ -57,6 +57,14 @@ const diaryTypes = [
     path: '/depression-care-diary',
     color: 'from-green-100 to-green-200',
     darkColor: 'dark:from-green-900/20 dark:to-green-800/20'
+  },
+  {
+    title: 'Дневник сна и отдыха',
+    description: 'Отслеживайте качество сна и восстановления',
+    emoji: '😴',
+    path: '/sleep-diary',
+    color: 'from-indigo-100 to-indigo-200',
+    darkColor: 'dark:from-indigo-900/20 dark:to-indigo-800/20'
   }
 ];
 

@@ -25,6 +25,7 @@ import SelfEsteemDiaryPage from './pages/SelfEsteemDiaryPage';
 import ProcrastinationDiaryPage from './pages/ProcrastinationDiaryPage';
 import OCDDiaryPage from './pages/OCDDiaryPage';
 import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
+import SleepDiaryPage from './pages/SleepDiaryPage';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/procrastination-diary" element={<ProcrastinationDiaryPage />} />
                 <Route path="/ocd-diary" element={<OCDDiaryPage />} />
                 <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
+                <Route path="/sleep-diary" element={<SleepDiaryPage />} />
               </Routes>
             </div>
           </Router>
