@@ -24,11 +24,11 @@ const Step2Quality: React.FC<Step2QualityProps> = ({ form }) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <Moon className="w-12 h-12 mx-auto text-indigo-500 mb-3" />
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+        <Moon className="w-12 h-12 mx-auto text-primary mb-3" />
+        <h2 className="text-2xl font-semibold text-foreground mb-2">
           Качество сна
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground">
           Оцените, как прошла ваша ночь
         </p>
       </div>
@@ -38,7 +38,7 @@ const Step2Quality: React.FC<Step2QualityProps> = ({ form }) => {
         name="sleepQuality"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-700 dark:text-gray-300 text-lg mb-4 block">
+            <FormLabel className="text-foreground text-lg mb-4 block">
               Как вы оцениваете качество вашего сна этой ночью?
             </FormLabel>
             <FormControl>
@@ -55,13 +55,13 @@ const Step2Quality: React.FC<Step2QualityProps> = ({ form }) => {
                   <div className="text-2xl mb-2">
                     {sleepQualityLabels[field.value.toString() as keyof typeof sleepQualityLabels]}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     От -5 (очень плохо) до +5 (отлично)
                   </div>
                 </div>
                 {field.value <= -2 && (
-                  <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
-                    <p className="text-orange-700 dark:text-orange-300 text-sm">
+                  <div className="bg-warning/10 border border-warning/30 rounded-lg p-3">
+                    <p className="text-warning text-sm">
                       💭 Низкое качество сна может потребовать внимания. Мы обсудим возможные причины на следующем шаге.
                     </p>
                   </div>
@@ -78,7 +78,7 @@ const Step2Quality: React.FC<Step2QualityProps> = ({ form }) => {
         name="nightAwakenings"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-700 dark:text-gray-300 text-lg mb-4 block">
+            <FormLabel className="text-foreground text-lg mb-4 block">
               Сколько раз вы просыпались ночью?
             </FormLabel>
             <FormControl>
@@ -97,14 +97,14 @@ const Step2Quality: React.FC<Step2QualityProps> = ({ form }) => {
                 ))}
               </div>
             </FormControl>
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <div className="text-sm text-muted-foreground mt-2">
               {field.value <= 1 && (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-success">
                   ✅ В пределах нормы
                 </span>
               )}
               {field.value >= 2 && (
-                <span className="text-orange-600 dark:text-orange-400">
+                <span className="text-warning">
                   ⚠️ Частые пробуждения могут влиять на качество сна
                 </span>
               )}

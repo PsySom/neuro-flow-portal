@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Coffee, Dumbbell, Book, Sunrise, Heart, Droplets } from 'lucide-react';
+import { Reminder, ReminderStatusColorMap, TypeColorMap } from './types';
 
 const RemindersComponent = () => {
-  const reminders = [
+  const reminders: Reminder[] = useMemo(() => [
     {
       title: 'Утренняя медитация',
       time: '07:00',
@@ -47,54 +48,44 @@ const RemindersComponent = () => {
       type: 'care',
       status: 'upcoming'
     }
-  ];
+  ], []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-success/20 text-success border-success/30';
-      case 'pending':
-        return 'bg-warning/20 text-warning border-warning/30';
-      default:
-        return 'bg-muted text-muted-foreground border-border';
-    }
-  };
+  const getStatusColor = useMemo(() => {
+    const statusColors: ReminderStatusColorMap = {
+      completed: 'bg-success/20 text-success border-success/30',
+      pending: 'bg-warning/20 text-warning border-warning/30',
+      upcoming: 'bg-muted text-muted-foreground border-border'
+    };
+    return (status: Reminder['status']) => statusColors[status];
+  }, []);
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'routine':
-        return 'bg-primary/10 text-primary';
-      case 'care':
-        return 'bg-secondary/10 text-secondary';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
+  const getTypeColor = useMemo(() => {
+    const typeColors: TypeColorMap = {
+      routine: 'bg-primary/10 text-primary',
+      care: 'bg-secondary/10 text-secondary'
+    };
+    return (type: Reminder['type']) => typeColors[type];
+  }, []);
 
-  const getTypeText = (type: string) => {
-    switch (type) {
-      case 'routine':
-        return 'Рутина';
-      case 'care':
-        return 'Забота';
-      default:
-        return 'Другое';
-    }
-  };
+  const getTypeText = useMemo(() => (type: Reminder['type']) => {
+    const typeTexts = {
+      routine: 'Рутина',
+      care: 'Забота'
+    } as const;
+    return typeTexts[type];
+  }, []);
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'Выполнено';
-      case 'pending':
-        return 'Просрочено';
-      default:
-        return 'Запланировано';
-    }
-  };
+  const getStatusText = useMemo(() => (status: Reminder['status']) => {
+    const statusTexts = {
+      completed: 'Выполнено',
+      pending: 'Просрочено',
+      upcoming: 'Запланировано'
+    } as const;
+    return statusTexts[status];
+  }, []);
 
   return (
-    <Card className="h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+    <Card className="h-full bg-background/80 backdrop-blur-sm border border-border/50">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Bell className="h-5 w-5 text-primary" />

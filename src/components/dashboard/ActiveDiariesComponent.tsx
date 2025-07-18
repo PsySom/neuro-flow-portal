@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Moon, Heart, Brain, Target, Activity } from 'lucide-react';
+import { DiaryEntry, StatusColorMap } from './types';
 
 const ActiveDiariesComponent = () => {
-  const activeDiaries = [
+  const activeDiaries: DiaryEntry[] = useMemo(() => [
     {
       name: 'Дневник настроения',
       icon: Heart,
@@ -40,32 +41,28 @@ const ActiveDiariesComponent = () => {
       lastEntry: 'Неделю назад',
       streak: 2
     }
-  ];
+  ], []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-success/20 text-success border-success/30';
-      case 'pending':
-        return 'bg-warning/20 text-warning border-warning/30';
-      default:
-        return 'bg-muted text-muted-foreground border-border';
-    }
-  };
+  const getStatusColor = useMemo(() => {
+    const statusColors: StatusColorMap = {
+      completed: 'bg-success/20 text-success border-success/30',
+      pending: 'bg-warning/20 text-warning border-warning/30',
+      available: 'bg-muted text-muted-foreground border-border'
+    };
+    return (status: DiaryEntry['status']) => statusColors[status];
+  }, []);
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'Завершен';
-      case 'pending':
-        return 'Ожидает';
-      default:
-        return 'Доступен';
-    }
-  };
+  const getStatusText = useMemo(() => (status: DiaryEntry['status']) => {
+    const statusTexts = {
+      completed: 'Завершен',
+      pending: 'Ожидает',
+      available: 'Доступен'
+    } as const;
+    return statusTexts[status];
+  }, []);
 
   return (
-    <Card className="h-[600px] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+    <Card className="h-[600px] bg-background/80 backdrop-blur-sm border border-border/50">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" />

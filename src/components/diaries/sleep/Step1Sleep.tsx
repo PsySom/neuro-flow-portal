@@ -34,11 +34,11 @@ const Step1Sleep: React.FC<Step1SleepProps> = ({ form }) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <Clock className="w-12 h-12 mx-auto text-blue-500 mb-3" />
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+        <Clock className="w-12 h-12 mx-auto text-primary mb-3" />
+        <h2 className="text-2xl font-semibold text-foreground mb-2">
           Время сна и пробуждения
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground">
           Расскажите о своем режиме сна прошлой ночью
         </p>
       </div>
@@ -49,14 +49,14 @@ const Step1Sleep: React.FC<Step1SleepProps> = ({ form }) => {
           name="bedtime"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300">
+              <FormLabel className="text-foreground">
                 Время отхода ко сну
               </FormLabel>
               <FormControl>
                 <Input
                   type="time"
                   {...field}
-                  className="bg-white/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600"
+                  className="bg-background/50 border-border"
                 />
               </FormControl>
               <FormMessage />
@@ -69,14 +69,14 @@ const Step1Sleep: React.FC<Step1SleepProps> = ({ form }) => {
           name="wakeUpTime"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300">
+              <FormLabel className="text-foreground">
                 Время пробуждения
               </FormLabel>
               <FormControl>
                 <Input
                   type="time"
                   {...field}
-                  className="bg-white/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600"
+                  className="bg-background/50 border-border"
                 />
               </FormControl>
               <FormMessage />
@@ -90,7 +90,7 @@ const Step1Sleep: React.FC<Step1SleepProps> = ({ form }) => {
         name="sleepDuration"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-700 dark:text-gray-300">
+            <FormLabel className="text-foreground">
               Продолжительность сна (часы)
             </FormLabel>
             <FormControl>
@@ -101,22 +101,22 @@ const Step1Sleep: React.FC<Step1SleepProps> = ({ form }) => {
                 max="24"
                 {...field}
                 onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                className="bg-white/50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600"
+                className="bg-background/50 border-border"
               />
             </FormControl>
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <div className="text-sm text-muted-foreground mt-1">
               {field.value < 6 && field.value > 0 && (
-                <span className="text-orange-600 dark:text-orange-400">
+                <span className="text-warning">
                   ⚠️ Дефицит сна (норма: 7-9 часов)
                 </span>
               )}
               {field.value >= 6 && field.value <= 9 && (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-success">
                   ✅ В пределах нормы (7-9 часов)
                 </span>
               )}
               {field.value > 10 && (
-                <span className="text-blue-600 dark:text-blue-400">
+                <span className="text-info">
                   ℹ️ Возможно связано с усталостью или другими факторами
                 </span>
               )}
