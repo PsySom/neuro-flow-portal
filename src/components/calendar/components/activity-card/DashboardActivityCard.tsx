@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
+import { Activity } from '@/contexts/ActivitiesContext';
 import { getActivityTypeColor } from '@/utils/activityTypeColors';
 
 interface DashboardActivityCardProps {
@@ -27,6 +28,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   onCheckboxToggle
 }) => {
   const { activity } = layout;
+  const activityWithStatus = activity as Activity; // Type assertion for status field access
 
   const getDisplayType = (type: string) => {
     const typeMap: Record<string, string> = {
@@ -43,8 +45,11 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     e.stopPropagation();
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
-    console.log('DashboardActivityCard: Checkbox changed to:', checked);
+  const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
+    console.log('DashboardActivityCard: Checkbox changed to:', checked, 'for activity:', activity.id);
+    console.log('DashboardActivityCard: Current completion status:', activity.completed);
+    
+    // Ensure the toggle happens regardless of checked state
     onCheckboxToggle();
   };
 
@@ -67,10 +72,11 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
         <div className="flex items-start space-x-3 flex-1">
           <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20`}>
             <Checkbox 
-              checked={activity.completed}
+              checked={activity.completed || activityWithStatus.status === 'completed'}
               onCheckedChange={handleCheckboxChange}
-              className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black"
+              className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
               onClick={handleCheckboxClick}
+              title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
             />
           </div>
           <span className="font-medium text-lg text-gray-800">{activity.name}</span>

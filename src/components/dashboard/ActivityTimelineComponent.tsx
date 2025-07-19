@@ -12,11 +12,16 @@ import { useActivityOperationsAdapter } from '@/hooks/useActivityOperationsAdapt
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
+import { filterTodayActivities } from '@/utils/dateUtils';
+import { useActivityTimelineLogic } from '@/hooks/useActivityTimelineLogic';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  
+  // Enhanced timeline logic with date validation
+  const { currentDate, validateAndToggleActivity } = useActivityTimelineLogic();
 
   // API hooks
   const { data: apiActivities = [], isLoading, error } = useTodayActivities();
@@ -29,12 +34,24 @@ const ActivityTimelineComponent = () => {
     handleActivityCreate,
     handleActivityUpdateForTimeline: handleActivityUpdate,
     handleActivityDelete,
-    handleActivityToggle,
+    handleActivityToggle: originalHandleActivityToggle,
     handleActivityUpdateForEdit
   } = useActivityOperationsAdapter(apiActivities);
 
-  // Convert API activities to UI format
-  const todayActivities = convertApiActivitiesToUi(apiActivities);
+  // Enhanced toggle with date validation
+  const handleActivityToggle = (activityId: number | string) => {
+    const activity = todayActivities.find(a => a.id === activityId);
+    if (activity) {
+      validateAndToggleActivity(activity, () => originalHandleActivityToggle(activityId));
+    }
+  };
+
+  // Convert API activities to UI format and filter for today only
+  const allActivities = convertApiActivitiesToUi(apiActivities);
+  const todayActivities = filterTodayActivities(allActivities);
+  
+  console.log('ActivityTimeline: All activities:', allActivities.length);
+  console.log('ActivityTimeline: Today activities:', todayActivities.length);
 
   // Get formatted date
   const formattedDate = getFormattedCurrentDate();

@@ -9,6 +9,8 @@ import {
   ActivityCreateData,
   ActivityUpdateData
 } from '@/utils/activityConversion';
+import { getCurrentDateString } from '@/utils/dateUtils';
+import { useToast } from './use-toast';
 
 /**
  * Custom hook that provides standardized activity operations
@@ -17,6 +19,7 @@ export const useActivityOperations = (activities: any[] = []) => {
   const updateActivityMutation = useUpdateActivity();
   const deleteActivityMutation = useDeleteActivity();
   const createActivityMutation = useCreateActivity();
+  const { toast } = useToast();
 
   const handleActivityCreate = useCallback((
     newActivity: ActivityCreateData, 
@@ -55,17 +58,42 @@ export const useActivityOperations = (activities: any[] = []) => {
   }, [deleteActivityMutation]);
 
   const handleActivityToggle = useCallback((activityId: number | string) => {
+    console.log('Activity operations: Toggle requested for activity:', activityId);
     const numericId = normalizeActivityId(activityId);
     const activity = activities.find(a => a.id === numericId);
     
-    if (activity) {
-      const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
-      updateActivityMutation.mutate({ 
-        id: numericId, 
-        data: { status: newStatus } 
+    if (!activity) {
+      console.error('Activity not found for toggle:', activityId);
+      toast({
+        title: "Ошибка",
+        description: "Активность не найдена",
+        variant: "destructive",
       });
+      return;
     }
-  }, [activities, updateActivityMutation]);
+
+    // Ensure activity belongs to current date before allowing toggle
+    const currentDate = getCurrentDateString();
+    const activityDate = activity.date?.split('T')[0] || activity.date;
+    
+    if (activityDate !== currentDate) {
+      console.warn('Cannot toggle activity from different date:', activityDate, 'vs', currentDate);
+      toast({
+        title: "Предупреждение", 
+        description: "Можно изменять только активности текущего дня",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newStatus = activity.status === 'completed' ? 'planned' : 'completed';
+    console.log('Toggling activity status from', activity.status, 'to', newStatus);
+    
+    updateActivityMutation.mutate({ 
+      id: numericId, 
+      data: { status: newStatus } 
+    });
+  }, [activities, updateActivityMutation, toast]);
 
   return {
     handleActivityCreate,

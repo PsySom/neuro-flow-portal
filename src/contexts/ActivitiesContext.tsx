@@ -13,6 +13,7 @@ export interface Activity {
   color: string;
   importance: number;
   completed: boolean;
+  status?: string; // Add status field for API compatibility
   type: string;
   needEmoji?: string;
   date: string;

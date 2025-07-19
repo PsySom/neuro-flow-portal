@@ -10,8 +10,8 @@ import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/ca
 
 interface TimelineContentWithTimeProps {
   activities: Activity[];
-  onActivityToggle: (activityId: number) => void;
-  onActivityDelete: (activityId: number, deleteOption?: DeleteRecurringOption) => void;
+  onActivityToggle: (activityId: number | string) => void;
+  onActivityDelete: (activityId: number | string, deleteOption?: DeleteRecurringOption) => void;
   onActivityUpdate: (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => void;
   isEmpty: boolean;
   formattedDate: string;
@@ -34,12 +34,20 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
   } = useTimelineLogic();
 
   // Adapter function to convert ActivityCard's onUpdate signature to our onActivityUpdate signature
-  const handleActivityCardUpdate = (id: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+  const handleActivityCardUpdate = (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    console.log('TimelineContent: Activity update requested for', id, updates);
     const activityToUpdate = activities.find(a => a.id === id);
     if (activityToUpdate) {
       const updatedActivity = { ...activityToUpdate, ...updates };
+      console.log('TimelineContent: Updated activity data:', updatedActivity);
       onActivityUpdate(updatedActivity, recurringOptions);
     }
+  };
+
+  // Enhanced toggle function with proper type handling
+  const handleActivityToggle = (activityId: number | string) => {
+    console.log('TimelineContent: Toggle requested for', activityId);
+    onActivityToggle(activityId);
   };
 
   if (isEmpty) {
@@ -89,7 +97,7 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
                   column: 0,
                   totalColumns: 1
                 }}
-                onToggleComplete={onActivityToggle}
+                onToggleComplete={handleActivityToggle}
                 onDelete={onActivityDelete}
                 onUpdate={handleActivityCardUpdate}
                 viewType="dashboard"

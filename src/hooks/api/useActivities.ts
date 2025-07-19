@@ -30,6 +30,7 @@ export const useTodayActivities = () => {
     const updateDate = () => {
       const newDate = new Date().toISOString().split('T')[0];
       if (newDate !== currentDate) {
+        console.log('Date changed from', currentDate, 'to', newDate);
         setCurrentDate(newDate);
       }
     };
@@ -41,7 +42,16 @@ export const useTodayActivities = () => {
     return () => clearInterval(interval);
   }, [currentDate]);
 
-  return useActivities(currentDate);
+  const result = useActivities(currentDate);
+  
+  // Log activities for debugging
+  React.useEffect(() => {
+    if (result.data) {
+      console.log(`Activities for ${currentDate}:`, result.data.length);
+    }
+  }, [result.data, currentDate]);
+
+  return result;
 };
 
 // Get activities for date range with real-time updates
