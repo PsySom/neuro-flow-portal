@@ -11,8 +11,10 @@ import { CalendarIcon, Star, Clock, Repeat, Bell, Palette } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useActivityOperations } from '@/hooks/useActivityOperations';
 
 const CreateActivityTab: React.FC = () => {
+  const { handleActivityCreate } = useActivityOperations([]);
   const [activityName, setActivityName] = useState('');
   const [activityType, setActivityType] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -52,19 +54,56 @@ const CreateActivityTab: React.FC = () => {
   ];
 
   const handleSave = () => {
-    console.log('Saving activity:', {
-      activityName,
-      activityType,
+    if (!activityName.trim()) {
+      console.error('Activity name is required');
+      return;
+    }
+
+    if (!activityType) {
+      console.error('Activity type is required');
+      return;
+    }
+
+    if (!startTime) {
+      console.error('Start time is required');
+      return;
+    }
+
+    const finalDate = selectedDate || new Date();
+    
+    const newActivity = {
+      id: Date.now(),
+      name: activityName.trim(),
+      type: activityType,
       startTime,
       endTime,
-      selectedDate,
+      date: finalDate.toISOString().split('T')[0],
       priority,
       repeatType,
       reminder,
-      selectedColor,
+      color: selectedColor,
       note,
-      status
-    });
+      status,
+      completed: status === 'completed'
+    };
+
+    console.log('Creating activity from timeline:', newActivity);
+
+    // Use the create activity hook
+    handleActivityCreate(newActivity, repeatType ? { type: repeatType as any, interval: 1, maxOccurrences: 365 } : undefined);
+
+    // Reset form
+    setActivityName('');
+    setActivityType('');
+    setStartTime('');
+    setEndTime('');
+    setSelectedDate(undefined);
+    setPriority(1);
+    setRepeatType('');
+    setReminder('');
+    setSelectedColor('bg-blue-200');
+    setNote('');
+    setStatus('pending');
   };
 
   return (

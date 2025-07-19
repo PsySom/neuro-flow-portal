@@ -78,9 +78,36 @@ const DayView: React.FC<DayViewProps> = ({
 
   const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     console.log('DayView creating activity:', newActivity, 'with recurring:', recurringOptions);
-    // Activity creation will be handled by the parent Calendar component
+    
+    // Map activity type to API type ID
+    const getActivityTypeId = (type: string) => {
+      switch (type) {
+        case 'задача': return 1;
+        case 'восстановление': return 2;
+        case 'нейтральная': return 3;
+        case 'смешанная': return 4;
+        default: return 1;
+      }
+    };
+
+    const activityData = {
+      title: newActivity.name,
+      description: newActivity.note,
+      activity_type_id: getActivityTypeId(newActivity.type),
+      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
+      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+      metadata: {
+        importance: newActivity.importance,
+        color: newActivity.color,
+        emoji: newActivity.emoji,
+        needEmoji: newActivity.needEmoji
+      }
+    };
+    
+    console.log('Creating activity with data:', activityData);
+    createActivityMutation.mutate(activityData);
     setIsCreateDialogOpen(false);
-  }, []);
+  }, [createActivityMutation]);
 
   const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('DayView handleActivityUpdate:', activityId, updates, recurringOptions);
