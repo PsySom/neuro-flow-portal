@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Play, Pause, Square } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Clock, Play, Pause, Square, Bell } from 'lucide-react';
 import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 const ActiveDiariesComponent = () => {
   const { activeDiaries, updateDiaryStatus, removeDiary } = useDiaryStatus();
+  const [deactivatingDiary, setDeactivatingDiary] = useState<any>(null);
 
   const handlePause = (diary: any) => {
     const updatedStatus = { ...diary, isPaused: !diary.isPaused };
@@ -21,6 +23,30 @@ const ActiveDiariesComponent = () => {
 
   const handleDeactivate = (diary: any) => {
     removeDiary(diary.path);
+    setDeactivatingDiary(null);
+  };
+
+  const getNextReminderText = (diary: any) => {
+    // Простая логика для демонстрации - в реальном приложении это должно быть более сложно
+    if (diary.scheduledDate) {
+      const scheduled = new Date(diary.scheduledDate);
+      const today = new Date();
+      if (scheduled.toDateString() === today.toDateString()) {
+        return "Сегодня";
+      } else if (scheduled.getTime() > today.getTime()) {
+        return formatDate(diary.scheduledDate);
+      }
+    }
+    
+    // Если нет запланированной даты, показываем рекомендуемое время
+    const lastEntry = diary.lastEntryDate ? new Date(diary.lastEntryDate) : new Date();
+    const nextRecommended = new Date(lastEntry);
+    nextRecommended.setDate(nextRecommended.getDate() + 1);
+    
+    if (nextRecommended.toDateString() === new Date().toDateString()) {
+      return "Сегодня";
+    }
+    return "Завтра";
   };
 
   const getStatusBadge = (diary: any) => {
@@ -71,6 +97,12 @@ const ActiveDiariesComponent = () => {
                       Запланировано: {formatDate(diary.scheduledDate)}
                     </p>
                   )}
+                  <div className="flex items-center gap-1 mt-1">
+                    <Bell className="h-3 w-3 text-orange-500" />
+                    <span className="text-xs text-orange-600">
+                      Напоминание: {getNextReminderText(diary)}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -80,18 +112,44 @@ const ActiveDiariesComponent = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handlePause(diary)}
-                    className="h-6 w-6 p-0"
+                    className="h-6 w-6 p-0 text-yellow-600 hover:text-yellow-700"
+                    title={diary.isPaused ? "Возобновить" : "Приостановить"}
                   >
                     {diary.isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDeactivate(diary)}
-                    className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
-                  >
-                    <Square className="h-3 w-3" />
-                  </Button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                        title="Отключить дневник"
+                        onClick={() => setDeactivatingDiary(diary)}
+                      >
+                        <Square className="h-3 w-3" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Отключить дневник</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Вы уверены что хотите отключить этот дневник? 
+                          <br />
+                          <br />
+                          Все сделанные записи будут сохранены и учтены при рекомендациях.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeactivatingDiary(null)}>
+                          Нет
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeactivate(deactivatingDiary)}>
+                          Да
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </div>
