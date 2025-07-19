@@ -18,6 +18,7 @@ import About from './pages/About';
 import { AuthProvider } from './contexts/AuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
 import { ActivitiesProvider } from './contexts/ActivitiesContext';
+import { DiaryStatusProvider } from './contexts/DiaryStatusContext';
 import ArticleView from './pages/ArticleView';
 import MoodDiaryPage from './pages/MoodDiaryPage';
 import ThoughtsDiaryPage from './pages/ThoughtsDiaryPage';
@@ -31,11 +32,12 @@ function App() {
   return (
     <PersonalizationProvider>
       <ActivitiesProvider>
-        <AuthProvider>
-          <Router>
-            <div className="App">
-              <Toaster />
-              <Routes>
+        <DiaryStatusProvider>
+          <AuthProvider>
+            <Router>
+              <div className="App">
+                <Toaster />
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -57,10 +59,11 @@ function App() {
                 <Route path="/ocd-diary" element={<OCDDiaryPage />} />
                 <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
                 <Route path="/sleep-diary" element={<SleepDiaryPage />} />
-              </Routes>
-            </div>
-          </Router>
-        </AuthProvider>
+                </Routes>
+              </div>
+            </Router>
+          </AuthProvider>
+        </DiaryStatusProvider>
       </ActivitiesProvider>
     </PersonalizationProvider>
   );

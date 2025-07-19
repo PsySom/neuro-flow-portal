@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Play, Pause, Square } from 'lucide-react';
+import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 export interface DiaryStatus {
   id: string;
@@ -14,14 +15,21 @@ export interface DiaryStatus {
 interface DiaryStatusManagerProps {
   diaryPath: string;
   title: string;
+  emoji: string;
+  description: string;
+  color: string;
   onStatusChange?: (status: DiaryStatus) => void;
 }
 
 const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   diaryPath,
   title,
+  emoji,
+  description,
+  color,
   onStatusChange
 }) => {
+  const { updateDiaryStatus } = useDiaryStatus();
   // Инициализируем статус из localStorage или значениями по умолчанию
   const getInitialStatus = (): DiaryStatus => {
     const saved = localStorage.getItem(`diary-status-${diaryPath}`);
@@ -43,6 +51,10 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
     const updatedStatus = { ...status, ...newStatus };
     setStatus(updatedStatus);
     localStorage.setItem(`diary-status-${diaryPath}`, JSON.stringify(updatedStatus));
+    
+    // Обновляем контекст с данными дневника
+    updateDiaryStatus(diaryPath, updatedStatus, { title, emoji, description, color, path: diaryPath });
+    
     onStatusChange?.(updatedStatus);
   };
 

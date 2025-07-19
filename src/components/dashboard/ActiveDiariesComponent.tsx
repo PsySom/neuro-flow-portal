@@ -1,65 +1,40 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Moon, Heart, Brain, Target, Activity } from 'lucide-react';
-import { DiaryEntry, StatusColorMap } from './types';
+import { Button } from '@/components/ui/button';
+import { Clock, Play, Pause, Square } from 'lucide-react';
+import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 const ActiveDiariesComponent = () => {
-  const activeDiaries: DiaryEntry[] = useMemo(() => [
-    {
-      name: 'Дневник настроения',
-      icon: Heart,
-      status: 'completed',
-      lastEntry: 'Сегодня, 14:30',
-      streak: 7
-    },
-    {
-      name: 'Дневник сна',
-      icon: Moon,
-      status: 'pending',
-      lastEntry: 'Вчера, 22:15',
-      streak: 3
-    },
-    {
-      name: 'Дневник мыслей',
-      icon: Brain,
-      status: 'pending',
-      lastEntry: '2 дня назад',
-      streak: 12
-    },
-    {
-      name: 'Дневник прокрастинации',
-      icon: Target,
-      status: 'available',
-      lastEntry: 'Никогда',
-      streak: 0
-    },
-    {
-      name: 'Дневник самооценки',
-      icon: Activity,
-      status: 'available',
-      lastEntry: 'Неделю назад',
-      streak: 2
+  const { activeDiaries, updateDiaryStatus, removeDiary } = useDiaryStatus();
+
+  const handlePause = (diary: any) => {
+    const updatedStatus = { ...diary, isPaused: !diary.isPaused };
+    updateDiaryStatus(diary.path, updatedStatus, {
+      title: diary.title,
+      emoji: diary.emoji,
+      description: diary.description,
+      color: diary.color,
+      path: diary.path
+    });
+  };
+
+  const handleDeactivate = (diary: any) => {
+    removeDiary(diary.path);
+  };
+
+  const getStatusBadge = (diary: any) => {
+    if (diary.isPaused) {
+      return <Badge variant="outline" className="border-yellow-500 text-yellow-600">Пауза</Badge>;
     }
-  ], []);
+    return <Badge variant="default" className="bg-green-600">Активен</Badge>;
+  };
 
-  const getStatusColor = useMemo(() => {
-    const statusColors: StatusColorMap = {
-      completed: 'bg-success/20 text-success border-success/30',
-      pending: 'bg-warning/20 text-warning border-warning/30',
-      available: 'bg-muted text-muted-foreground border-border'
-    };
-    return (status: DiaryEntry['status']) => statusColors[status];
-  }, []);
-
-  const getStatusText = useMemo(() => (status: DiaryEntry['status']) => {
-    const statusTexts = {
-      completed: 'Завершен',
-      pending: 'Ожидает',
-      available: 'Доступен'
-    } as const;
-    return statusTexts[status];
-  }, []);
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Никогда';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU');
+  };
 
   return (
     <Card className="h-[600px] bg-background/80 backdrop-blur-sm border border-border/50">
@@ -70,35 +45,58 @@ const ActiveDiariesComponent = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 h-full overflow-y-auto">
-        {activeDiaries.map((diary, index) => {
-          const IconComponent = diary.icon;
-          return (
+        {activeDiaries.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+            <Clock className="h-8 w-8 mb-2 opacity-50" />
+            <p className="text-sm text-center">Нет активных дневников</p>
+            <p className="text-xs text-center opacity-75">Активируйте дневники в разделе "Дневники"</p>
+          </div>
+        ) : (
+          activeDiaries.map((diary, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-border transition-colors cursor-pointer"
+              className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-border transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <IconComponent className="h-4 w-4 text-primary" />
+                  <span className="text-lg">{diary.emoji}</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-medium text-sm text-foreground">{diary.name}</h4>
-                  <p className="text-xs text-muted-foreground">{diary.lastEntry}</p>
+                  <h4 className="font-medium text-sm text-foreground">{diary.title}</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Последняя запись: {formatDate(diary.lastEntryDate)}
+                  </p>
+                  {diary.scheduledDate && (
+                    <p className="text-xs text-blue-600">
+                      Запланировано: {formatDate(diary.scheduledDate)}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {diary.streak > 0 && (
-                  <Badge variant="outline" className="text-xs">
-                    {diary.streak} дней
-                  </Badge>
-                )}
-                <Badge className={`text-xs ${getStatusColor(diary.status)}`}>
-                  {getStatusText(diary.status)}
-                </Badge>
+                {getStatusBadge(diary)}
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handlePause(diary)}
+                    className="h-6 w-6 p-0"
+                  >
+                    {diary.isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDeactivate(diary)}
+                    className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                  >
+                    <Square className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             </div>
-          );
-        })}
+          ))
+        )}
       </CardContent>
     </Card>
   );

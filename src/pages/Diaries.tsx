@@ -137,6 +137,9 @@ const Diaries = () => {
                 <DiaryStatusManager
                   diaryPath={diary.path}
                   title={diary.title}
+                  emoji={diary.emoji}
+                  description={diary.description}
+                  color={diary.color}
                   onStatusChange={(status) => {
                     console.log(`Статус дневника ${diary.title} изменен:`, status);
                   }}
