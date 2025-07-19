@@ -88,9 +88,10 @@ const formatTime = (isoString: string): string => {
       console.warn('Invalid date string:', isoString);
       return '00:00';
     }
-    // Use more precise formatting to ensure HH:mm format
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    // Use local time instead of UTC to match user timezone
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    console.log(`Formatting time: ${isoString} -> ${hours}:${minutes}`);
     return `${hours}:${minutes}`;
   } catch (error) {
     console.error('Error formatting time:', error, isoString);
@@ -106,23 +107,38 @@ const convertTimeToISO = (timeString: string): string => {
 
 // Convert array of API activities to UI activities
 export const convertApiActivitiesToUi = (apiActivities: ApiActivity[]): UiActivity[] => {
-  return apiActivities.filter(activity => {
+  console.log('Converting API activities to UI:', apiActivities.length, 'activities');
+  
+  const validActivities = apiActivities.filter(activity => {
     // Filter out activities with invalid dates
     try {
       const date = new Date(activity.start_time);
-      return !isNaN(date.getTime());
+      const isValid = !isNaN(date.getTime());
+      if (!isValid) {
+        console.warn('Filtering out activity with invalid date:', activity.id, activity.start_time);
+      }
+      return isValid;
     } catch (error) {
       console.warn('Filtering out activity with invalid date:', activity);
       return false;
     }
-  }).map(activity => {
+  });
+  
+  console.log('Valid activities after date filtering:', validActivities.length);
+  
+  const convertedActivities = validActivities.map(activity => {
     try {
-      return convertApiActivityToUi(activity);
+      const converted = convertApiActivityToUi(activity);
+      console.log('Converted activity:', { id: converted.id, name: converted.name, date: converted.date, startTime: converted.startTime });
+      return converted;
     } catch (error) {
       console.error('Error converting activity:', error, activity);
       return null;
     }
   }).filter(Boolean) as UiActivity[];
+  
+  console.log('Final converted activities:', convertedActivities.length);
+  return convertedActivities;
 };
 
 // Default activity type for fallback

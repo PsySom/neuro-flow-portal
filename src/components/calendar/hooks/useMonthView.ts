@@ -44,9 +44,14 @@ export const useMonthView = (currentDate: Date) => {
   // Use API call for the month range
   const { data: monthApiActivities = [], isLoading } = useActivitiesRange(startDate, endDate);
 
+  console.log('MonthView: Date range:', { startDate, endDate });
+  console.log('MonthView: API activities count:', monthApiActivities.length);
+
   // Convert API activities to UI format
   const monthActivities = useMemo(() => {
-    return convertApiActivitiesToUi(monthApiActivities);
+    const converted = convertApiActivitiesToUi(monthApiActivities);
+    console.log('MonthView: Converted activities count:', converted.length);
+    return converted;
   }, [monthApiActivities]);
 
   const isToday = useCallback((date: Date) => {
@@ -62,6 +67,8 @@ export const useMonthView = (currentDate: Date) => {
     
     // Use enhanced sync utility for better date filtering
     const dayActivities = getActivitiesForDate(monthActivities, dateString);
+    
+    console.log(`MonthView: Raw activities for ${dateString}:`, dayActivities.length, dayActivities.map(a => ({ id: a.id, name: a.name, date: a.date })));
     
     // Sort activities by start time
     dayActivities.sort((a, b) => {
