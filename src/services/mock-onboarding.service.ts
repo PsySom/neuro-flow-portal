@@ -27,6 +27,33 @@ class MockOnboardingService {
   private baseUrl = '/api/v1/onboarding';
   private savedData: any = {}; // Храним данные онбординга
 
+  constructor() {
+    // Загружаем данные из localStorage при инициализации
+    this.loadSavedData();
+  }
+
+  private loadSavedData() {
+    try {
+      const saved = localStorage.getItem('onboarding-data');
+      if (saved) {
+        this.savedData = JSON.parse(saved);
+        console.log('Mock: Загружены данные онбординга из localStorage:', this.savedData);
+      }
+    } catch (error) {
+      console.error('Mock: Ошибка загрузки данных онбординга:', error);
+      this.savedData = {};
+    }
+  }
+
+  private persistData() {
+    try {
+      localStorage.setItem('onboarding-data', JSON.stringify(this.savedData));
+      console.log('Mock: Данные онбординга сохранены в localStorage');
+    } catch (error) {
+      console.error('Mock: Ошибка сохранения данных онбординга:', error);
+    }
+  }
+
   // Управление процессом
   async startOnboarding() {
     await mockDelay();
@@ -125,6 +152,9 @@ class MockOnboardingService {
     
     // Сохраняем данные в память
     this.savedData[stage] = data;
+    
+    // Сохраняем в localStorage для персистентности
+    this.persistData();
     
     const payload: OnboardingStageData = {
       stage,
