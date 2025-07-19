@@ -9,7 +9,7 @@ import {
 } from '../types/api.types';
 
 // Use mock service for development in Lovable environment
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 class AuthService {
   // Login user
