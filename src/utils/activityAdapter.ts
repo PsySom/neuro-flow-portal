@@ -26,6 +26,12 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
   const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
   const duration = durationHours > 0 ? `${durationHours}ч ${durationMinutes}м` : `${durationMinutes}м`;
 
+  // Extract date properly considering timezone
+  const activityDate = new Date(apiActivity.start_time);
+  const localDateString = activityDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+  
+  console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}`);
+
   return {
     id: apiActivity.id,
     name: apiActivity.title,
@@ -38,7 +44,7 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     completed: apiActivity.status === 'completed',
     type: apiActivity.activity_type?.name || 'general',
     needEmoji: apiActivity.metadata?.needEmoji,
-    date: apiActivity.start_time ? apiActivity.start_time.split('T')[0] : new Date().toISOString().split('T')[0], // Extract date part
+    date: localDateString, // Use properly extracted local date
     reminder: apiActivity.metadata?.reminder,
     note: apiActivity.description,
     // Handle recurring if present in metadata and valid

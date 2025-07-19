@@ -34,10 +34,10 @@ export const useMonthView = (currentDate: Date) => {
     return { days, currentMonth: month };
   }, [currentDate]);
 
-  // Get date range for the month view
+  // Get date range for the month view using local timezone
   const { startDate, endDate } = useMemo(() => {
-    const start = days[0].toISOString().split('T')[0];
-    const end = days[days.length - 1].toISOString().split('T')[0];
+    const start = days[0].toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+    const end = days[days.length - 1].toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
     return { startDate: start, endDate: end };
   }, [days]);
 
@@ -63,7 +63,10 @@ export const useMonthView = (currentDate: Date) => {
   }, [currentMonth]);
 
   const getActivitiesForDateObj = useCallback((date: Date) => {
-    const dateString = date.toISOString().split('T')[0];
+    // Get date string in local timezone format (YYYY-MM-DD)
+    const dateString = date.toLocaleDateString('en-CA'); // Always gives YYYY-MM-DD format
+    
+    console.log(`MonthView: Looking for activities on ${dateString} (calendar date: ${date.toDateString()})`);
     
     // Use enhanced sync utility for better date filtering
     const dayActivities = getActivitiesForDate(monthActivities, dateString);
