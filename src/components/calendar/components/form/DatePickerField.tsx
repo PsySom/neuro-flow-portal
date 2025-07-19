@@ -51,7 +51,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {selectedDate ? format(selectedDate, "PPP", { locale: ru }) : "Выберите дату..."}
+            {selectedDate && !isNaN(selectedDate.getTime()) ? format(selectedDate, "PPP", { locale: ru }) : "Выберите дату..."}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
