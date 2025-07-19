@@ -2,6 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { useActivityOperations } from '@/hooks/useActivityOperations';
+import { getActivitiesForDate } from '@/utils/activitySync';
 
 export const useMonthView = (currentDate: Date) => {
   const today = new Date();
@@ -59,23 +60,8 @@ export const useMonthView = (currentDate: Date) => {
   const getActivitiesForDateObj = useCallback((date: Date) => {
     const dateString = date.toISOString().split('T')[0];
     
-    // Filter activities for this specific day
-    const dayActivities = monthActivities.filter(activity => {
-      try {
-        // Validate activity date field
-        if (!activity.date) {
-          console.warn('Activity has no date field:', activity);
-          return false;
-        }
-        
-        // Compare date fields directly instead of constructing dates
-        const activityDateString = activity.date;
-        return activityDateString === dateString;
-      } catch (error) {
-        console.error('Error processing activity date:', error, activity);
-        return false;
-      }
-    });
+    // Use enhanced sync utility for better date filtering
+    const dayActivities = getActivitiesForDate(monthActivities, dateString);
     
     // Sort activities by start time
     dayActivities.sort((a, b) => {
@@ -85,7 +71,6 @@ export const useMonthView = (currentDate: Date) => {
       return 0;
     });
     
-    console.log(`MonthView: Activities for ${dateString}:`, dayActivities.length);
     return dayActivities;
   }, [monthActivities]);
 

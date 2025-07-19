@@ -12,9 +12,21 @@ export const useActivitiesRealtime = (enabled: boolean = true) => {
   const handleRealtimeUpdate = useCallback((payload: any) => {
     console.log('Realtime activity update:', payload);
     
-    // Invalidate all activity-related queries to refresh data
+    // Invalidate all activity-related queries to refresh data comprehensively
     queryClient.invalidateQueries({ queryKey: ['activities'] });
     queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+    
+    // Also invalidate specific date queries
+    const activityDate = payload.new?.start_time ? new Date(payload.new.start_time).toISOString().split('T')[0] : 
+                         payload.old?.start_time ? new Date(payload.old.start_time).toISOString().split('T')[0] : undefined;
+    
+    if (activityDate) {
+      queryClient.invalidateQueries({ queryKey: ['activities', activityDate] });
+    }
+    
+    // Always invalidate today's activities
+    const today = new Date().toISOString().split('T')[0];
+    queryClient.invalidateQueries({ queryKey: ['activities', today] });
     
     // Show notification for different types of updates
     switch (payload.eventType) {

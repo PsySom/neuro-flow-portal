@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { calculateActivityLayouts } from '../utils/timeUtils';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
+import { getActivitiesForDate } from '@/utils/activitySync';
 
 export const useWeekActivities = (startDate: string, endDate: string) => {
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
@@ -22,23 +23,8 @@ export const useWeekActivities = (startDate: string, endDate: string) => {
   const getActivitiesForDay = useCallback((day: Date) => {
     const dayString = day.toISOString().split('T')[0];
     
-    // Filter activities for this specific day
-    const dayActivities = weekActivities.filter(activity => {
-      try {
-        // Validate activity date field
-        if (!activity.date) {
-          console.warn('Activity has no date field:', activity);
-          return false;
-        }
-        
-        // Compare date fields directly instead of constructing dates
-        const activityDateString = activity.date;
-        return activityDateString === dayString;
-      } catch (error) {
-        console.error('Error processing activity date:', error, activity);
-        return false;
-      }
-    });
+    // Use enhanced sync utility for better date filtering
+    const dayActivities = getActivitiesForDate(weekActivities, dayString);
     
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
     

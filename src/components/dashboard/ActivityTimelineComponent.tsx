@@ -12,7 +12,7 @@ import { useActivityOperationsAdapter } from '@/hooks/useActivityOperationsAdapt
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
-import { filterTodayActivities } from '@/utils/dateUtils';
+import { getTodayActivities } from '@/utils/activitySync';
 import { useActivityTimelineLogic } from '@/hooks/useActivityTimelineLogic';
 
 const ActivityTimelineComponent = () => {
@@ -48,7 +48,7 @@ const ActivityTimelineComponent = () => {
 
   // Convert API activities to UI format and filter for today only
   const allActivities = convertApiActivitiesToUi(apiActivities);
-  const todayActivities = filterTodayActivities(allActivities);
+  const todayActivities = getTodayActivities(allActivities);
   
   console.log('ActivityTimeline: All activities:', allActivities.length);
   console.log('ActivityTimeline: Today activities:', todayActivities.length);

@@ -44,9 +44,18 @@ export const getCurrentDateString = (): string => {
 export const isActivityForDate = (activity: any, dateString: string): boolean => {
   if (!activity.date) return false;
   
-  // Extract date part from activity date
-  const activityDate = activity.date.split('T')[0];
-  return activityDate === dateString;
+  // Extract date part from activity date, handling both ISO strings and date-only strings
+  let activityDatePart: string;
+  
+  if (activity.date.includes('T')) {
+    // ISO string format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    activityDatePart = activity.date.split('T')[0];
+  } else {
+    // Date-only format (YYYY-MM-DD)
+    activityDatePart = activity.date;
+  }
+  
+  return activityDatePart === dateString;
 };
 
 /**
