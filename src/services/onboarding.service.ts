@@ -20,7 +20,7 @@ import type {
 const USE_MOCK = false;
 
 class OnboardingService {
-  private baseUrl = '/api/v1/onboarding';
+  private baseUrl = '/onboarding';
 
   // Управление процессом
   async startOnboarding() {
