@@ -55,7 +55,12 @@ export const isActivityForDate = (activity: any, dateString: string): boolean =>
     activityDatePart = activity.date;
   }
   
-  return activityDatePart === dateString;
+  const isMatch = activityDatePart === dateString;
+  if (!isMatch) {
+    console.log(`Activity ${activity.id} date mismatch: ${activityDatePart} !== ${dateString}`);
+  }
+  
+  return isMatch;
 };
 
 /**

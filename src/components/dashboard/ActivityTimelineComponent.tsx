@@ -68,12 +68,14 @@ const ActivityTimelineComponent = () => {
       .catch(error => console.error('Failed to delete activity:', error));
   };
 
-  // Convert API activities to UI format and filter for today only
+  // Convert API activities to UI format - filter for today only
   const allActivities = convertApiActivitiesToUi(apiActivities);
   const todayActivities = getTodayActivities(allActivities);
   
   console.log('ActivityTimeline: All activities:', allActivities.length);
   console.log('ActivityTimeline: Today activities:', todayActivities.length);
+  console.log('ActivityTimeline: Current date:', currentDate);
+  console.log('ActivityTimeline: Sample activities:', allActivities.slice(0, 2));
 
   // Get formatted date
   const formattedDate = getFormattedCurrentDate();

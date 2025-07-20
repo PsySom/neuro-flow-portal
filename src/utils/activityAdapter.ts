@@ -19,7 +19,7 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
   const duration = formatDuration(apiActivity.start_time, apiActivity.end_time);
   const localDateString = extractDateFromISO(apiActivity.start_time);
   
-  console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}`);
+  console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}, startTime=${formatTimeFromUTC(apiActivity.start_time)}`);
 
   return {
     id: apiActivity.id,

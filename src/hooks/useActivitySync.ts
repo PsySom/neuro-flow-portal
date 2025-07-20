@@ -28,6 +28,9 @@ export const useActivitySync = () => {
     
     // Force refetch to ensure immediate updates
     queryClient.refetchQueries({ queryKey: ['activities'] });
+    
+    // Add additional logging
+    console.log('useActivitySync: Force refresh completed for date:', today);
   }, [queryClient]);
 
   // Map activity type to API type ID

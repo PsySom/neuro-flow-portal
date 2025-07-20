@@ -43,7 +43,17 @@ export const getActivitiesForDate = (activities: any[], dateString: string): any
  */
 export const getTodayActivities = (activities: any[]): any[] => {
   const today = getCurrentDateString();
-  return getActivitiesForDate(activities, today);
+  const todayActivities = getActivitiesForDate(activities, today);
+  
+  console.log(`getTodayActivities: Today is ${today}, found ${todayActivities.length} activities`);
+  console.log('Sample today activities:', todayActivities.slice(0, 3).map(a => ({ 
+    id: a.id, 
+    name: a.name, 
+    date: a.date, 
+    startTime: a.startTime 
+  })));
+  
+  return todayActivities;
 };
 
 /**

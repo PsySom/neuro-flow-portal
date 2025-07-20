@@ -30,7 +30,7 @@ export const useTodayActivities = () => {
     const updateDate = () => {
       const newDate = new Date().toISOString().split('T')[0];
       if (newDate !== currentDate) {
-        console.log('Date changed from', currentDate, 'to', newDate);
+        console.log('useTodayActivities: Date changed from', currentDate, 'to', newDate);
         setCurrentDate(newDate);
       }
     };
@@ -44,10 +44,15 @@ export const useTodayActivities = () => {
 
   const result = useActivities(currentDate);
   
-  // Log activities for debugging
+  // Enhanced logging for debugging
   React.useEffect(() => {
     if (result.data) {
-      console.log(`Activities for ${currentDate}:`, result.data.length);
+      console.log(`useTodayActivities: Found ${result.data.length} activities for ${currentDate}`);
+      console.log('useTodayActivities: Sample activities:', result.data.slice(0, 3).map(a => ({
+        id: a.id,
+        title: a.title,
+        start_time: a.start_time
+      })));
     }
   }, [result.data, currentDate]);
 
