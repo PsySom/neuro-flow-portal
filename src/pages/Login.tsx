@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBackendAuth } from '@/contexts/BackendAuthContext';
+import { backendAuthService } from '@/services/backend-auth.service';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +17,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useBackendAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,11 +26,36 @@ const Login = () => {
       setIsLoading(true);
       
       try {
+        // Сначала проверим доступность сервера
+        console.log('🔍 Checking server availability before login...');
+        const isServerAvailable = await backendAuthService.checkServerHealth();
+        
+        if (!isServerAvailable) {
+          toast({
+            title: "Ошибка подключения",
+            description: "Сервер недоступен по адресу http://localhost:8000. Убедитесь, что бэкенд запущен.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        console.log('✅ Server is available, attempting login...');
         await login({ email, password });
+        
+        toast({
+          title: "Успешный вход",
+          description: "Добро пожаловать!",
+        });
+        
         // Redirect to dashboard after successful login
         navigate('/dashboard');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Login failed:', error);
+        toast({
+          title: "Ошибка входа",
+          description: error.message || "Проверьте email и пароль",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }

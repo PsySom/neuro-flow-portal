@@ -29,6 +29,23 @@ export interface User {
 }
 
 class BackendAuthService {
+  // Проверить доступность сервера
+  async checkServerHealth(): Promise<boolean> {
+    try {
+      console.log('🔍 Checking server health at:', 'http://localhost:8000/api/v1');
+      const response = await apiClient.get('/health', { timeout: 5000 });
+      console.log('✅ Server is available:', response.status);
+      return true;
+    } catch (error: any) {
+      console.error('❌ Server is not available:', {
+        message: error.message,
+        code: error.code,
+        baseURL: 'http://localhost:8000/api/v1'
+      });
+      return false;
+    }
+  }
+
   // Регистрация
   async register(userData: RegisterData): Promise<AuthResponse> {
     try {
@@ -52,16 +69,26 @@ class BackendAuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       console.log('🔄 Logging in user:', credentials.email);
+      console.log('📤 Login data being sent:', {
+        email: credentials.email,
+        password: '***hidden***'
+      });
       
       const response = await apiClient.post<AuthResponse>('/auth/login', {
         email: credentials.email,
         password: credentials.password
       });
       
-      console.log('✅ Login successful');
+      console.log('✅ Login successful:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('❌ Login failed:', error);
+      console.error('🔍 Error details:', {
+        code: error.code,
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       throw handleApiError(error);
     }
   }

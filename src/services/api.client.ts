@@ -20,6 +20,15 @@ export const apiClient = axios.create({
 // Request interceptor for adding auth token
 apiClient.interceptors.request.use(
   (config) => {
+    console.log('🚀 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullUrl: `${config.baseURL}${config.url}`,
+      data: config.data,
+      headers: config.headers
+    });
+    
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -27,14 +36,29 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('🚨 Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor for handling auth errors and token refresh
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    console.log('✅ API Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   async (error: AxiosError) => {
+    console.error('❌ API Error:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: error.message,
+      code: error.code,
+      response: error.response?.data
+    });
     const originalRequest = error.config as ExtendedAxiosRequestConfig;
 
     // Handle 401 errors and attempt token refresh
