@@ -12,7 +12,7 @@ import { backendAuthService } from '@/services/backend-auth.service';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (email && password) {
+    if (username && password) {
       setIsLoading(true);
       
       try {
@@ -40,7 +40,7 @@ const Login = () => {
         }
         
         console.log('✅ Server is available, attempting login...');
-        await login({ email, password });
+        await login({ username, password });
         
         toast({
           title: "Успешный вход",
@@ -76,12 +76,12 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Email</label>
+                <label className="text-sm font-medium text-gray-700">Имя пользователя</label>
                 <Input 
-                  type="email" 
-                  placeholder="ваш@email.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text" 
+                  placeholder="ваше_имя_пользователя" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>

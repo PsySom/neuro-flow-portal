@@ -23,7 +23,7 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
   onOpenChange,
   onLoginSuccess
 }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
@@ -34,19 +34,19 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
     setIsLoading(true);
 
     try {
-      await login({ email, password });
+      await login({ username, password });
       toast({
         title: "Вход выполнен успешно",
         description: "Теперь вы можете планировать упражнения",
       });
       onOpenChange(false);
-      setEmail('');
+      setUsername('');
       setPassword('');
       onLoginSuccess?.();
     } catch (error) {
       toast({
         title: "Ошибка входа",
-        description: "Неверный email или пароль",
+        description: "Неверное имя пользователя или пароль",
         variant: "destructive"
       });
       console.error('Login error:', error);
@@ -56,7 +56,7 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
   };
 
   const handleClose = () => {
-    setEmail('');
+    setUsername('');
     setPassword('');
     onOpenChange(false);
   };
@@ -76,13 +76,13 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Имя пользователя</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Введите ваш email"
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Введите имя пользователя"
               required
             />
           </div>

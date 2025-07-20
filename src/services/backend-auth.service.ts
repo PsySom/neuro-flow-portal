@@ -1,7 +1,7 @@
 import apiClient, { handleApiError } from './api.client';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -68,14 +68,14 @@ class BackendAuthService {
   // Вход
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      console.log('🔄 Logging in user:', credentials.email);
+      console.log('🔄 Logging in user:', credentials.username);
       console.log('📤 Login data being sent:', {
-        email: credentials.email,
+        username: credentials.username,
         password: '***hidden***'
       });
       
-      const response = await apiClient.post<AuthResponse>('/auth/login', {
-        email: credentials.email,
+      const response = await apiClient.post<AuthResponse>('/auth/login-json', {
+        username: credentials.username,
         password: credentials.password
       });
       
