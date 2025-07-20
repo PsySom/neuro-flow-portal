@@ -16,8 +16,8 @@ import type {
   PersonalizationData
 } from '@/types/onboarding.types';
 
-// Switch to mock service when backend is not available
-const USE_MOCK = true;
+// Switch to real backend API
+const USE_MOCK = false;
 
 class OnboardingService {
   private baseUrl = '/onboarding';
@@ -61,22 +61,22 @@ class OnboardingService {
 
   async saveNaturalRhythms(data: NaturalRhythmsData) {
     if (USE_MOCK) return mockOnboardingService.saveNaturalRhythms(data);
-    return this.saveStageData('natural_rhythms', 100, data);
+    return this.saveStageData('natural-rhythms', 100, data);
   }
 
   async saveCurrentState(data: CurrentStateData) {
     if (USE_MOCK) return mockOnboardingService.saveCurrentState(data);
-    return this.saveStageData('current_state', 100, data);
+    return this.saveStageData('current-state', 100, data);
   }
 
   async saveMainChallenges(data: MainChallengesData) {
     if (USE_MOCK) return mockOnboardingService.saveMainChallenges(data);
-    return this.saveStageData('main_challenges', 100, data);
+    return this.saveStageData('main-challenges', 100, data);
   }
 
   async saveMedicalInfo(data: MedicalInfoData) {
     if (USE_MOCK) return mockOnboardingService.saveMedicalInfo(data);
-    return this.saveStageData('medical_info', 100, data);
+    return this.saveStageData('medical-info', 100, data);
   }
 
   async saveProcrastination(data: ProcrastinationData) {
@@ -91,17 +91,17 @@ class OnboardingService {
 
   async saveSocialSupport(data: SocialSupportData) {
     if (USE_MOCK) return mockOnboardingService.saveSocialSupport(data);
-    return this.saveStageData('social_support', 100, data);
+    return this.saveStageData('social-support', 100, data);
   }
 
   async saveGoalsPriorities(data: GoalsPrioritiesData) {
     if (USE_MOCK) return mockOnboardingService.saveGoalsPriorities(data);
-    return this.saveStageData('goals_priorities', 100, data);
+    return this.saveStageData('goals-priorities', 100, data);
   }
 
   async saveAppPreferences(data: AppPreferencesData) {
     if (USE_MOCK) return mockOnboardingService.saveAppPreferences(data);
-    return this.saveStageData('app_preferences', 100, data);
+    return this.saveStageData('app-preferences', 100, data);
   }
 
   async savePersonalization(data: PersonalizationData) {
@@ -110,8 +110,12 @@ class OnboardingService {
   }
 
   private async saveStageData(stage: string, progress: number, data: any) {
-    // Отправляем только data, без обертки
-    return apiClient.post(`${this.baseUrl}/stage/${stage.replace('_', '-')}`, data);
+    // Отправляем данные в формате, ожидаемом API
+    return apiClient.post(`${this.baseUrl}/stage/${stage}`, {
+      stage,
+      progress,
+      data
+    });
   }
 
   // Получение опций для форм
