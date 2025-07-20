@@ -30,10 +30,10 @@ import SleepDiaryPage from './pages/SleepDiaryPage';
 
 function App() {
   return (
-    <PersonalizationProvider>
-      <ActivitiesProvider>
-        <DiaryStatusProvider>
-          <BackendAuthProvider>
+    <BackendAuthProvider>
+      <PersonalizationProvider>
+        <ActivitiesProvider>
+          <DiaryStatusProvider>
             <Router>
               <div className="App">
                 <Toaster />
@@ -62,10 +62,10 @@ function App() {
                 </Routes>
               </div>
             </Router>
-          </BackendAuthProvider>
-        </DiaryStatusProvider>
-      </ActivitiesProvider>
-    </PersonalizationProvider>
+          </DiaryStatusProvider>
+        </ActivitiesProvider>
+      </PersonalizationProvider>
+    </BackendAuthProvider>
   );
 }
 
