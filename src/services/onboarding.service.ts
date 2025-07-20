@@ -16,8 +16,8 @@ import type {
   PersonalizationData
 } from '@/types/onboarding.types';
 
-// Switch to real backend API
-const USE_MOCK = false;
+// Switch to mock service when backend is not available
+const USE_MOCK = true;
 
 class OnboardingService {
   private baseUrl = '/onboarding';
