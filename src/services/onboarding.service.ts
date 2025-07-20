@@ -17,7 +17,7 @@ import type {
 } from '@/types/onboarding.types';
 
 // Switch to real backend API
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 class OnboardingService {
   private baseUrl = '/onboarding';
