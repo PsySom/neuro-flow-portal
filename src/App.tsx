@@ -15,7 +15,7 @@ import Statistics from './pages/Statistics';
 import State from './pages/State';
 import Recommendations from './pages/Recommendations';
 import About from './pages/About';
-import { AuthProvider } from './contexts/AuthContext';
+import { BackendAuthProvider } from './contexts/BackendAuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
 import { ActivitiesProvider } from './contexts/ActivitiesContext';
 import { DiaryStatusProvider } from './contexts/DiaryStatusContext';
@@ -33,7 +33,7 @@ function App() {
     <PersonalizationProvider>
       <ActivitiesProvider>
         <DiaryStatusProvider>
-          <AuthProvider>
+          <BackendAuthProvider>
             <Router>
               <div className="App">
                 <Toaster />
@@ -62,7 +62,7 @@ function App() {
                 </Routes>
               </div>
             </Router>
-          </AuthProvider>
+          </BackendAuthProvider>
         </DiaryStatusProvider>
       </ActivitiesProvider>
     </PersonalizationProvider>

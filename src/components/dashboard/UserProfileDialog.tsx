@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
 import { onboardingService } from '@/services/onboarding.service';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -141,7 +141,7 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
             <BasicInfoSection 
               data={displayData}
               userEmail={user?.email}
-              userCreatedAt={user?.created_at}
+              userCreatedAt={undefined}
               formatDate={formatDate}
             />
 

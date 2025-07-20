@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LayoutDashboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
 
 const UserActions: React.FC = () => {
   const navigate = useNavigate();

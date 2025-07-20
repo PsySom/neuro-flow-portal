@@ -1,4 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
 import { mockActivityService } from './mock-activity.service';
 import { 
   Activity, 
@@ -10,7 +9,7 @@ import {
   PaginatedResponse
 } from '../types/api.types';
 
-// Use mock service while authentication is not implemented
+// Use mock service while backend activities API is not yet fully implemented
 const USE_MOCK = true;
 
 class ActivityService {
@@ -21,26 +20,8 @@ class ActivityService {
     }
     
     try {
-      let query = supabase
-        .from('activities')
-        .select(`
-          *,
-          activity_type:activity_types(*)
-        `)
-        .order('start_time', { ascending: true });
-
-      if (date) {
-        // Filter by date part of start_time
-        const startOfDay = `${date}T00:00:00.000Z`;
-        const endOfDay = `${date}T23:59:59.999Z`;
-        query = query.gte('start_time', startOfDay).lte('start_time', endOfDay);
-      }
-
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return (data || []).map(this.mapDbActivityToApi);
+      // TODO: Implement backend API call for activities
+      throw new Error('Backend activities API not yet implemented');
     } catch (error: any) {
       console.error('Error fetching activities:', error);
       throw new Error(error.message || 'Failed to fetch activities');
@@ -54,22 +35,8 @@ class ActivityService {
     }
     
     try {
-      const startOfPeriod = `${startDate}T00:00:00.000Z`;
-      const endOfPeriod = `${endDate}T23:59:59.999Z`;
-      
-      const { data, error } = await supabase
-        .from('activities')
-        .select(`
-          *,
-          activity_type:activity_types(*)
-        `)
-        .gte('start_time', startOfPeriod)
-        .lte('start_time', endOfPeriod)
-        .order('start_time', { ascending: true });
-      
-      if (error) throw error;
-      
-      return (data || []).map(this.mapDbActivityToApi);
+      // TODO: Implement backend API call for activities range
+      throw new Error('Backend activities range API not yet implemented');
     } catch (error: any) {
       console.error('Error fetching activities range:', error);
       throw new Error(error.message || 'Failed to fetch activities range');
@@ -83,30 +50,8 @@ class ActivityService {
     }
     
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('User not authenticated');
-
-      const { data: newActivity, error } = await supabase
-        .from('activities')
-        .insert({
-          user_id: user.id,
-          title: data.title,
-          description: data.description,
-          activity_type_id: data.activity_type_id,
-          start_time: data.start_time,
-          end_time: data.end_time,
-          status: data.status || 'planned',
-          metadata: data.metadata || {}
-        })
-        .select(`
-          *,
-          activity_type:activity_types(*)
-        `)
-        .single();
-      
-      if (error) throw error;
-      
-      return this.mapDbActivityToApi(newActivity);
+      // TODO: Implement backend API call for creating activity
+      throw new Error('Backend create activity API not yet implemented');
     } catch (error: any) {
       console.error('Error creating activity:', error);
       throw new Error(error.message || 'Failed to create activity');
@@ -120,27 +65,8 @@ class ActivityService {
     }
     
     try {
-      const { data: updatedActivity, error } = await supabase
-        .from('activities')
-        .update({
-          title: data.title,
-          description: data.description,
-          activity_type_id: data.activity_type_id,
-          start_time: data.start_time,
-          end_time: data.end_time,
-          status: data.status,
-          metadata: data.metadata
-        })
-        .eq('id', id)
-        .select(`
-          *,
-          activity_type:activity_types(*)
-        `)
-        .single();
-      
-      if (error) throw error;
-      
-      return this.mapDbActivityToApi(updatedActivity);
+      // TODO: Implement backend API call for updating activity
+      throw new Error('Backend update activity API not yet implemented');
     } catch (error: any) {
       console.error('Error updating activity:', error);
       throw new Error(error.message || 'Failed to update activity');
@@ -154,12 +80,8 @@ class ActivityService {
     }
     
     try {
-      const { error } = await supabase
-        .from('activities')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      // TODO: Implement backend API call for deleting activity
+      throw new Error('Backend delete activity API not yet implemented');
     } catch (error: any) {
       console.error('Error deleting activity:', error);
       throw new Error(error.message || 'Failed to delete activity');
@@ -173,14 +95,8 @@ class ActivityService {
     }
     
     try {
-      const { data, error } = await supabase
-        .from('activity_types')
-        .select('*')
-        .order('id', { ascending: true });
-      
-      if (error) throw error;
-      
-      return data || [];
+      // TODO: Implement backend API call for activity types
+      throw new Error('Backend activity types API not yet implemented');
     } catch (error: any) {
       console.error('Error fetching activity types:', error);
       throw new Error(error.message || 'Failed to fetch activity types');
@@ -194,20 +110,8 @@ class ActivityService {
     }
     
     try {
-      const { data, error } = await supabase
-        .from('activity_states')
-        .select('*')
-        .eq('activity_id', activityId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (error) {
-        if (error.code === 'PGRST116') return null; // No rows found
-        throw error;
-      }
-      
-      return data;
+      // TODO: Implement backend API call for activity states
+      return null;
     } catch (error: any) {
       console.error('Error fetching activity state:', error);
       return null;
@@ -220,28 +124,8 @@ class ActivityService {
     }
     
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('User not authenticated');
-
-      const { data: activityState, error } = await supabase
-        .from('activity_states')
-        .upsert({
-          activity_id: activityId,
-          user_id: user.id,
-          state: data.state,
-          mood_before: data.mood_before,
-          mood_after: data.mood_after,
-          energy_before: data.energy_before,
-          energy_after: data.energy_after,
-          notes: data.notes,
-          metadata: data.metadata || {}
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      return activityState;
+      // TODO: Implement backend API call for updating activity state
+      throw new Error('Backend update activity state API not yet implemented');
     } catch (error: any) {
       console.error('Error updating activity state:', error);
       throw new Error(error.message || 'Failed to update activity state');

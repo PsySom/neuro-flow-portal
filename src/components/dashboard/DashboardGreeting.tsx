@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
 import { getGreeting, getUserDisplayName } from '@/utils/dateUtils';
 
 const DashboardGreeting = () => {

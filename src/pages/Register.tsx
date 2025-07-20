@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth } from '@/contexts/BackendAuthContext';
 import OnboardingDialog from '../components/onboarding/OnboardingDialog';
 
 const Register = () => {
@@ -17,7 +17,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register } = useBackendAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

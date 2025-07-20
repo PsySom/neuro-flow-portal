@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
 import UserMenu from '@/components/dashboard/UserMenu';
 import SleepDiary from '@/components/diaries/SleepDiary';
 

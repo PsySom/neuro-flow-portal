@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Users, UserCheck, UserX, Activity, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { supabaseAuthService } from '@/services/supabase-auth.service';
+import { backendUserService } from '@/services/backend-user.service';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -32,8 +32,8 @@ const UsersManagementDialog: React.FC<UsersManagementDialogProps> = ({ isOpen, o
     setIsLoading(true);
     try {
       const [usersData, statsData] = await Promise.all([
-        supabaseAuthService.getAllUsers(),
-        supabaseAuthService.getUserStats()
+        backendUserService.getAllUsers(),
+        backendUserService.getUserStats()
       ]);
       
       setUsers(usersData || []);
@@ -49,7 +49,7 @@ const UsersManagementDialog: React.FC<UsersManagementDialogProps> = ({ isOpen, o
     if (!searchEmail.trim()) return;
     
     try {
-      const exists = await supabaseAuthService.checkUserExists(searchEmail);
+      const exists = await backendUserService.checkUserExists(searchEmail);
       setSearchResult(exists ? 'found' : 'not_found');
     } catch (error) {
       console.error('Search error:', error);

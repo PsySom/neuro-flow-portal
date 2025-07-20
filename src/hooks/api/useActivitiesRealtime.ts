@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Activity } from '@/types/api.types';
 import { useToast } from '../use-toast';
 
@@ -68,38 +67,9 @@ export const useActivitiesRealtime = (enabled: boolean = true) => {
 
   useEffect(() => {
     if (!enabled) return;
-
-    console.log('Setting up realtime subscription for activities');
-
-    const channel = supabase
-      .channel('activities-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'activities'
-        },
-        handleRealtimeUpdate
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'activity_states'
-        },
-        (payload) => {
-          console.log('Realtime activity state update:', payload);
-          queryClient.invalidateQueries({ queryKey: ['activity-state'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      console.log('Cleaning up realtime subscription');
-      supabase.removeChannel(channel);
-    };
+    
+    // Real-time functionality disabled for backend API
+    console.log('Real-time activities disabled for backend API integration');
   }, [enabled, handleRealtimeUpdate, queryClient]);
 };
 

@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/co
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Search, Settings, Palette, Sun, Moon, Monitor, User, LogOut } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
 import { usePersonalization, AccentColor, Theme } from '@/contexts/PersonalizationContext';
 import { useNavigate } from 'react-router-dom';
 import UserProfileDialog from './UserProfileDialog';
