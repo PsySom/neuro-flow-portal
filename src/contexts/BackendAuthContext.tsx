@@ -29,7 +29,7 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
   // Получить текущего пользователя с сервера
   const { isLoading: isUserLoading, data: userData, error } = useQuery({
     queryKey: ['backend-auth', 'user'],
-    queryFn: backendAuthService.getCurrentUser,
+    queryFn: () => backendAuthService.getCurrentUser(),
     enabled: backendAuthService.isAuthenticated() && !user,
     retry: false,
   });
@@ -49,7 +49,7 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
 
   // Мутация входа
   const loginMutation = useMutation({
-    mutationFn: backendAuthService.login,
+    mutationFn: (credentials: LoginCredentials) => backendAuthService.login(credentials),
     onSuccess: async (authResponse) => {
       // Сначала получаем данные пользователя
       try {
@@ -76,7 +76,7 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
 
   // Мутация регистрации
   const registerMutation = useMutation({
-    mutationFn: backendAuthService.register,
+    mutationFn: (userData: RegisterData) => backendAuthService.register(userData),
     onSuccess: (userData) => {
       backendAuthService.storeUserData(userData);
       setUser(userData);
