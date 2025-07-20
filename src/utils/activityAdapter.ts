@@ -1,6 +1,6 @@
 import { Activity as ApiActivity, ActivityType as ApiActivityType } from '../types/api.types';
 import { Activity as UiActivity } from '../contexts/ActivitiesContext';
-import { formatTimeFromISO, formatDuration, extractDateFromISO, createISOFromDateTime } from './timeFormatter';
+import { formatTimeFromISO, formatDuration, extractDateFromISO, createISOFromDateTime, formatTimeFromUTC } from './timeFormatter';
 
 // Convert API Activity to UI Activity format
 export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => {
@@ -25,8 +25,8 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     id: apiActivity.id,
     name: apiActivity.title,
     emoji: apiActivity.metadata?.emoji || defaultEmoji,
-    startTime: formatTimeFromISO(apiActivity.start_time),
-    endTime: apiActivity.end_time ? formatTimeFromISO(apiActivity.end_time) : '',
+    startTime: formatTimeFromUTC(apiActivity.start_time),
+    endTime: apiActivity.end_time ? formatTimeFromUTC(apiActivity.end_time) : '',
     duration,
     color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,

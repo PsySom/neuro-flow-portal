@@ -82,6 +82,25 @@ export const createISOFromDateTime = (date: string, time: string): string => {
   }
 };
 
+/**
+ * Format time from UTC ISO string to local HH:MM string
+ * Properly handles timezone conversion
+ */
+export const formatTimeFromUTC = (utcString: string): string => {
+  try {
+    const date = new Date(utcString);
+    
+    // Get local hours and minutes
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
+  } catch (error) {
+    console.error('Error formatting UTC time:', error);
+    return '09:00';
+  }
+};
+
 // Extract date in YYYY-MM-DD format from ISO string
 export const extractDateFromISO = (isoString: string): string => {
   try {

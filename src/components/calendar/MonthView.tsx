@@ -7,6 +7,7 @@ import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import EditActivityDialog from './components/EditActivityDialog';
 import CreateActivityDialog from './components/CreateActivityDialog';
+import { useActivitySync } from '@/hooks/useActivitySync';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -24,11 +25,11 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
     isCurrentMonth,
     getActivitiesForDateObj,
     truncateText,
-    isLoading,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityCreate
+    isLoading
   } = useMonthView(currentDate);
+
+  // Use unified activity sync hook
+  const { createActivity, updateActivity, deleteActivity } = useActivitySync();
 
   // Enable realtime updates
   useActivitiesRealtime(true);
@@ -47,13 +48,21 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
 
   const handleActivityUpdateWrapper = (updatedActivity: any, recurringOptions?: any) => {
     console.log('MonthView: handleActivityUpdateWrapper called with:', updatedActivity, recurringOptions);
-    handleActivityUpdate(updatedActivity.id, updatedActivity, recurringOptions);
-    setIsEditDialogOpen(false);
+    updateActivity(updatedActivity.id, updatedActivity, recurringOptions)
+      .then(() => setIsEditDialogOpen(false))
+      .catch(error => console.error('Failed to update activity:', error));
   };
 
   const handleActivityCreateWrapper = (newActivity: any, recurringOptions?: any) => {
-    handleActivityCreate(newActivity, recurringOptions);
-    setIsCreateDialogOpen(false);
+    createActivity(newActivity, recurringOptions)
+      .then(() => setIsCreateDialogOpen(false))
+      .catch(error => console.error('Failed to create activity:', error));
+  };
+
+  const handleActivityDeleteWrapper = (id: number | string, deleteOption?: any) => {
+    deleteActivity(id, deleteOption)
+      .then(() => setIsEditDialogOpen(false))
+      .catch(error => console.error('Failed to delete activity:', error));
   };
 
   if (isLoading) {
@@ -68,8 +77,12 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
 
   return (
     <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
-      <CardContent className="p-6">
-        <ActivitySyncIndicator />
+      <CardContent className="p-0">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-medium">Календарь месяца</h3>
+          <ActivitySyncIndicator />
+        </div>
+        <div className="p-6">
         {/* Days of week header */}
         <div className="grid grid-cols-7 gap-px mb-2">
           {weekDays.map((day) => (
@@ -166,6 +179,7 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
             <span className="text-sm text-gray-600">Нейтральные</span>
           </div>
         </div>
+        </div>
       </CardContent>
 
       {/* Edit Activity Dialog */}
@@ -175,7 +189,7 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
           onOpenChange={setIsEditDialogOpen}
           activity={selectedActivity}
           onActivityUpdate={handleActivityUpdateWrapper}
-          onDelete={handleActivityDelete}
+          onDelete={handleActivityDeleteWrapper}
         />
       )}
 

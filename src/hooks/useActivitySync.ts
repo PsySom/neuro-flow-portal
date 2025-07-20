@@ -15,6 +15,20 @@ export const useActivitySync = () => {
   const deleteActivityMutation = useDeleteActivity();
   const toggleActivityStatusMutation = useToggleActivityStatus();
 
+  // Invalidate all activity queries to force refresh
+  const forceRefresh = useCallback(() => {
+    console.log('useActivitySync: Force refreshing all activity queries');
+    queryClient.invalidateQueries({ queryKey: ['activities'] });
+    queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+    
+    // Also invalidate today's activities specifically
+    const today = new Date().toISOString().split('T')[0];
+    queryClient.invalidateQueries({ queryKey: ['activities', today] });
+    
+    // Force refetch to ensure immediate updates
+    queryClient.refetchQueries({ queryKey: ['activities'] });
+  }, [queryClient]);
+
   // Map activity type to API type ID
   const getActivityTypeId = useCallback((type: string) => {
     switch (type) {
@@ -45,8 +59,12 @@ export const useActivitySync = () => {
       }
     };
     
-    return createActivityMutation.mutateAsync(activityData);
-  }, [createActivityMutation, getActivityTypeId]);
+    return createActivityMutation.mutateAsync(activityData).then((result) => {
+      // Force refresh all views after create
+      forceRefresh();
+      return result;
+    });
+  }, [createActivityMutation, getActivityTypeId, forceRefresh]);
 
   // Update activity with partial data
   const updateActivity = useCallback((activityId: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
@@ -82,15 +100,23 @@ export const useActivitySync = () => {
       };
     }
     
-    return updateActivityMutation.mutateAsync({ id: numericId, data: apiUpdates });
-  }, [updateActivityMutation, getActivityTypeId]);
+    return updateActivityMutation.mutateAsync({ id: numericId, data: apiUpdates }).then((result) => {
+      // Force refresh all views after update
+      forceRefresh();
+      return result;
+    });
+  }, [updateActivityMutation, getActivityTypeId, forceRefresh]);
 
   // Delete activity
   const deleteActivity = useCallback((id: number | string, deleteOption?: DeleteRecurringOption) => {
     const numericId = typeof id === 'string' ? parseInt(id) : id;
     console.log('useActivitySync: Deleting activity:', numericId, deleteOption);
-    return deleteActivityMutation.mutateAsync(numericId);
-  }, [deleteActivityMutation]);
+    return deleteActivityMutation.mutateAsync(numericId).then((result) => {
+      // Force refresh all views after delete
+      forceRefresh();
+      return result;
+    });
+  }, [deleteActivityMutation, forceRefresh]);
 
   // Toggle activity status
   const toggleActivityStatus = useCallback((activityId: number | string, currentStatus: string) => {
@@ -99,14 +125,13 @@ export const useActivitySync = () => {
     return toggleActivityStatusMutation.mutateAsync({ 
       activityId: numericId, 
       currentStatus 
+    }).then((result) => {
+      // Force refresh all views after toggle
+      forceRefresh();
+      return result;
     });
-  }, [toggleActivityStatusMutation]);
+  }, [toggleActivityStatusMutation, forceRefresh]);
 
-  // Invalidate all activity queries to force refresh
-  const forceRefresh = useCallback(() => {
-    console.log('useActivitySync: Force refreshing all activity queries');
-    queryClient.invalidateQueries({ queryKey: ['activities'] });
-  }, [queryClient]);
 
   return {
     createActivity,

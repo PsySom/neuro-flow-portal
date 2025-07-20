@@ -23,14 +23,6 @@ export const useWeekView = (currentDate: Date) => {
     handleTypeFilterChange
   } = useWeekActivities(startDate, endDate);
 
-  // Get activity operations
-  const {
-    handleActivityCreate,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle
-  } = useActivityOperations(weekActivities);
-
   // Get sync utilities
   const { syncActivities } = useActivitiesSync();
 
@@ -57,11 +49,6 @@ export const useWeekView = (currentDate: Date) => {
     setIsCreateDialogOpen(true);
   }, [weekDays]);
 
-  const handleActivityCreateWrapper = useCallback(async (newActivity: any, recurringOptions?: any) => {
-    await handleActivityCreate(newActivity, recurringOptions);
-    setIsCreateDialogOpen(false);
-  }, [handleActivityCreate]);
-
   return {
     scrollAreaRef,
     filteredTypes,
@@ -73,10 +60,6 @@ export const useWeekView = (currentDate: Date) => {
     getWeekActivities,
     getActivitiesForDay,
     handleEmptyAreaClick,
-    handleActivityCreate: handleActivityCreateWrapper,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle,
     handleTypeFilterChange,
     isLoading,
     syncActivities // Export sync function
