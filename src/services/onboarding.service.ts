@@ -110,12 +110,62 @@ class OnboardingService {
   }
 
   private async saveStageData(stage: string, progress: number, data: any) {
-    // Отправляем данные в формате, ожидаемом API
+    // Конвертируем данные под формат API
+    const convertedData = this.convertDataForBackend(stage, data);
+    
     return apiClient.post(`${this.baseUrl}/stage/${stage}`, {
       stage,
       progress,
-      data
+      data: convertedData
     });
+  }
+
+  private convertDataForBackend(stage: string, data: any) {
+    switch (stage) {
+      case 'natural-rhythms':
+        return {
+          ...data,
+          // Конвертируем sleep_quality из enum в int
+          sleep_quality: this.mapSleepQualityToNumber(data.sleep_quality)
+        };
+      
+      case 'current-state':
+        return {
+          ...data,
+          // Убеждаемся что mood_score это число 1-10
+          mood_score: typeof data.mood_score === 'number' ? data.mood_score : 5
+        };
+      
+      case 'app-preferences':
+        return {
+          ...data,
+          // Конвертируем daily_practice_time из строки в число минут
+          daily_practice_time: this.mapPracticeTimeToMinutes(data.daily_practice_time)
+        };
+      
+      default:
+        return data;
+    }
+  }
+
+  private mapSleepQualityToNumber(quality: string): number {
+    const mapping: Record<string, number> = {
+      'poor_interrupted': 1,
+      'light_tired': 3,
+      'normal': 5,
+      'deep_restorative': 8
+    };
+    return mapping[quality] || 5;
+  }
+
+  private mapPracticeTimeToMinutes(timeRange: string): number {
+    const mapping: Record<string, number> = {
+      '5-10': 7,
+      '15-20': 17,
+      '30-45': 37,
+      '60+': 60
+    };
+    return mapping[timeRange] || 17;
   }
 
   // Получение опций для форм
