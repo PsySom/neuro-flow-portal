@@ -35,7 +35,7 @@ class BackendAuthService {
       console.log('🔄 Registering user:', userData.email);
       
       const response = await apiClient.post<AuthResponse>('/user/register', {
-        username: userData.email,
+        email: userData.email,
         password: userData.password,
         full_name: userData.full_name
       });
@@ -54,7 +54,7 @@ class BackendAuthService {
       console.log('🔄 Logging in user:', credentials.email);
       
       const response = await apiClient.post<AuthResponse>('/auth/login', {
-        username: credentials.email,
+        email: credentials.email,
         password: credentials.password
       });
       
