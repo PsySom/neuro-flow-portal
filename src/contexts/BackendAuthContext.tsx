@@ -76,11 +76,25 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
 
   // Мутация регистрации
   const registerMutation = useMutation({
-    mutationFn: (userData: RegisterData) => backendAuthService.register(userData),
-    onSuccess: (userData) => {
-      backendAuthService.storeUserData(userData);
-      setUser(userData);
-      queryClient.setQueryData(['backend-auth', 'user'], userData);
+    mutationFn: async (userData: RegisterData) => {
+      // Сначала регистрируем пользователя
+      const registeredUser = await backendAuthService.register(userData);
+      
+      // Затем автоматически логиним его
+      const authResponse = await backendAuthService.login({
+        username: userData.email,
+        password: userData.password
+      });
+      
+      return { user: registeredUser, auth: authResponse };
+    },
+    onSuccess: ({ user, auth }) => {
+      // Сохраняем токены аутентификации
+      backendAuthService.storeAuthTokens(auth);
+      // Сохраняем данные пользователя
+      backendAuthService.storeUserData(user);
+      setUser(user);
+      queryClient.setQueryData(['backend-auth', 'user'], user);
       toast({
         title: "Регистрация завершена!",
         description: "Добро пожаловать в PsyBalans!",
