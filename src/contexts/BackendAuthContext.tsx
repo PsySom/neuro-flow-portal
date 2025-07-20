@@ -50,14 +50,20 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
   // Мутация входа
   const loginMutation = useMutation({
     mutationFn: backendAuthService.login,
-    onSuccess: (authResponse) => {
-      backendAuthService.storeAuthData(authResponse);
-      setUser(authResponse.user);
-      queryClient.setQueryData(['backend-auth', 'user'], authResponse.user);
-      toast({
-        title: "Добро пожаловать!",
-        description: "Вы успешно вошли в систему.",
-      });
+    onSuccess: async (authResponse) => {
+      // Сначала получаем данные пользователя
+      try {
+        const userData = await backendAuthService.getCurrentUser();
+        backendAuthService.storeUserData(userData);
+        setUser(userData);
+        queryClient.setQueryData(['backend-auth', 'user'], userData);
+        toast({
+          title: "Добро пожаловать!",
+          description: "Вы успешно вошли в систему.",
+        });
+      } catch (error) {
+        console.error('Failed to get user data after login:', error);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -71,10 +77,10 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
   // Мутация регистрации
   const registerMutation = useMutation({
     mutationFn: backendAuthService.register,
-    onSuccess: (authResponse) => {
-      backendAuthService.storeAuthData(authResponse);
-      setUser(authResponse.user);
-      queryClient.setQueryData(['backend-auth', 'user'], authResponse.user);
+    onSuccess: (userData) => {
+      backendAuthService.storeUserData(userData);
+      setUser(userData);
+      queryClient.setQueryData(['backend-auth', 'user'], userData);
       toast({
         title: "Регистрация завершена!",
         description: "Добро пожаловать в PsyBalans!",

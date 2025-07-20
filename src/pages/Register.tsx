@@ -29,8 +29,11 @@ const Register = () => {
         // Register using the new API
         await register({ 
           email, 
-          password, 
-          full_name: name 
+          password,
+          confirm_password: password,
+          full_name: name,
+          privacy_consent: true,
+          terms_consent: true
         });
         
         // Open onboarding dialog

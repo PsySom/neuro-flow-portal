@@ -1,31 +1,40 @@
 import apiClient, { handleApiError } from './api.client';
 
 export interface LoginCredentials {
-  username: string;
+  username: string; // API expects email in username field
   password: string;
 }
 
 export interface RegisterData {
   email: string;
   password: string;
+  confirm_password: string;
+  first_name?: string;
+  last_name?: string;
   full_name?: string;
+  privacy_consent: boolean;
+  terms_consent: boolean;
 }
 
 export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
-  user: {
-    id: number;
-    email: string;
-    full_name?: string;
-  };
 }
 
 export interface User {
-  id: number;
+  id: string; // UUID
   email: string;
+  first_name?: string;
+  last_name?: string;
   full_name?: string;
+  is_active: boolean;
+  privacy_consent: boolean;
+  terms_consent: boolean;
+  privacy_consent_date?: string;
+  terms_consent_date?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 class BackendAuthService {
@@ -47,14 +56,19 @@ class BackendAuthService {
   }
 
   // Регистрация
-  async register(userData: RegisterData): Promise<AuthResponse> {
+  async register(userData: RegisterData): Promise<User> {
     try {
       console.log('🔄 Registering user:', userData.email);
       
-      const response = await apiClient.post<AuthResponse>('/user/register', {
+      const response = await apiClient.post<User>('/auth/register', {
         email: userData.email,
         password: userData.password,
-        full_name: userData.full_name
+        confirm_password: userData.confirm_password,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        full_name: userData.full_name,
+        privacy_consent: userData.privacy_consent,
+        terms_consent: userData.terms_consent
       });
       
       console.log('✅ Registration successful');
@@ -80,6 +94,10 @@ class BackendAuthService {
       });
       
       console.log('✅ Login successful:', response.data);
+      
+      // Сохраняем токены
+      this.storeAuthTokens(response.data);
+      
       return response.data;
     } catch (error: any) {
       console.error('❌ Login failed:', error);
@@ -124,11 +142,15 @@ class BackendAuthService {
     }
   }
 
-  // Сохранить данные аутентификации
-  storeAuthData(authResponse: AuthResponse): void {
+  // Сохранить токены аутентификации
+  storeAuthTokens(authResponse: AuthResponse): void {
     localStorage.setItem('access_token', authResponse.access_token);
     localStorage.setItem('refresh_token', authResponse.refresh_token);
-    localStorage.setItem('auth-user', JSON.stringify(authResponse.user));
+  }
+
+  // Сохранить данные пользователя отдельно
+  storeUserData(user: User): void {
+    localStorage.setItem('auth-user', JSON.stringify(user));
   }
 
   // Получить сохраненного пользователя

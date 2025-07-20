@@ -76,13 +76,13 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="username">Имя пользователя</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="username"
-              type="text"
+              id="email"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Введите имя пользователя"
+              placeholder="Введите ваш email"
               required
             />
           </div>
