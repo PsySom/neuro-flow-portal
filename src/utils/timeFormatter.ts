@@ -71,8 +71,8 @@ export const createISOFromDateTime = (date: string, time: string): string => {
     // Create date object from date string  
     const dateObj = new Date(date);
     
-    // Set the time in local timezone
-    dateObj.setHours(hours, minutes, 0, 0);
+    // Set the time in UTC to avoid timezone issues
+    dateObj.setUTCHours(hours, minutes, 0, 0);
     
     // Return ISO string  
     return dateObj.toISOString();
@@ -90,9 +90,9 @@ export const formatTimeFromUTC = (utcString: string): string => {
   try {
     const date = new Date(utcString);
     
-    // Get local hours and minutes
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    // Get UTC hours and minutes to avoid timezone conversion
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
     
     return `${hours}:${minutes}`;
   } catch (error) {
@@ -110,8 +110,12 @@ export const extractDateFromISO = (isoString: string): string => {
       return new Date().toISOString().split('T')[0];
     }
     
-    // Use local date to match user's timezone
-    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    // Use UTC date to avoid timezone shifts
+    const year = date.getUTCFullYear();
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   } catch (error) {
     console.error('Error extracting date:', error);
     return new Date().toISOString().split('T')[0];

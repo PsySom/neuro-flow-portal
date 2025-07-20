@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { useCreateActivity, useUpdateActivity, useDeleteActivity, useToggleActivityStatus } from '@/hooks/api/useActivities';
 import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
+import { createISOFromDateTime } from '@/utils/timeFormatter';
 
 /**
  * Unified hook for activity synchronization across all components
@@ -48,8 +49,8 @@ export const useActivitySync = () => {
       title: newActivity.name,
       description: newActivity.note,
       activity_type_id: getActivityTypeId(newActivity.type),
-      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
-      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
+      start_time: createISOFromDateTime(newActivity.date, newActivity.startTime),
+      end_time: newActivity.endTime ? createISOFromDateTime(newActivity.date, newActivity.endTime) : undefined,
       metadata: {
         importance: newActivity.importance,
         color: newActivity.color,
@@ -81,10 +82,10 @@ export const useActivitySync = () => {
     
     // Handle time updates with proper ISO string formatting
     if (updates.date && updates.startTime) {
-      apiUpdates.start_time = `${updates.date}T${updates.startTime}:00.000Z`;
+      apiUpdates.start_time = createISOFromDateTime(updates.date, updates.startTime);
     }
     if (updates.date && updates.endTime) {
-      apiUpdates.end_time = `${updates.date}T${updates.endTime}:00.000Z`;
+      apiUpdates.end_time = createISOFromDateTime(updates.date, updates.endTime);
     }
     
     // Handle metadata updates
