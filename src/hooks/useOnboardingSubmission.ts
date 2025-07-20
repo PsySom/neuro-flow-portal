@@ -29,7 +29,15 @@ export const useOnboardingSubmission = () => {
   const { toast } = useToast();
 
   const saveStepData = async (step: OnboardingStep, data: any) => {
+    console.log(`Saving onboarding step: ${step}`, data);
+    
     switch (step) {
+      case 'registration':
+      case 'email-verification':
+      case 'welcome':
+        // Эти этапы не отправляем на бэкенд, только UI навигация
+        console.log(`Skipping backend submission for step: ${step}`);
+        return;
       case 'basic-info':
         await onboardingService.saveIntroduction({
           name: data.name,
@@ -112,6 +120,10 @@ export const useOnboardingSubmission = () => {
           feedback_style: mapFeedbackStyle(data.feedbackStyle)
         });
         break;
+      case 'confirmation':
+        // Финальный этап, данные уже сохранены
+        console.log(`Skipping backend submission for final step: ${step}`);
+        return;
     }
   };
 
@@ -121,17 +133,23 @@ export const useOnboardingSubmission = () => {
     try {
       await saveStepData(step, stepData);
       
+      console.log(`✅ Onboarding step ${step} saved successfully`);
+      
       toast({
         title: "Данные сохранены",
         description: "Переходим к следующему этапу",
       });
       
       return { success: true };
-    } catch (error) {
-      console.error('Ошибка сохранения данных:', error);
+    } catch (error: any) {
+      console.error('❌ Ошибка сохранения данных:', error);
+      console.error('Error details:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.detail || error.message || "Не удалось сохранить данные";
+      
       toast({
         title: "Ошибка",
-        description: "Не удалось сохранить данные. Попробуйте еще раз.",
+        description: errorMessage,
         variant: "destructive",
       });
       
@@ -144,16 +162,22 @@ export const useOnboardingSubmission = () => {
   const completeOnboarding = async () => {
     try {
       await onboardingService.completeOnboarding();
+      console.log('✅ Onboarding completed successfully');
+      
       toast({
         title: "Онбординг завершен!",
         description: "Добро пожаловать в PsyBalans!",
       });
       return { success: true };
-    } catch (error) {
-      console.error('Ошибка завершения онбординга:', error);
+    } catch (error: any) {
+      console.error('❌ Ошибка завершения онбординга:', error);
+      console.error('Error details:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.detail || error.message || "Не удалось завершить онбординг";
+      
       toast({
         title: "Ошибка",
-        description: "Не удалось завершить онбординг. Попробуйте еще раз.",
+        description: errorMessage,
         variant: "destructive",
       });
       return { success: false };

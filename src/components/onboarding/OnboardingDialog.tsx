@@ -50,7 +50,13 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) 
   useEffect(() => {
     if (isOpen && currentStep === 'welcome') {
       // Запускаем процесс онбординга после регистрации
-      onboardingService.startOnboarding().catch(console.error);
+      console.log('🚀 Starting onboarding process...');
+      onboardingService.startOnboarding()
+        .then(() => console.log('✅ Onboarding started successfully'))
+        .catch((error) => {
+          console.error('❌ Failed to start onboarding:', error);
+          console.error('Error details:', error.response?.data);
+        });
     }
   }, [isOpen, currentStep]);
 

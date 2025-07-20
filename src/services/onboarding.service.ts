@@ -16,8 +16,8 @@ import type {
   PersonalizationData
 } from '@/types/onboarding.types';
 
-// Use mock service for development since backend is not available
-const USE_MOCK = true;
+// Switch to real backend API
+const USE_MOCK = false;
 
 class OnboardingService {
   private baseUrl = '/api/v1/onboarding';
@@ -110,12 +110,8 @@ class OnboardingService {
   }
 
   private async saveStageData(stage: string, progress: number, data: any) {
-    const payload: OnboardingStageData = {
-      stage,
-      progress,
-      data
-    };
-    return apiClient.post(`${this.baseUrl}/stage/${stage.replace('_', '-')}`, payload);
+    // Отправляем только data, без обертки
+    return apiClient.post(`${this.baseUrl}/stage/${stage.replace('_', '-')}`, data);
   }
 
   // Получение опций для форм
