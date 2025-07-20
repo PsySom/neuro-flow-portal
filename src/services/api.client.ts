@@ -6,7 +6,7 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration - PsyBalansV2 backend
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 // Create axios instance
 export const apiClient = axios.create({
@@ -68,7 +68,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
             refresh_token: refreshToken
           });
 

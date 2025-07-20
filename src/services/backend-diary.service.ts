@@ -1,0 +1,221 @@
+import apiClient, { handleApiError } from './api.client';
+
+// === DIARY INTERFACES ===
+
+export interface MoodEntry {
+  id?: string;
+  user_id?: string;
+  mood_score: number; // -10 to 10
+  emotions: {
+    [key: string]: number;
+  };
+  timestamp: string; // ISO 8601
+  triggers?: string[];
+  physical_sensations?: string[];
+  body_areas?: string[];
+  context?: string;
+  notes?: string;
+}
+
+export interface ThoughtEntry {
+  id?: string;
+  user_id?: string;
+  situation: string;
+  automatic_thoughts: {
+    thought: string;
+    belief_level: number;
+  }[];
+  emotions: {
+    emotion: string;
+    intensity: number;
+  }[];
+  timestamp: string; // ISO 8601
+  evidence_for?: string[];
+  evidence_against?: string[];
+  balanced_thought?: string;
+  new_belief_level?: number;
+  action_plan?: string;
+}
+
+export interface SleepEntry {
+  id?: string;
+  sleep_date: string; // YYYY-MM-DD
+  bedtime: string; // HH:MM:SS
+  sleep_time: string; // HH:MM:SS
+  wake_time: string; // HH:MM:SS
+  sleep_quality: number; // -5 to 5
+  awakenings_count: number;
+  sleep_factors?: string[];
+  morning_feeling: number; // -5 to 5
+  day_rest?: {
+    had_rest: boolean;
+    rest_duration: number;
+    rest_quality: number;
+  };
+  day_impact: number; // -5 to 5
+  notes?: string;
+}
+
+// === QUERY PARAMETERS ===
+export interface DiaryQueryParams {
+  start_date?: string; // YYYY-MM-DD
+  end_date?: string; // YYYY-MM-DD
+  limit?: number;
+  skip?: number;
+  sort_desc?: boolean;
+  sleep_quality_min?: number;
+  sleep_quality_max?: number;
+  has_day_rest?: boolean;
+}
+
+class BackendDiaryService {
+  // === MOOD DIARY ===
+  
+  async createMoodEntry(entry: MoodEntry): Promise<MoodEntry> {
+    try {
+      console.log('🔄 Creating mood entry');
+      const response = await apiClient.post<MoodEntry>('/diary/mood', entry);
+      console.log('✅ Mood entry created');
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Failed to create mood entry:', error);
+      throw handleApiError(error);
+    }
+  }
+
+  async getMoodEntries(params?: DiaryQueryParams): Promise<MoodEntry[]> {
+    try {
+      const response = await apiClient.get<MoodEntry[]>('/diary/mood', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getMoodEntry(entryId: string): Promise<MoodEntry> {
+    try {
+      const response = await apiClient.get<MoodEntry>(`/diary/mood/${entryId}`);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async updateMoodEntry(entryId: string, entry: Partial<MoodEntry>): Promise<MoodEntry> {
+    try {
+      const response = await apiClient.put<MoodEntry>(`/diary/mood/${entryId}`, entry);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async deleteMoodEntry(entryId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/diary/mood/${entryId}`);
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // === THOUGHT DIARY ===
+  
+  async createThoughtEntry(entry: ThoughtEntry): Promise<ThoughtEntry> {
+    try {
+      console.log('🔄 Creating thought entry');
+      const response = await apiClient.post<ThoughtEntry>('/diary/thought', entry);
+      console.log('✅ Thought entry created');
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Failed to create thought entry:', error);
+      throw handleApiError(error);
+    }
+  }
+
+  async getThoughtEntries(params?: DiaryQueryParams): Promise<ThoughtEntry[]> {
+    try {
+      const response = await apiClient.get<ThoughtEntry[]>('/diary/thought', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getThoughtEntry(entryId: string): Promise<ThoughtEntry> {
+    try {
+      const response = await apiClient.get<ThoughtEntry>(`/diary/thought/${entryId}`);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async updateThoughtEntry(entryId: string, entry: Partial<ThoughtEntry>): Promise<ThoughtEntry> {
+    try {
+      const response = await apiClient.put<ThoughtEntry>(`/diary/thought/${entryId}`, entry);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async deleteThoughtEntry(entryId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/diary/thought/${entryId}`);
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // === SLEEP DIARY ===
+  
+  async createSleepEntry(entry: SleepEntry): Promise<SleepEntry> {
+    try {
+      console.log('🔄 Creating sleep entry');
+      const response = await apiClient.post<SleepEntry>('/diary/sleep', entry);
+      console.log('✅ Sleep entry created');
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Failed to create sleep entry:', error);
+      throw handleApiError(error);
+    }
+  }
+
+  async getSleepEntries(params?: DiaryQueryParams): Promise<SleepEntry[]> {
+    try {
+      const response = await apiClient.get<SleepEntry[]>('/diary/sleep', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getSleepEntry(entryId: string): Promise<SleepEntry> {
+    try {
+      const response = await apiClient.get<SleepEntry>(`/diary/sleep/${entryId}`);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async updateSleepEntry(entryId: string, entry: Partial<SleepEntry>): Promise<SleepEntry> {
+    try {
+      const response = await apiClient.put<SleepEntry>(`/diary/sleep/${entryId}`, entry);
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async deleteSleepEntry(entryId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/diary/sleep/${entryId}`);
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+}
+
+export const backendDiaryService = new BackendDiaryService();
+export default backendDiaryService;

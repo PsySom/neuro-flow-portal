@@ -1,4 +1,4 @@
-import { apiClient } from './api.client';
+import { apiClient, handleApiError } from './api.client';
 import { mockOnboardingService } from './mock-onboarding.service';
 import type { 
   OnboardingStageData, 
@@ -23,10 +23,6 @@ class OnboardingService {
   private baseUrl = '/onboarding';
 
   // Управление процессом
-  async startOnboarding() {
-    if (USE_MOCK) return mockOnboardingService.startOnboarding();
-    return apiClient.post(`${this.baseUrl}/start`);
-  }
 
   async getProgress() {
     if (USE_MOCK) return mockOnboardingService.getProgress();
@@ -48,10 +44,6 @@ class OnboardingService {
     return apiClient.get(`${this.baseUrl}/export`);
   }
 
-  async completeOnboarding() {
-    if (USE_MOCK) return mockOnboardingService.completeOnboarding();
-    return apiClient.post(`${this.baseUrl}/complete`);
-  }
 
   // Отправка данных по этапам
   async saveIntroduction(data: IntroductionData) {
@@ -107,6 +99,30 @@ class OnboardingService {
   async savePersonalization(data: PersonalizationData) {
     if (USE_MOCK) return mockOnboardingService.savePersonalization(data);
     return this.saveStageData('personalization', 100, data);
+  }
+
+  async startOnboarding() {
+    if (USE_MOCK) return { success: true };
+    try {
+      const response = await apiClient.post('/onboarding/start');
+      console.log('✅ Onboarding started');
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Failed to start onboarding:', error);
+      throw handleApiError(error);
+    }
+  }
+
+  async completeOnboarding() {
+    if (USE_MOCK) return { success: true };
+    try {
+      const response = await apiClient.post('/onboarding/complete');
+      console.log('✅ Onboarding completed');
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Failed to complete onboarding:', error);
+      throw handleApiError(error);
+    }
   }
 
   private async saveStageData(stage: string, progress: number, data: any) {
