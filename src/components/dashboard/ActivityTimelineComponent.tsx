@@ -8,12 +8,13 @@ import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
 import { useTodayActivities } from '@/hooks/api/useActivities';
 import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
-import { useActivityOperationsAdapter } from '@/hooks/useActivityOperationsAdapter';
+import { useActivitySync } from '@/hooks/useActivitySync';
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
 import { getTodayActivities } from '@/utils/activitySync';
 import { useActivityTimelineLogic } from '@/hooks/useActivityTimelineLogic';
+import { Activity } from '@/contexts/ActivitiesContext';
 
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -29,21 +30,42 @@ const ActivityTimelineComponent = () => {
   // Enable realtime updates
   useActivitiesRealtime(true);
 
-  // Activity operations hook
+  // Use unified activity sync hook
   const {
-    handleActivityCreate,
-    handleActivityUpdateForTimeline: handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle: originalHandleActivityToggle,
-    handleActivityUpdateForEdit
-  } = useActivityOperationsAdapter(apiActivities);
+    createActivity,
+    updateActivity,
+    deleteActivity,
+    toggleActivityStatus
+  } = useActivitySync();
 
   // Enhanced toggle with date validation
   const handleActivityToggle = (activityId: number | string) => {
-    const activity = todayActivities.find(a => a.id === activityId);
+    const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
-      validateAndToggleActivity(activity, () => originalHandleActivityToggle(activityId));
+      console.log('ActivityTimeline: Toggling activity status:', activityId, 'current:', activity.status);
+      toggleActivityStatus(activityId, activity.status)
+        .catch(error => console.error('Failed to toggle activity:', error));
     }
+  };
+
+  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+    console.log('ActivityTimeline creating activity:', newActivity, 'with recurring:', recurringOptions);
+    createActivity(newActivity, recurringOptions)
+      .then(() => setIsDialogOpen(false))
+      .catch(error => console.error('Failed to create activity:', error));
+  };
+
+  const handleActivityUpdate = (updatedActivity: Activity, recurringOptions?: any) => {
+    console.log('ActivityTimeline updating activity:', updatedActivity.id, updatedActivity, recurringOptions);
+    updateActivity(updatedActivity.id, updatedActivity, recurringOptions)
+      .then(() => setIsDetailsDialogOpen(false))
+      .catch(error => console.error('Failed to update activity:', error));
+  };
+
+  const handleActivityDelete = (id: number | string, deleteOption?: any) => {
+    console.log('ActivityTimeline deleting activity:', id, deleteOption);
+    deleteActivity(id, deleteOption)
+      .catch(error => console.error('Failed to delete activity:', error));
   };
 
   // Convert API activities to UI format and filter for today only
@@ -115,8 +137,8 @@ const ActivityTimelineComponent = () => {
           open={isDetailsDialogOpen}
           onOpenChange={setIsDetailsDialogOpen}
           activity={selectedActivity}
-        onActivityUpdate={handleActivityUpdateForEdit}
-          onDelete={handleActivityDelete}
+          onActivityUpdate={handleActivityUpdate}
+          onDelete={(activityId) => handleActivityDelete(activityId)}
         />
       )}
     </>

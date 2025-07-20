@@ -8,6 +8,7 @@ import WeekViewDay from './components/WeekViewDay';
 import TimeColumn from './components/TimeColumn';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useWeekView } from './hooks/useWeekView';
+import { useActivitySync } from '@/hooks/useActivitySync';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -26,14 +27,17 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     getWeekActivities,
     getActivitiesForDay,
     handleEmptyAreaClick,
-    handleActivityCreate,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle,
     handleTypeFilterChange,
-    isLoading,
-    syncActivities
+    isLoading
   } = useWeekView(currentDate);
+
+  // Use unified activity sync hook
+  const {
+    createActivity,
+    updateActivity,
+    deleteActivity,
+    toggleActivityStatus
+  } = useActivitySync();
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const weekActivities = getWeekActivities();
@@ -41,6 +45,36 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
   const handleDateSelect = (date: Date) => {
     if (onDateChange) {
       onDateChange(date);
+    }
+  };
+
+  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+    console.log('WeekView creating activity:', newActivity, 'with recurring:', recurringOptions);
+    createActivity(newActivity, recurringOptions)
+      .then(() => setIsCreateDialogOpen(false))
+      .catch(error => console.error('Failed to create activity:', error));
+  };
+
+  const handleActivityUpdate = (activityId: number, updates: any, recurringOptions?: any) => {
+    console.log('WeekView updating activity:', activityId, updates, recurringOptions);
+    updateActivity(activityId, updates, recurringOptions)
+      .catch(error => console.error('Failed to update activity:', error));
+  };
+
+  const handleActivityDelete = (id: number, deleteOption?: any) => {
+    console.log('WeekView deleting activity:', id, deleteOption);
+    deleteActivity(id, deleteOption)
+      .catch(error => console.error('Failed to delete activity:', error));
+  };
+
+  const handleActivityToggle = (activityId: number) => {
+    // Find activity to get current status
+    const activity = weekActivities.find(a => a.id === activityId);
+    if (activity) {
+      const currentStatus = activity.completed ? 'completed' : 'planned';
+      console.log('WeekView toggling activity status:', activityId, 'current:', currentStatus);
+      toggleActivityStatus(activityId, currentStatus)
+        .catch(error => console.error('Failed to toggle activity:', error));
     }
   };
 

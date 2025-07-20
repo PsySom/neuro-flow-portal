@@ -8,16 +8,14 @@ import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
-import { useCreateActivity, useUpdateActivity, useDeleteActivity } from '@/hooks/api/useActivities';
+import { useActivitySync } from '@/hooks/useActivitySync';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { useCalendarNavigation } from '@/hooks/useCalendarNavigation';
 
 const Calendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const createActivityMutation = useCreateActivity();
-  const updateActivityMutation = useUpdateActivity();
-  const deleteActivityMutation = useDeleteActivity();
+  const { createActivity } = useActivitySync();
   
   const {
     currentDate,
@@ -33,35 +31,11 @@ const Calendar = () => {
   }, [setView]);
 
   const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    // Map activity type to API type ID
-    const getActivityTypeId = (type: string) => {
-      switch (type) {
-        case 'задача': return 1;
-        case 'восстановление': return 2;
-        case 'нейтральная': return 3;
-        case 'смешанная': return 4;
-        default: return 1;
-      }
-    };
-
-    const activityData = {
-      title: newActivity.name,
-      description: newActivity.note,
-      activity_type_id: getActivityTypeId(newActivity.type),
-      start_time: `${newActivity.date}T${newActivity.startTime}:00.000Z`,
-      end_time: newActivity.endTime ? `${newActivity.date}T${newActivity.endTime}:00.000Z` : undefined,
-      metadata: {
-        importance: newActivity.importance,
-        color: newActivity.color,
-        emoji: newActivity.emoji,
-        needEmoji: newActivity.needEmoji
-      }
-    };
-    
-    console.log('Creating activity in Calendar:', activityData, 'with recurring:', recurringOptions);
-    createActivityMutation.mutate(activityData);
-    setIsCreateDialogOpen(false);
-  }, [createActivityMutation]);
+    console.log('Creating activity in Calendar:', newActivity, 'with recurring:', recurringOptions);
+    createActivity(newActivity, recurringOptions)
+      .then(() => setIsCreateDialogOpen(false))
+      .catch(error => console.error('Failed to create activity:', error));
+  }, [createActivity]);
 
   const handleDateChange = useCallback((newDate: Date) => {
     console.log('Date changed in Calendar:', newDate);

@@ -1,5 +1,6 @@
 import { Activity as ApiActivity, ActivityType as ApiActivityType } from '../types/api.types';
 import { Activity as UiActivity } from '../contexts/ActivitiesContext';
+import { formatTimeFromISO, formatDuration, extractDateFromISO, createISOFromDateTime } from './timeFormatter';
 
 // Convert API Activity to UI Activity format
 export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => {
@@ -13,22 +14,10 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     console.error('Invalid start_time in activity:', apiActivity);
     throw new Error(`Invalid start_time: ${apiActivity.start_time}`);
   }
-  
-  const endTime = apiActivity.end_time ? 
-    (() => {
-      const end = new Date(apiActivity.end_time);
-      return isNaN(end.getTime()) ? new Date(startTime.getTime() + 60 * 60 * 1000) : end;
-    })() : 
-    new Date(startTime.getTime() + 60 * 60 * 1000); // Default 1 hour
-    
-  const durationMs = endTime.getTime() - startTime.getTime();
-  const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
-  const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-  const duration = durationHours > 0 ? `${durationHours}ч ${durationMinutes}м` : `${durationMinutes}м`;
 
-  // Extract date properly considering timezone
-  const activityDate = new Date(apiActivity.start_time);
-  const localDateString = activityDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+  // Use unified time formatting functions
+  const duration = formatDuration(apiActivity.start_time, apiActivity.end_time);
+  const localDateString = extractDateFromISO(apiActivity.start_time);
   
   console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}`);
 
@@ -36,12 +25,13 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     id: apiActivity.id,
     name: apiActivity.title,
     emoji: apiActivity.metadata?.emoji || defaultEmoji,
-    startTime: formatTime(apiActivity.start_time),
-    endTime: apiActivity.end_time ? formatTime(apiActivity.end_time) : '',
+    startTime: formatTimeFromISO(apiActivity.start_time),
+    endTime: apiActivity.end_time ? formatTimeFromISO(apiActivity.end_time) : '',
     duration,
     color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,
     completed: apiActivity.status === 'completed',
+    status: apiActivity.status, // Add status field for API compatibility
     type: apiActivity.activity_type?.name || 'general',
     needEmoji: apiActivity.metadata?.needEmoji,
     date: localDateString, // Use properly extracted local date
@@ -61,12 +51,13 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
 
 // Convert UI Activity to API Activity format for create/update
 export const convertUiActivityToApi = (uiActivity: Partial<UiActivity>, activityTypeId?: number) => {
+  // Create proper ISO timestamps from date and time
   const startDateTime = uiActivity.date && uiActivity.startTime ? 
-    `${uiActivity.date}T${convertTimeToISO(uiActivity.startTime)}` : 
+    createISOFromDateTime(uiActivity.date, uiActivity.startTime) : 
     new Date().toISOString();
     
   const endDateTime = uiActivity.date && uiActivity.endTime ? 
-    `${uiActivity.date}T${convertTimeToISO(uiActivity.endTime)}` : 
+    createISOFromDateTime(uiActivity.date, uiActivity.endTime) : 
     undefined;
 
   return {
@@ -86,29 +77,21 @@ export const convertUiActivityToApi = (uiActivity: Partial<UiActivity>, activity
   };
 };
 
-// Helper function to format ISO time to HH:mm
+// Legacy formatTime function - now uses unified formatter
 const formatTime = (isoString: string): string => {
-  try {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) {
-      console.warn('Invalid date string:', isoString);
-      return '00:00';
-    }
-    // Use local time instead of UTC to match user timezone
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    console.log(`Formatting time: ${isoString} -> ${hours}:${minutes}`);
-    return `${hours}:${minutes}`;
-  } catch (error) {
-    console.error('Error formatting time:', error, isoString);
-    return '00:00';
-  }
+  const formatted = formatTimeFromISO(isoString);
+  console.log(`Formatting time: ${isoString} -> ${formatted}`);
+  return formatted;
 };
 
 // Helper function to convert HH:mm time to ISO time format
 const convertTimeToISO = (timeString: string): string => {
-  // timeString format: "HH:mm"
-  return `${timeString}:00.000Z`;
+  // timeString format: "HH:mm" 
+  // Need to create proper UTC timestamp
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const date = new Date();
+  date.setUTCHours(hours, minutes, 0, 0);
+  return date.toISOString().split('T')[1];
 };
 
 // Convert array of API activities to UI activities
@@ -146,6 +129,8 @@ export const convertApiActivitiesToUi = (apiActivities: ApiActivity[]): UiActivi
   console.log('Final converted activities:', convertedActivities.length);
   return convertedActivities;
 };
+
+// Remove duplicate function - now imported from timeFormatter
 
 // Default activity type for fallback
 export const getDefaultActivityType = (): ApiActivityType => ({
