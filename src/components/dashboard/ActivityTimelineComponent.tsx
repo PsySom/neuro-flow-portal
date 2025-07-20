@@ -6,7 +6,7 @@ import CreateActivityDialog from '@/components/calendar/components/CreateActivit
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
-import { useTodayActivities } from '@/hooks/api/useActivities';
+import { useActivities } from '@/hooks/api/useActivities';
 import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
 import { useActivitySync } from '@/hooks/useActivitySync';
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
@@ -24,8 +24,13 @@ const ActivityTimelineComponent = () => {
   // Enhanced timeline logic with date validation
   const { currentDate, validateAndToggleActivity } = useActivityTimelineLogic();
 
-  // API hooks
-  const { data: apiActivities = [], isLoading, error } = useTodayActivities();
+  // Get current date for comparison
+  const currentDateString = new Date().toISOString().split('T')[0];
+  
+  // API hooks - use same pattern as calendar
+  const { data: apiActivities = [], isLoading, error } = useActivities(currentDateString, true);
+  console.log('ActivityTimeline: Using date:', currentDateString);
+  console.log('ActivityTimeline: Raw API activities:', apiActivities.length);
   
   // Enable realtime updates
   useActivitiesRealtime(true);
@@ -68,14 +73,20 @@ const ActivityTimelineComponent = () => {
       .catch(error => console.error('Failed to delete activity:', error));
   };
 
-  // Convert API activities to UI format - filter for today only
+  // Convert API activities to UI format - no additional filtering needed since we already query by date
   const allActivities = convertApiActivitiesToUi(apiActivities);
-  const todayActivities = getTodayActivities(allActivities);
   
   console.log('ActivityTimeline: All activities:', allActivities.length);
-  console.log('ActivityTimeline: Today activities:', todayActivities.length);
-  console.log('ActivityTimeline: Current date:', currentDate);
-  console.log('ActivityTimeline: Sample activities:', allActivities.slice(0, 2));
+  console.log('ActivityTimeline: Current date:', currentDateString);
+  console.log('ActivityTimeline: Sample activities:', allActivities.slice(0, 2).map(a => ({
+    id: a.id,
+    name: a.name,
+    date: a.date,
+    startTime: a.startTime
+  })));
+
+  // Use all activities since we already filtered by date in the API call
+  const todayActivities = allActivities;
 
   // Get formatted date
   const formattedDate = getFormattedCurrentDate();
