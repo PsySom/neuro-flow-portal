@@ -41,7 +41,7 @@ class BackendAuthService {
   // Проверить доступность сервера
   async checkServerHealth(): Promise<boolean> {
     try {
-      console.log('🔍 Checking server health at:', 'http://localhost:8001/api/v1');
+      console.log('🔍 Checking server health at:', 'http://localhost:8000/api/v1');
       const response = await apiClient.get('/health', { timeout: 5000 });
       console.log('✅ Server is available:', response.status);
       return true;
@@ -49,7 +49,7 @@ class BackendAuthService {
       console.error('❌ Server is not available:', {
         message: error.message,
         code: error.code,
-        baseURL: 'http://localhost:8001/api/v1'
+        baseURL: 'http://localhost:8000/api/v1'
       });
       return false;
     }
