@@ -6,7 +6,7 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration - PsyBalansV2 backend
-const API_BASE_URL = 'http://localhost:8001/api/v1';
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 // Create axios instance
 export const apiClient = axios.create({
