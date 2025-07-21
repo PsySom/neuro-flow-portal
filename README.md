@@ -22,7 +22,7 @@
 - **Supabase** для аутентификации (опционально)
 
 ### Backend API
-- **Базовый URL**: `http://localhost:8001/api/v1`
+- **Базовый URL**: `http://localhost:8000/api/v1`
 - **Аутентификация**: JWT токены (Bearer)
 - **Документация**: OpenAPI/Swagger
 
@@ -30,7 +30,7 @@
 
 ### Требования
 - Node.js 18+ и npm
-- Backend сервер (Python FastAPI) на порту 8001
+- Backend сервер (Python FastAPI) на порту 8000
 
 ### Установка
 
@@ -55,7 +55,7 @@ npm run dev
 const USE_MOCK = true; // false для реального API
 
 // src/services/api.client.ts  
-const API_BASE_URL = 'http://localhost:8001/api/v1';
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 ```
 
 ### Режимы работы
@@ -67,7 +67,7 @@ const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 **API режим** (USE_MOCK = false):
 - Работа с реальным backend
-- Требует запущенный сервер на localhost:8001
+- Требует запущенный сервер на localhost:8000
 - Полная функциональность
 
 ## Основные API эндпоинты
