@@ -4,285 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { getMoodEmoji } from '../diaries/moodDiaryUtils';
-import { backendDiaryService, MoodEntry } from '@/services/backend-diary.service';
-import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
-import { ru } from 'date-fns/locale';
-
-interface ChartDataPoint {
-  time: string;
-  mood: number;
-  emotions?: string[];
-  emotionIntensity?: string;
-  connection?: string;
-  impact?: string;
-  fullDate?: string;
-  entry?: MoodEntry;
-}
-
-type TimeRange = 'day' | 'week' | 'month' | '30days';
+import { ChartDataPoint, TimeRange } from './chart-utils/chartDataConverters';
+import { chartDataService } from './chart-utils/chartDataService';
+import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
 
 const MoodEmotionsChart = () => {
-  const [timeRange, setTimeRange] = useState<TimeRange>('30days');
+  const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Преобразование данных API в формат для графика
-  const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeRange): ChartDataPoint[] => {
-    // Для 30-дневного периода группируем записи по дням и вычисляем среднее
-    if (range === '30days') {
-      const dailyGrouped = new Map<string, { moods: number[], emotions: string[], entries: MoodEntry[] }>();
-      
-      entries.forEach(entry => {
-        const date = new Date(entry.timestamp);
-        const dayKey = format(date, 'dd');
-        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
-        const emotions = entry.emotions?.map(emotion => emotion.name) || [];
-        
-        if (!dailyGrouped.has(dayKey)) {
-          dailyGrouped.set(dayKey, { moods: [], emotions: [], entries: [] });
-        }
-        
-        const dayData = dailyGrouped.get(dayKey)!;
-        dayData.moods.push(normalizedMood);
-        dayData.emotions.push(...emotions);
-        dayData.entries.push(entry);
-      });
-      
-      const convertedData: ChartDataPoint[] = [];
-      
-      // Создаем полный диапазон от 1 до 30 дня
-      for (let day = 1; day <= 30; day++) {
-        const dayKey = day.toString().padStart(2, '0');
-        const dayData = dailyGrouped.get(dayKey);
-        
-        if (dayData) {
-          const avgMood = Math.round(dayData.moods.reduce((sum, mood) => sum + mood, 0) / dayData.moods.length);
-          const uniqueEmotions = [...new Set(dayData.emotions)];
-          const latestEntry = dayData.entries[dayData.entries.length - 1];
-          
-          convertedData.push({
-            time: day.toString(),
-            mood: avgMood,
-            emotions: uniqueEmotions,
-            connection: latestEntry.context || '',
-            fullDate: format(new Date(latestEntry.timestamp), 'dd.MM.yyyy'),
-            entry: latestEntry
-          });
-        }
-      }
-      
-      return convertedData;
-    }
-
-    const convertedData: ChartDataPoint[] = [];
-
-    if (range === 'day') {
-      // Для дневного режима создаем временную сетку по часам
-      const hourlyData = new Map<string, ChartDataPoint>();
-      
-      entries.forEach(entry => {
-        const date = new Date(entry.timestamp);
-        const hourKey = format(date, 'HH:mm');
-        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
-        const emotions = entry.emotions?.map(emotion => emotion.name) || [];
-
-        hourlyData.set(hourKey, {
-          time: hourKey,
-          mood: normalizedMood,
-          emotions,
-          connection: entry.context || '',
-          fullDate: format(date, 'dd.MM.yyyy HH:mm'),
-          entry
-        });
-      });
-
-      // Сортируем по времени
-      return Array.from(hourlyData.values()).sort((a, b) => a.time.localeCompare(b.time));
-    }
-
-    if (range === 'week') {
-      // Для недельного режима группируем по дням недели
-      const weeklyData = new Map<string, { moods: number[], emotions: string[], entries: MoodEntry[], date: Date }>();
-      
-      entries.forEach(entry => {
-        const date = new Date(entry.timestamp);
-        const dayKey = format(date, 'EEEE', { locale: ru });
-        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
-        const emotions = entry.emotions?.map(emotion => emotion.name) || [];
-        
-        if (!weeklyData.has(dayKey)) {
-          weeklyData.set(dayKey, { moods: [], emotions: [], entries: [], date });
-        }
-        
-        const dayData = weeklyData.get(dayKey)!;
-        dayData.moods.push(normalizedMood);
-        dayData.emotions.push(...emotions);
-        dayData.entries.push(entry);
-      });
-
-      const daysOrder = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
-      
-      return daysOrder.map(day => {
-        const dayData = weeklyData.get(day);
-        if (dayData) {
-          const avgMood = Math.round(dayData.moods.reduce((sum, mood) => sum + mood, 0) / dayData.moods.length);
-          const uniqueEmotions = [...new Set(dayData.emotions)];
-          const latestEntry = dayData.entries[dayData.entries.length - 1];
-          
-          return {
-            time: `${day.slice(0, 2)} ${format(dayData.date, 'dd.MM')}`,
-            mood: avgMood,
-            emotions: uniqueEmotions,
-            connection: latestEntry.context || '',
-            fullDate: format(new Date(latestEntry.timestamp), 'dd.MM.yyyy'),
-            entry: latestEntry
-          };
-        }
-        return null;
-      }).filter(Boolean) as ChartDataPoint[];
-    }
-
-    if (range === 'month') {
-      // Для месячного режима группируем по дням месяца
-      const monthlyData = new Map<number, { moods: number[], emotions: string[], entries: MoodEntry[] }>();
-      
-      entries.forEach(entry => {
-        const date = new Date(entry.timestamp);
-        const day = date.getDate();
-        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
-        const emotions = entry.emotions?.map(emotion => emotion.name) || [];
-        
-        if (!monthlyData.has(day)) {
-          monthlyData.set(day, { moods: [], emotions: [], entries: [] });
-        }
-        
-        const dayData = monthlyData.get(day)!;
-        dayData.moods.push(normalizedMood);
-        dayData.emotions.push(...emotions);
-        dayData.entries.push(entry);
-      });
-
-      const convertedData: ChartDataPoint[] = [];
-      for (let day = 1; day <= 31; day++) {
-        const dayData = monthlyData.get(day);
-        if (dayData) {
-          const avgMood = Math.round(dayData.moods.reduce((sum, mood) => sum + mood, 0) / dayData.moods.length);
-          const uniqueEmotions = [...new Set(dayData.emotions)];
-          const latestEntry = dayData.entries[dayData.entries.length - 1];
-          
-          convertedData.push({
-            time: day.toString(),
-            mood: avgMood,
-            emotions: uniqueEmotions,
-            connection: latestEntry.context || '',
-            fullDate: format(new Date(latestEntry.timestamp), 'dd.MM.yyyy'),
-            entry: latestEntry
-          });
-        }
-      }
-      
-      return convertedData;
-    }
-
-    return convertedData;
-  };
-
-  // Функция для генерации демо-данных локально
-  const generateLocalDemoData = (range: TimeRange): ChartDataPoint[] => {
-    const demoData: ChartDataPoint[] = [];
-    const now = new Date();
-
-    if (range === 'day') {
-      // Дневной режим: от 00:00 до 24:00 (каждые 2 часа)
-      for (let hour = 0; hour <= 24; hour += 2) {
-        const timeString = `${hour.toString().padStart(2, '0')}:00`;
-        const mood = Math.floor(Math.random() * 11) - 5; // от -5 до +5
-        demoData.push({
-          time: timeString,
-          mood,
-          emotions: ['спокойствие', 'радость'].slice(0, Math.random() > 0.5 ? 1 : 2),
-          connection: 'Демо-контекст',
-          fullDate: format(now, 'dd.MM.yyyy') + ' ' + timeString
-        });
-      }
-    } else if (range === 'week') {
-      // Недельный режим: дни недели с датами
-      const daysOfWeek = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - 6 + i);
-        const dayName = daysOfWeek[i];
-        const dateStr = format(date, 'dd.MM');
-        const mood = Math.floor(Math.random() * 11) - 5;
-        
-        demoData.push({
-          time: `${dayName} ${dateStr}`,
-          mood,
-          emotions: ['настроение', 'энергия'],
-          connection: 'Демо-контекст недели',
-          fullDate: format(date, 'dd.MM.yyyy')
-        });
-      }
-    } else if (range === 'month' || range === '30days') {
-      // Месячный режим: числа от 1 до 30
-      for (let day = 1; day <= 30; day++) {
-        const mood = Math.floor(Math.random() * 11) - 5;
-        demoData.push({
-          time: day.toString(),
-          mood,
-          emotions: ['настроение'],
-          connection: 'Демо-контекст месяца',
-          fullDate: `${day.toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`
-        });
-      }
-    }
-
-    return demoData;
-  };
-
-  // Получение данных из API с fallback на локальные демо-данные
+  // Загрузка данных с помощью сервиса
   const fetchMoodData = async (range: TimeRange) => {
     setIsLoading(true);
     try {
-      const now = new Date();
-      let startDate: Date, endDate: Date;
-
-      if (range === 'day') {
-        startDate = startOfDay(now);
-        endDate = endOfDay(now);
-      } else if (range === 'week') {
-        startDate = startOfWeek(now, { weekStartsOn: 1 });
-        endDate = endOfWeek(now, { weekStartsOn: 1 });
-      } else if (range === '30days') {
-        startDate = subDays(now, 30);
-        endDate = endOfDay(now);
-      } else {
-        startDate = startOfMonth(now);
-        endDate = endOfMonth(now);
-      }
-
-      const entries = await backendDiaryService.getMoodEntries({
-        start_date: format(startDate, 'yyyy-MM-dd'),
-        end_date: format(endDate, 'yyyy-MM-dd'),
-        sort_desc: false
-      });
-
-      if (entries.length > 0) {
-        const chartData = convertMoodEntriesToChartData(entries, range);
-        setChartData(chartData);
-      } else {
-        // Если нет данных от API, используем локальные демо-данные
-        console.log('🔄 Используем локальные демо-данные для', range);
-        const demoData = generateLocalDemoData(range);
-        setChartData(demoData);
-      }
+      const data = await chartDataService.fetchMoodData(range);
+      setChartData(data);
     } catch (error) {
       console.error('❌ Ошибка при загрузке данных настроения:', error);
-      // В случае ошибки используем локальные демо-данные
-      console.log('🔄 Fallback на локальные демо-данные');
-      const demoData = generateLocalDemoData(range);
-      setChartData(demoData);
+      setChartData([]);
     } finally {
       setIsLoading(false);
     }
@@ -314,60 +54,6 @@ const MoodEmotionsChart = () => {
 
   const currentData = chartData;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
-          <p className="font-medium">{`${label}: ${data.mood}`}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {getMoodEmoji(data.mood)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const CustomDot = (props: any) => {
-    const { cx, cy, payload, index } = props;
-    
-    return (
-      <g>
-        <circle 
-          cx={cx} 
-          cy={cy} 
-          r={8} 
-          fill="white" 
-          stroke="#3b82f6" 
-          strokeWidth={2}
-          className="cursor-pointer"
-          onClick={() => setSelectedPoint(payload)}
-        />
-        {/* Для 30-дневного и месячного графика показываем эмоджи только для каждого третьего дня */}
-        {(timeRange !== 'month' && timeRange !== '30days' || index % 3 === 0) && (
-          <text 
-            x={cx} 
-            y={cy - 20} 
-            textAnchor="middle" 
-            dominantBaseline="middle" 
-            fontSize="24"
-            className="pointer-events-none"
-            style={{ fontSize: '24px' }}
-          >
-            {getMoodEmoji(payload.mood)}
-          </text>
-        )}
-      </g>
-    );
-  };
-
-  // Определяем ширину линии в зависимости от периода
-  const getLineWidth = () => {
-    if (timeRange === '30days') return 3; // Средняя толщина для 30-дневного периода
-    return timeRange === 'month' ? 4 : 2; // На 40% толще для месяца
-  };
-
   return (
     <div className="space-y-6">
       <Card>
@@ -376,11 +62,11 @@ const MoodEmotionsChart = () => {
             <span>График настроения и эмоций</span>
             <div className="flex space-x-2">
               <Button
-                variant={timeRange === '30days' ? 'default' : 'outline'}
+                variant={timeRange === 'day' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTimeRange('30days')}
+                onClick={() => setTimeRange('day')}
               >
-                30 дней
+                День
               </Button>
               <Button
                 variant={timeRange === 'week' ? 'default' : 'outline'}
@@ -388,13 +74,6 @@ const MoodEmotionsChart = () => {
                 onClick={() => setTimeRange('week')}
               >
                 Неделя
-              </Button>
-              <Button
-                variant={timeRange === 'day' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange('day')}
-              >
-                День
               </Button>
               <Button
                 variant={timeRange === 'month' ? 'default' : 'outline'}
@@ -438,8 +117,12 @@ const MoodEmotionsChart = () => {
                     type="monotone" 
                     dataKey="mood" 
                     stroke="#3b82f6" 
-                    strokeWidth={getLineWidth()}
-                    dot={<CustomDot />}
+                    strokeWidth={getLineWidth(timeRange)}
+                    dot={<CustomDot 
+                      timeRange={timeRange} 
+                      onPointClick={setSelectedPoint}
+                      cx={0} cy={0} payload={{} as ChartDataPoint} index={0}
+                    />}
                     connectNulls={false}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -457,7 +140,7 @@ const MoodEmotionsChart = () => {
           <CardTitle>Подробности точки настроения</CardTitle>
         </CardHeader>
         <CardContent>
-          {selectedPoint && timeRange !== 'month' && timeRange !== '30days' ? (
+          {selectedPoint ? (
             <div className="space-y-6">
               <div className="mb-4 p-3 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
@@ -532,10 +215,7 @@ const MoodEmotionsChart = () => {
           ) : (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <p className="mb-2">Нажмите на точку графика, чтобы увидеть подробности</p>
-              <p className="text-sm">Подробности доступны для режимов "День" и "Неделя"</p>
-              {timeRange === '30days' && (
-                <p className="text-sm mt-2">В режиме "30 дней" показываются усредненные данные по дням</p>
-              )}
+              <p className="text-sm">Подробности доступны для всех режимов просмотра</p>
             </div>
           )}
         </CardContent>
