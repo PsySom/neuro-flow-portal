@@ -10,7 +10,11 @@ import Step2TaskDetails from './procrastination/Step2TaskDetails';
 import Step3Impact from './procrastination/Step3Impact';
 import Step4Solutions from './procrastination/Step4Solutions';
 
-const ProcrastinationDiary = () => {
+interface ProcrastinationDiaryProps {
+  onComplete?: () => void;
+}
+
+const ProcrastinationDiary: React.FC<ProcrastinationDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   
@@ -65,6 +69,11 @@ const ProcrastinationDiary = () => {
     console.log('Procrastination diary entry:', data);
     // Here you would save to your backend/local storage
     alert('Запись сохранена в дневник!');
+    
+    // Вызываем callback завершения
+    setTimeout(() => {
+      onComplete?.();
+    }, 1000);
   };
 
   const renderStep = () => {

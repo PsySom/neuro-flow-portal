@@ -10,7 +10,11 @@ import Step4Rest from './sleep/Step4Rest';
 import Step5Impact from './sleep/Step5Impact';
 import { useSleepDiaryLogic } from './sleep/hooks/useSleepDiaryLogic';
 
-const SleepDiary = () => {
+interface SleepDiaryProps {
+  onComplete?: () => void;
+}
+
+const SleepDiary: React.FC<SleepDiaryProps> = ({ onComplete }) => {
   const {
     currentStep,
     form,
@@ -22,7 +26,7 @@ const SleepDiary = () => {
     handleNext,
     handlePrev,
     onSubmit
-  } = useSleepDiaryLogic();
+  } = useSleepDiaryLogic(onComplete);
 
   const renderCurrentStep = () => {
     switch (currentStep) {

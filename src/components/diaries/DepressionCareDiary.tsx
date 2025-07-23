@@ -14,7 +14,11 @@ import Step7CrisisSupport from './depression-care/Step7CrisisSupport';
 import Step8LongTermObservation from './depression-care/Step8LongTermObservation';
 import { DepressionCareDiaryData, getInitialDepressionCareData } from './depression-care/types';
 
-const DepressionCareDiary: React.FC = () => {
+interface DepressionCareDiaryProps {
+  onComplete?: () => void;
+}
+
+const DepressionCareDiary: React.FC<DepressionCareDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<DepressionCareDiaryData>(getInitialDepressionCareData());
   const { toast } = useToast();
@@ -51,6 +55,9 @@ const DepressionCareDiary: React.FC = () => {
     
     setData(getInitialDepressionCareData());
     setCurrentStep(1);
+    
+    // Вызываем callback завершения
+    onComplete?.();
   };
 
   const renderStep = () => {

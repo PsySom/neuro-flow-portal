@@ -8,7 +8,11 @@ import Step1Awareness from './ocd/Step1Awareness';
 import Step2Compulsions from './ocd/Step2Compulsions';
 import { OCDDiaryData, getInitialOCDData } from './ocd/types';
 
-const OCDDiary: React.FC = () => {
+interface OCDDiaryProps {
+  onComplete?: () => void;
+}
+
+const OCDDiary: React.FC<OCDDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<OCDDiaryData>(getInitialOCDData());
   const { toast } = useToast();
@@ -47,6 +51,9 @@ const OCDDiary: React.FC = () => {
     // Сброс данных для нового дневника
     setData(getInitialOCDData());
     setCurrentStep(1);
+    
+    // Вызываем callback завершения
+    onComplete?.();
   };
 
   const renderStep = () => {

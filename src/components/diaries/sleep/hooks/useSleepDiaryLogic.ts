@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { SleepDiaryData } from '../types';
 
-export const useSleepDiaryLogic = () => {
+export const useSleepDiaryLogic = (onComplete?: () => void) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [recommendations, setRecommendations] = useState<string[]>([]);
 
@@ -122,7 +122,12 @@ export const useSleepDiaryLogic = () => {
     
     console.log('Sleep diary entry saved:', data);
     // Здесь будет сохранение в базу данных
-  }, [generateRecommendations]);
+    
+    // Вызываем callback завершения через некоторое время
+    setTimeout(() => {
+      onComplete?.();
+    }, 2000);
+  }, [generateRecommendations, onComplete]);
 
   return {
     currentStep,

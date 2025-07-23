@@ -14,7 +14,11 @@ import Step6Alternatives from './thoughts/Step6Alternatives';
 import Step7Actions from './thoughts/Step7Actions';
 import Step8Reflection from './thoughts/Step8Reflection';
 
-const ThoughtsDiary = () => {
+interface ThoughtsDiaryProps {
+  onComplete?: () => void;
+}
+
+const ThoughtsDiary: React.FC<ThoughtsDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 8;
   
@@ -70,6 +74,11 @@ const ThoughtsDiary = () => {
     console.log('Thoughts diary entry:', data);
     // Here you would save to your backend/local storage
     alert('Запись сохранена в дневник!');
+    
+    // Вызываем callback завершения
+    setTimeout(() => {
+      onComplete?.();
+    }, 1000);
   };
 
   const renderStep = () => {

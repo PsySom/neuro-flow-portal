@@ -11,7 +11,11 @@ import Step4Compassion from './self-esteem/Step4Compassion';
 import Step5Support from './self-esteem/Step5Support';
 import { SelfEsteemDiaryData, getInitialSelfEsteemData } from './self-esteem/types';
 
-const SelfEsteemDiary: React.FC = () => {
+interface SelfEsteemDiaryProps {
+  onComplete?: () => void;
+}
+
+const SelfEsteemDiary: React.FC<SelfEsteemDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<SelfEsteemDiaryData>(getInitialSelfEsteemData());
   const { toast } = useToast();
@@ -50,6 +54,9 @@ const SelfEsteemDiary: React.FC = () => {
     // Сброс данных для нового дневника
     setData(getInitialSelfEsteemData());
     setCurrentStep(1);
+    
+    // Вызываем callback завершения
+    onComplete?.();
   };
 
   const renderStep = () => {

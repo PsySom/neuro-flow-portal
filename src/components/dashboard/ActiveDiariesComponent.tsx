@@ -6,12 +6,24 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Clock, Play, Pause, Square, Bell, Calendar as CalendarIcon } from 'lucide-react';
 import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 import MoodDiaryModal from '../diaries/MoodDiaryModal';
+import ThoughtsDiaryModal from '../diaries/ThoughtsDiaryModal';
+import SelfEsteemDiaryModal from '../diaries/SelfEsteemDiaryModal';
+import ProcrastinationDiaryModal from '../diaries/ProcrastinationDiaryModal';
+import OCDDiaryModal from '../diaries/OCDDiaryModal';
+import DepressionCareDiaryModal from '../diaries/DepressionCareDiaryModal';
+import SleepDiaryModal from '../diaries/SleepDiaryModal';
 
 const ActiveDiariesComponent = () => {
   const { activeDiaries, updateDiaryStatus, removeDiary } = useDiaryStatus();
   const [deactivatingDiary, setDeactivatingDiary] = useState<any>(null);
   const [selectedDiary, setSelectedDiary] = useState<any>(null);
   const [showMoodDiary, setShowMoodDiary] = useState(false);
+  const [showThoughtsDiary, setShowThoughtsDiary] = useState(false);
+  const [showSelfEsteemDiary, setShowSelfEsteemDiary] = useState(false);
+  const [showProcrastinationDiary, setShowProcrastinationDiary] = useState(false);
+  const [showOCDDiary, setShowOCDDiary] = useState(false);
+  const [showDepressionCareDiary, setShowDepressionCareDiary] = useState(false);
+  const [showSleepDiary, setShowSleepDiary] = useState(false);
 
   const handlePause = (diary: any) => {
     const updatedStatus = { ...diary, isPaused: !diary.isPaused };
@@ -31,17 +43,38 @@ const ActiveDiariesComponent = () => {
 
   const handlePlayDiary = (diary: any) => {
     setSelectedDiary(diary);
-    if (diary.path === '/mood-diary') {
-      setShowMoodDiary(true);
+    switch(diary.path) {
+      case '/mood-diary':
+        setShowMoodDiary(true);
+        break;
+      case '/thoughts-diary':
+        setShowThoughtsDiary(true);
+        break;
+      case '/self-esteem-diary':
+        setShowSelfEsteemDiary(true);
+        break;
+      case '/procrastination-diary':
+        setShowProcrastinationDiary(true);
+        break;
+      case '/ocd-diary':
+        setShowOCDDiary(true);
+        break;
+      case '/depression-care-diary':
+        setShowDepressionCareDiary(true);
+        break;
+      case '/sleep-diary':
+        setShowSleepDiary(true);
+        break;
     }
   };
 
   const handleDiaryComplete = () => {
     if (selectedDiary) {
-      // Обновляем дату последней записи
+      // Обновляем дату последней записи с текущим временем
       const updatedStatus = { 
         ...selectedDiary, 
-        lastEntryDate: new Date().toISOString().split('T')[0] 
+        lastEntryDate: new Date().toISOString().split('T')[0],
+        lastEntryTime: new Date().toISOString()
       };
       updateDiaryStatus(selectedDiary.path, updatedStatus, {
         title: selectedDiary.title,
@@ -52,7 +85,16 @@ const ActiveDiariesComponent = () => {
         config: selectedDiary.config
       });
     }
+    
+    // Закрываем все модальные окна
     setSelectedDiary(null);
+    setShowMoodDiary(false);
+    setShowThoughtsDiary(false);
+    setShowSelfEsteemDiary(false);
+    setShowProcrastinationDiary(false);
+    setShowOCDDiary(false);
+    setShowDepressionCareDiary(false);
+    setShowSleepDiary(false);
   };
 
   const getDaysRemaining = (diary: any) => {
@@ -286,10 +328,40 @@ const ActiveDiariesComponent = () => {
         )}
       </CardContent>
 
-      {/* Модальное окно дневника настроения */}
+      {/* Модальные окна всех дневников */}
       <MoodDiaryModal
         open={showMoodDiary}
         onOpenChange={setShowMoodDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <ThoughtsDiaryModal
+        open={showThoughtsDiary}
+        onOpenChange={setShowThoughtsDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <SelfEsteemDiaryModal
+        open={showSelfEsteemDiary}
+        onOpenChange={setShowSelfEsteemDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <ProcrastinationDiaryModal
+        open={showProcrastinationDiary}
+        onOpenChange={setShowProcrastinationDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <OCDDiaryModal
+        open={showOCDDiary}
+        onOpenChange={setShowOCDDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <DepressionCareDiaryModal
+        open={showDepressionCareDiary}
+        onOpenChange={setShowDepressionCareDiary}
+        onComplete={handleDiaryComplete}
+      />
+      <SleepDiaryModal
+        open={showSleepDiary}
+        onOpenChange={setShowSleepDiary}
         onComplete={handleDiaryComplete}
       />
     </Card>

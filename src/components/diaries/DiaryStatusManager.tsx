@@ -64,11 +64,8 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   };
 
   const handleActivate = () => {
-    if (isMoodDiary) {
-      setShowConfigDialog(true);
-    } else {
-      updateStatus({ isActive: true, isPaused: false });
-    }
+    // Все дневники теперь используют конфигурацию
+    setShowConfigDialog(true);
   };
 
   const handleMoodDiaryConfig = (config: MoodDiaryConfig) => {
@@ -174,14 +171,12 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
         Последняя: {formatDate(status.lastEntryDate)}
       </span>
 
-      {/* Диалог конфигурации для дневника настроения */}
-      {isMoodDiary && (
-        <MoodDiaryConfigDialog
-          open={showConfigDialog}
-          onOpenChange={setShowConfigDialog}
-          onSave={handleMoodDiaryConfig}
-        />
-      )}
+      {/* Диалог конфигурации для всех дневников */}
+      <MoodDiaryConfigDialog
+        open={showConfigDialog}
+        onOpenChange={setShowConfigDialog}
+        onSave={handleMoodDiaryConfig}
+      />
     </div>
   );
 };
