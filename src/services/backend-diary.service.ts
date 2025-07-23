@@ -89,22 +89,13 @@ class BackendDiaryService {
 
   async getMoodEntries(params?: DiaryQueryParams): Promise<MoodEntry[]> {
     try {
-      // Сначала пробуем получить данные для авторизованного пользователя
-      const response = await apiClient.get<MoodEntry[]>('/diary/mood', { params });
+      // Используем гибкий endpoint с автоматическим fallback
+      const response = await apiClient.get<MoodEntry[]>('/diary/mood/flexible', { params });
       return response.data;
     } catch (error: any) {
-      // Если авторизация не прошла (401), используем публичный endpoint с демо-данными
-      if (error.response?.status === 401) {
-        console.log('🔄 User not authenticated, fetching demo data');
-        try {
-          const demoResponse = await apiClient.get<MoodEntry[]>('/diary/mood/demo', { params });
-          return demoResponse.data;
-        } catch (demoError: any) {
-          console.error('❌ Failed to fetch demo data:', demoError);
-          return []; // Возвращаем пустой массив если демо-данные недоступны
-        }
-      }
-      throw handleApiError(error);
+      console.error('❌ Failed to fetch mood data:', error);
+      // Возвращаем пустой массив как fallback
+      return [];
     }
   }
 
