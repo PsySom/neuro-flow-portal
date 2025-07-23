@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Heart, ArrowLeft, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
+import { backendDiaryService, MoodEntry } from '@/services/backend-diary.service';
 import { getRecommendations, emotionsData } from './moodDiaryUtils';
 import { MoodDiaryData } from './mood/types';
 import MoodStep from './mood/MoodStep';
@@ -80,18 +82,40 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
     }
   };
 
-  const onSubmit = (data: MoodDiaryData) => {
-    // Генерируем рекомендации на основе данных
-    const generatedRecommendations = getRecommendations(data);
-    setRecommendations(generatedRecommendations);
-    
-    console.log('Diary entry saved:', data);
-    // Здесь будет сохранение в базу данных
-    
-    // Вызываем callback о завершении
-    setTimeout(() => {
-      onComplete?.();
-    }, 2000); // Даем время показать рекомендации
+  const onSubmit = async (data: MoodDiaryData) => {
+    try {
+      // Преобразуем данные в формат backend API
+      const moodEntry: MoodEntry = {
+        mood_score: data.mood * 2, // Преобразуем из [-5, 5] в [-10, 10]
+        emotions: data.selectedEmotions.map(emotion => ({
+          name: emotion.name,
+          intensity: emotion.intensity,
+          category: emotion.intensity >= 6 ? 'positive' : 'negative' as 'positive' | 'neutral' | 'negative'
+        })),
+        timestamp: new Date().toISOString(),
+        context: data.emotionConnection,
+        notes: data.moodComment || data.emotionComment || data.gratitude,
+        triggers: data.relatedThoughts ? [data.relatedThoughts] : []
+      };
+
+      // Сохраняем в backend
+      await backendDiaryService.createMoodEntry(moodEntry);
+      toast.success('Запись дневника настроения сохранена');
+
+      // Генерируем рекомендации
+      const generatedRecommendations = getRecommendations(data);
+      setRecommendations(generatedRecommendations);
+      
+      console.log('Diary entry saved:', data);
+      
+      // Вызываем callback о завершении
+      setTimeout(() => {
+        onComplete?.();
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving mood entry:', error);
+      toast.error('Ошибка при сохранении записи дневника');
+    }
   };
 
   const renderCurrentStep = () => {

@@ -154,6 +154,25 @@ const MoodEmotionsChart = () => {
     fetchMoodData(timeRange);
   }, [timeRange]);
 
+  // Автоматическое обновление данных
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchMoodData(timeRange);
+    }, 30000); // Обновляем каждые 30 секунд
+
+    // Обновляем при фокусе окна
+    const handleFocus = () => {
+      fetchMoodData(timeRange);
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [timeRange]);
+
   const currentData = chartData;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
