@@ -52,8 +52,8 @@ const SleepDiary: React.FC<SleepDiaryProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card className="bg-background/70 backdrop-blur-lg border-0 shadow-xl">
+    <div className="w-full">
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Moon className="w-6 h-6 text-primary" />

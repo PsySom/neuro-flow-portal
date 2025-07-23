@@ -147,7 +147,7 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
 
   return (
     <div className="w-full">
-      <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Heart className="w-6 h-6 text-pink-500" />

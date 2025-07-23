@@ -89,39 +89,29 @@ const OCDDiary: React.FC<OCDDiaryProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="w-full">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.history.back()}
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Дневник работы с ОКР
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Шаг {currentStep} из {totalSteps}
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">
+              Дневник работы с ОКР
+            </h2>
+            <span className="text-sm text-muted-foreground">
+              Шаг {currentStep} из {totalSteps}
+            </span>
           </div>
-          
           <Progress value={progress} className="h-2" />
         </div>
 
         {/* Step Content */}
-        {renderStep()}
+        <div className="min-h-[400px]">
+          {renderStep()}
+        </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="text-center p-4 bg-muted/30 rounded-lg">
+          <p className="text-sm text-muted-foreground">
             Любое заполнение дневника — вклад в ваш путь к свободе от ОКР. 
             Даже если кажется, что прогресса нет, вы учитесь замечать себя и заботиться о себе!
           </p>

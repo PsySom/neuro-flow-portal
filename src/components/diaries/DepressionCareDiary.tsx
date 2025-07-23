@@ -150,47 +150,37 @@ const DepressionCareDiary: React.FC<DepressionCareDiaryProps> = ({ onComplete })
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="w-full">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.history.back()}
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Дневник заботливого выхода из депрессии
-              </h1>
-              <p className="text-gray-600 mb-2">
-                {stepTitles[currentStep - 1]} • Шаг {currentStep} из {totalSteps}
-              </p>
-              <p className="text-sm text-purple-600 italic">
-                Этот дневник — твой личный спутник на пути к выздоровлению. 
-                Здесь нет места самокритике, только понимание, поддержка и маленькие шаги к лучшему самочувствию.
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-foreground">
+              Дневник заботливого выхода из депрессии
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {stepTitles[currentStep - 1]} • Шаг {currentStep} из {totalSteps}
+            </p>
+            <p className="text-sm text-primary/80 italic">
+              Этот дневник — твой личный спутник на пути к выздоровлению. 
+              Здесь нет места самокритике, только понимание, поддержка и маленькие шаги к лучшему самочувствию.
+            </p>
           </div>
-          
           <Progress value={progress} className="h-3" />
         </div>
 
         {/* Step Content */}
-        {renderStep()}
+        <div className="min-h-[400px]">
+          {renderStep()}
+        </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <div className="bg-purple-100 border border-purple-200 rounded-xl p-6 max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-purple-900 mb-3">
+        <div className="space-y-4">
+          <div className="bg-secondary/30 border rounded-lg p-4">
+            <h3 className="text-base font-medium text-foreground mb-3">
               💝 Важные напоминания
             </h3>
-            <div className="text-sm text-purple-800 space-y-2">
+            <div className="text-sm text-muted-foreground space-y-1">
               <p>• Нет правильных и неправильных ответов — только твоя правда</p>
               <p>• Прогресс не линейный — плохие дни не означают отсутствие прогресса</p>
               <p>• Маленькие шаги важнее больших скачков</p>
@@ -199,8 +189,8 @@ const DepressionCareDiary: React.FC<DepressionCareDiaryProps> = ({ onComplete })
             </div>
           </div>
           
-          <div className="mt-6 bg-pink-100 border border-pink-200 rounded-xl p-4 max-w-xl mx-auto">
-            <p className="text-sm text-pink-800">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+            <p className="text-sm text-primary">
               🌈 <strong>Депрессия — это не навсегда.</strong> Каждый день, когда ты заполняешь этот дневник, 
               ты делаешь шаг к выздоровлению. Ты достоин/на любви, заботы и счастья.
             </p>
