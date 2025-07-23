@@ -19,16 +19,60 @@ interface ChartDataPoint {
   entry?: MoodEntry;
 }
 
-type TimeRange = 'day' | 'week' | 'month';
+type TimeRange = 'day' | 'week' | 'month' | '30days';
 
 const MoodEmotionsChart = () => {
-  const [timeRange, setTimeRange] = useState<TimeRange>('day');
+  const [timeRange, setTimeRange] = useState<TimeRange>('30days');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Преобразование данных API в формат для графика
   const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeRange): ChartDataPoint[] => {
+    // Для 30-дневного периода группируем записи по дням и вычисляем среднее
+    if (range === '30days') {
+      const dailyGrouped = new Map<string, { moods: number[], emotions: string[], entries: MoodEntry[] }>();
+      
+      entries.forEach(entry => {
+        const date = new Date(entry.timestamp);
+        const dayKey = format(date, 'dd.MM');
+        const normalizedMood = Math.round(entry.mood_score / 2);
+        const emotions = entry.emotions?.map(emotion => emotion.name) || [];
+        
+        if (!dailyGrouped.has(dayKey)) {
+          dailyGrouped.set(dayKey, { moods: [], emotions: [], entries: [] });
+        }
+        
+        const dayData = dailyGrouped.get(dayKey)!;
+        dayData.moods.push(normalizedMood);
+        dayData.emotions.push(...emotions);
+        dayData.entries.push(entry);
+      });
+      
+      const convertedData: ChartDataPoint[] = [];
+      for (const [dayKey, dayData] of dailyGrouped.entries()) {
+        const avgMood = Math.round(dayData.moods.reduce((sum, mood) => sum + mood, 0) / dayData.moods.length);
+        const uniqueEmotions = [...new Set(dayData.emotions)];
+        const latestEntry = dayData.entries[dayData.entries.length - 1];
+        
+        convertedData.push({
+          time: dayKey,
+          mood: avgMood,
+          emotions: uniqueEmotions,
+          connection: latestEntry.context || '',
+          fullDate: format(new Date(latestEntry.timestamp), 'dd.MM.yyyy'),
+          entry: latestEntry
+        });
+      }
+      
+      return convertedData.sort((a, b) => {
+        const [dayA, monthA] = a.time.split('.').map(Number);
+        const [dayB, monthB] = b.time.split('.').map(Number);
+        if (monthA !== monthB) return monthA - monthB;
+        return dayA - dayB;
+      });
+    }
+
     const convertedData: ChartDataPoint[] = [];
 
     entries.forEach(entry => {
@@ -81,6 +125,9 @@ const MoodEmotionsChart = () => {
       } else if (range === 'week') {
         startDate = startOfWeek(now, { weekStartsOn: 1 });
         endDate = endOfWeek(now, { weekStartsOn: 1 });
+      } else if (range === '30days') {
+        startDate = subDays(now, 30);
+        endDate = endOfDay(now);
       } else {
         startDate = startOfMonth(now);
         endDate = endOfMonth(now);
@@ -139,8 +186,8 @@ const MoodEmotionsChart = () => {
           className="cursor-pointer"
           onClick={() => setSelectedPoint(payload)}
         />
-        {/* Для месячного графика показываем эмоджи только для каждого третьего дня */}
-        {(timeRange !== 'month' || index % 3 === 0) && (
+        {/* Для 30-дневного и месячного графика показываем эмоджи только для каждого третьего дня */}
+        {(timeRange !== 'month' && timeRange !== '30days' || index % 3 === 0) && (
           <text 
             x={cx} 
             y={cy - 20} 
@@ -159,7 +206,8 @@ const MoodEmotionsChart = () => {
 
   // Определяем ширину линии в зависимости от периода
   const getLineWidth = () => {
-    return timeRange === 'month' ? 4 : 2; // На 40% толще для месяца (2 * 1.4 ≈ 3, округлим до 4)
+    if (timeRange === '30days') return 3; // Средняя толщина для 30-дневного периода
+    return timeRange === 'month' ? 4 : 2; // На 40% толще для месяца
   };
 
   return (
@@ -170,11 +218,11 @@ const MoodEmotionsChart = () => {
             <span>График настроения и эмоций</span>
             <div className="flex space-x-2">
               <Button
-                variant={timeRange === 'day' ? 'default' : 'outline'}
+                variant={timeRange === '30days' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTimeRange('day')}
+                onClick={() => setTimeRange('30days')}
               >
-                День
+                30 дней
               </Button>
               <Button
                 variant={timeRange === 'week' ? 'default' : 'outline'}
@@ -182,6 +230,13 @@ const MoodEmotionsChart = () => {
                 onClick={() => setTimeRange('week')}
               >
                 Неделя
+              </Button>
+              <Button
+                variant={timeRange === 'day' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('day')}
+              >
+                День
               </Button>
               <Button
                 variant={timeRange === 'month' ? 'default' : 'outline'}
@@ -232,7 +287,7 @@ const MoodEmotionsChart = () => {
           <CardTitle>Подробности точки настроения</CardTitle>
         </CardHeader>
         <CardContent>
-          {selectedPoint && timeRange !== 'month' ? (
+          {selectedPoint && timeRange !== 'month' && timeRange !== '30days' ? (
             <div className="space-y-6">
               <div className="mb-4 p-3 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
@@ -308,6 +363,9 @@ const MoodEmotionsChart = () => {
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <p className="mb-2">Нажмите на точку графика, чтобы увидеть подробности</p>
               <p className="text-sm">Подробности доступны для режимов "День" и "Неделя"</p>
+              {timeRange === '30days' && (
+                <p className="text-sm mt-2">В режиме "30 дней" показываются усредненные данные по дням</p>
+              )}
             </div>
           )}
         </CardContent>
