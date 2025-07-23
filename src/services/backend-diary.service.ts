@@ -7,8 +7,10 @@ export interface MoodEntry {
   user_id?: string;
   mood_score: number; // -10 to 10
   emotions: {
-    [key: string]: number;
-  };
+    name: string;
+    intensity: number; // 0 to 10
+    category: 'positive' | 'neutral' | 'negative';
+  }[];
   timestamp: string; // ISO 8601
   triggers?: string[];
   physical_sensations?: string[];
@@ -22,38 +24,39 @@ export interface ThoughtEntry {
   user_id?: string;
   situation: string;
   automatic_thoughts: {
-    thought: string;
-    belief_level: number;
+    content: string;
+    belief_level: number; // 0 to 100
+    cognitive_distortions?: string[];
   }[];
   emotions: {
-    emotion: string;
-    intensity: number;
+    name: string;
+    intensity: number; // 0 to 10
   }[];
-  timestamp: string; // ISO 8601
+  timestamp?: string; // ISO 8601
   evidence_for?: string[];
   evidence_against?: string[];
   balanced_thought?: string;
-  new_belief_level?: number;
+  new_belief_level?: number; // 0 to 100
   action_plan?: string;
 }
 
 export interface SleepEntry {
   id?: string;
-  sleep_date: string; // YYYY-MM-DD
-  bedtime: string; // HH:MM:SS
-  sleep_time: string; // HH:MM:SS
-  wake_time: string; // HH:MM:SS
-  sleep_quality: number; // -5 to 5
-  awakenings_count: number;
-  sleep_factors?: string[];
-  morning_feeling: number; // -5 to 5
-  day_rest?: {
-    had_rest: boolean;
-    rest_duration: number;
-    rest_quality: number;
-  };
-  day_impact: number; // -5 to 5
-  notes?: string;
+  user_id?: string;
+  bedtime: string; // HH:MM format
+  wake_up_time: string; // HH:MM format
+  sleep_duration: number; // hours (0.5-24.0)
+  sleep_quality: number; // -5 to +5
+  night_awakenings: number; // 0-10
+  sleep_disruptors?: string[];
+  sleep_comment?: string;
+  morning_feeling: number; // 1 to 10
+  has_day_rest: boolean;
+  day_rest_type?: string;
+  day_rest_effectiveness?: number; // 1 to 10
+  overall_sleep_impact: number; // -5 to +5
+  rest_comment?: string;
+  timestamp?: string; // ISO 8601
 }
 
 // === QUERY PARAMETERS ===
@@ -211,6 +214,44 @@ class BackendDiaryService {
   async deleteSleepEntry(entryId: string): Promise<void> {
     try {
       await apiClient.delete(`/diary/sleep/${entryId}`);
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  // === ANALYTICS & STATISTICS ===
+
+  async getMoodStatistics(params?: DiaryQueryParams) {
+    try {
+      const response = await apiClient.get('/diary/mood/statistics', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getMoodTrends(params?: DiaryQueryParams) {
+    try {
+      const response = await apiClient.get('/diary/mood/trends', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getSleepStatistics(params?: DiaryQueryParams) {
+    try {
+      const response = await apiClient.get('/diary/sleep/statistics', { params });
+      return response.data;
+    } catch (error: any) {
+      throw handleApiError(error);
+    }
+  }
+
+  async getSleepTrends(params?: DiaryQueryParams) {
+    try {
+      const response = await apiClient.get('/diary/sleep/trends', { params });
+      return response.data;
     } catch (error: any) {
       throw handleApiError(error);
     }

@@ -47,8 +47,8 @@ const MoodEmotionsChart = () => {
         timeLabel = format(date, 'd');
       }
 
-      // Извлекаем эмоции из объекта emotions
-      const emotions = Object.keys(entry.emotions || {});
+      // Извлекаем эмоции из массива emotions
+      const emotions = entry.emotions?.map(emotion => emotion.name) || [];
 
       convertedData.push({
         time: timeLabel,
