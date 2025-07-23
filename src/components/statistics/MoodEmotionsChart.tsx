@@ -36,7 +36,7 @@ const MoodEmotionsChart = () => {
       entries.forEach(entry => {
         const date = new Date(entry.timestamp);
         const dayKey = format(date, 'dd');
-        const normalizedMood = Math.round(entry.mood_score / 2);
+        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
         const emotions = entry.emotions?.map(emotion => emotion.name) || [];
         
         if (!dailyGrouped.has(dayKey)) {
@@ -84,7 +84,7 @@ const MoodEmotionsChart = () => {
       entries.forEach(entry => {
         const date = new Date(entry.timestamp);
         const hourKey = format(date, 'HH:mm');
-        const normalizedMood = Math.round(entry.mood_score / 2);
+        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
         const emotions = entry.emotions?.map(emotion => emotion.name) || [];
 
         hourlyData.set(hourKey, {
@@ -108,7 +108,7 @@ const MoodEmotionsChart = () => {
       entries.forEach(entry => {
         const date = new Date(entry.timestamp);
         const dayKey = format(date, 'EEEE', { locale: ru });
-        const normalizedMood = Math.round(entry.mood_score / 2);
+        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
         const emotions = entry.emotions?.map(emotion => emotion.name) || [];
         
         if (!weeklyData.has(dayKey)) {
@@ -150,7 +150,7 @@ const MoodEmotionsChart = () => {
       entries.forEach(entry => {
         const date = new Date(entry.timestamp);
         const day = date.getDate();
-        const normalizedMood = Math.round(entry.mood_score / 2);
+        const normalizedMood = entry.mood_score; // Данные уже в формате -5/+5
         const emotions = entry.emotions?.map(emotion => emotion.name) || [];
         
         if (!monthlyData.has(day)) {

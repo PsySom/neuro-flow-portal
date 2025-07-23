@@ -84,13 +84,13 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
 
   const onSubmit = async (data: MoodDiaryData) => {
     try {
-      // Преобразуем данные в формат backend API
+      // Отправляем данные в исходном формате фронтенда (бэкенд автоматически сконвертирует)
       const moodEntry: MoodEntry = {
-        mood_score: data.mood * 2, // Преобразуем из [-5, 5] в [-10, 10]
+        mood_score: data.mood, // Оставляем в исходном формате [-5, 5]
         emotions: data.selectedEmotions.map(emotion => ({
           name: emotion.name,
           intensity: emotion.intensity,
-          category: emotion.intensity >= 6 ? 'positive' : 'negative' as 'positive' | 'neutral' | 'negative'
+          category: 'neutral' as 'positive' | 'neutral' | 'negative' // Бэкенд автоматически определит категорию
         })),
         timestamp: new Date().toISOString(),
         context: data.emotionConnection,
@@ -98,7 +98,7 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
         triggers: data.relatedThoughts ? [data.relatedThoughts] : []
       };
 
-      // Сохраняем в backend
+      // Сохраняем в backend через новый frontend endpoint
       await backendDiaryService.createMoodEntry(moodEntry);
       toast.success('Запись дневника настроения сохранена');
 
