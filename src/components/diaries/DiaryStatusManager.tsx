@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Play, Pause, Square } from 'lucide-react';
-import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
+import { useDiaryStatus, type MoodDiaryConfig } from '@/contexts/DiaryStatusContext';
+import MoodDiaryConfigDialog from './MoodDiaryConfigDialog';
 
 export interface DiaryStatus {
   id: string;
@@ -10,6 +11,7 @@ export interface DiaryStatus {
   isPaused: boolean;
   lastEntryDate: string | null;
   scheduledDate: string | null;
+  config?: MoodDiaryConfig;
 }
 
 interface DiaryStatusManagerProps {
@@ -46,6 +48,9 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   };
 
   const [status, setStatus] = useState<DiaryStatus>(getInitialStatus());
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
+
+  const isMoodDiary = diaryPath === '/mood-diary';
 
   const updateStatus = (newStatus: Partial<DiaryStatus>) => {
     const updatedStatus = { ...status, ...newStatus };
@@ -59,7 +64,21 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   };
 
   const handleActivate = () => {
-    updateStatus({ isActive: true, isPaused: false });
+    if (isMoodDiary) {
+      setShowConfigDialog(true);
+    } else {
+      updateStatus({ isActive: true, isPaused: false });
+    }
+  };
+
+  const handleMoodDiaryConfig = (config: MoodDiaryConfig) => {
+    updateStatus({ 
+      isActive: true, 
+      isPaused: false, 
+      config,
+      lastEntryDate: null,
+      scheduledDate: new Date().toISOString().split('T')[0]
+    });
   };
 
   const handlePause = () => {
@@ -154,6 +173,15 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
       <span className="text-gray-500 ml-2">
         Последняя: {formatDate(status.lastEntryDate)}
       </span>
+
+      {/* Диалог конфигурации для дневника настроения */}
+      {isMoodDiary && (
+        <MoodDiaryConfigDialog
+          open={showConfigDialog}
+          onOpenChange={setShowConfigDialog}
+          onSave={handleMoodDiaryConfig}
+        />
+      )}
     </div>
   );
 };

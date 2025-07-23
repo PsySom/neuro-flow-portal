@@ -13,7 +13,11 @@ import ClarifyingQuestionsStep from './mood/ClarifyingQuestionsStep';
 import SelfEvaluationStep from './mood/SelfEvaluationStep';
 import RecommendationsStep from './mood/RecommendationsStep';
 
-const MoodDiary = () => {
+interface MoodDiaryProps {
+  onComplete?: () => void;
+}
+
+const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [moodValue, setMoodValue] = useState([0]);
   const [selectedEmotions, setSelectedEmotions] = useState<Array<{name: string; intensity: number}>>([]);
@@ -83,6 +87,11 @@ const MoodDiary = () => {
     
     console.log('Diary entry saved:', data);
     // Здесь будет сохранение в базу данных
+    
+    // Вызываем callback о завершении
+    setTimeout(() => {
+      onComplete?.();
+    }, 2000); // Даем время показать рекомендации
   };
 
   const renderCurrentStep = () => {
@@ -137,7 +146,7 @@ const MoodDiary = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="w-full">
       <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">

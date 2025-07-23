@@ -1,12 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { DiaryStatus } from '@/components/diaries/DiaryStatusManager';
 
+interface MoodDiaryConfig {
+  entriesPerDay: number;
+  fillingTimes: string[];
+  reminderTimes: string[];
+  activationDate: string;
+  fillDays: number;
+}
+
 interface DiaryData {
   title: string;
   emoji: string;
   path: string;
   description: string;
   color: string;
+  config?: MoodDiaryConfig;
 }
 
 interface DiaryStatusContextType {
@@ -14,6 +23,8 @@ interface DiaryStatusContextType {
   updateDiaryStatus: (diaryPath: string, status: DiaryStatus, diaryData: DiaryData) => void;
   removeDiary: (diaryPath: string) => void;
 }
+
+export type { MoodDiaryConfig, DiaryData };
 
 const DiaryStatusContext = createContext<DiaryStatusContextType | undefined>(undefined);
 
