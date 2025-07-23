@@ -188,7 +188,60 @@ const MoodEmotionsChart = () => {
     return convertedData;
   };
 
-  // Получение данных из API
+  // Функция для генерации демо-данных локально
+  const generateLocalDemoData = (range: TimeRange): ChartDataPoint[] => {
+    const demoData: ChartDataPoint[] = [];
+    const now = new Date();
+
+    if (range === 'day') {
+      // Дневной режим: от 00:00 до 24:00 (каждые 2 часа)
+      for (let hour = 0; hour <= 24; hour += 2) {
+        const timeString = `${hour.toString().padStart(2, '0')}:00`;
+        const mood = Math.floor(Math.random() * 11) - 5; // от -5 до +5
+        demoData.push({
+          time: timeString,
+          mood,
+          emotions: ['спокойствие', 'радость'].slice(0, Math.random() > 0.5 ? 1 : 2),
+          connection: 'Демо-контекст',
+          fullDate: format(now, 'dd.MM.yyyy') + ' ' + timeString
+        });
+      }
+    } else if (range === 'week') {
+      // Недельный режим: дни недели с датами
+      const daysOfWeek = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - 6 + i);
+        const dayName = daysOfWeek[i];
+        const dateStr = format(date, 'dd.MM');
+        const mood = Math.floor(Math.random() * 11) - 5;
+        
+        demoData.push({
+          time: `${dayName} ${dateStr}`,
+          mood,
+          emotions: ['настроение', 'энергия'],
+          connection: 'Демо-контекст недели',
+          fullDate: format(date, 'dd.MM.yyyy')
+        });
+      }
+    } else if (range === 'month' || range === '30days') {
+      // Месячный режим: числа от 1 до 30
+      for (let day = 1; day <= 30; day++) {
+        const mood = Math.floor(Math.random() * 11) - 5;
+        demoData.push({
+          time: day.toString(),
+          mood,
+          emotions: ['настроение'],
+          connection: 'Демо-контекст месяца',
+          fullDate: `${day.toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`
+        });
+      }
+    }
+
+    return demoData;
+  };
+
+  // Получение данных из API с fallback на локальные демо-данные
   const fetchMoodData = async (range: TimeRange) => {
     setIsLoading(true);
     try {
@@ -215,11 +268,21 @@ const MoodEmotionsChart = () => {
         sort_desc: false
       });
 
-      const chartData = convertMoodEntriesToChartData(entries, range);
-      setChartData(chartData);
+      if (entries.length > 0) {
+        const chartData = convertMoodEntriesToChartData(entries, range);
+        setChartData(chartData);
+      } else {
+        // Если нет данных от API, используем локальные демо-данные
+        console.log('🔄 Используем локальные демо-данные для', range);
+        const demoData = generateLocalDemoData(range);
+        setChartData(demoData);
+      }
     } catch (error) {
-      console.error('Ошибка при загрузке данных настроения:', error);
-      setChartData([]);
+      console.error('❌ Ошибка при загрузке данных настроения:', error);
+      // В случае ошибки используем локальные демо-данные
+      console.log('🔄 Fallback на локальные демо-данные');
+      const demoData = generateLocalDemoData(range);
+      setChartData(demoData);
     } finally {
       setIsLoading(false);
     }
