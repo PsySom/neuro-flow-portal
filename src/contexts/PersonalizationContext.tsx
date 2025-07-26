@@ -156,11 +156,20 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
 
     // Apply accent color variables
     const colors = colorVariables[settingsToApply.accentColor] || colorVariables.emerald;
+    
+    // Update psybalans color variables
     root.style.setProperty('--psybalans-primary', colors.primary);
     root.style.setProperty('--psybalans-secondary', colors.secondary);
     root.style.setProperty('--psybalans-accent', colors.accent);
     root.style.setProperty('--psybalans-accent-light', colors.light);
     root.style.setProperty('--psybalans-accent-dark', colors.dark);
+    
+    // Update base color variables that control the main CSS variables
+    root.style.setProperty('--color-primary', colors.primary);
+    root.style.setProperty('--color-secondary', colors.secondary);
+    root.style.setProperty('--color-accent', colors.accent);
+    root.style.setProperty('--color-accent-light', colors.light);
+    root.style.setProperty('--color-accent-dark', colors.dark);
 
     // Apply font size
     const fontSize = fontSizeVariables[settingsToApply.fontSize];

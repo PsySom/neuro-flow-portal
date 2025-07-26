@@ -51,7 +51,6 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onOpenChange }) =
   ];
 
   const handleSave = () => {
-    applySettings();
     onOpenChange(false);
   };
 
