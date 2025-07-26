@@ -192,15 +192,15 @@ const Step7CrisisSupport: React.FC<Step7CrisisSupportProps> = ({
               </p>
 
               {/* Близкий человек #1 */}
-              <div className="bg-white p-4 rounded-lg border">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
                 <h4 className="font-medium text-blue-900 mb-3">Близкий человек #1</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <Label>Имя</Label>
                     <Input
                       value={data.supportNetwork?.person1?.name || ''}
                       onChange={(e) => handleSupportNetworkChange('person1', 'name', e.target.value)}
-                      placeholder="Имя контакта..."
+                      placeholder="Имя близкого человека..."
                       className="mt-1"
                     />
                   </div>
@@ -213,28 +213,19 @@ const Step7CrisisSupport: React.FC<Step7CrisisSupportProps> = ({
                       className="mt-1"
                     />
                   </div>
-                  <div>
-                    <Label>Когда лучше звонить</Label>
-                    <Input
-                      value={data.supportNetwork?.person1?.bestTime || ''}
-                      onChange={(e) => handleSupportNetworkChange('person1', 'bestTime', e.target.value)}
-                      placeholder="Время..."
-                      className="mt-1"
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Близкий человек #2 */}
-              <div className="bg-white p-4 rounded-lg border">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
                 <h4 className="font-medium text-blue-900 mb-3">Близкий человек #2</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <Label>Имя</Label>
                     <Input
                       value={data.supportNetwork?.person2?.name || ''}
                       onChange={(e) => handleSupportNetworkChange('person2', 'name', e.target.value)}
-                      placeholder="Имя контакта..."
+                      placeholder="Имя близкого человека..."
                       className="mt-1"
                     />
                   </div>
@@ -247,20 +238,11 @@ const Step7CrisisSupport: React.FC<Step7CrisisSupportProps> = ({
                       className="mt-1"
                     />
                   </div>
-                  <div>
-                    <Label>Когда лучше звонить</Label>
-                    <Input
-                      value={data.supportNetwork?.person2?.bestTime || ''}
-                      onChange={(e) => handleSupportNetworkChange('person2', 'bestTime', e.target.value)}
-                      placeholder="Время..."
-                      className="mt-1"
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Специалист */}
-              <div className="bg-white p-4 rounded-lg border">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
                 <h4 className="font-medium text-blue-900 mb-3">Специалист (психолог/врач)</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>

@@ -363,7 +363,7 @@ const Step5OvercomingAvoidance: React.FC<Step5OvercomingAvoidanceProps> = ({
                 />
               </div>
 
-              <div className="bg-white p-4 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                 <p className="text-sm text-purple-800">
                   <strong>Напоминание:</strong> Лучше сделанное на 70%, чем не сделанное на 100%.
                 </p>

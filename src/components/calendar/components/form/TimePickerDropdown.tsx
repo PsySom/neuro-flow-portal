@@ -103,7 +103,7 @@ const TimePickerDropdown: React.FC<TimePickerDropdownProps> = ({
   return (
     <div
       ref={dropdownRef}
-      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
+      className="fixed z-50 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
       style={{
         top: position.top,
         left: position.left,

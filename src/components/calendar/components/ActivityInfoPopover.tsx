@@ -178,7 +178,7 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
       
       {/* Popover */}
       <div
-        className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm"
+        className="fixed z-50 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm"
         style={getPopoverStyle()}
         onClick={(e) => e.stopPropagation()}
       >

@@ -25,7 +25,7 @@ const DashboardBottomNav = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/98 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="grid grid-cols-3 gap-4">
           {/* Состояние */}

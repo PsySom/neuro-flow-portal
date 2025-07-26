@@ -65,7 +65,7 @@ const AIDiary = () => {
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl hover:shadow-2xl transition-all duration-500">
+        <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl hover:shadow-2xl transition-all duration-500">
           <CardHeader className="text-center pb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
               <Sparkles className="w-8 h-8 text-white" />

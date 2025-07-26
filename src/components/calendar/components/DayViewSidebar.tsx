@@ -66,7 +66,7 @@ const DayViewSidebar: React.FC<DayViewSidebarProps> = ({
   return (
     <div className="w-64 space-y-4 flex-shrink-0">
       {/* Миниатюра календаря */}
-      <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <CardContent className="p-3">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-medium text-gray-700">Календарь</h3>

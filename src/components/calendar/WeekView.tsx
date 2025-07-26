@@ -91,34 +91,30 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
           />
         </div>
         <div className="flex-1">
-          <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+          <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
             <CardContent className="p-6">
-              <div className="flex flex-col items-center justify-center h-96 space-y-4">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p>Синхронизация недельных активностей...</p>
-                </div>
-                <ActivitySyncIndicator />
-              </div>
+              <div className="text-center text-gray-500">Загрузка...</div>
             </CardContent>
           </Card>
         </div>
       </div>
     );
   }
+
   return (
     <>
       <div className="flex gap-6">
-        <DayViewSidebar
-          currentDate={currentDate}
-          activities={weekActivities}
-          filteredTypes={filteredTypes}
-          onTypeFilterChange={handleTypeFilterChange}
-          onDateSelect={handleDateSelect}
-        />
-
+        <div className="w-64">
+          <DayViewSidebar
+            currentDate={currentDate}
+            activities={weekActivities}
+            filteredTypes={filteredTypes}
+            onTypeFilterChange={handleTypeFilterChange}
+            onDateSelect={handleDateSelect}
+          />
+        </div>
         <div className="flex-1">
-          <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+          <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
             <CardContent className="p-0">
               <div className="flex items-center justify-between p-4 border-b">
                 <h3 className="text-lg font-medium">Календарь недели</h3>

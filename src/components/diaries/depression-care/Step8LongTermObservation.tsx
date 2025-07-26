@@ -446,7 +446,7 @@ const Step8LongTermObservation: React.FC<Step8LongTermObservationProps> = ({
 
           {/* Завершение */}
           <div className="text-center py-8">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-auto border-2 border-green-200">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-auto border-2 border-green-200 dark:border-green-700">
               <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center justify-center">
                 <Check className="w-6 h-6 mr-2" />
                 🌈 Поздравляем!

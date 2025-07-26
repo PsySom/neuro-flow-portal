@@ -94,24 +94,24 @@ const ActivityTimelineComponent = () => {
   // Loading state
   if (isLoading) {
     return (
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="h-[600px] bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <div className="flex items-center justify-center h-full">
-          <LoaderCircle className="w-6 h-6 animate-spin" />
-          <span className="ml-2">Загрузка активностей...</span>
+          <div className="text-center">
+            <div className="inline-flex items-center space-x-2 text-gray-500">
+              <div className="w-6 h-6 border-2 border-gray-400 border-t-emerald-500 rounded-full animate-spin"></div>
+              <span>Загрузка активностей...</span>
+            </div>
+          </div>
         </div>
       </Card>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="h-[600px] bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <div className="flex items-center justify-center h-full text-center text-red-600">
-          <div>
-            <p>Ошибка загрузки активностей</p>
-            <p className="text-sm mt-2">Проверьте подключение к серверу</p>
-          </div>
+          <p>Ошибка загрузки активностей</p>
         </div>
       </Card>
     );
@@ -119,7 +119,7 @@ const ActivityTimelineComponent = () => {
 
   return (
     <>
-      <Card className="h-[600px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="h-[600px] bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <ActivityTimelineHeader 
           formattedDate={formattedDate}
           onAddClick={() => setIsDialogOpen(true)}

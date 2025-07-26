@@ -51,7 +51,7 @@ const MoodTimeline = () => {
         </p>
       </div>
 
-      <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
             <CardTitle className="flex items-center space-x-2">

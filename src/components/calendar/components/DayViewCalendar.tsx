@@ -75,7 +75,7 @@ const DayViewCalendar: React.FC<DayViewCalendarProps> = ({
   }, [currentDate]);
 
   return (
-    <Card className="flex-1 h-[700px] bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+    <Card className="flex-1 h-[700px] bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-6">
         <DayViewHeader
           visibleActivitiesCount={visibleActivities.length}

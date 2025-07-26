@@ -67,16 +67,16 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
 
   if (isLoading) {
     return (
-      <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+      <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center h-96">Загрузка активностей...</div>
+          <div className="text-center text-gray-500">Выберите месяц для просмотра</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+    <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-0">
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="text-lg font-medium">Календарь месяца</h3>

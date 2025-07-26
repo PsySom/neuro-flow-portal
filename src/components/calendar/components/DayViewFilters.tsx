@@ -40,7 +40,7 @@ const DayViewFilters: React.FC<DayViewFiltersProps> = ({
   };
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+    <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
       <CardContent className="p-3">
         <h3 className="text-xs font-medium mb-2 text-gray-700">Фильтры активностей</h3>
         <div className="space-y-2">

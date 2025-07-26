@@ -20,7 +20,7 @@ const BalanceWheelComponent = () => {
   ];
 
   return (
-    <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+    <Card className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border-0 shadow-xl">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Activity className="w-5 h-5 text-emerald-600" />

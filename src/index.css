@@ -72,57 +72,57 @@
   }
 
   .dark {
-    --background: 228 20% 16%;
-    --foreground: 225 15% 82%;
+    --background: 220 13% 9%;
+    --foreground: 210 20% 90%;
 
-    --card: 228 18% 18%;
-    --card-foreground: 225 15% 82%;
+    --card: 220 13% 12%;
+    --card-foreground: 210 20% 90%;
 
-    --popover: 228 18% 18%;
-    --popover-foreground: 225 15% 82%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 210 20% 90%;
 
-    --primary: 225 15% 78%;
-    --primary-foreground: 228 20% 16%;
+    --primary: 210 20% 85%;
+    --primary-foreground: 220 13% 9%;
 
-    --secondary: 228 15% 24%;
-    --secondary-foreground: 225 15% 78%;
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 210 20% 85%;
 
-    --muted: 228 15% 22%;
-    --muted-foreground: 225 12% 58%;
+    --muted: 220 13% 14%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 228 15% 24%;
-    --accent-foreground: 225 15% 78%;
+    --accent: 220 13% 15%;
+    --accent-foreground: 210 20% 85%;
 
-    --destructive: 0 55% 52%;
-    --destructive-foreground: 225 15% 82%;
+    --destructive: 0 62% 58%;
+    --destructive-foreground: 210 20% 90%;
 
-    --border: 228 15% 26%;
-    --input: 228 15% 26%;
-    --ring: 225 15% 68%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 215 20% 65%;
 
-    --sidebar-background: 228 18% 20%;
-    --sidebar-foreground: 225 15% 78%;
+    --sidebar-background: 220 13% 11%;
+    --sidebar-foreground: 210 20% 85%;
     --sidebar-primary: 224.3 68% 58%;
-    --sidebar-primary-foreground: 228 20% 16%;
-    --sidebar-accent: 228 15% 24%;
-    --sidebar-accent-foreground: 225 15% 78%;
-    --sidebar-border: 228 15% 26%;
+    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 210 20% 85%;
+    --sidebar-border: 220 13% 18%;
     --sidebar-ring: 217.2 82% 62%;
 
-    /* Dark theme colors - Night Mode */
-    --psybalans-bg: 228 20% 16%;
-    --psybalans-card: 228 18% 20%;
+    /* Dark theme colors - Night Mode optimized */
+    --psybalans-bg: 220 13% 9%;
+    --psybalans-card: 220 13% 12%;
     --psybalans-primary: var(--color-primary);
     --psybalans-secondary: var(--color-secondary);
     --psybalans-accent: var(--color-accent);
     --psybalans-accent-light: var(--color-accent-light);
     --psybalans-accent-dark: var(--color-accent-dark);
-    --psybalans-warning: 28 85% 62%;
+    --psybalans-warning: 35 90% 68%;
     --psybalans-success: var(--color-primary);
-    --psybalans-muted: 228 15% 22%;
-    --psybalans-border: 228 15% 28%;
-    --psybalans-surface: 228 18% 18%;
-    --psybalans-neutral: 225 12% 62%;
+    --psybalans-muted: 220 13% 14%;
+    --psybalans-border: 220 13% 18%;
+    --psybalans-surface: 220 13% 11%;
+    --psybalans-neutral: 215 20% 65%;
   }
 }
 
@@ -290,12 +290,12 @@
 
 /* Modern glass morphism effects */
 .glass {
-  @apply backdrop-blur-xl bg-white/80 dark:bg-black/20;
+  @apply backdrop-blur-xl bg-white/80 dark:bg-gray-900/40;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .glass-card {
-  @apply backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30;
+  @apply backdrop-blur-md bg-white/90 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20;
 }
 
 /* Hover effects inspired by prototype */

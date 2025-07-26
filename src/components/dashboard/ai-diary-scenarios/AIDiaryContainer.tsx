@@ -15,7 +15,7 @@ const AIDiaryContainer = () => {
   } = useDiaryState();
 
   return (
-    <Card className="h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex flex-col overflow-hidden">
+    <Card className="h-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex flex-col overflow-hidden">
       {!currentSession ? (
         <SessionSelector 
           todaySessions={sessionState.todaySessions}

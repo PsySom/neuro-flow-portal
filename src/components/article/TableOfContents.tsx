@@ -22,7 +22,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
 }) => {
   return (
     <div className="sticky top-8">
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white dark:bg-gray-900/90 border-emerald-200 dark:border-gray-700">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <List className="w-5 h-5 text-emerald-600" />

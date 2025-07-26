@@ -92,7 +92,7 @@ const ArticleResourcesAndTools: React.FC<ArticleResourcesAndToolsProps> = ({
   ];
 
   const renderToolCard = (tool: any, buttonText: string) => (
-    <Card key={tool.id} className="bg-white hover:shadow-md transition-shadow">
+    <Card key={tool.id} className="bg-white dark:bg-gray-900/90 hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
           <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">

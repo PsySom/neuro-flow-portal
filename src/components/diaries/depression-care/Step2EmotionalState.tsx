@@ -226,7 +226,7 @@ const Step2EmotionalState: React.FC<Step2EmotionalStateProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-medium text-orange-800 mb-3">Техника 5-4-3-2-1 (заземление)</h4>
                 <div className="space-y-3">
                   <div>

@@ -20,7 +20,7 @@ const AIChatComponent = () => {
 
         <div className="flex-1 min-h-0 px-6 pb-6">
           <TabsContent value="free-chat" className="h-full mt-4">
-            <Card className="h-full flex flex-col bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+            <Card className="h-full flex flex-col bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
               <FreeChat />
             </Card>
           </TabsContent>
