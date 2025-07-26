@@ -84,36 +84,57 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
 
   const onSubmit = async (data: MoodDiaryData) => {
     try {
-      // Отправляем данные в исходном формате фронтенда (бэкенд автоматически сконвертирует)
+      console.log('💾 Сохранение записи дневника настроения...');
+      
+      // Формируем данные в формате фронтенда (-5/+5) для endpoint /frontend
       const moodEntry: MoodEntry = {
-        mood_score: data.mood, // Оставляем в исходном формате [-5, 5]
-        emotions: data.selectedEmotions.map(emotion => ({
-          name: emotion.name,
-          intensity: emotion.intensity,
-          category: 'neutral' as 'positive' | 'neutral' | 'negative' // Бэкенд автоматически определит категорию
-        })),
+        mood_score: data.mood, // Формат фронтенда -5/+5, бэкенд автоматически конвертирует в -10/+10
+        emotions: data.selectedEmotions.map(emotion => {
+          // Определяем категорию эмоции
+          let category: 'positive' | 'neutral' | 'negative' = 'neutral';
+          if (emotionsData.positive.find(e => e.name === emotion.name)) {
+            category = 'positive';
+          } else if (emotionsData.negative.find(e => e.name === emotion.name)) {
+            category = 'negative';
+          }
+          
+          return {
+            name: emotion.name,
+            intensity: emotion.intensity,
+            category
+          };
+        }),
         timestamp: new Date().toISOString(),
-        context: data.emotionConnection,
-        notes: data.moodComment || data.emotionComment || data.gratitude,
+        context: data.emotionConnection || '',
+        notes: [data.moodComment, data.emotionComment, data.gratitude].filter(Boolean).join('. '),
         triggers: data.relatedThoughts ? [data.relatedThoughts] : []
       };
 
-      // Сохраняем в backend через новый frontend endpoint
-      await backendDiaryService.createMoodEntry(moodEntry);
+      console.log('📝 Данные для отправки:', moodEntry);
+
+      // Сохраняем через backend /frontend endpoint
+      const savedEntry = await backendDiaryService.createMoodEntry(moodEntry);
+      console.log('✅ Запись сохранена:', savedEntry);
+      
+      // Обновляем статус дневника в localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const diaryStatus = JSON.parse(localStorage.getItem('diary-status-/mood-diary') || '{}');
+      const updatedStatus = { ...diaryStatus, lastEntryDate: today };
+      localStorage.setItem('diary-status-/mood-diary', JSON.stringify(updatedStatus));
+      console.log('📅 Статус дневника обновлен:', updatedStatus);
+      
       toast.success('Запись дневника настроения сохранена');
 
       // Генерируем рекомендации
       const generatedRecommendations = getRecommendations(data);
       setRecommendations(generatedRecommendations);
       
-      console.log('Diary entry saved:', data);
-      
       // Вызываем callback о завершении
       setTimeout(() => {
         onComplete?.();
       }, 2000);
     } catch (error) {
-      console.error('Error saving mood entry:', error);
+      console.error('❌ Ошибка при сохранении записи дневника:', error);
       toast.error('Ошибка при сохранении записи дневника');
     }
   };

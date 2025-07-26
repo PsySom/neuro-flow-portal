@@ -7,24 +7,24 @@ export class ChartDataService {
     try {
       const { startDate, endDate } = getDateRange(range);
 
+      // Используем flexible endpoint который поддерживает fallback на демо-данные
       const entries = await backendDiaryService.getMoodEntries({
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
         sort_desc: false
       });
 
+      console.log(`📊 Получено ${entries.length} записей настроения для диапазона ${range}`);
+      
       if (entries.length > 0) {
-        console.log(`✅ Загружено ${entries.length} записей для ${range}`);
         return convertMoodEntriesToChartData(entries, range);
       } else {
-        // Если нет данных от API, используем демо-данные
-        console.log('🔄 Используем демо-данные для', range);
+        // Используем демо-данные если нет реальных записей
+        console.log('📊 Отображаем демо-данные для графика');
         return generateDemoData(range);
       }
     } catch (error) {
-      console.error('❌ Ошибка при загрузке данных настроения:', error);
-      // В случае ошибки используем демо-данные
-      console.log('🔄 Fallback на демо-данные');
+      console.error('❌ Ошибка загрузки данных настроения:', error);
       return generateDemoData(range);
     }
   }
