@@ -7,8 +7,10 @@ import { getMoodEmoji } from '../diaries/moodDiaryUtils';
 import { ChartDataPoint, TimeRange } from './chart-utils/chartDataConverters';
 import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
+import { useBackendAuth } from '@/contexts/BackendAuthContext';
 
 const MoodEmotionsChart = () => {
+  const { isAuthenticated } = useBackendAuth();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
@@ -18,7 +20,7 @@ const MoodEmotionsChart = () => {
   const fetchMoodData = async (range: TimeRange) => {
     setIsLoading(true);
     try {
-      const data = await chartDataService.fetchMoodData(range);
+      const data = await chartDataService.fetchMoodData(range, isAuthenticated);
       setChartData(data);
     } catch (error) {
       console.error('❌ Ошибка при загрузке данных настроения:', error);
@@ -28,16 +30,16 @@ const MoodEmotionsChart = () => {
     }
   };
 
-  // Загрузка данных при изменении диапазона времени
+  // Загрузка данных при изменении диапазона времени или статуса аутентификации
   useEffect(() => {
     fetchMoodData(timeRange);
-  }, [timeRange]);
+  }, [timeRange, isAuthenticated]);
 
   // Автоматическое обновление данных
   useEffect(() => {
     const interval = setInterval(() => {
       fetchMoodData(timeRange);
-    }, 30000); // Обновляем каждые 30 секунд
+    }, 60000); // Обновляем каждую минуту
 
     // Обновляем при фокусе окна
     const handleFocus = () => {
@@ -50,12 +52,22 @@ const MoodEmotionsChart = () => {
       clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [timeRange]);
+  }, [timeRange, isAuthenticated]);
 
   const currentData = chartData;
 
   return (
     <div className="space-y-6">
+      {!isAuthenticated && (
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
+          <CardContent className="pt-6">
+            <p className="text-amber-800 dark:text-amber-200 text-sm">
+              📊 Сейчас отображаются демонстрационные данные. 
+              <strong> Войдите в аккаунт</strong>, чтобы увидеть ваши реальные записи дневника настроения.
+            </p>
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
