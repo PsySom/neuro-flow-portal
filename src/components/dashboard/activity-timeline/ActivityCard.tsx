@@ -10,9 +10,10 @@ import { getActivityTypeColor } from '@/utils/activityTypeColors';
 interface ActivityCardProps {
   activity: Activity;
   startHour: number;
+  onToggleComplete?: (activityId: number | string) => void;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour, onToggleComplete }) => {
   const getDisplayTime = () => {
     const activityStartMinutes = timeToMinutes(activity.startTime);
     const activityEndMinutes = timeToMinutes(activity.endTime);
@@ -32,6 +33,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
     return `${activity.startTime}-${activity.endTime}`;
   };
 
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
+    console.log('ActivityCard: Checkbox changed for activity:', activity.id);
+    if (onToggleComplete) {
+      onToggleComplete(activity.id);
+    }
+  };
+
   return (
     <div 
       className={`${activity.color} rounded-lg p-3 mb-3 border border-gray-200 h-[85px] flex flex-col justify-between`}
@@ -41,7 +53,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, startHour }) => {
           <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-sm p-0.5`}>
             <Checkbox 
               checked={activity.completed}
-              className="w-7 h-7 rounded-sm"
+              onCheckedChange={handleCheckboxChange}
+              onClick={handleCheckboxClick}
+              className="w-7 h-7 rounded-sm cursor-pointer"
+              title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
             />
           </div>
           <div className="flex flex-col space-y-1">
