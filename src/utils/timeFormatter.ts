@@ -110,10 +110,10 @@ export const extractDateFromISO = (isoString: string): string => {
       return new Date().toISOString().split('T')[0];
     }
     
-    // Use UTC date to avoid timezone shifts
-    const year = date.getUTCFullYear();
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-    const day = date.getUTCDate().toString().padStart(2, '0');
+    // Use LOCAL date instead of UTC to match user's timezone and ensure activities stay on their assigned date
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
     
     return `${year}-${month}-${day}`;
   } catch (error) {

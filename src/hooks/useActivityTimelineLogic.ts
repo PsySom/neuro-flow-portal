@@ -9,7 +9,7 @@ export const useActivityTimelineLogic = () => {
   const [lastKnownDate, setLastKnownDate] = useState(getCurrentDateString());
   const { toast } = useToast();
 
-  // Check for date changes every minute
+  // Check for date changes every minute but DO NOT auto-move activities
   useEffect(() => {
     const checkDateChange = () => {
       if (hasDateChanged(lastKnownDate)) {
@@ -18,10 +18,10 @@ export const useActivityTimelineLogic = () => {
         
         setLastKnownDate(newDate);
         
-        // Notify user about the date change
+        // Only notify about date change - activities should stay on their assigned dates
         toast({
           title: "Новый день!",
-          description: "Лента активностей обновлена для новой даты",
+          description: "Активности остаются на своих датах. Создайте новые для сегодня.",
         });
       }
     };

@@ -40,6 +40,7 @@ export const getCurrentDateString = (): string => {
 
 /**
  * Check if an activity belongs to a specific date
+ * FIXED: Activities should stay on their assigned date and not move between days
  */
 export const isActivityForDate = (activity: any, dateString: string): boolean => {
   if (!activity.date) return false;
@@ -55,10 +56,8 @@ export const isActivityForDate = (activity: any, dateString: string): boolean =>
     activityDatePart = activity.date;
   }
   
+  // STRICT date matching - activities must exactly match their assigned date
   const isMatch = activityDatePart === dateString;
-  if (!isMatch) {
-    console.log(`Activity ${activity.id} date mismatch: ${activityDatePart} !== ${dateString}`);
-  }
   
   return isMatch;
 };
