@@ -8,6 +8,7 @@ import { ChartDataPoint, TimeRange } from './chart-utils/chartDataConverters';
 import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
 import { useBackendAuth } from '@/contexts/BackendAuthContext';
+import MockDataInspector from './MockDataInspector';
 
 // Проверяем, используется ли mock режим
 const USE_MOCK = true; // Соответствует настройке в backend-diary.service.ts
@@ -259,6 +260,9 @@ const MoodEmotionsChart = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Инспектор данных для Mock режима */}
+      {USE_MOCK && <MockDataInspector />}
     </div>
   );
 };
