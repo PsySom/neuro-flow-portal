@@ -39,11 +39,6 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     return typeMap[type] || type;
   };
 
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    console.log('DashboardActivityCard: Checkbox clicked, preventing propagation');
-    e.stopPropagation();
-  };
-
   const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
     console.log('DashboardActivityCard: Checkbox changed to:', checked, 'for activity:', activity.id);
     console.log('DashboardActivityCard: Current completion status:', activity.completed);
@@ -55,7 +50,8 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent info popover from opening when clicking on buttons or checkbox
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('.checkbox-container')) {
+    if (target.closest('button') || target.closest('[data-radix-checkbox-root]') || target.closest('.checkbox-container')) {
+      console.log('DashboardActivityCard: Click on checkbox/button, preventing card click');
       return;
     }
 
@@ -84,8 +80,8 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             <Checkbox 
               checked={activity.completed}
               onCheckedChange={handleCheckboxChange}
+              onClick={(e) => e.stopPropagation()}
               className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
-              onClick={handleCheckboxClick}
               title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
             />
           </div>
