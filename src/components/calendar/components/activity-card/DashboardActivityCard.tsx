@@ -55,7 +55,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent info popover from opening when clicking on buttons or checkbox
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[data-radix-checkbox-root]')) {
+    if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('.checkbox-container')) {
       return;
     }
 
@@ -80,7 +80,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       {/* Header row - чекбокс слева, название, кнопки справа */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3 flex-1">
-          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20`}>
+          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20 checkbox-container`}>
             <Checkbox 
               checked={activity.completed}
               onCheckedChange={handleCheckboxChange}
