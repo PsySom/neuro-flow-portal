@@ -34,7 +34,6 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
   const filteredEntries = entries.filter(entry => {
     const entryDate = new Date(entry.timestamp);
     const isInRange = entryDate >= startDate && entryDate <= endDate;
-    console.log(`📝 Запись ${format(entryDate, 'yyyy-MM-dd HH:mm')} в диапазоне: ${isInRange}`);
     return isInRange;
   });
 
@@ -45,42 +44,84 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
     return [];
   }
 
-  const chartData: ChartDataPoint[] = [];
-  const groupedData = new Map<string, MoodEntry[]>();
+  if (range === 'day') {
+    // День: каждая запись отдельно по времени
+    return convertDayData(filteredEntries);
+  } else if (range === 'week') {
+    // Неделя: 3 временных промежутка в день
+    return convertWeekData(filteredEntries);
+  } else {
+    // Месяц: одна запись на день (среднее)
+    return convertMonthData(filteredEntries);
+  }
+};
 
-  // Группируем записи по времени в зависимости от диапазона
-  filteredEntries.forEach(entry => {
+// Конвертация данных для дневного графика - каждая запись отдельно
+const convertDayData = (entries: MoodEntry[]): ChartDataPoint[] => {
+  console.log('📅 Конвертация дневных данных - каждая запись отдельно');
+  
+  const chartData: ChartDataPoint[] = entries.map(entry => {
     const entryDate = new Date(entry.timestamp);
-    let timeKey: string;
+    const timeKey = format(entryDate, 'HH:mm');
+    
+    const emotions = entry.emotions?.map(e => e.name) || [];
+    
+    return {
+      time: timeKey,
+      mood: entry.mood_score,
+      emotions,
+      context: entry.context,
+      notes: entry.notes,
+      triggers: entry.triggers,
+      physical_sensations: entry.physical_sensations,
+      connection: emotions.join(', '),
+      fullDate: format(entryDate, 'dd.MM.yyyy HH:mm')
+    };
+  });
 
-    if (range === 'day') {
-      // Группируем по часам и минутам
-      timeKey = format(entryDate, 'HH:mm');
-    } else if (range === 'week') {
-      // Группируем по дням недели с проверкой что запись в текущей неделе
-      const dayNames = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-      const dayIndex = (entryDate.getDay() + 6) % 7; // Преобразуем воскресенье=0 в понедельник=0
-      const dayName = dayNames[dayIndex];
-      const dateStr = format(entryDate, 'dd.MM');
-      timeKey = `${dayName}\n${dateStr}`;
+  // Сортируем по времени
+  chartData.sort((a, b) => a.time.localeCompare(b.time));
+  
+  console.log(`✅ Дневные данные: ${chartData.length} записей`);
+  return chartData;
+};
+
+// Конвертация данных для недельного графика - 3 промежутка в день
+const convertWeekData = (entries: MoodEntry[]): ChartDataPoint[] => {
+  console.log('📅 Конвертация недельных данных - 3 промежутка в день');
+  
+  const groupedData = new Map<string, MoodEntry[]>();
+  
+  entries.forEach(entry => {
+    const entryDate = new Date(entry.timestamp);
+    const dayNames = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+    const dayIndex = (entryDate.getDay() + 6) % 7;
+    const dayName = dayNames[dayIndex];
+    const dateStr = format(entryDate, 'dd.MM');
+    
+    // Определяем временной промежуток
+    const hours = entryDate.getHours();
+    let timeSlot: string;
+    if (hours < 12) {
+      timeSlot = 'утро';
+    } else if (hours < 17) {
+      timeSlot = 'день'; 
     } else {
-      // Группируем по дням месяца
-      timeKey = format(entryDate, 'd');
+      timeSlot = 'вечер';
     }
-
-    console.log(`🏷️ Запись ${entry.timestamp} → timeKey: "${timeKey}"`);
-
+    
+    const timeKey = `${dayName}\n${dateStr}\n${timeSlot}`;
+    
     if (!groupedData.has(timeKey)) {
       groupedData.set(timeKey, []);
     }
     groupedData.get(timeKey)!.push(entry);
   });
 
-  console.log(`📊 Сгруппировано в ${groupedData.size} временных интервалов:`, Array.from(groupedData.keys()));
-
-  // Конвертируем сгруппированные данные в точки графика
+  const chartData: ChartDataPoint[] = [];
+  
   groupedData.forEach((entriesGroup, timeKey) => {
-    // Усредняем настроение если несколько записей в одном временном интервале
+    // Усредняем настроение если несколько записей в промежутке
     const avgMood = entriesGroup.reduce((sum, entry) => sum + entry.mood_score, 0) / entriesGroup.length;
     
     // Собираем все эмоции
@@ -93,42 +134,96 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
       });
     });
 
-    // Берем контекст и заметки из последней записи
+    // Берем данные из последней записи
     const lastEntry = entriesGroup[entriesGroup.length - 1];
     
     const dataPoint: ChartDataPoint = {
       time: timeKey,
-      mood: avgMood,
+      mood: Math.round(avgMood * 10) / 10, // Округляем до 1 знака
       emotions: allEmotions,
       context: lastEntry.context,
-      notes: lastEntry.notes,
+      notes: `${entriesGroup.length} записей за промежуток`,
       triggers: lastEntry.triggers,
       physical_sensations: lastEntry.physical_sensations,
       connection: allEmotions.join(', '),
       fullDate: format(new Date(lastEntry.timestamp), 'dd.MM.yyyy HH:mm')
     };
 
-    console.log(`✨ Создана точка графика:`, dataPoint);
     chartData.push(dataPoint);
   });
 
-  // Сортируем данные по времени
-  if (range === 'day') {
-    chartData.sort((a, b) => a.time.localeCompare(b.time));
-  } else if (range === 'week') {
-    // Сортировка для недели по дням
-    const weekDayOrder = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
-    chartData.sort((a, b) => {
-      const dayA = a.time.split('\n')[0];
-      const dayB = b.time.split('\n')[0];
-      return weekDayOrder.indexOf(dayA) - weekDayOrder.indexOf(dayB);
-    });
-  } else {
-    // Для месяца сортируем по числу
-    chartData.sort((a, b) => parseInt(a.time) - parseInt(b.time));
-  }
+  // Сортируем по дням недели и времени суток
+  const weekDayOrder = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+  const timeSlotOrder = ['утро', 'день', 'вечер'];
+  
+  chartData.sort((a, b) => {
+    const [dayA, , timeSlotA] = a.time.split('\n');
+    const [dayB, , timeSlotB] = b.time.split('\n');
+    
+    const dayDiff = weekDayOrder.indexOf(dayA) - weekDayOrder.indexOf(dayB);
+    if (dayDiff !== 0) return dayDiff;
+    
+    return timeSlotOrder.indexOf(timeSlotA) - timeSlotOrder.indexOf(timeSlotB);
+  });
+  
+  console.log(`✅ Недельные данные: ${chartData.length} временных промежутков`);
+  return chartData;
+};
 
-  console.log(`✅ Конвертировано в ${chartData.length} точек графика:`, chartData);
+// Конвертация данных для месячного графика - среднее за день
+const convertMonthData = (entries: MoodEntry[]): ChartDataPoint[] => {
+  console.log('📅 Конвертация месячных данных - среднее за день');
+  
+  const groupedData = new Map<string, MoodEntry[]>();
+  
+  entries.forEach(entry => {
+    const entryDate = new Date(entry.timestamp);
+    const dayKey = format(entryDate, 'd'); // День месяца
+    
+    if (!groupedData.has(dayKey)) {
+      groupedData.set(dayKey, []);
+    }
+    groupedData.get(dayKey)!.push(entry);
+  });
+
+  const chartData: ChartDataPoint[] = [];
+  
+  groupedData.forEach((entriesGroup, dayKey) => {
+    // Усредняем настроение за день
+    const avgMood = entriesGroup.reduce((sum, entry) => sum + entry.mood_score, 0) / entriesGroup.length;
+    
+    // Собираем все эмоции за день
+    const allEmotions: string[] = [];
+    entriesGroup.forEach(entry => {
+      entry.emotions?.forEach(emotion => {
+        if (!allEmotions.includes(emotion.name)) {
+          allEmotions.push(emotion.name);
+        }
+      });
+    });
+
+    // Берем данные из последней записи дня
+    const lastEntry = entriesGroup[entriesGroup.length - 1];
+    
+    const dataPoint: ChartDataPoint = {
+      time: dayKey,
+      mood: Math.round(avgMood * 10) / 10, // Округляем до 1 знака
+      emotions: allEmotions,
+      context: lastEntry.context,
+      notes: `${entriesGroup.length} записей за день`,
+      triggers: lastEntry.triggers,
+      physical_sensations: lastEntry.physical_sensations,
+      connection: allEmotions.join(', '),
+      fullDate: format(new Date(lastEntry.timestamp), 'dd.MM.yyyy')
+    };
+
+    chartData.push(dataPoint);
+  });
+
+  // Сортируем по дням месяца
+  chartData.sort((a, b) => parseInt(a.time) - parseInt(b.time));
+  
+  console.log(`✅ Месячные данные: ${chartData.length} дней`);
   return chartData;
 };
 
