@@ -23,19 +23,41 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
     return [];
   }
 
+  // Получаем диапазон дат для фильтрации
+  const { startDate, endDate } = getDateRange(range);
+  console.log(`📅 Диапазон для ${range}:`, { 
+    start: format(startDate, 'yyyy-MM-dd HH:mm'), 
+    end: format(endDate, 'yyyy-MM-dd HH:mm') 
+  });
+
+  // Фильтруем записи по диапазону
+  const filteredEntries = entries.filter(entry => {
+    const entryDate = new Date(entry.timestamp);
+    const isInRange = entryDate >= startDate && entryDate <= endDate;
+    console.log(`📝 Запись ${format(entryDate, 'yyyy-MM-dd HH:mm')} в диапазоне: ${isInRange}`);
+    return isInRange;
+  });
+
+  console.log(`🔍 Отфильтровано ${filteredEntries.length} записей из ${entries.length} для диапазона ${range}`);
+
+  if (filteredEntries.length === 0) {
+    console.log('📊 Нет записей в указанном диапазоне');
+    return [];
+  }
+
   const chartData: ChartDataPoint[] = [];
   const groupedData = new Map<string, MoodEntry[]>();
 
   // Группируем записи по времени в зависимости от диапазона
-  entries.forEach(entry => {
+  filteredEntries.forEach(entry => {
     const entryDate = new Date(entry.timestamp);
     let timeKey: string;
 
     if (range === 'day') {
-      // Группируем по часам
+      // Группируем по часам и минутам
       timeKey = format(entryDate, 'HH:mm');
     } else if (range === 'week') {
-      // Группируем по дням недели  
+      // Группируем по дням недели с проверкой что запись в текущей неделе
       const dayNames = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
       const dayIndex = (entryDate.getDay() + 6) % 7; // Преобразуем воскресенье=0 в понедельник=0
       const dayName = dayNames[dayIndex];
@@ -46,11 +68,15 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
       timeKey = format(entryDate, 'd');
     }
 
+    console.log(`🏷️ Запись ${entry.timestamp} → timeKey: "${timeKey}"`);
+
     if (!groupedData.has(timeKey)) {
       groupedData.set(timeKey, []);
     }
     groupedData.get(timeKey)!.push(entry);
   });
+
+  console.log(`📊 Сгруппировано в ${groupedData.size} временных интервалов:`, Array.from(groupedData.keys()));
 
   // Конвертируем сгруппированные данные в точки графика
   groupedData.forEach((entriesGroup, timeKey) => {
@@ -70,7 +96,7 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
     // Берем контекст и заметки из последней записи
     const lastEntry = entriesGroup[entriesGroup.length - 1];
     
-    chartData.push({
+    const dataPoint: ChartDataPoint = {
       time: timeKey,
       mood: avgMood,
       emotions: allEmotions,
@@ -80,14 +106,17 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
       physical_sensations: lastEntry.physical_sensations,
       connection: allEmotions.join(', '),
       fullDate: format(new Date(lastEntry.timestamp), 'dd.MM.yyyy HH:mm')
-    });
+    };
+
+    console.log(`✨ Создана точка графика:`, dataPoint);
+    chartData.push(dataPoint);
   });
 
   // Сортируем данные по времени
   if (range === 'day') {
     chartData.sort((a, b) => a.time.localeCompare(b.time));
   } else if (range === 'week') {
-    // Сортировка для недели более сложная
+    // Сортировка для недели по дням
     const weekDayOrder = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
     chartData.sort((a, b) => {
       const dayA = a.time.split('\n')[0];
@@ -99,7 +128,7 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
     chartData.sort((a, b) => parseInt(a.time) - parseInt(b.time));
   }
 
-  console.log(`✅ Конвертировано в ${chartData.length} точек графика`, chartData);
+  console.log(`✅ Конвертировано в ${chartData.length} точек графика:`, chartData);
   return chartData;
 };
 

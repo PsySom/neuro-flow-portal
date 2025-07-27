@@ -44,28 +44,24 @@ class MockDiaryService {
     }
     
     let entries = [...this.mockMoodEntries];
+    console.log(`🟡 Mock: Loaded ${entries.length} total entries from localStorage`);
     
-    // Применяем фильтры если переданы параметры
-    if (params?.start_date) {
-      entries = entries.filter(entry => 
-        new Date(entry.timestamp) >= new Date(params.start_date!)
-      );
-    }
+    // ВАЖНО: НЕ ПРИМЕНЯЕМ фильтры по датам здесь!
+    // Фильтрация будет выполнена в chartDataConverters.ts
+    // Это позволяет корректно обрабатывать временные диапазоны
     
-    if (params?.end_date) {
-      entries = entries.filter(entry => 
-        new Date(entry.timestamp) <= new Date(params.end_date!)
-      );
-    }
-    
-    // Сортировка
+    // Только сортировка
     if (params?.sort_desc) {
       entries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     } else {
       entries.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     }
     
-    console.log(`✅ Mock: Found ${entries.length} mood entries`);
+    console.log(`✅ Mock: Returning ${entries.length} mood entries (без фильтрации по датам)`);
+    entries.forEach(entry => {
+      console.log(`  📝 Entry: ${entry.timestamp} (mood: ${entry.mood_score})`);
+    });
+    
     return entries;
   }
 
