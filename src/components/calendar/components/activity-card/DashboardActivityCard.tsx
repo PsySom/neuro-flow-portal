@@ -28,6 +28,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   onCheckboxToggle
 }) => {
   const { activity } = layout;
+  console.log('DashboardActivityCard: Rendering activity:', activity.name, 'completed:', activity.completed);
 
   const getDisplayType = (type: string) => {
     const typeMap: Record<string, string> = {

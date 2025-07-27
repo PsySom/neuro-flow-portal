@@ -12,7 +12,7 @@ interface TimelineContentWithTimeProps {
   activities: Activity[];
   onActivityToggle: (activityId: number | string) => void;
   onActivityDelete: (activityId: number | string, deleteOption?: DeleteRecurringOption) => void;
-  onActivityUpdate: (updatedActivity: Activity, recurringOptions?: RecurringActivityOptions) => void;
+  onActivityUpdate: (activityId: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
   isEmpty: boolean;
   formattedDate: string;
 }
@@ -36,12 +36,7 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
   // Adapter function to convert ActivityCard's onUpdate signature to our onActivityUpdate signature
   const handleActivityCardUpdate = (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log('TimelineContent: Activity update requested for', id, updates);
-    const activityToUpdate = activities.find(a => a.id === id);
-    if (activityToUpdate) {
-      const updatedActivity = { ...activityToUpdate, ...updates };
-      console.log('TimelineContent: Updated activity data:', updatedActivity);
-      onActivityUpdate(updatedActivity, recurringOptions);
-    }
+    onActivityUpdate(id, updates, recurringOptions);
   };
 
   // Enhanced toggle function with proper type handling

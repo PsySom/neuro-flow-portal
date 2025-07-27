@@ -60,9 +60,9 @@ const ActivityTimelineComponent = () => {
       .catch(error => console.error('Failed to create activity:', error));
   };
 
-  const handleActivityUpdate = (updatedActivity: Activity, recurringOptions?: any) => {
-    console.log('ActivityTimeline updating activity:', updatedActivity.id, updatedActivity, recurringOptions);
-    updateActivity(updatedActivity.id, updatedActivity, recurringOptions)
+  const handleActivityUpdate = (activityId: number | string, updates: Partial<Activity>, recurringOptions?: any) => {
+    console.log('ActivityTimeline updating activity:', activityId, updates, recurringOptions);
+    updateActivity(activityId, updates, recurringOptions)
       .then(() => setIsDetailsDialogOpen(false))
       .catch(error => console.error('Failed to update activity:', error));
   };
@@ -150,7 +150,7 @@ const ActivityTimelineComponent = () => {
           open={isDetailsDialogOpen}
           onOpenChange={setIsDetailsDialogOpen}
           activity={selectedActivity}
-          onActivityUpdate={handleActivityUpdate}
+          onActivityUpdate={(activity, recurringOptions) => handleActivityUpdate(activity.id, activity, recurringOptions)}
           onDelete={(activityId) => handleActivityDelete(activityId)}
         />
       )}
