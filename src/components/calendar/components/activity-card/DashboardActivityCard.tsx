@@ -72,7 +72,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
         <div className="flex items-start space-x-3 flex-1">
           <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20`}>
             <Checkbox 
-              checked={activity.completed || activityWithStatus.status === 'completed'}
+              checked={activity.completed}
               onCheckedChange={handleCheckboxChange}
               className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
               onClick={handleCheckboxClick}

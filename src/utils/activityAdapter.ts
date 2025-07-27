@@ -30,7 +30,7 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     duration,
     color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,
-    completed: apiActivity.status === 'completed',
+    completed: false, // FIXED: All activities should start unchecked
     status: apiActivity.status, // Add status field for API compatibility
     type: apiActivity.activity_type?.name || 'general',
     needEmoji: apiActivity.metadata?.needEmoji,
