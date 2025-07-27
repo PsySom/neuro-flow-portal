@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,8 @@ import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { getActivityTypeColor } from '@/utils/activityTypeColors';
+import ActivityInfoPopover from '../ActivityInfoPopover';
+import { DeleteRecurringOption, RecurringActivityOptions } from '../../utils/recurringUtils';
 
 interface DashboardActivityCardProps {
   layout: ActivityLayout;
@@ -16,6 +18,8 @@ interface DashboardActivityCardProps {
   onEditClick: (e: React.MouseEvent) => void;
   onDeleteClick: (e: React.MouseEvent) => void;
   onCheckboxToggle: () => void;
+  onUpdate?: (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
+  onDelete?: (id: number | string, deleteOption?: DeleteRecurringOption) => void;
 }
 
 const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
@@ -25,10 +29,13 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   onInfoClick,
   onEditClick,
   onDeleteClick,
-  onCheckboxToggle
+  onCheckboxToggle,
+  onUpdate,
+  onDelete
 }) => {
   const { activity } = layout;
-  const activityWithStatus = activity as Activity; // Type assertion for status field access
+  const [showInfoPopover, setShowInfoPopover] = useState(false);
+  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const getDisplayType = (type: string) => {
     const typeMap: Record<string, string> = {
@@ -49,8 +56,49 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     console.log('DashboardActivityCard: Checkbox changed to:', checked, 'for activity:', activity.id);
     console.log('DashboardActivityCard: Current completion status:', activity.completed);
     
-    // Ensure the toggle happens regardless of checked state
+    // Toggle completion status
     onCheckboxToggle();
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent info popover from opening when clicking on buttons or checkbox
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[data-radix-checkbox-root]')) {
+      return;
+    }
+
+    console.log('DashboardActivityCard: Card clicked, opening info popover');
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPopoverPosition({
+        x: rect.right,
+        y: rect.top + rect.height / 2
+      });
+      setShowInfoPopover(true);
+    }
+  };
+
+  const handleInfoButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('DashboardActivityCard: Info button clicked');
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPopoverPosition({
+        x: rect.right,
+        y: rect.top + rect.height / 2
+      });
+      setShowInfoPopover(true);
+    }
+  };
+
+  const handleEditButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEditClick(e);
+  };
+
+  const handleDeleteButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDeleteClick(e);
   };
 
   const renderStars = () => {
@@ -65,7 +113,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       className={`${activity.color} rounded-lg p-4 border-2 ${getActivityTypeColor(activity.type)} cursor-pointer hover:shadow-md transition-shadow mb-3 ${
         activity.completed ? 'opacity-60' : ''
       }`}
-      onClick={onCardClick}
+      onClick={handleCardClick}
     >
       {/* Header row - чекбокс слева, название, кнопки справа */}
       <div className="flex items-start justify-between mb-3">
@@ -87,7 +135,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={onInfoClick}
+            onClick={handleInfoButtonClick}
             title="Информация"
           >
             <Info className="w-4 h-4" />
@@ -96,7 +144,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={onEditClick}
+            onClick={handleEditButtonClick}
             title="Редактировать"
           >
             <Edit className="w-4 h-4" />
@@ -105,7 +153,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={onDeleteClick}
+            onClick={handleDeleteButtonClick}
             title="Удалить"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
@@ -137,6 +185,17 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* Info Popover */}
+      {showInfoPopover && (
+        <ActivityInfoPopover
+          activity={activity}
+          onClose={() => setShowInfoPopover(false)}
+          position={popoverPosition}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 };
