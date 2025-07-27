@@ -7,13 +7,9 @@ export class ChartDataService {
     try {
       const { startDate, endDate } = getDateRange(range);
 
-      // Если пользователь не авторизован, сразу показываем демо-данные
-      if (!isAuthenticated) {
-        console.log('📊 Пользователь не авторизован, показываем демо-данные');
-        return generateDemoData(range);
-      }
+      console.log(`📊 Загружаем данные настроения для диапазона ${range}:`, { startDate, endDate });
 
-      // Используем flexible endpoint который поддерживает fallback на демо-данные
+      // Загружаем данные настроения (реальные или mock)
       const entries = await backendDiaryService.getMoodEntries({
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
@@ -23,7 +19,9 @@ export class ChartDataService {
       console.log(`📊 Получено ${entries.length} записей настроения для диапазона ${range}`);
       
       if (entries.length > 0) {
-        return convertMoodEntriesToChartData(entries, range);
+        const chartData = convertMoodEntriesToChartData(entries, range);
+        console.log(`📊 Конвертировано в ${chartData.length} точек для графика`);
+        return chartData;
       } else {
         // Используем демо-данные если нет реальных записей
         console.log('📊 Нет записей пользователя, отображаем демо-данные для графика');
@@ -32,13 +30,8 @@ export class ChartDataService {
     } catch (error: any) {
       console.error('❌ Ошибка загрузки данных настроения:', error);
       
-      // Если ошибка 401 - пользователь не авторизован
-      if (error.status === 401) {
-        console.log('📊 Ошибка 401: Пользователь не авторизован, показываем демо-данные');
-        return generateDemoData(range);
-      }
-      
-      // Для других ошибок тоже показываем демо-данные  
+      // Для любых ошибок показываем демо-данные  
+      console.log('📊 Fallback: показываем демо-данные из-за ошибки');
       return generateDemoData(range);
     }
   }

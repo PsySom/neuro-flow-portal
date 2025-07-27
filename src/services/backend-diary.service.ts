@@ -1,4 +1,8 @@
 import apiClient, { handleApiError } from './api.client';
+import { mockDiaryService } from './mock-diary.service';
+
+// Switch between mock and real API
+const USE_MOCK = true;
 
 // === DIARY INTERFACES ===
 
@@ -75,6 +79,10 @@ class BackendDiaryService {
   // === MOOD DIARY ===
   
   async createMoodEntry(entry: MoodEntry): Promise<MoodEntry> {
+    if (USE_MOCK) {
+      return mockDiaryService.createMoodEntry(entry);
+    }
+    
     try {
       console.log('🔄 Creating mood entry');
       // Используем новый frontend endpoint с автоматической конвертацией
@@ -88,6 +96,10 @@ class BackendDiaryService {
   }
 
   async getMoodEntries(params?: DiaryQueryParams): Promise<MoodEntry[]> {
+    if (USE_MOCK) {
+      return mockDiaryService.getMoodEntries(params);
+    }
+    
     try {
       // Используем гибкий endpoint с автоматическим fallback
       const response = await apiClient.get<MoodEntry[]>('/diary/mood/flexible', { params });

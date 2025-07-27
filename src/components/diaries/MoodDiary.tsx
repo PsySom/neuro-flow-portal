@@ -123,6 +123,12 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
       localStorage.setItem('diary-status-/mood-diary', JSON.stringify(updatedStatus));
       console.log('📅 Статус дневника обновлен:', updatedStatus);
       
+      // Принудительно вызываем событие storage для обновления графиков
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'mock_mood_entries',
+        newValue: localStorage.getItem('mock_mood_entries')
+      }));
+      
       toast.success('Запись дневника настроения сохранена');
 
       // Генерируем рекомендации

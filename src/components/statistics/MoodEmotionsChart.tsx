@@ -46,11 +46,21 @@ const MoodEmotionsChart = () => {
       fetchMoodData(timeRange);
     };
 
+    // Слушаем изменения в localStorage для немедленного обновления
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mock_mood_entries' || e.key?.includes('diary-status')) {
+        console.log('📊 Обнаружено изменение в localStorage, обновляем график');
+        fetchMoodData(timeRange);
+      }
+    };
+
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [timeRange, isAuthenticated]);
 
