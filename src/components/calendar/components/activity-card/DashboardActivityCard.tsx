@@ -48,9 +48,20 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    console.log('DashboardActivityCard: Card click event received');
     // Prevent info popover from opening when clicking on buttons or checkbox
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[data-radix-checkbox-root]') || target.closest('.checkbox-container')) {
+    
+    // Check for checkbox using multiple possible selectors
+    const isCheckboxClick = target.closest('button[role="checkbox"]') || 
+                           target.closest('[data-radix-checkbox-root]') || 
+                           target.closest('.checkbox-container') ||
+                           target.tagName === 'INPUT' ||
+                           target.closest('input[type="checkbox"]');
+    
+    const isButtonClick = target.closest('button:not([role="checkbox"])');
+    
+    if (isCheckboxClick || isButtonClick) {
       console.log('DashboardActivityCard: Click on checkbox/button, preventing card click');
       return;
     }
@@ -79,8 +90,14 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20 checkbox-container`}>
             <Checkbox 
               checked={activity.completed}
-              onCheckedChange={handleCheckboxChange}
-              onClick={(e) => e.stopPropagation()}
+              onCheckedChange={(checked) => {
+                console.log('DashboardActivityCard: Checkbox onCheckedChange triggered:', checked);
+                handleCheckboxChange(checked);
+              }}
+              onClick={(e) => {
+                console.log('DashboardActivityCard: Checkbox onClick triggered');
+                e.stopPropagation();
+              }}
               className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
               title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
             />

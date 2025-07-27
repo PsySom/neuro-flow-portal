@@ -46,7 +46,10 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
 
   // Enhanced toggle function with proper type handling
   const handleActivityToggle = (activityId: number | string) => {
-    console.log('TimelineContent: Toggle requested for', activityId);
+    console.log('TimelineContent: Toggle requested for activity ID:', activityId);
+    console.log('TimelineContent: Found activities count:', activities.length);
+    const targetActivity = activities.find(a => a.id === activityId);
+    console.log('TimelineContent: Target activity found:', targetActivity?.name, 'completed:', targetActivity?.completed);
     onActivityToggle(activityId);
   };
 
