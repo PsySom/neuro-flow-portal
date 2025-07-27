@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -7,8 +7,6 @@ import { Info, Edit, Star, Trash2 } from 'lucide-react';
 import { ActivityLayout } from '../../types';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { getActivityTypeColor } from '@/utils/activityTypeColors';
-import ActivityInfoPopover from '../ActivityInfoPopover';
-import { DeleteRecurringOption, RecurringActivityOptions } from '../../utils/recurringUtils';
 
 interface DashboardActivityCardProps {
   layout: ActivityLayout;
@@ -18,8 +16,6 @@ interface DashboardActivityCardProps {
   onEditClick: (e: React.MouseEvent) => void;
   onDeleteClick: (e: React.MouseEvent) => void;
   onCheckboxToggle: () => void;
-  onUpdate?: (id: number | string, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => void;
-  onDelete?: (id: number | string, deleteOption?: DeleteRecurringOption) => void;
 }
 
 const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
@@ -29,13 +25,9 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
   onInfoClick,
   onEditClick,
   onDeleteClick,
-  onCheckboxToggle,
-  onUpdate,
-  onDelete
+  onCheckboxToggle
 }) => {
   const { activity } = layout;
-  const [showInfoPopover, setShowInfoPopover] = useState(false);
-  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const getDisplayType = (type: string) => {
     const typeMap: Record<string, string> = {
@@ -67,38 +59,8 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       return;
     }
 
-    console.log('DashboardActivityCard: Card clicked, opening info popover');
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (rect) {
-      setPopoverPosition({
-        x: rect.right,
-        y: rect.top + rect.height / 2
-      });
-      setShowInfoPopover(true);
-    }
-  };
-
-  const handleInfoButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log('DashboardActivityCard: Info button clicked');
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (rect) {
-      setPopoverPosition({
-        x: rect.right,
-        y: rect.top + rect.height / 2
-      });
-      setShowInfoPopover(true);
-    }
-  };
-
-  const handleEditButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onEditClick(e);
-  };
-
-  const handleDeleteButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDeleteClick(e);
+    console.log('DashboardActivityCard: Card clicked, delegating to parent');
+    onCardClick(e);
   };
 
   const renderStars = () => {
@@ -135,7 +97,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={handleInfoButtonClick}
+            onClick={onInfoClick}
             title="Информация"
           >
             <Info className="w-4 h-4" />
@@ -144,7 +106,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={handleEditButtonClick}
+            onClick={onEditClick}
             title="Редактировать"
           >
             <Edit className="w-4 h-4" />
@@ -153,7 +115,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
             size="icon" 
             variant="ghost" 
             className="h-7 w-7 bg-white/50 hover:bg-white/80 rounded-full"
-            onClick={handleDeleteButtonClick}
+            onClick={onDeleteClick}
             title="Удалить"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
@@ -185,17 +147,6 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
           )}
         </div>
       </div>
-
-      {/* Info Popover */}
-      {showInfoPopover && (
-        <ActivityInfoPopover
-          activity={activity}
-          onClose={() => setShowInfoPopover(false)}
-          position={popoverPosition}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        />
-      )}
     </div>
   );
 };
