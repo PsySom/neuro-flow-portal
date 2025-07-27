@@ -9,6 +9,9 @@ import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
 import { useBackendAuth } from '@/contexts/BackendAuthContext';
 
+// Проверяем, используется ли mock режим
+const USE_MOCK = true; // Соответствует настройке в backend-diary.service.ts
+
 const MoodEmotionsChart = () => {
   const { isAuthenticated } = useBackendAuth();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
@@ -48,19 +51,28 @@ const MoodEmotionsChart = () => {
 
     // Слушаем изменения в localStorage для немедленного обновления
     const handleStorageChange = (e: StorageEvent) => {
+      console.log('📊 Storage event triggered:', e.key, e.newValue?.slice(0, 100));
       if (e.key === 'mock_mood_entries' || e.key?.includes('diary-status')) {
         console.log('📊 Обнаружено изменение в localStorage, обновляем график');
-        fetchMoodData(timeRange);
+        setTimeout(() => fetchMoodData(timeRange), 100); // Небольшая задержка для обеспечения синхронности
       }
+    };
+
+    // Дополнительно слушаем кастомные события
+    const handleCustomUpdate = () => {
+      console.log('📊 Custom update event triggered');
+      fetchMoodData(timeRange);
     };
 
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('mood-data-updated', handleCustomUpdate);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('mood-data-updated', handleCustomUpdate);
     };
   }, [timeRange, isAuthenticated]);
 
@@ -68,7 +80,8 @@ const MoodEmotionsChart = () => {
 
   return (
     <div className="space-y-6">
-      {!isAuthenticated && (
+      {/* Показываем предупреждение только если не используется mock и пользователь не авторизован */}
+      {!USE_MOCK && !isAuthenticated && (
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
           <CardContent className="pt-6">
             <p className="text-amber-800 dark:text-amber-200 text-sm">

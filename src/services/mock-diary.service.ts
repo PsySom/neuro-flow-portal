@@ -22,6 +22,14 @@ class MockDiaryService {
     // Сохраняем в localStorage для персистентности
     localStorage.setItem('mock_mood_entries', JSON.stringify(this.mockMoodEntries));
     
+    // Принудительно уведомляем о изменении
+    console.log('🔔 Mock: Triggering storage event for mood entry');
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'mock_mood_entries',
+      newValue: JSON.stringify(this.mockMoodEntries),
+      storageArea: localStorage
+    }));
+    
     console.log('✅ Mock: Mood entry saved', mockEntry);
     return mockEntry;
   }

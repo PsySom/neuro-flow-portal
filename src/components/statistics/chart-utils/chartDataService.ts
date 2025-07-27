@@ -3,7 +3,7 @@ import { backendDiaryService, MoodEntry } from '@/services/backend-diary.service
 import { ChartDataPoint, TimeRange, convertMoodEntriesToChartData, generateDemoData, getDateRange } from './chartDataConverters';
 
 export class ChartDataService {
-  async fetchMoodData(range: TimeRange, isAuthenticated?: boolean): Promise<ChartDataPoint[]> {
+  async fetchMoodData(range: TimeRange, isAuthenticated: boolean = true): Promise<ChartDataPoint[]> {
     try {
       const { startDate, endDate } = getDateRange(range);
 

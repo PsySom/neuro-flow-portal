@@ -126,8 +126,13 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
       // Принудительно вызываем событие storage для обновления графиков
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'mock_mood_entries',
-        newValue: localStorage.getItem('mock_mood_entries')
+        newValue: localStorage.getItem('mock_mood_entries'),
+        storageArea: localStorage
       }));
+      
+      // Дополнительно отправляем кастомное событие
+      window.dispatchEvent(new CustomEvent('mood-data-updated'));
+      console.log('📊 Отправлены события обновления данных настроения');
       
       toast.success('Запись дневника настроения сохранена');
 
