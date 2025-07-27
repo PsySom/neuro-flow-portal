@@ -44,7 +44,7 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     console.log('DashboardActivityCard: Checkbox changed to:', checked, 'for activity:', activity.id);
     console.log('DashboardActivityCard: Current completion status:', activity.completed);
     
-    // Toggle completion status
+    // Always toggle completion status regardless of checked value
     onCheckboxToggle();
   };
 
@@ -53,17 +53,18 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     // Prevent info popover from opening when clicking on buttons or checkbox
     const target = e.target as HTMLElement;
     
-    // Check for checkbox using multiple possible selectors
+    // More precise checkbox detection
     const isCheckboxClick = target.closest('button[role="checkbox"]') || 
                            target.closest('[data-radix-checkbox-root]') || 
                            target.closest('.checkbox-container') ||
-                           target.tagName === 'INPUT' ||
-                           target.closest('input[type="checkbox"]');
+                           target.hasAttribute('data-state') ||
+                           target.closest('[data-state]');
     
-    const isButtonClick = target.closest('button:not([role="checkbox"])');
+    const isButtonClick = target.closest('button:not([role="checkbox"]):not([data-radix-checkbox-root])');
     
     if (isCheckboxClick || isButtonClick) {
       console.log('DashboardActivityCard: Click on checkbox/button, preventing card click');
+      e.stopPropagation();
       return;
     }
 
@@ -88,16 +89,19 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
       {/* Header row - чекбокс слева, название, кнопки справа */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3 flex-1">
-          <div className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20 checkbox-container`}>
+          <div 
+            className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20 checkbox-container`}
+            onClick={(e) => {
+              console.log('DashboardActivityCard: Checkbox container clicked');
+              e.stopPropagation();
+              handleCheckboxChange(!activity.completed);
+            }}
+          >
             <Checkbox 
               checked={activity.completed}
               onCheckedChange={(checked) => {
                 console.log('DashboardActivityCard: Checkbox onCheckedChange triggered:', checked);
                 handleCheckboxChange(checked);
-              }}
-              onClick={(e) => {
-                console.log('DashboardActivityCard: Checkbox onClick triggered');
-                e.stopPropagation();
               }}
               className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
               title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
