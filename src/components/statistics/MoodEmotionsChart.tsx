@@ -126,8 +126,12 @@ const MoodEmotionsChart = () => {
               <p className="text-muted-foreground">Загрузка данных настроения...</p>
             </div>
           ) : currentData.length === 0 ? (
-            <div className="h-96 flex items-center justify-center">
-              <p className="text-muted-foreground">Нет данных для отображения</p>
+            <div className="h-96 flex flex-col items-center justify-center">
+              <p className="text-muted-foreground text-lg mb-2">📊 График пуст</p>
+              <p className="text-muted-foreground text-sm text-center max-w-md">
+                Здесь будут отображаться ваши записи из дневника настроения. 
+                Создайте первую запись, чтобы увидеть данные на графике.
+              </p>
             </div>
           ) : (
             <div className="h-96">
@@ -210,30 +214,30 @@ const MoodEmotionsChart = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-foreground mb-2">Заметки</h4>
-                    <p className="text-muted-foreground">
-                      {selectedPoint.entry?.notes || 'Не указано'}
-                    </p>
-                  </div>
+                   <div>
+                     <h4 className="font-medium text-foreground mb-2">Заметки</h4>
+                     <p className="text-muted-foreground">
+                       {selectedPoint.notes || 'Не указано'}
+                     </p>
+                   </div>
 
-                  <div>
-                    <h4 className="font-medium text-foreground mb-2">Триггеры</h4>
-                    <p className="text-muted-foreground">
-                      {selectedPoint.entry?.triggers && selectedPoint.entry.triggers.length > 0
-                        ? selectedPoint.entry.triggers.join(', ')
-                        : 'Не указано'}
-                    </p>
-                  </div>
+                   <div>
+                     <h4 className="font-medium text-foreground mb-2">Триггеры</h4>
+                     <p className="text-muted-foreground">
+                       {selectedPoint.triggers && selectedPoint.triggers.length > 0
+                         ? selectedPoint.triggers.join(', ')
+                         : 'Не указано'}
+                     </p>
+                   </div>
 
-                  <div>
-                    <h4 className="font-medium text-foreground mb-2">Физические ощущения</h4>
-                    <p className="text-muted-foreground">
-                      {selectedPoint.entry?.physical_sensations && selectedPoint.entry.physical_sensations.length > 0
-                        ? selectedPoint.entry.physical_sensations.join(', ')
-                        : 'Не указано'}
-                    </p>
-                  </div>
+                   <div>
+                     <h4 className="font-medium text-foreground mb-2">Физические ощущения</h4>
+                     <p className="text-muted-foreground">
+                       {selectedPoint.physical_sensations && selectedPoint.physical_sensations.length > 0
+                         ? selectedPoint.physical_sensations.join(', ')
+                         : 'Не указано'}
+                     </p>
+                   </div>
                 </div>
               </div>
 
