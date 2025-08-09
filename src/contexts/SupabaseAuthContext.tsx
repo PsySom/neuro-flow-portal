@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 interface SupabaseAuthContextType {
   user: User | null;
@@ -16,7 +15,7 @@ interface SupabaseAuthContextType {
 const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
 
 export function SupabaseAuthProvider({ children }: { children: React.ReactNode }) {
-  const { toast } = useToast();
+  const notify = (message: string) => { try { console.log('[toast]', message); } catch {} };
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,10 +53,10 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      toast({ title: 'Ошибка входа', description: error.message, variant: 'destructive' });
+      notify(`Ошибка входа: ${error.message}`);
       throw error;
     }
-    toast({ title: 'Добро пожаловать!', description: 'Вы успешно вошли.' });
+    notify('Добро пожаловать! Вы успешно вошли.');
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
@@ -71,14 +70,14 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       },
     });
     if (error) {
-      toast({ title: 'Ошибка регистрации', description: error.message, variant: 'destructive' });
+      notify(`Ошибка регистрации: ${error.message}`);
       throw error;
     }
     // Create or update profile row
     if (data.user?.id) {
       await supabase.from('profiles').upsert({ id: data.user.id, full_name: fullName });
     }
-    toast({ title: 'Проверьте почту', description: 'Мы отправили письмо для подтверждения.' });
+    notify('Проверьте почту: отправлено письмо для подтверждения.');
   };
 
   const signOut = async () => {
