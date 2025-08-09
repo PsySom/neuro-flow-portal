@@ -26,8 +26,9 @@ import ProcrastinationDiaryPage from './pages/ProcrastinationDiaryPage';
 import OCDDiaryPage from './pages/OCDDiaryPage';
 import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 import SleepDiaryPage from './pages/SleepDiaryPage';
-import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import Auth from './pages/Auth';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 
 function App() {
   return (
@@ -43,8 +44,8 @@ function App() {
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                   <Route path="/diaries" element={<Diaries />} />
                   <Route path="/knowledge" element={<KnowledgeBase />} />
                   <Route path="/practices" element={<Practices />} />

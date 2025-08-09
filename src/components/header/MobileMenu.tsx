@@ -54,7 +54,7 @@ const MobileMenu: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>
+                    <Button variant="outline" className="w-full" onClick={() => navigate('/auth')}>
                       Вход
                     </Button>
                     <Button 
@@ -62,7 +62,7 @@ const MobileMenu: React.FC = () => {
                       style={{ 
                         background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
                       }}
-                      onClick={() => navigate('/register')}
+                      onClick={() => navigate('/auth')}
                     >
                       Регистрация
                     </Button>
