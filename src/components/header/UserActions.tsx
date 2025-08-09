@@ -4,16 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LayoutDashboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 
 const UserActions: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
   const getUserInitial = () => {
-    if (user?.full_name) {
-      return user.full_name.charAt(0).toUpperCase();
-    }
     if (user?.email) {
       return user.email.charAt(0).toUpperCase();
     }

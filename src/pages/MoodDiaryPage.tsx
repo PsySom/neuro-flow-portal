@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import UserMenu from '@/components/dashboard/UserMenu';
 import MoodDiary from '@/components/diaries/MoodDiary';
 

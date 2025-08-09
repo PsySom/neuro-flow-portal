@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginPromptDialogProps {
@@ -26,7 +26,7 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
     setIsLoading(true);
 
     try {
-      await login({ username, password });
+      await signIn(username, password);
       toast({
         title: "Вход выполнен успешно",
         description: "Теперь вы можете планировать упражнения",

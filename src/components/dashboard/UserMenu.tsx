@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/co
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Search, Settings, Palette, Sun, Moon, Monitor, User, LogOut } from 'lucide-react';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import { usePersonalization, AccentColor, Theme } from '@/contexts/PersonalizationContext';
 import { useNavigate } from 'react-router-dom';
 import UserProfileDialog from './UserProfileDialog';
@@ -13,14 +13,11 @@ import UserProfileDialog from './UserProfileDialog';
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const { settings, updateSettings, applySettings } = usePersonalization();
   const navigate = useNavigate();
 
   const getUserInitial = () => {
-    if (user?.full_name) {
-      return user.full_name.charAt(0).toUpperCase();
-    }
     if (user?.email) {
       return user.email.charAt(0).toUpperCase();
     }
@@ -58,7 +55,7 @@ const UserMenu = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    signOut();
     setIsOpen(false);
     navigate('/');
   };

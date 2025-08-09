@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import { getGreeting, getUserDisplayName } from '@/utils/dateUtils';
 
 const DashboardGreeting = () => {

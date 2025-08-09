@@ -7,7 +7,7 @@ import { getMoodEmoji } from '../diaries/moodDiaryUtils';
 import { ChartDataPoint, TimeRange } from './chart-utils/chartDataConverters';
 import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
-import { useBackendAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import MockDataInspector from './MockDataInspector';
 
 // Проверяем, используется ли mock режим

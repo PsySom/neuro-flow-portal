@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Timer, Users, Share2, Calendar, Clock, Heart } from 'lucide-react';
 import { contentTypes } from '@/constants/practicesConstants';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import LoginPromptDialog from './LoginPromptDialog';
 import CreateActivityFromPracticeDialog from './CreateActivityFromPracticeDialog';
 import BreathingAnimationDialog from './BreathingAnimationDialog';

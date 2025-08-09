@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, User } from 'lucide-react';
-import { useBackendAuth as useAuth } from '@/contexts/BackendAuthContext';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 import { onboardingService } from '@/services/onboarding.service';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -58,7 +58,7 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
 
   const mockProfileData: UserProfileData = {
     basicInfo: {
-      name: user?.full_name || 'Пользователь',
+      name: (user?.email ? user.email.split('@')[0] : 'Пользователь'),
       age: 28,
       gender: 'Мужской',
       timezone: 'Europe/Moscow'
