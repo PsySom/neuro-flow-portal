@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { calculateActivityLayouts } from '../utils/timeUtils';
+import { expandRecurringForRange } from '../utils/recurrenceExpansion';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { getActivitiesForDate } from '@/utils/activitySync';
 
@@ -12,8 +13,10 @@ export const useWeekActivities = (startDate: string, endDate: string) => {
 
   // Convert API activities to UI format
   const weekActivities = useMemo(() => {
-    return convertApiActivitiesToUi(weekApiActivities);
-  }, [weekApiActivities]);
+    const converted = convertApiActivitiesToUi(weekApiActivities);
+    // Expand recurring activities within the requested week range
+    return expandRecurringForRange(converted, startDate, endDate);
+  }, [weekApiActivities, startDate, endDate]);
 
   const getWeekActivities = useCallback(() => {
     console.log('Week activities total:', weekActivities.length);
@@ -21,7 +24,8 @@ export const useWeekActivities = (startDate: string, endDate: string) => {
   }, [weekActivities]);
 
   const getActivitiesForDay = useCallback((day: Date) => {
-    const dayString = day.toISOString().split('T')[0];
+    // Use local date string to avoid timezone shift issues
+    const dayString = day.toLocaleDateString('en-CA');
     
     // Use enhanced sync utility for better date filtering
     const dayActivities = getActivitiesForDate(weekActivities, dayString);

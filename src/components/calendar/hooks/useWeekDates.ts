@@ -26,12 +26,12 @@ export const useWeekDates = (currentDate: Date) => {
   // Get date range for the week
   const { startDate, endDate } = useMemo(() => {
     try {
-      const start = weekDays[0].toISOString().split('T')[0];
-      const end = weekDays[6].toISOString().split('T')[0];
+      const start = weekDays[0].toLocaleDateString('en-CA');
+      const end = weekDays[6].toLocaleDateString('en-CA');
       return { startDate: start, endDate: end };
     } catch (error) {
       console.error('Error creating date range for week:', error);
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA');
       return { startDate: today, endDate: today };
     }
   }, [weekDays]);

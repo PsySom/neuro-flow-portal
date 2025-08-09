@@ -15,11 +15,12 @@ export const calculateActivityLayouts = (activities: Activity[]): ActivityLayout
   const columns: Activity[][] = [];
 
   for (const activity of sortedActivities) {
-    const startTime = parseTime(activity.startTime);
-    const endTime = parseTime(activity.endTime);
-    const duration = endTime - startTime;
-    const top = (startTime / 60) * 90; // 90px на час
-    const height = Math.max((duration / 60) * 90, 30); // минимальная высота 30px
+    const startTime = parseTime(activity.startTime || '00:00');
+    let endTime = activity.endTime ? parseTime(activity.endTime) : startTime + 60; // default 60 min if no endTime
+    if (isNaN(endTime)) endTime = startTime + 60;
+    const duration = Math.max(endTime - startTime, 30); // ensure positive duration
+    const top = (startTime / 60) * 90; // 90px per hour
+    const height = Math.max((duration / 60) * 90, 30); // minimum height 30px
 
     // Найдем колонку для размещения активности
     let columnIndex = 0;
