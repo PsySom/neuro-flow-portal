@@ -28,7 +28,7 @@ import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 import SleepDiaryPage from './pages/SleepDiaryPage';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
+import SupabaseAuthProvider from './contexts/SupabaseAuthContext';
 
 function App() {
   return (
