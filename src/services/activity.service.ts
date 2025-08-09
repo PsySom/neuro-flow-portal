@@ -8,9 +8,10 @@ import {
   ActivityType,
   PaginatedResponse
 } from '../types/api.types';
+import { supabaseActivitiesRepo } from '@/integrations/supabase/activities.repo';
 
-// Use mock service while backend activities API is not yet fully implemented
-const USE_MOCK = true;
+// Use Supabase instead of mock service
+const USE_MOCK = false;
 
 class ActivityService {
   // Get activities for a specific date
@@ -18,10 +19,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.getActivities(date);
     }
-    
     try {
-      // TODO: Implement backend API call for activities
-      throw new Error('Backend activities API not yet implemented');
+      return supabaseActivitiesRepo.getActivities(date);
     } catch (error: any) {
       console.error('Error fetching activities:', error);
       throw new Error(error.message || 'Failed to fetch activities');
@@ -33,10 +32,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.getActivitiesRange(startDate, endDate);
     }
-    
     try {
-      // TODO: Implement backend API call for activities range
-      throw new Error('Backend activities range API not yet implemented');
+      return supabaseActivitiesRepo.getActivitiesRange(startDate, endDate);
     } catch (error: any) {
       console.error('Error fetching activities range:', error);
       throw new Error(error.message || 'Failed to fetch activities range');
@@ -48,10 +45,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.createActivity(data);
     }
-    
     try {
-      // TODO: Implement backend API call for creating activity
-      throw new Error('Backend create activity API not yet implemented');
+      return supabaseActivitiesRepo.createActivity(data);
     } catch (error: any) {
       console.error('Error creating activity:', error);
       throw new Error(error.message || 'Failed to create activity');
