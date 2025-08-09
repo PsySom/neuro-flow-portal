@@ -53,15 +53,12 @@ class ActivityService {
     }
   }
 
-  // Update activity
   async updateActivity(id: number, data: UpdateActivityRequest): Promise<Activity> {
     if (USE_MOCK) {
       return mockActivityService.updateActivity(id, data);
     }
-    
     try {
-      // TODO: Implement backend API call for updating activity
-      throw new Error('Backend update activity API not yet implemented');
+      return supabaseActivitiesRepo.updateActivity(id, data);
     } catch (error: any) {
       console.error('Error updating activity:', error);
       throw new Error(error.message || 'Failed to update activity');
@@ -73,10 +70,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.deleteActivity(id);
     }
-    
     try {
-      // TODO: Implement backend API call for deleting activity
-      throw new Error('Backend delete activity API not yet implemented');
+      return supabaseActivitiesRepo.deleteActivity(id);
     } catch (error: any) {
       console.error('Error deleting activity:', error);
       throw new Error(error.message || 'Failed to delete activity');
@@ -88,10 +83,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.getActivityTypes();
     }
-    
     try {
-      // TODO: Implement backend API call for activity types
-      throw new Error('Backend activity types API not yet implemented');
+      return supabaseActivitiesRepo.getActivityTypes();
     } catch (error: any) {
       console.error('Error fetching activity types:', error);
       throw new Error(error.message || 'Failed to fetch activity types');
@@ -103,10 +96,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.getActivityState(activityId);
     }
-    
     try {
-      // TODO: Implement backend API call for activity states
-      return null;
+      return supabaseActivitiesRepo.getActivityState(activityId);
     } catch (error: any) {
       console.error('Error fetching activity state:', error);
       return null;
@@ -117,10 +108,8 @@ class ActivityService {
     if (USE_MOCK) {
       return mockActivityService.updateActivityState(activityId, data);
     }
-    
     try {
-      // TODO: Implement backend API call for updating activity state
-      throw new Error('Backend update activity state API not yet implemented');
+      return supabaseActivitiesRepo.updateActivityState(activityId, data);
     } catch (error: any) {
       console.error('Error updating activity state:', error);
       throw new Error(error.message || 'Failed to update activity state');
