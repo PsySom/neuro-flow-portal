@@ -8,6 +8,15 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 // API configuration - PsyBalansV2 backend
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
+// Warn if using insecure API over HTTPS context
+if (typeof window !== 'undefined') {
+  const isHttps = window.location.protocol === 'https:';
+  const isInsecureApi = API_BASE_URL.startsWith('http://') && !API_BASE_URL.includes('localhost');
+  if (isHttps && isInsecureApi) {
+    console.warn('Insecure API_BASE_URL over HTTP detected. Switch to HTTPS for production.');
+  }
+}
+
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -20,14 +29,14 @@ export const apiClient = axios.create({
 // Request interceptor for adding auth token
 apiClient.interceptors.request.use(
   (config) => {
-    console.log('🚀 API Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullUrl: `${config.baseURL}${config.url}`,
-      data: config.data,
-      headers: config.headers
-    });
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      try {
+        console.log('🚀 API Request:', {
+          method: config.method?.toUpperCase(),
+          url: config.url,
+        });
+      } catch {}
+    }
     
     const token = localStorage.getItem('access_token');
     if (token) {
@@ -44,21 +53,27 @@ apiClient.interceptors.request.use(
 // Response interceptor for handling auth errors and token refresh
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log('✅ API Response:', {
-      status: response.status,
-      url: response.config.url,
-      data: response.data
-    });
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      try {
+        console.log('✅ API Response:', {
+          status: response.status,
+          url: response.config.url,
+        });
+      } catch {}
+    }
     return response;
   },
   async (error: AxiosError) => {
-    console.error('❌ API Error:', {
-      status: error.response?.status,
-      url: error.config?.url,
-      message: error.message,
-      code: error.code,
-      response: error.response?.data
-    });
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      try {
+        console.error('❌ API Error:', {
+          status: error.response?.status,
+          url: error.config?.url,
+          message: error.message,
+          code: error.code,
+        });
+      } catch {}
+    }
     const originalRequest = error.config as ExtendedAxiosRequestConfig;
 
     // Handle 401 errors and attempt token refresh
@@ -77,7 +92,11 @@ apiClient.interceptors.response.use(
           localStorage.setItem('refresh_token', newRefreshToken);
 
           // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          if (originalRequest.headers) {
+            (originalRequest.headers as any)['Authorization'] = `Bearer ${access_token}`;
+          } else {
+            (originalRequest as any).headers = { Authorization: `Bearer ${access_token}` };
+          }
           return apiClient(originalRequest);
         }
       } catch (refreshError) {

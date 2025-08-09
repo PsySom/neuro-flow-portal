@@ -96,10 +96,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       notify(`Ошибка регистрации: ${error.message}`);
       throw error;
     }
-    // Create or update profile row
-    if (data.user?.id) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: fullName });
-    }
+    // Email confirmation required before sign-in; profile will be created on first login
     notify('Проверьте почту: отправлено письмо для подтверждения.');
   };
 
