@@ -147,6 +147,54 @@ export type Database = {
         }
         Relationships: []
       }
+      practices: {
+        Row: {
+          benefits: string[]
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          difficulty_level: Database["public"]["Enums"]["difficulty_level"]
+          duration_minutes: number | null
+          id: number
+          instructions: string[]
+          metadata: Json
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          benefits?: string[]
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          difficulty_level?: Database["public"]["Enums"]["difficulty_level"]
+          duration_minutes?: number | null
+          id?: number
+          instructions?: string[]
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          benefits?: string[]
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          difficulty_level?: Database["public"]["Enums"]["difficulty_level"]
+          duration_minutes?: number | null
+          id?: number
+          instructions?: string[]
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -167,6 +215,84 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      strategies: {
+        Row: {
+          category: string | null
+          content: Json
+          created_at: string
+          created_by: string
+          description: string | null
+          id: number
+          metadata: Json
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: number
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: number
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tests: {
+        Row: {
+          category: string | null
+          content: Json
+          created_at: string
+          created_by: string
+          description: string | null
+          id: number
+          metadata: Json
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: number
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: number
+          metadata?: Json
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -247,6 +373,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      content_status: "draft" | "published"
+      difficulty_level: "beginner" | "intermediate" | "advanced"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -375,6 +503,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      content_status: ["draft", "published"],
+      difficulty_level: ["beginner", "intermediate", "advanced"],
     },
   },
 } as const
