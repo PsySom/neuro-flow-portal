@@ -147,6 +147,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           email: string
@@ -173,6 +197,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+      }
       update_activity_status: {
         Args: { activity_id: string; new_status: string; user_notes?: string }
         Returns: {
