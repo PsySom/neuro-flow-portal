@@ -1,6 +1,6 @@
 import { Activity as ApiActivity, ActivityType as ApiActivityType } from '../types/api.types';
 import { Activity as UiActivity } from '../contexts/ActivitiesContext';
-import { formatTimeFromISO, formatDuration, extractDateFromISO, createISOFromDateTime, formatTimeFromUTC } from './timeFormatter';
+import { formatTimeFromISO, formatDuration, extractDateFromISO, createISOFromDateTime } from './timeFormatter';
 
 // Convert API Activity to UI Activity format
 export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => {
@@ -19,22 +19,22 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
   const duration = formatDuration(apiActivity.start_time, apiActivity.end_time);
   const localDateString = extractDateFromISO(apiActivity.start_time);
   
-  console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}, startTime=${formatTimeFromUTC(apiActivity.start_time)}`);
-
+  console.log(`Activity ${apiActivity.id}: start_time=${apiActivity.start_time}, extracted date=${localDateString}, startTime=${formatTimeFromISO(apiActivity.start_time)}`);
+  
   return {
     id: apiActivity.id,
     name: apiActivity.title,
     emoji: apiActivity.metadata?.emoji || defaultEmoji,
-    startTime: formatTimeFromUTC(apiActivity.start_time),
-    endTime: apiActivity.end_time ? formatTimeFromUTC(apiActivity.end_time) : '',
+    startTime: formatTimeFromISO(apiActivity.start_time),
+    endTime: apiActivity.end_time ? formatTimeFromISO(apiActivity.end_time) : '',
     duration,
     color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,
-    completed: false, // FIXED: All activities should start unchecked
-    status: apiActivity.status, // Add status field for API compatibility
+    completed: apiActivity.status === 'completed',
+    status: apiActivity.status,
     type: apiActivity.activity_type?.name || 'general',
     needEmoji: apiActivity.metadata?.needEmoji,
-    date: localDateString, // Use properly extracted local date
+    date: localDateString,
     reminder: apiActivity.metadata?.reminder,
     note: apiActivity.description,
     // Handle recurring if present in metadata and valid

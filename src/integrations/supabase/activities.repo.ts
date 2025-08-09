@@ -74,9 +74,10 @@ export const supabaseActivitiesRepo = {
 
     let query = supabase.from('activities').select('*').eq('user_id', userId).order('start_time');
     if (date) {
-      const start = new Date(date + 'T00:00:00.000Z').toISOString();
-      const end = new Date(date + 'T23:59:59.999Z').toISOString();
-      query = query.gte('start_time', start).lte('start_time', end);
+      const [y, m, d] = date.split('-').map(Number);
+      const startLocal = new Date((y ?? 1970), ((m ?? 1) - 1), (d ?? 1), 0, 0, 0, 0);
+      const endLocal = new Date((y ?? 1970), ((m ?? 1) - 1), (d ?? 1), 23, 59, 59, 999);
+      query = query.gte('start_time', startLocal.toISOString()).lte('start_time', endLocal.toISOString());
     }
     const { data, error } = await query;
     if (error) throw error;
@@ -100,12 +101,17 @@ export const supabaseActivitiesRepo = {
     const types = await this.getActivityTypes().catch(() => [] as ActivityType[]);
     const typeMap: Map<number, ActivityType> = new Map(types.map((t: ActivityType) => [t.id, t] as const));
 
+    const [ys, ms, ds] = startDate.split('-').map(Number);
+    const [ye, me, de] = endDate.split('-').map(Number);
+    const startLocal = new Date((ys ?? 1970), ((ms ?? 1) - 1), (ds ?? 1), 0, 0, 0, 0);
+    const endLocal = new Date((ye ?? 1970), ((me ?? 1) - 1), (de ?? 1), 23, 59, 59, 999);
+
     const { data, error } = await supabase
       .from('activities')
       .select('*')
       .eq('user_id', userId)
-      .gte('start_time', new Date(startDate + 'T00:00:00.000Z').toISOString())
-      .lte('start_time', new Date(endDate + 'T23:59:59.999Z').toISOString())
+      .gte('start_time', startLocal.toISOString())
+      .lte('start_time', endLocal.toISOString())
       .order('start_time');
 
     if (error) throw error;

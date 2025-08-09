@@ -62,20 +62,14 @@ export const formatDuration = (startTime: string, endTime?: string): string => {
   }
 };
 
-// Create ISO timestamp from date and time
+// Create ISO timestamp from date and time (interpreting date/time as LOCAL, then converting to UTC ISO)
 export const createISOFromDateTime = (date: string, time: string): string => {
   try {
-    // Parse time
+    const [y, m, d] = date.split('-').map(Number);
     const [hours, minutes] = time.split(':').map(Number);
-    
-    // Create date object from date string  
-    const dateObj = new Date(date);
-    
-    // Set the time in UTC to avoid timezone issues
-    dateObj.setUTCHours(hours, minutes, 0, 0);
-    
-    // Return ISO string  
-    return dateObj.toISOString();
+    // Construct a local Date at user's timezone to preserve the selected calendar day
+    const dt = new Date((y ?? 1970), ((m ?? 1) - 1), (d ?? 1), (hours ?? 0), (minutes ?? 0), 0, 0);
+    return dt.toISOString();
   } catch (error) {
     console.error('Error creating ISO timestamp:', error);
     return new Date().toISOString();
