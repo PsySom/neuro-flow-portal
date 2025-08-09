@@ -11,7 +11,7 @@ import PracticesPreview from '../components/PracticesPreview';
 import ProfessionalNote from '../components/ProfessionalNote';
 import NewsletterForm from '../components/NewsletterForm';
 import Footer from '../components/Footer';
-import OnboardingTest from '../components/onboarding/OnboardingTest';
+
 
 const Index = () => {
   const location = useLocation();
@@ -56,10 +56,6 @@ const Index = () => {
             <NewsletterForm />
           </div>
           
-          {/* Временный тест интеграции онбординга */}
-          <div className="animate-slide-up-fade">
-            <OnboardingTest />
-          </div>
         </div>
       </main>
       <Footer />
