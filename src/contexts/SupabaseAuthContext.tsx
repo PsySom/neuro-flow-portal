@@ -68,7 +68,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       throw error;
     }
     // Force full reload for a clean state
-    window.location.href = '/';
+    window.location.href = '/dashboard';
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {

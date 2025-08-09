@@ -40,10 +40,11 @@ export type OnboardingStep =
 interface OnboardingDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  initialStep?: OnboardingStep;
 }
 
-const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose }) => {
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('registration');
+const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose, initialStep }) => {
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'registration');
   const [userData, setUserData] = useState<any>({});
   const { isLoading, submitStepData, completeOnboarding } = useOnboardingSubmission();
 

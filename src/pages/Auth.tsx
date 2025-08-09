@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
+  const { toast } = useToast();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,14 +25,22 @@ export default function Auth() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     try {
       if (mode === 'login') {
         await signIn(email, password);
-        window.location.href = '/dashboard';
+        // Перенаправление выполнит signIn через full reload
       } else {
         await signUp(email, password, fullName);
+        toast({ title: 'Проверьте почту', description: 'Мы отправили письмо для подтверждения.' });
+        setMode('login');
       }
+    } catch (err: any) {
+      const msg = err?.message?.includes('For security purposes')
+        ? 'Слишком частые запросы. Повторите через ~1 минуту.'
+        : err?.message || 'Произошла ошибка. Попробуйте снова.';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
     }

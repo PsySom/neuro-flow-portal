@@ -163,7 +163,7 @@ export const useOnboardingSubmission = () => {
     try {
       await onboardingService.completeOnboarding();
       console.log('✅ Onboarding completed successfully');
-      
+      try { localStorage.setItem('onboarding-completed', 'true'); } catch {}
       toast({
         title: "Онбординг завершен!",
         description: "Добро пожаловать в PsyBalans!",
@@ -172,9 +172,7 @@ export const useOnboardingSubmission = () => {
     } catch (error: any) {
       console.error('❌ Ошибка завершения онбординга:', error);
       console.error('Error details:', error.response?.data);
-      
       const errorMessage = error.response?.data?.detail || error.message || "Не удалось завершить онбординг";
-      
       toast({
         title: "Ошибка",
         description: errorMessage,
