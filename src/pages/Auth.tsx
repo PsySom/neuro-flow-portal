@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
@@ -46,6 +47,29 @@ export default function Auth() {
     }
   };
 
+  const onMagicLink = async () => {
+    if (!email) {
+      toast({ title: 'Введите email', description: 'Укажите email, чтобы отправить ссылку для входа.', variant: 'destructive' });
+      return;
+    }
+    if (loading) return;
+    setLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: redirectUrl }
+      });
+      if (error) throw error;
+      toast({ title: 'Письмо отправлено', description: 'Проверьте почту и перейдите по ссылке для входа.' });
+    } catch (err: any) {
+      const msg = err?.message || 'Не удалось отправить ссылку.';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -76,6 +100,17 @@ export default function Auth() {
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? 'Подождите...' : (mode === 'login' ? 'Войти' : 'Зарегистрироваться')}
               </Button>
+              {mode === 'login' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={loading || !email}
+                  onClick={onMagicLink}
+                  className="w-full mt-2"
+                >
+                  Войти по ссылке на email
+                </Button>
+              )}
             </form>
             <div className="text-sm mt-4 text-center">
               {mode === 'login' ? (

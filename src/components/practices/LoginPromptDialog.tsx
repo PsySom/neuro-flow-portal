@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -68,11 +69,10 @@ const LoginPromptDialog: React.FC<LoginPromptDialogProps> = ({
           <DialogTitle className="text-xl font-semibold text-center">
             Войдите в аккаунт
           </DialogTitle>
+          <DialogDescription className="text-center">
+            Для планирования упражнений необходимо войти в аккаунт
+          </DialogDescription>
         </DialogHeader>
-
-        <div className="text-center text-gray-600 mb-6">
-          <p>Для планирования упражнений необходимо войти в аккаунт</p>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
