@@ -15,6 +15,17 @@ export interface ChartDataPoint {
 
 export type TimeRange = 'day' | 'week' | 'month';
 
+// Нормализация шкалы настроения к диапазону -5..5
+// Если приходят значения из диапазона -10..10 (бекенд), делим на 2 и округляем до 1 знака
+const normalizeMood = (value: number): number => {
+  if (value > 5 || value < -5) {
+    const scaled = value / 2;
+    return Math.max(-5, Math.min(5, Math.round(scaled * 10) / 10));
+  }
+  // также ограничим значения на всякий случай
+  return Math.max(-5, Math.min(5, Math.round(value * 10) / 10));
+};
+
 export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeRange): ChartDataPoint[] => {
   console.log(`🔄 Конвертация ${entries.length} записей настроения для диапазона ${range}`);
   
@@ -68,7 +79,7 @@ const convertDayData = (entries: MoodEntry[]): ChartDataPoint[] => {
     
     return {
       time: timeKey,
-      mood: entry.mood_score,
+      mood: normalizeMood(entry.mood_score),
       emotions,
       context: entry.context,
       notes: entry.notes,
@@ -121,8 +132,8 @@ const convertWeekData = (entries: MoodEntry[]): ChartDataPoint[] => {
   const chartData: ChartDataPoint[] = [];
   
   groupedData.forEach((entriesGroup, timeKey) => {
-    // Усредняем настроение если несколько записей в промежутке
-    const avgMood = entriesGroup.reduce((sum, entry) => sum + entry.mood_score, 0) / entriesGroup.length;
+    // Усредняем настроение если несколько записей в промежутке (нормализуя шкалу)
+    const avgMood = entriesGroup.reduce((sum, entry) => sum + normalizeMood(entry.mood_score), 0) / entriesGroup.length;
     
     // Собираем все эмоции
     const allEmotions: string[] = [];
@@ -189,8 +200,8 @@ const convertMonthData = (entries: MoodEntry[]): ChartDataPoint[] => {
   const chartData: ChartDataPoint[] = [];
   
   groupedData.forEach((entriesGroup, dayKey) => {
-    // Усредняем настроение за день
-    const avgMood = entriesGroup.reduce((sum, entry) => sum + entry.mood_score, 0) / entriesGroup.length;
+    // Усредняем настроение за день (нормализуя шкалу)
+    const avgMood = entriesGroup.reduce((sum, entry) => sum + normalizeMood(entry.mood_score), 0) / entriesGroup.length;
     
     // Собираем все эмоции за день
     const allEmotions: string[] = [];
