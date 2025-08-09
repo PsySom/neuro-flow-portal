@@ -27,45 +27,50 @@ import ProcrastinationDiaryPage from './pages/ProcrastinationDiaryPage';
 import OCDDiaryPage from './pages/OCDDiaryPage';
 import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 import SleepDiaryPage from './pages/SleepDiaryPage';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
+import Auth from './pages/Auth';
 
 function App() {
   return (
-    <BackendAuthProvider>
-      <PersonalizationProvider>
-        <ActivitiesProvider>
-          <DiaryStatusProvider>
-            <Router>
-              <div className="App">
-                <Toaster />
+    <SupabaseAuthProvider>
+      <BackendAuthProvider>
+        <PersonalizationProvider>
+          <ActivitiesProvider>
+            <DiaryStatusProvider>
+              <Router>
+                <div className="App">
+                  <Toaster />
                 <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/diaries" element={<Diaries />} />
-                <Route path="/knowledge" element={<KnowledgeBase />} />
-                <Route path="/practices" element={<Practices />} />
-                <Route path="/dashboard/practices" element={<DashboardPractices />} />
-                <Route path="/statistics" element={<Statistics />} />
-                <Route path="/state" element={<State />} />
-                <Route path="/recommendations" element={<Recommendations />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/article/:id" element={<ArticleView />} />
-                <Route path="/mood-diary" element={<MoodDiaryPage />} />
-                <Route path="/thoughts-diary" element={<ThoughtsDiaryPage />} />
-                <Route path="/self-esteem-diary" element={<SelfEsteemDiaryPage />} />
-                <Route path="/procrastination-diary" element={<ProcrastinationDiaryPage />} />
-                <Route path="/ocd-diary" element={<OCDDiaryPage />} />
-                <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
-                <Route path="/sleep-diary" element={<SleepDiaryPage />} />
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/diaries" element={<Diaries />} />
+                  <Route path="/knowledge" element={<KnowledgeBase />} />
+                  <Route path="/practices" element={<Practices />} />
+                  <Route path="/dashboard/practices" element={<DashboardPractices />} />
+                  <Route path="/statistics" element={<Statistics />} />
+                  <Route path="/state" element={<State />} />
+                  <Route path="/recommendations" element={<Recommendations />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/article/:id" element={<ArticleView />} />
+                  <Route path="/mood-diary" element={<MoodDiaryPage />} />
+                  <Route path="/thoughts-diary" element={<ThoughtsDiaryPage />} />
+                  <Route path="/self-esteem-diary" element={<SelfEsteemDiaryPage />} />
+                  <Route path="/procrastination-diary" element={<ProcrastinationDiaryPage />} />
+                  <Route path="/ocd-diary" element={<OCDDiaryPage />} />
+                  <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
+                  <Route path="/sleep-diary" element={<SleepDiaryPage />} />
                 </Routes>
               </div>
             </Router>
           </DiaryStatusProvider>
         </ActivitiesProvider>
       </PersonalizationProvider>
-    </BackendAuthProvider>
+      </BackendAuthProvider>
+    </SupabaseAuthProvider>
   );
 }
 
