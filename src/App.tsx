@@ -15,7 +15,6 @@ import Statistics from './pages/Statistics';
 import State from './pages/State';
 import Recommendations from './pages/Recommendations';
 import About from './pages/About';
-import { BackendAuthProvider } from './contexts/BackendAuthContext';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
 import { ActivitiesProvider } from './contexts/ActivitiesContext';
 import { DiaryStatusProvider } from './contexts/DiaryStatusContext';
@@ -33,13 +32,12 @@ import Auth from './pages/Auth';
 function App() {
   return (
     <SupabaseAuthProvider>
-      <BackendAuthProvider>
-        <PersonalizationProvider>
-          <ActivitiesProvider>
-            <DiaryStatusProvider>
-              <Router>
-                <div className="App">
-                  <Toaster />
+      <PersonalizationProvider>
+        <ActivitiesProvider>
+          <DiaryStatusProvider>
+            <Router>
+              <div className="App">
+                <Toaster />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -69,7 +67,6 @@ function App() {
           </DiaryStatusProvider>
         </ActivitiesProvider>
       </PersonalizationProvider>
-      </BackendAuthProvider>
     </SupabaseAuthProvider>
   );
 }
