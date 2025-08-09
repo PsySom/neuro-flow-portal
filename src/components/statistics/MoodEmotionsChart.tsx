@@ -14,7 +14,7 @@ import MockDataInspector from './MockDataInspector';
 const USE_MOCK = true; // Соответствует настройке в backend-diary.service.ts
 
 const MoodEmotionsChart = () => {
-  const { isAuthenticated } = useBackendAuth();
+  const { isAuthenticated } = useSupabaseAuth();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
