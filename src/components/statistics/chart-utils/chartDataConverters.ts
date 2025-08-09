@@ -70,13 +70,16 @@ export const convertMoodEntriesToChartData = (entries: MoodEntry[], range: TimeR
 // Конвертация данных для дневного графика - каждая запись отдельно
 const convertDayData = (entries: MoodEntry[]): ChartDataPoint[] => {
   console.log('📅 Конвертация дневных данных - каждая запись отдельно');
-  
-  const chartData: ChartDataPoint[] = entries.map(entry => {
+
+  // Сначала сортируем по фактическому времени записи, чтобы сохранить хронологию
+  const sorted = [...entries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+  const chartData: ChartDataPoint[] = sorted.map(entry => {
     const entryDate = new Date(entry.timestamp);
     const timeKey = format(entryDate, 'HH:mm');
-    
+
     const emotions = entry.emotions?.map(e => e.name) || [];
-    
+
     return {
       time: timeKey,
       mood: normalizeMood(entry.mood_score),
@@ -90,9 +93,6 @@ const convertDayData = (entries: MoodEntry[]): ChartDataPoint[] => {
     };
   });
 
-  // Сортируем по времени
-  chartData.sort((a, b) => a.time.localeCompare(b.time));
-  
   console.log(`✅ Дневные данные: ${chartData.length} записей`);
   return chartData;
 };

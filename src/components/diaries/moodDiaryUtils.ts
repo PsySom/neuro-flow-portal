@@ -41,16 +41,17 @@ export const emotionsData = {
 };
 
 export const getMoodEmoji = (mood: number): string => {
-  if (mood <= -4) return '😞';
-  if (mood === -3) return '😔';
-  if (mood === -2) return '😕';
-  if (mood === -1) return '😐';
-  if (mood === 0) return '🙂';
-  if (mood === 1) return '😊';
-  if (mood === 2) return '😃';
-  if (mood === 3) return '😄';
-  if (mood === 4) return '😁';
-  if (mood >= 5) return '🤩';
+  const m = Math.round(mood);
+  if (m <= -4) return '😞';
+  if (m === -3) return '😔';
+  if (m === -2) return '😕';
+  if (m === -1) return '😐';
+  if (m === 0) return '🙂';
+  if (m === 1) return '😊';
+  if (m === 2) return '😃';
+  if (m === 3) return '😄';
+  if (m === 4) return '😁';
+  if (m >= 5) return '🤩';
   return '🙂';
 };
 
