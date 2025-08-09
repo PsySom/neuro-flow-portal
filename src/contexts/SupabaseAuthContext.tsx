@@ -51,15 +51,38 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // Clean up any stale auth state before sign in to prevent limbo states
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) localStorage.removeItem(key);
+      });
+      Object.keys(sessionStorage || {}).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) sessionStorage.removeItem(key as any);
+      });
+      try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
+    } catch {}
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       notify(`Ошибка входа: ${error.message}`);
       throw error;
     }
-    notify('Добро пожаловать! Вы успешно вошли.');
+    // Force full reload for a clean state
+    window.location.href = '/';
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    // Clean up any stale auth state before sign up
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) localStorage.removeItem(key);
+      });
+      Object.keys(sessionStorage || {}).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) sessionStorage.removeItem(key as any);
+      });
+      try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
+    } catch {}
+
     const redirectUrl = `${window.location.origin}/`;
     const { data, error } = await supabase.auth.signUp({
       email,
