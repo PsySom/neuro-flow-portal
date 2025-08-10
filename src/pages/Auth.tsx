@@ -54,22 +54,25 @@ export default function Auth() {
         await signIn(email, password);
         // Перенаправление выполнится в signIn
       } else {
-        // Регистрация: после неё запускаем онбординг (после подтверждения email)
+        // Регистрация: сразу запускаем онбординг без обязательного подтверждения email
         if (!email || !password) {
           toast({ title: 'Заполните поля', description: 'Введите email и пароль для регистрации.', variant: 'destructive' });
           return;
         }
         console.log('Attempting signup...');
         await signUp(email, password, fullName);
-        // Помечаем намерение пройти онбординг
+        // Помечаем намерение пройти онбординг перед редиректом
         try {
           localStorage.setItem('onboarding-completed', 'false');
           localStorage.setItem('onboarding-force', 'true');
         } catch {}
-        // Остаёмся на экране регистрации с подсказкой о подтверждении email (без редиректа)
-        toast({ title: 'Подтвердите email', description: 'Мы отправили письмо. После подтверждения вы попадёте в аккаунт и начнётся онбординг.' });
-        // Обновим URL, чтобы явно остаться в режиме регистрации
-        try { window.history.replaceState(null, '', `${window.location.pathname}?mode=signup`); } catch {}
+        // Пытаемся выполнить автологин и перейти на дашборд — онбординг откроется там
+        try {
+          await signIn(email, password); // перенаправление произойдет в signIn
+        } catch (e) {
+          // Если по каким-то причинам автологин не удался
+          toast({ title: 'Подтвердите email', description: 'Мы отправили письмо. После подтверждения вы сможете продолжить.', variant: 'default' });
+        }
       }
     } catch (err: any) {
       console.error('Auth error:', err);

@@ -108,14 +108,12 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       throw error;
     }
 
-    // Если подтверждение email отключено и сессия уже есть — сразу в аккаунт
+    // Не выполняем редирект здесь — навигацию контролирует вызывающий код (например, Auth.tsx)
     if (data.session) {
-      console.log('Sign up returned active session, redirecting to dashboard');
-      window.location.href = '/dashboard';
-    } else {
-      // Иначе ждём подтверждение email; редирект произойдёт по magic link
-      notify('Проверьте почту: отправлено письмо для подтверждения.');
+      console.log('Sign up returned active session');
     }
+    // Письмо отправляем, но подтверждение не обязательно
+    notify('Письмо с подтверждением отправлено (необязательно).');
   };
 
   const signOut = async () => {
