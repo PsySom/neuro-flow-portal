@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
 
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
@@ -21,6 +22,13 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+  // Синхронизация режима формы с query-параметром
+  React.useEffect(() => {
+    const param = new URLSearchParams(location.search).get('mode');
+    setMode(param === 'signup' ? 'signup' : 'login');
+  }, [location.search]);
 
   React.useEffect(() => {
     // Если пользователь уже аутентифицирован, перенаправляем на dashboard
