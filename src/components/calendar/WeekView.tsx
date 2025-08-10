@@ -51,7 +51,10 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
   const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
     console.log('WeekView creating activity:', newActivity, 'with recurring:', recurringOptions);
     createActivity(newActivity, recurringOptions)
-      .then(() => setIsCreateDialogOpen(false))
+      .then((result) => {
+        console.log('WeekView: Activity creation result:', result);
+        setIsCreateDialogOpen(false);
+      })
       .catch(error => console.error('Failed to create activity:', error));
   };
 

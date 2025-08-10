@@ -51,16 +51,10 @@ export const useMonthView = (currentDate: Date) => {
   // Convert API activities to UI format
   const monthActivities = useMemo(() => {
     const converted = convertApiActivitiesToUi(monthApiActivities);
-    try {
-      // Expand recurring activities within the month grid range
-      const { expandRecurringForRange } = require('../utils/recurrenceExpansion');
-      const expanded = expandRecurringForRange(converted, startDate, endDate);
-      console.log('MonthView: Converted + expanded activities count:', expanded.length);
-      return expanded;
-    } catch (e) {
-      console.warn('MonthView: recurrence expansion util not available, using converted only');
-      return converted;
-    }
+    // Expand recurring activities within the month grid range
+    const expanded = expandRecurringForRange(converted, startDate, endDate);
+    console.log('MonthView: Converted + expanded activities count:', expanded.length);
+    return expanded;
   }, [monthApiActivities, startDate, endDate]);
 
   const isToday = useCallback((date: Date) => {

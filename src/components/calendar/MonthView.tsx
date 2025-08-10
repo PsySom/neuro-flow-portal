@@ -58,8 +58,12 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
   };
 
   const handleActivityCreateWrapper = (newActivity: any, recurringOptions?: any) => {
+    console.log('MonthView creating activity:', newActivity, 'with recurring:', recurringOptions);
     createActivity(newActivity, recurringOptions)
-      .then(() => setIsCreateDialogOpen(false))
+      .then((result) => {
+        console.log('MonthView: Activity creation result:', result);
+        setIsCreateDialogOpen(false);
+      })
       .catch(error => console.error('Failed to create activity:', error));
   };
 

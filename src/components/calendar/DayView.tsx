@@ -84,7 +84,10 @@ const DayView: React.FC<DayViewProps> = ({
   const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     console.log('DayView creating activity:', newActivity, 'with recurring:', recurringOptions);
     createActivity(newActivity, recurringOptions)
-      .then(() => setIsCreateDialogOpen(false))
+      .then((result) => {
+        console.log('Activity creation result:', result);
+        setIsCreateDialogOpen(false);
+      })
       .catch(error => console.error('Failed to create activity:', error));
   }, [createActivity]);
 

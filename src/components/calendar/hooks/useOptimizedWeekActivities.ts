@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
-import { calculateActivityLayouts } from '../utils/timeUtils';
+import { calculateActivityLayouts } from '../utils/optimizedTimeUtils';
 import { expandRecurringForRange } from '../utils/recurrenceExpansion';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { getActivitiesForDate } from '@/utils/activitySync';

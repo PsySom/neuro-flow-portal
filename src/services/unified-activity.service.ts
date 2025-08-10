@@ -79,9 +79,19 @@ class UnifiedActivityService {
           importance: updates.importance,
           color: updates.color,
           emoji: updates.emoji,
-          recurring: updates.recurring,
+          recurring: recurringOptions ? {
+            type: recurringOptions.type,
+            interval: recurringOptions.interval,
+            occurrenceNumber: 1
+          } : undefined,
         }
       };
+
+      // Handle recurring updates
+      if (recurringOptions && recurringOptions.type !== 'none') {
+        console.log('Updating recurring activity with new options:', recurringOptions);
+        // TODO: Implement recurring update logic - delete old recurring and create new ones
+      }
 
       const updatedApiActivity = await activityService.updateActivity(id, updateRequest);
       return convertApiActivityToUi(updatedApiActivity);
@@ -94,6 +104,13 @@ class UnifiedActivityService {
   // Delete activity with recurring support
   async deleteActivity(id: number, deleteOption?: DeleteRecurringOption): Promise<void> {
     try {
+      console.log('Deleting activity:', id, 'with option:', deleteOption);
+      
+      if (deleteOption === 'all') {
+        // TODO: Implement deletion of all recurring activities
+        console.log('Deleting all recurring activities for:', id);
+      }
+      
       await activityService.deleteActivity(id);
     } catch (error) {
       console.error('Error deleting activity:', error);
