@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +24,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     // 1) Subscribe to auth changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+      console.log('Auth state change:', event, sess?.user?.email);
       setSession(sess);
       setUser(sess?.user ?? null);
 
@@ -40,6 +42,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
     // 2) Then get initial session
     supabase.auth.getSession().then(({ data }) => {
+      console.log('Initial session:', data.session?.user?.email);
       setSession(data.session ?? null);
       setUser(data.session?.user ?? null);
       setIsLoading(false);
@@ -51,6 +54,8 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    console.log('Attempting sign in for:', email);
+    
     // Clean up any stale auth state before sign in to prevent limbo states
     try {
       Object.keys(localStorage).forEach((key) => {
@@ -64,14 +69,19 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      console.error('Sign in error:', error);
       notify(`Ошибка входа: ${error.message}`);
       throw error;
     }
-    // Force full reload for a clean state
+    
+    console.log('Sign in successful, redirecting to dashboard');
+    // Успешный вход - перенаправляем на dashboard
     window.location.href = '/dashboard';
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    console.log('Attempting sign up for:', email);
+    
     // Clean up any stale auth state before sign up
     try {
       Object.keys(localStorage).forEach((key) => {
@@ -83,7 +93,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
     } catch {}
 
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/dashboard`;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -93,6 +103,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       },
     });
     if (error) {
+      console.error('Sign up error:', error);
       notify(`Ошибка регистрации: ${error.message}`);
       throw error;
     }
@@ -101,6 +112,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   };
 
   const signOut = async () => {
+    console.log('Signing out user');
     // Cleanup local state and try global sign out
     try {
       // Remove all supabase related keys from storage
@@ -110,6 +122,9 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       Object.keys(sessionStorage || {}).forEach((key) => {
         if (key.startsWith('supabase.auth.') || key.includes('sb-')) sessionStorage.removeItem(key as any);
       });
+      // Также очищаем данные онбординга
+      localStorage.removeItem('onboarding-completed');
+      localStorage.removeItem('onboarding-data');
     } catch {}
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
     // Full refresh to reset state

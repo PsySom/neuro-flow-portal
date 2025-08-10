@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -19,7 +20,9 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
+    // Если пользователь уже аутентифицирован, перенаправляем на dashboard
     if (isAuthenticated) {
+      console.log('User already authenticated, redirecting to dashboard');
       window.location.href = '/dashboard';
     }
   }, [isAuthenticated]);
@@ -28,16 +31,20 @@ export default function Auth() {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    
     try {
       if (mode === 'login') {
+        console.log('Attempting login...');
         await signIn(email, password);
-        // Перенаправление выполнит signIn через full reload
+        // Перенаправление выполнится в signIn
       } else {
+        console.log('Attempting signup...');
         await signUp(email, password, fullName);
         toast({ title: 'Проверьте почту', description: 'Мы отправили письмо для подтверждения.' });
         setMode('login');
       }
     } catch (err: any) {
+      console.error('Auth error:', err);
       const msg = err?.message?.includes('For security purposes')
         ? 'Слишком частые запросы. Повторите через ~1 минуту.'
         : err?.message || 'Произошла ошибка. Попробуйте снова.';
@@ -69,6 +76,21 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // Не показываем форму, если пользователь уже аутентифицирован
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-10 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg">Перенаправление на панель управления...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

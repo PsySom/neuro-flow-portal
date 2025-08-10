@@ -11,18 +11,59 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
 const Dashboard = () => {
   useDashboardScroll();
-  const { isAuthenticated } = useSupabaseAuth();
+  const { isAuthenticated, user } = useSupabaseAuth();
   const [isOnboardingOpen, setIsOnboardingOpen] = React.useState(false);
+  const [onboardingChecked, setOnboardingChecked] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !user || onboardingChecked) return;
+    
+    const checkOnboardingStatus = async () => {
+      try {
+        // Проверяем локальное хранилище на завершение онбординга
+        const localCompleted = localStorage.getItem('onboarding-completed') === 'true';
+        
+        // Для существующих пользователей (созданы более 1 минуты назад) не показываем онбординг
+        const userCreatedAt = new Date(user.created_at);
+        const now = new Date();
+        const isExistingUser = (now.getTime() - userCreatedAt.getTime()) > 60000; // 1 минута
+        
+        console.log('Checking onboarding status:', {
+          localCompleted,
+          isExistingUser,
+          userCreatedAt: userCreatedAt.toISOString(),
+          userAge: now.getTime() - userCreatedAt.getTime()
+        });
+        
+        // Показываем онбординг только для новых пользователей, которые его не завершили
+        const shouldShowOnboarding = !localCompleted && !isExistingUser;
+        
+        setIsOnboardingOpen(shouldShowOnboarding);
+        setOnboardingChecked(true);
+        
+        // Если пользователь существующий, помечаем онбординг как завершенный
+        if (isExistingUser && !localCompleted) {
+          localStorage.setItem('onboarding-completed', 'true');
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        setIsOnboardingOpen(false);
+        setOnboardingChecked(true);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [isAuthenticated, user, onboardingChecked]);
+
+  const handleOnboardingClose = () => {
+    setIsOnboardingOpen(false);
+    // Помечаем онбординг как завершенный при закрытии
     try {
-      const completed = localStorage.getItem('onboarding-completed') === 'true';
-      setIsOnboardingOpen(!completed);
-    } catch {
-      setIsOnboardingOpen(true);
+      localStorage.setItem('onboarding-completed', 'true');
+    } catch (error) {
+      console.error('Error saving onboarding completion:', error);
     }
-  }, [isAuthenticated]);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-24">
@@ -31,7 +72,13 @@ const Dashboard = () => {
       <DashboardGreeting />
       <DashboardContent />
       <DashboardBottomNav />
-      <OnboardingDialog isOpen={isOnboardingOpen} initialStep="welcome" onClose={() => setIsOnboardingOpen(false)} />
+      {onboardingChecked && (
+        <OnboardingDialog 
+          isOpen={isOnboardingOpen} 
+          initialStep="welcome" 
+          onClose={handleOnboardingClose} 
+        />
+      )}
     </div>
   );
 };
