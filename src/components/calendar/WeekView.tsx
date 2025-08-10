@@ -31,16 +31,16 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     isLoading
   } = useWeekView(currentDate);
 
-  // Use unified activity sync hook
+  // Use unified activity sync hook with week activities
+  const weekActivities = getWeekActivities();
   const {
     handleActivityCreate: createActivity,
     handleActivityUpdate: updateActivity,
     handleActivityDelete: deleteActivity,
     handleActivityToggle: toggleActivityStatus
-  } = useUnifiedActivityOperations();
+  } = useUnifiedActivityOperations(weekActivities);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const weekActivities = getWeekActivities();
 
   const handleDateSelect = (date: Date) => {
     if (onDateChange) {
