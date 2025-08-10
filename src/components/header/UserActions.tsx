@@ -37,7 +37,7 @@ const UserActions: React.FC = () => {
         style={{ 
           '--hover-color': `hsl(var(--psybalans-primary))`
         } as React.CSSProperties}
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate('/auth?mode=login')}
       >
         Вход
       </Button>
@@ -46,7 +46,7 @@ const UserActions: React.FC = () => {
         style={{ 
           background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
         }}
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate('/auth?mode=signup')}
       >
         Регистрация
       </Button>
