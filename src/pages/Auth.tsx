@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +24,7 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [signupConfigError, setSignupConfigError] = useState<string | null>(null);
   const location = useLocation();
 
   // Синхронизация режима формы с query-параметром
@@ -43,6 +45,7 @@ export default function Auth() {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    setSignupConfigError(null);
 
     try {
       if (mode === 'login') {
@@ -76,9 +79,14 @@ export default function Auth() {
       }
     } catch (err: any) {
       console.error('Auth error:', err);
-      const msg = err?.message?.includes('For security purposes')
-        ? 'Слишком частые запросы. Повторите через ~1 минуту.'
-        : err?.message || 'Произошла ошибка. Попробуйте снова.';
+      let msg = err?.message || 'Произошла ошибка. Попробуйте снова.';
+      if (err?.code === 'email_provider_disabled' || msg.includes('Email signups are disabled')) {
+        msg = 'Регистрация по email отключена в настройках Supabase.';
+        setSignupConfigError('Откройте в Supabase: Authentication → Providers → Email → включите Email provider и Allow email signups. Также проверьте: Authentication → URL Configuration (Site URL и Redirect URLs).');
+      }
+      if (msg.includes('For security purposes')) {
+        msg = 'Слишком частые запросы. Повторите через ~1 минуту.';
+      }
       toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
@@ -135,6 +143,12 @@ export default function Auth() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {mode === 'signup' && signupConfigError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>Регистрация по email отключена</AlertTitle>
+                <AlertDescription>{signupConfigError}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={onSubmit} className="space-y-4">
               {mode === 'signup' && (
                 <div className="space-y-2">
