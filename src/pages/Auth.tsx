@@ -31,17 +31,33 @@ export default function Auth() {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
-    
+
     try {
       if (mode === 'login') {
+        // Валидация только для обычного входа
+        if (!email || !password) {
+          toast({ title: 'Заполните поля', description: 'Введите email и пароль для входа.', variant: 'destructive' });
+          return;
+        }
         console.log('Attempting login...');
         await signIn(email, password);
         // Перенаправление выполнится в signIn
       } else {
+        // Регистрация: после неё запускаем онбординг (после подтверждения email)
+        if (!email || !password) {
+          toast({ title: 'Заполните поля', description: 'Введите email и пароль для регистрации.', variant: 'destructive' });
+          return;
+        }
         console.log('Attempting signup...');
         await signUp(email, password, fullName);
-        toast({ title: 'Проверьте почту', description: 'Мы отправили письмо для подтверждения.' });
-        setMode('login');
+        // Помечаем намерение пройти онбординг и не переключаемся на окно входа
+        try {
+          localStorage.setItem('onboarding-completed', 'false');
+          localStorage.setItem('onboarding-force', 'true');
+        } catch {}
+        toast({ title: 'Подтвердите email', description: 'После подтверждения автоматически откроется онбординг.' });
+        // Направляем пользователя к панели — после подтверждения email он окажется здесь и увидит онбординг
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
       console.error('Auth error:', err);
@@ -111,13 +127,13 @@ export default function Auth() {
                   <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Пароль</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? 'Подождите...' : (mode === 'login' ? 'Войти' : 'Зарегистрироваться')}

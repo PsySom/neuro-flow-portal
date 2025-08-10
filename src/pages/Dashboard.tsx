@@ -20,8 +20,8 @@ const Dashboard = () => {
     
     const checkOnboardingStatus = async () => {
       try {
-        // Проверяем локальное хранилище на завершение онбординга
         const localCompleted = localStorage.getItem('onboarding-completed') === 'true';
+        const forced = localStorage.getItem('onboarding-force') === 'true';
         
         // Для существующих пользователей (созданы более 1 минуты назад) не показываем онбординг
         const userCreatedAt = new Date(user.created_at);
@@ -30,19 +30,20 @@ const Dashboard = () => {
         
         console.log('Checking onboarding status:', {
           localCompleted,
+          forced,
           isExistingUser,
           userCreatedAt: userCreatedAt.toISOString(),
           userAge: now.getTime() - userCreatedAt.getTime()
         });
         
-        // Показываем онбординг только для новых пользователей, которые его не завершили
-        const shouldShowOnboarding = !localCompleted && !isExistingUser;
+        // Показываем онбординг для новых пользователей или если явно запрошен
+        const shouldShowOnboarding = forced || (!localCompleted && !isExistingUser);
         
         setIsOnboardingOpen(shouldShowOnboarding);
         setOnboardingChecked(true);
         
-        // Если пользователь существующий, помечаем онбординг как завершенный
-        if (isExistingUser && !localCompleted) {
+        // Если пользователь существующий и не было принудительного показа, помечаем онбординг как завершенный
+        if (isExistingUser && !localCompleted && !forced) {
           localStorage.setItem('onboarding-completed', 'true');
         }
       } catch (error) {
@@ -57,9 +58,10 @@ const Dashboard = () => {
 
   const handleOnboardingClose = () => {
     setIsOnboardingOpen(false);
-    // Помечаем онбординг как завершенный при закрытии
+    // Помечаем онбординг как завершенный при закрытии и убираем флаг принудительного показа
     try {
       localStorage.setItem('onboarding-completed', 'true');
+      localStorage.removeItem('onboarding-force');
     } catch (error) {
       console.error('Error saving onboarding completion:', error);
     }
