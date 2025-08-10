@@ -196,3 +196,53 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+---
+
+# Аутентификация и онбординг — логика и архитектура
+
+Эта секция описывает текущий порядок регистрации/входа, запуск онбординга и переходы.
+
+## Задействованные файлы
+- src/pages/Auth.tsx — экран входа/регистрации (email+пароль, опциональная «магическая ссылка»)
+- src/contexts/SupabaseAuthContext.tsx — управление сессией, signIn/signUp/signOut, очистка состояния
+- src/pages/Dashboard.tsx — показ OnboardingDialog на основе флагов
+- src/components/onboarding/OnboardingDialog.tsx — мастер онбординга
+
+## Основные флаги в localStorage
+- onboarding-completed: 'true' | 'false' — признак завершения онбординга
+- onboarding-force: 'true' — принудительно показать онбординг при следующем заходе на /dashboard
+
+## Потоки
+1) Регистрация (кнопка «Зарегистрироваться» в Auth.tsx):
+   - Выполняется supabase.auth.signUp с emailRedirectTo = `${origin}/dashboard`.
+   - Устанавливаются флаги: onboarding-completed='false', onboarding-force='true'.
+   - Пользователь перенаправляется на /dashboard. После подтверждения email (по письму) он автоматически войдёт и окажется на /dashboard.
+   - Dashboard.tsx обнаружит флаг onboarding-force и откроет OnboardingDialog.
+   - По закрытию онбординга: onboarding-completed='true', onboarding-force удаляется; пользователь остаётся на /dashboard (аккаунт).
+
+2) Вход по паролю (кнопка «Войти»):
+   - Выполняется supabase.auth.signInWithPassword.
+   - Успешный вход ведёт напрямую на /dashboard. Онбординг не показывается, если он уже завершён либо пользователь «старый» (>1 минуты с момента created_at).
+
+3) «Войти по ссылке на email» (магическая ссылка):
+   - Опция в режиме Вход, НЕ обязательная для использования.
+   - Кнопка активна только если введён email; при нажатии отправляется magic link с redirect на /dashboard.
+
+Примечание: HTML required для полей email/пароль отключён, валидация выполняется в обработчиках действия (вход/регистрация), чтобы «магическая ссылка» была действительно опциональной.
+
+## Логика показа онбординга (Dashboard.tsx)
+- Определяется shouldShowOnboarding = onboarding-force === true ИЛИ (onboarding-completed !== true И пользователь «новый», т.е. создан < 1 минуты назад).
+- При закрытии онбординга выставляется onboarding-completed='true' и удаляется onboarding-force.
+- Для «старых» пользователей без принудительного показа онбординг не показывается, а флаг completion выставляется в 'true'.
+
+## Очистка при выходе (signOut)
+- Удаляются ключи Supabase (supabase.auth.*, sb-*) из localStorage/sessionStorage.
+- Сбрасываются флаги онбординга (onboarding-completed, onboarding-force, onboarding-data).
+- Выполняется глобический signOut и редирект на /auth.
+
+## Настройки Supabase (обязательно проверить)
+- Authentication → URL Configuration: укажите корректные Site URL и Redirect URLs (включая URL превью/продакшена).
+- Подтверждение email: по умолчанию требуется. Для ускорения тестирования можно временно отключить «Confirm email» в настройках провайдера Email.
+- В логах Supabase возможна ошибка 400: Email not confirmed при попытке входа до подтверждения письма — это ожидаемо.
+
