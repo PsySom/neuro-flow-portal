@@ -1,7 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mail } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { toast } from '@/hooks/use-toast';
 
 interface EmailVerificationProps {
   userData: any;
@@ -10,6 +13,28 @@ interface EmailVerificationProps {
 }
 
 const EmailVerification: React.FC<EmailVerificationProps> = ({ userData, onNext, onBack }) => {
+  const { user } = useSupabaseAuth();
+  const [sending, setSending] = useState(false);
+
+  const handleResend = async () => {
+    setSending(true);
+    try {
+      const email = userData?.email || user?.email;
+      if (!email) {
+        toast({ title: 'Email не найден', description: 'Укажите корректный email и попробуйте снова.' });
+        return;
+      }
+      const { error } = await supabase.auth.resend({ type: 'signup', email });
+      if (error) throw error;
+      toast({ title: 'Письмо отправлено повторно', description: 'Проверьте почтовый ящик.' });
+    } catch (err: any) {
+      console.error('Resend email error:', err);
+      toast({ title: 'Ошибка отправки', description: err?.message || 'Попробуйте позже.' });
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="p-8 text-center">
       <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -19,12 +44,12 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ userData, onNext,
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Проверьте вашу почту</h2>
       <p className="text-gray-600 mb-6">
         Мы отправили письмо с подтверждением на<br />
-        <span className="font-medium">{userData.email}</span>
+        <span className="font-medium">{userData?.email || user?.email}</span>
       </p>
       
       <div className="bg-gray-50 rounded-lg p-4 mb-6">
         <p className="text-sm text-gray-700">
-          Проверьте почту и перейдите по ссылке для подтверждения аккаунта
+          Перейдите по ссылке из письма, чтобы подтвердить аккаунт. Это можно сделать и позже в разделе Профиль → Безопасность.
         </p>
       </div>
       
@@ -32,12 +57,10 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ userData, onNext,
         <Button 
           variant="outline" 
           className="w-full"
-          onClick={() => {
-            // Логика повторной отправки письма
-            console.log('Resending email...');
-          }}
+          onClick={handleResend}
+          disabled={sending}
         >
-          Отправить письмо повторно
+          {sending ? 'Отправка…' : 'Отправить письмо повторно'}
         </Button>
         
         <Button 
@@ -52,7 +75,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ userData, onNext,
           className="w-full bg-gradient-to-r from-emerald-500 to-teal-500"
           onClick={() => onNext({})}
         >
-          Продолжить (для демо)
+          Продолжить
         </Button>
       </div>
     </div>
