@@ -11,10 +11,10 @@ import { CalendarIcon, Star, Clock, Repeat, Bell, Palette } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useActivityOperations } from '@/hooks/useActivityOperations';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 
 const CreateActivityTab: React.FC = () => {
-  const { handleActivityCreate } = useActivityOperations([]);
+  const { handleActivityCreate } = useUnifiedActivityOperations([]);
   const [activityName, setActivityName] = useState('');
   const [activityType, setActivityType] = useState('');
   const [startTime, setStartTime] = useState('');

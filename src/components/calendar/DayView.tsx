@@ -6,7 +6,7 @@ import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useActivities } from '@/hooks/api/useActivities';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
-import { useActivitySync } from '@/hooks/useActivitySync';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import { DeleteRecurringOption, RecurringActivityOptions } from './utils/recurringUtils';
 
 interface DayViewProps {
@@ -32,15 +32,15 @@ const DayView: React.FC<DayViewProps> = ({
   
   // Use unified activity sync hook
   const {
-    createActivity,
-    updateActivity,
-    deleteActivity,
-    toggleActivityStatus,
+    handleActivityCreate: createActivity,
+    handleActivityUpdate: updateActivity,
+    handleActivityDelete: deleteActivity,
+    handleActivityToggle: toggleActivityStatus,
     isCreating,
     isUpdating,
     isDeleting,
     isToggling
-  } = useActivitySync();
+  } = useUnifiedActivityOperations([]);
 
   // Convert API activities to UI format
   const dayActivities = useMemo(() => convertApiActivitiesToUi(apiActivities), [apiActivities]);
@@ -52,7 +52,7 @@ const DayView: React.FC<DayViewProps> = ({
     const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
       console.log('Toggling activity status:', activityId, 'current:', activity.status);
-      toggleActivityStatus(activityId, activity.status);
+      toggleActivityStatus(activityId);
     }
   }, [apiActivities, toggleActivityStatus]);
 

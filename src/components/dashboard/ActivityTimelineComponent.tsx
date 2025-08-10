@@ -8,7 +8,7 @@ import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
 import { useActivities } from '@/hooks/api/useActivities';
 import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
-import { useActivitySync } from '@/hooks/useActivitySync';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
@@ -37,18 +37,18 @@ const ActivityTimelineComponent = () => {
 
   // Use unified activity sync hook
   const {
-    createActivity,
-    updateActivity,
-    deleteActivity,
-    toggleActivityStatus
-  } = useActivitySync();
+    handleActivityCreate: createActivity,
+    handleActivityUpdate: updateActivity,
+    handleActivityDelete: deleteActivity,
+    handleActivityToggle: toggleActivityStatus
+  } = useUnifiedActivityOperations([]);
 
   // Enhanced toggle with date validation
   const handleActivityToggle = (activityId: number | string) => {
     const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
       console.log('ActivityTimeline: Toggling activity status:', activityId, 'current:', activity.status);
-      toggleActivityStatus(activityId, activity.status)
+      toggleActivityStatus(activityId)
         .catch(error => console.error('Failed to toggle activity:', error));
     }
   };

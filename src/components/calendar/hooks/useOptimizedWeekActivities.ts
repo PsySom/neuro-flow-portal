@@ -5,49 +5,70 @@ import { expandRecurringForRange } from '../utils/recurrenceExpansion';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { getActivitiesForDate } from '@/utils/activitySync';
 
-export const useWeekActivities = (startDate: string, endDate: string) => {
+/**
+ * Optimized hook for week activities with better memoization and performance
+ */
+export const useOptimizedWeekActivities = (startDate: string, endDate: string) => {
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
-  // Use API call for the week range
+  // Memoize the date range query
   const { data: weekApiActivities = [], isLoading } = useActivitiesRange(startDate, endDate);
 
-  // Convert API activities to UI format
-  const weekActivities = useMemo(() => {
+  // Optimize activities processing with better memoization
+  const processedActivities = useMemo(() => {
+    console.log(`Processing ${weekApiActivities.length} API activities for week ${startDate} - ${endDate}`);
+    
     const converted = convertApiActivitiesToUi(weekApiActivities);
-    // Expand recurring activities within the requested week range
-    return expandRecurringForRange(converted, startDate, endDate);
+    const expanded = expandRecurringForRange(converted, startDate, endDate);
+    
+    console.log(`Processed result: ${expanded.length} activities after conversion and expansion`);
+    return expanded;
   }, [weekApiActivities, startDate, endDate]);
 
+  // Memoize activities grouped by date for better performance
+  const activitiesByDate = useMemo(() => {
+    const grouped = new Map<string, any[]>();
+    
+    processedActivities.forEach(activity => {
+      const date = activity.date?.split('T')[0] || activity.date;
+      if (!grouped.has(date)) {
+        grouped.set(date, []);
+      }
+      grouped.get(date)!.push(activity);
+    });
+    
+    // Sort activities in each day
+    grouped.forEach(activities => {
+      activities.sort((a, b) => {
+        if (a.startTime && b.startTime) {
+          return a.startTime.localeCompare(b.startTime);
+        }
+        return 0;
+      });
+    });
+    
+    return grouped;
+  }, [processedActivities]);
+
   const getWeekActivities = useCallback(() => {
-    console.log('Week activities total:', weekActivities.length);
-    return weekActivities;
-  }, [weekActivities]);
+    return processedActivities;
+  }, [processedActivities]);
 
   const getActivitiesForDay = useCallback((day: Date) => {
-    // Use local date string to avoid timezone shift issues
     const dayString = day.toLocaleDateString('en-CA');
-    
-    // Use enhanced sync utility for better date filtering
-    const dayActivities = getActivitiesForDate(weekActivities, dayString);
+    const dayActivities = activitiesByDate.get(dayString) || [];
     
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
     
+    // Apply type filtering
     const filteredActivities = dayActivities.filter(activity => 
       !filteredTypes.has(activity.type)
     );
     
-    // Sort activities by start time
-    filteredActivities.sort((a, b) => {
-      if (a.startTime && b.startTime) {
-        return a.startTime.localeCompare(b.startTime);
-      }
-      return 0;
-    });
-    
     console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     
     return calculateActivityLayouts(filteredActivities);
-  }, [weekActivities, filteredTypes]);
+  }, [activitiesByDate, filteredTypes]);
 
   const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
     setFilteredTypes(prev => {
@@ -63,7 +84,7 @@ export const useWeekActivities = (startDate: string, endDate: string) => {
   }, []);
 
   return {
-    weekActivities,
+    weekActivities: processedActivities,
     filteredTypes,
     isLoading,
     getWeekActivities,

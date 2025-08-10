@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
-import { useActivityOperations } from '@/hooks/useActivityOperations';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import { getActivitiesForDate } from '@/utils/activitySync';
 import { expandRecurringForRange } from '../utils/recurrenceExpansion';
 
@@ -97,13 +97,13 @@ export const useMonthView = (currentDate: Date) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }, []);
 
-  // Get activity operations
+  // Get activity operations with unified interface
   const {
     handleActivityCreate,
     handleActivityUpdate,
     handleActivityDelete,
     handleActivityToggle
-  } = useActivityOperations(monthActivities);
+  } = useUnifiedActivityOperations(monthActivities);
 
   return {
     days,

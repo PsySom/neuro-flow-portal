@@ -8,14 +8,14 @@ import WeekView from '@/components/calendar/WeekView';
 import MonthView from '@/components/calendar/MonthView';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
-import { useActivitySync } from '@/hooks/useActivitySync';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { useCalendarNavigation } from '@/hooks/useCalendarNavigation';
 
 const Calendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { createActivity } = useActivitySync();
+  const { handleActivityCreate: createActivity } = useUnifiedActivityOperations();
   
   const {
     currentDate,

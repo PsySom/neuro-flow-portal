@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useWeekDates } from './useWeekDates';
-import { useWeekActivities } from './useWeekActivities';
-import { useActivityOperations } from '@/hooks/useActivityOperations';
+import { useOptimizedWeekActivities } from './useOptimizedWeekActivities';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import { useActivitiesSync } from '@/hooks/api/useActivities';
 
 export const useWeekView = (currentDate: Date) => {
@@ -13,7 +13,7 @@ export const useWeekView = (currentDate: Date) => {
   // Get week dates
   const { weekDays, startDate, endDate } = useWeekDates(currentDate);
 
-  // Get activities for the week with realtime updates
+  // Get activities for the week with optimized processing
   const {
     weekActivities,
     filteredTypes,
@@ -21,7 +21,7 @@ export const useWeekView = (currentDate: Date) => {
     getWeekActivities,
     getActivitiesForDay,
     handleTypeFilterChange
-  } = useWeekActivities(startDate, endDate);
+  } = useOptimizedWeekActivities(startDate, endDate);
 
   // Get sync utilities
   const { syncActivities } = useActivitiesSync();

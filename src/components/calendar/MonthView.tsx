@@ -7,7 +7,7 @@ import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import EditActivityDialog from './components/EditActivityDialog';
 import CreateActivityDialog from './components/CreateActivityDialog';
-import { useActivitySync } from '@/hooks/useActivitySync';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -28,8 +28,12 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
     isLoading
   } = useMonthView(currentDate);
 
-  // Use unified activity sync hook
-  const { createActivity, updateActivity, deleteActivity } = useActivitySync();
+  // Use unified activity operations hook
+  const { 
+    handleActivityCreate: createActivity, 
+    handleActivityUpdate: updateActivity, 
+    handleActivityDelete: deleteActivity 
+  } = useUnifiedActivityOperations();
 
   // Enable realtime updates
   useActivitiesRealtime(true);

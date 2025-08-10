@@ -8,7 +8,7 @@ import WeekViewDay from './components/WeekViewDay';
 import TimeColumn from './components/TimeColumn';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useWeekView } from './hooks/useWeekView';
-import { useActivitySync } from '@/hooks/useActivitySync';
+import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -33,11 +33,11 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
 
   // Use unified activity sync hook
   const {
-    createActivity,
-    updateActivity,
-    deleteActivity,
-    toggleActivityStatus
-  } = useActivitySync();
+    handleActivityCreate: createActivity,
+    handleActivityUpdate: updateActivity,
+    handleActivityDelete: deleteActivity,
+    handleActivityToggle: toggleActivityStatus
+  } = useUnifiedActivityOperations();
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const weekActivities = getWeekActivities();
@@ -73,7 +73,7 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     if (activity) {
       const currentStatus = activity.completed ? 'completed' : 'planned';
       console.log('WeekView toggling activity status:', activityId, 'current:', currentStatus);
-      toggleActivityStatus(activityId, currentStatus)
+      toggleActivityStatus(activityId)
         .catch(error => console.error('Failed to toggle activity:', error));
     }
   };
