@@ -19,7 +19,8 @@ import {
   SocialSupportSection,
   GoalsSection,
   PreferencesSection,
-  PersonalizationSection
+  PersonalizationSection,
+  SecuritySection
 } from './user-profile/sections';
 
 const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }) => {
@@ -144,6 +145,10 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
               userCreatedAt={undefined}
               formatDate={formatDate}
             />
+
+            <Separator />
+
+            <SecuritySection />
 
             <Separator />
 

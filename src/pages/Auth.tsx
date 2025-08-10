@@ -20,6 +20,7 @@ export default function Auth() {
   });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const location = useLocation();
@@ -54,9 +55,13 @@ export default function Auth() {
         await signIn(email, password);
         // Перенаправление выполнится в signIn
       } else {
-        // Регистрация: сразу запускаем онбординг без обязательного подтверждения email
+        // Регистрация: отправляем письмо (необязательно) и открываем приветствие онбординга
         if (!email || !password) {
           toast({ title: 'Заполните поля', description: 'Введите email и пароль для регистрации.', variant: 'destructive' });
+          return;
+        }
+        if (password !== confirmPassword) {
+          toast({ title: 'Пароли не совпадают', description: 'Повторите пароль корректно.', variant: 'destructive' });
           return;
         }
         console.log('Attempting signup...');
@@ -66,13 +71,8 @@ export default function Auth() {
           localStorage.setItem('onboarding-completed', 'false');
           localStorage.setItem('onboarding-force', 'true');
         } catch {}
-        // Пытаемся выполнить автологин и перейти на дашборд — онбординг откроется там
-        try {
-          await signIn(email, password); // перенаправление произойдет в signIn
-        } catch (e) {
-          // Если по каким-то причинам автологин не удался
-          toast({ title: 'Подтвердите email', description: 'Мы отправили письмо. После подтверждения вы сможете продолжить.', variant: 'default' });
-        }
+        // Переходим на отдельную страницу онбординга (продолжение без обязательного входа)
+        window.location.href = '/onboarding';
       }
     } catch (err: any) {
       console.error('Auth error:', err);
@@ -96,7 +96,7 @@ export default function Auth() {
       const redirectUrl = `${window.location.origin}/dashboard`;
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: redirectUrl }
+        options: { emailRedirectTo: `${window.location.origin}/dashboard` }
       });
       if (error) throw error;
       toast({ title: 'Письмо отправлено', description: 'Проверьте почту и перейдите по ссылке для входа.' });
@@ -131,7 +131,7 @@ export default function Auth() {
           <CardHeader>
             <CardTitle>{mode === 'login' ? 'Вход' : 'Регистрация'}</CardTitle>
             <CardDescription>
-              {mode === 'login' ? 'Войдите в аккаунт PsyBalans' : 'Создайте аккаунт PsyBalans'}
+              {mode === 'login' ? 'Войдите в аккаунт PsyBalans' : 'Создайте аккаунт PsyBalans. После регистрации вы сразу перейдёте к онбордингу, подтверждение email можно сделать позже.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,6 +150,12 @@ export default function Auth() {
                 <Label htmlFor="password">Пароль</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
+              {mode === 'signup' && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Повторите пароль</Label>
+                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                </div>
+              )}
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? 'Подождите...' : (mode === 'login' ? 'Войти' : 'Зарегистрироваться')}
               </Button>

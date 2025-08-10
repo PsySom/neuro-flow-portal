@@ -199,23 +199,32 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          facebook_url: string | null
           full_name: string | null
           id: string
+          telegram_handle: string | null
           updated_at: string
+          whatsapp_number: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          facebook_url?: string | null
           full_name?: string | null
           id: string
+          telegram_handle?: string | null
           updated_at?: string
+          whatsapp_number?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          facebook_url?: string | null
           full_name?: string | null
           id?: string
+          telegram_handle?: string | null
           updated_at?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
@@ -349,9 +358,12 @@ export type Database = {
         Returns: {
           avatar_url: string | null
           created_at: string
+          facebook_url: string | null
           full_name: string | null
           id: string
+          telegram_handle: string | null
           updated_at: string
+          whatsapp_number: string | null
         }
       }
       has_role: {

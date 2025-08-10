@@ -29,6 +29,7 @@ import SleepDiaryPage from './pages/SleepDiaryPage';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import SupabaseAuthProvider from './contexts/SupabaseAuthContext';
+import Onboarding from './pages/Onboarding';
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
                   <Route path="/ocd-diary" element={<OCDDiaryPage />} />
                   <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
                   <Route path="/sleep-diary" element={<SleepDiaryPage />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
                 </Routes>
               </div>
             </Router>

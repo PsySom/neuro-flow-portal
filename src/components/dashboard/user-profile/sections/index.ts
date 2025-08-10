@@ -9,3 +9,4 @@ export { default as SocialSupportSection } from './SocialSupportSection';
 export { default as GoalsSection } from './GoalsSection';
 export { default as PreferencesSection } from './PreferencesSection';
 export { default as PersonalizationSection } from './PersonalizationSection';
+export { default as SecuritySection } from './SecuritySection';
