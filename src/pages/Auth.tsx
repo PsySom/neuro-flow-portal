@@ -61,14 +61,15 @@ export default function Auth() {
         }
         console.log('Attempting signup...');
         await signUp(email, password, fullName);
-        // Помечаем намерение пройти онбординг и не переключаемся на окно входа
+        // Помечаем намерение пройти онбординг
         try {
           localStorage.setItem('onboarding-completed', 'false');
           localStorage.setItem('onboarding-force', 'true');
         } catch {}
-        toast({ title: 'Подтвердите email', description: 'После подтверждения автоматически откроется онбординг.' });
-        // Направляем пользователя к панели — после подтверждения email он окажется здесь и увидит онбординг
-        window.location.href = '/dashboard';
+        // Остаёмся на экране регистрации с подсказкой о подтверждении email (без редиректа)
+        toast({ title: 'Подтвердите email', description: 'Мы отправили письмо. После подтверждения вы попадёте в аккаунт и начнётся онбординг.' });
+        // Обновим URL, чтобы явно остаться в режиме регистрации
+        try { window.history.replaceState(null, '', `${window.location.pathname}?mode=signup`); } catch {}
       }
     } catch (err: any) {
       console.error('Auth error:', err);

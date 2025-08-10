@@ -107,8 +107,15 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       notify(`Ошибка регистрации: ${error.message}`);
       throw error;
     }
-    // Email confirmation required before sign-in; profile will be created on first login
-    notify('Проверьте почту: отправлено письмо для подтверждения.');
+
+    // Если подтверждение email отключено и сессия уже есть — сразу в аккаунт
+    if (data.session) {
+      console.log('Sign up returned active session, redirecting to dashboard');
+      window.location.href = '/dashboard';
+    } else {
+      // Иначе ждём подтверждение email; редирект произойдёт по magic link
+      notify('Проверьте почту: отправлено письмо для подтверждения.');
+    }
   };
 
   const signOut = async () => {
