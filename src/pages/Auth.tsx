@@ -13,7 +13,10 @@ import { supabase } from '@/integrations/supabase/client';
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
   const { toast } = useToast();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState<'login' | 'signup'>(() => {
+    const param = new URLSearchParams(window.location.search).get('mode');
+    return param === 'signup' ? 'signup' : 'login';
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -152,9 +155,25 @@ export default function Auth() {
             </form>
             <div className="text-sm mt-4 text-center">
               {mode === 'login' ? (
-                <button className="underline" onClick={() => setMode('signup')}>Нет аккаунта? Регистрация</button>
+                <button
+                  className="underline"
+                  onClick={() => {
+                    setMode('signup');
+                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=signup`); } catch {}
+                  }}
+                >
+                  Нет аккаунта? Регистрация
+                </button>
               ) : (
-                <button className="underline" onClick={() => setMode('login')}>Уже есть аккаунт? Войти</button>
+                <button
+                  className="underline"
+                  onClick={() => {
+                    setMode('login');
+                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=login`); } catch {}
+                  }}
+                >
+                  Уже есть аккаунт? Войти
+                </button>
               )}
             </div>
           </CardContent>

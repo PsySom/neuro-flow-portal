@@ -2,7 +2,7 @@ import React from 'react';
 
 const Login = () => {
   React.useEffect(() => {
-    window.location.replace('/auth');
+    window.location.replace('/auth?mode=login');
   }, []);
   return null;
 };
