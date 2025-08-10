@@ -34,7 +34,8 @@ export const useCalendarNavigation = () => {
     } else if (view === 'week') {
       const startOfWeek = new Date(currentDate);
       const dayOfWeek = startOfWeek.getDay();
-      startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1);
+      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Monday as start of week
+      startOfWeek.setDate(startOfWeek.getDate() + mondayOffset);
       
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(endOfWeek.getDate() + 6);

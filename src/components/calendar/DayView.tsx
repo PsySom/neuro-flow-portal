@@ -27,27 +27,23 @@ const DayView: React.FC<DayViewProps> = ({
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
 
   // Use API hooks with realtime updates enabled
-  const currentDateString = useMemo(() => currentDate.toISOString().split('T')[0], [currentDate]);
+  const currentDateString = useMemo(() => currentDate.toLocaleDateString('en-CA'), [currentDate]);
   const { data: apiActivities = [], isLoading } = useActivities(currentDateString, true);
   
-  // Use unified activity sync hook
+  // Unified activity operations will be initialized after activities conversion for accurate context
+
+  // Convert API activities to UI format
+  const dayActivities = useMemo(() => convertApiActivitiesToUi(apiActivities), [apiActivities]);
+
   const {
     handleActivityCreate: createActivity,
     handleActivityUpdate: updateActivity,
     handleActivityDelete: deleteActivity,
     handleActivityToggle: toggleActivityStatus,
-    isCreating,
-    isUpdating,
-    isDeleting,
-    isToggling
-  } = useUnifiedActivityOperations([]);
-
-  // Convert API activities to UI format
-  const dayActivities = useMemo(() => convertApiActivitiesToUi(apiActivities), [apiActivities]);
+  } = useUnifiedActivityOperations(dayActivities);
 
   console.log('DayView current date:', currentDateString);
   console.log('DayView activities for date:', dayActivities.length);
-
   const handleActivityToggle = useCallback((activityId: number) => {
     const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
