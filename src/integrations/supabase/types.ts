@@ -195,6 +195,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_access_logs: {
+        Row: {
+          access_type: string
+          accessed_fields: string[] | null
+          accessed_user_id: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          reason: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_fields?: string[] | null
+          accessed_user_id: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          reason?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_fields?: string[] | null
+          accessed_user_id?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          reason?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -372,6 +408,15 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      log_profile_access: {
+        Args: {
+          accessed_user_id: string
+          access_type: string
+          accessed_fields?: string[]
+          reason?: string
+        }
+        Returns: undefined
       }
       update_activity_status: {
         Args: { activity_id: string; new_status: string; user_notes?: string }
