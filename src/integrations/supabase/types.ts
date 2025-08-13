@@ -235,9 +235,11 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          email: string | null
           facebook_url: string | null
           full_name: string | null
           id: string
+          role: string | null
           telegram_handle: string | null
           updated_at: string
           whatsapp_number: string | null
@@ -245,9 +247,11 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          email?: string | null
           facebook_url?: string | null
           full_name?: string | null
           id: string
+          role?: string | null
           telegram_handle?: string | null
           updated_at?: string
           whatsapp_number?: string | null
@@ -255,9 +259,11 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          email?: string | null
           facebook_url?: string | null
           full_name?: string | null
           id?: string
+          role?: string | null
           telegram_handle?: string | null
           updated_at?: string
           whatsapp_number?: string | null
@@ -363,44 +369,51 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          email: string
-          full_name: string | null
-          id: number
-          password: string
-        }
-        Insert: {
-          email: string
-          full_name?: string | null
-          id?: number
-          password: string
-        }
-        Update: {
-          email?: string
-          full_name?: string | null
-          id?: number
-          password?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_get_user_profiles: {
+        Args: { limit_count?: number; offset_count?: number }
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          role: string
+          created_at: string
+          last_sign_in: string
+        }[]
+      }
       get_my_profile: {
         Args: Record<PropertyKey, never>
         Returns: {
           avatar_url: string | null
           created_at: string
+          email: string | null
           facebook_url: string | null
           full_name: string | null
           id: string
+          role: string | null
           telegram_handle: string | null
           updated_at: string
           whatsapp_number: string | null
         }
+      }
+      get_user_profile_with_role: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          avatar_url: string
+          telegram_handle: string
+          whatsapp_number: string
+          facebook_url: string
+          role: string
+          created_at: string
+          updated_at: string
+        }[]
       }
       has_role: {
         Args: {
