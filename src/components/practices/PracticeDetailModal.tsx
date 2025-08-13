@@ -62,7 +62,12 @@ const PracticeDetailModal: React.FC<PracticeDetailModalProps> = ({ item, isOpen,
 
           {item.type === 'tests' && item.questions ? (
             <TestSection
-              item={item}
+              item={{
+                title: item.title,
+                instructions: item.instructions,
+                questions: item.questions,
+                responseFormat: item.responseFormat
+              }}
               answers={answers}
               testResult={testResult}
               showResult={showResult}

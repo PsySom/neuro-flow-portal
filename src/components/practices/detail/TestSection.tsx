@@ -9,7 +9,7 @@ interface TestSectionProps {
   item: {
     title: string;
     instructions?: string;
-    questions: string[] | { question: string; options: string[]; }[];
+    questions?: string[] | { question: string; options: string[]; }[];
     responseFormat?: string;
   };
   answers: {[key: number]: string};
