@@ -11,6 +11,10 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
+import { PasswordStrength, validatePassword } from '@/components/ui/password-strength';
+import { validateEmail, validatePasswordSecurity, checkRateLimit } from '@/utils/securityValidation';
+import { securityLogger } from '@/utils/securityLogger';
+import { Shield } from 'lucide-react';
 
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
@@ -44,21 +48,49 @@ export default function Auth() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
+
+    // Rate limiting check
+    const rateLimitKey = mode === 'login' ? 'login' : 'signup';
+    if (!checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000)) { // 5 attempts per 15 minutes
+      securityLogger.logRateLimit(email, rateLimitKey);
+      toast({ 
+        title: 'Слишком частые попытки', 
+        description: 'Подождите 15 минут перед следующей попыткой.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setLoading(true);
     setSignupConfigError(null);
 
+    // Enhanced validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      toast({ title: 'Ошибка валидации', description: emailValidation.message, variant: 'destructive' });
+      setLoading(false);
+      return;
+    }
+
+    const passwordValidation = validatePasswordSecurity(password);
+    if (mode === 'signup' && !passwordValidation.isValid) {
+      toast({ title: 'Ошибка пароля', description: passwordValidation.message, variant: 'destructive' });
+      setLoading(false);
+      return;
+    }
+
+    securityLogger.logAuthAttempt(email, { mode, userAgent: navigator.userAgent });
+
     try {
       if (mode === 'login') {
-        // Валидация только для обычного входа
         if (!email || !password) {
           toast({ title: 'Заполните поля', description: 'Введите email и пароль для входа.', variant: 'destructive' });
           return;
         }
         console.log('Attempting login...');
         await signIn(email, password);
-        // Перенаправление выполнится в signIn
+        securityLogger.logAuthSuccess(email, 'pending'); // userId will be updated by auth context
       } else {
-        // Регистрация: отправляем письмо (необязательно) и открываем приветствие онбординга
         if (!email || !password) {
           toast({ title: 'Заполните поля', description: 'Введите email и пароль для регистрации.', variant: 'destructive' });
           return;
@@ -67,18 +99,32 @@ export default function Auth() {
           toast({ title: 'Пароли не совпадают', description: 'Повторите пароль корректно.', variant: 'destructive' });
           return;
         }
+        
+        // Check password strength for signup
+        const { score } = validatePassword(password);
+        if (score < 3) {
+          toast({ 
+            title: 'Слабый пароль', 
+            description: 'Для безопасности используйте более надёжный пароль.', 
+            variant: 'destructive' 
+          });
+          return;
+        }
+
         console.log('Attempting signup...');
         await signUp(email, password, fullName);
-        // Помечаем намерение пройти онбординг перед редиректом
+        securityLogger.logAuthSuccess(email, 'pending');
+        
         try {
           localStorage.setItem('onboarding-completed', 'false');
           localStorage.setItem('onboarding-force', 'true');
         } catch {}
-        // Переходим на отдельную страницу онбординга (продолжение без обязательного входа)
         window.location.href = '/onboarding';
       }
     } catch (err: any) {
       console.error('Auth error:', err);
+      securityLogger.logAuthFailure(email, err?.message || 'Unknown error', { mode, code: err?.code });
+      
       let msg = err?.message || 'Произошла ошибка. Попробуйте снова.';
       if (err?.code === 'email_provider_disabled' || msg.includes('Email signups are disabled')) {
         msg = 'Регистрация по email отключена в настройках Supabase.';
@@ -86,6 +132,9 @@ export default function Auth() {
       }
       if (msg.includes('For security purposes')) {
         msg = 'Слишком частые запросы. Повторите через ~1 минуту.';
+      }
+      if (msg.includes('Invalid login credentials')) {
+        msg = 'Неверный email или пароль.';
       }
       toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
@@ -163,11 +212,20 @@ export default function Auth() {
               <div className="space-y-2">
                 <Label htmlFor="password">Пароль</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                {mode === 'signup' && password && (
+                  <PasswordStrength password={password} className="mt-2" />
+                )}
               </div>
               {mode === 'signup' && (
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Повторите пароль</Label>
                   <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  {password && confirmPassword && password !== confirmPassword && (
+                    <div className="flex items-center gap-2 text-xs text-destructive">
+                      <Shield className="h-3 w-3" />
+                      <span>Пароли не совпадают</span>
+                    </div>
+                  )}
                 </div>
               )}
               <Button type="submit" disabled={loading} className="w-full">

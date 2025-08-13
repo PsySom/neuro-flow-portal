@@ -8,6 +8,7 @@ import AdaptiveNavigation from '@/components/navigation/AdaptiveNavigation';
 import { useDashboardScroll } from '@/hooks/useDashboardScroll';
 import OnboardingDialog from '@/components/onboarding/OnboardingDialog';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { SecurityAlert } from '@/components/security/SecurityAlert';
 
 const Dashboard = () => {
   useDashboardScroll();
@@ -71,6 +72,9 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-24">
       <DashboardHeader />
       <AdaptiveNavigation />
+      <div className="container mx-auto px-4 py-2">
+        <SecurityAlert />
+      </div>
       <DashboardGreeting />
       <DashboardContent />
       <DashboardBottomNav />

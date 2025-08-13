@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { securityLogger } from '@/utils/securityLogger';
 
 interface SupabaseAuthContextType {
   user: User | null;
@@ -30,6 +31,11 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
       // Defer any additional Supabase calls
       if (event === 'SIGNED_IN') {
+        // Log successful authentication
+        if (sess?.user?.email) {
+          securityLogger.logAuthSuccess(sess.user.email, sess.user.id);
+        }
+        
         setTimeout(async () => {
           // Ensure a profile row exists
           if (sess?.user?.id) {
@@ -70,6 +76,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Sign in error:', error);
+      securityLogger.logAuthFailure(email, error.message, { code: error.name });
       notify(`Ошибка входа: ${error.message}`);
       throw error;
     }
@@ -104,6 +111,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
     });
     if (error) {
       console.error('Sign up error:', error);
+      securityLogger.logAuthFailure(email, error.message, { code: error.name, type: 'signup' });
       notify(`Ошибка регистрации: ${error.message}`);
       throw error;
     }
