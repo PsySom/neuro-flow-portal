@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { onboardingService } from '@/services/onboarding.service';
 import { useOnboardingSubmission } from '@/hooks/useOnboardingSubmission';
 import { ONBOARDING_STEP_ORDER } from '@/constants/onboardingSteps';
@@ -139,6 +139,9 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({ isOpen, onClose, in
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Онбординг</DialogTitle>
+        </DialogHeader>
         {renderCurrentStep()}
       </DialogContent>
     </Dialog>

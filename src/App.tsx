@@ -16,6 +16,7 @@ import State from './pages/State';
 import Recommendations from './pages/Recommendations';
 import About from './pages/About';
 import { PersonalizationProvider } from './contexts/PersonalizationContext';
+import { MagicDesignInitializer } from './components/settings/MagicDesignInitializer';
 import { ActivitiesProvider } from './contexts/ActivitiesContext';
 import { DiaryStatusProvider } from './contexts/DiaryStatusContext';
 import ArticleView from './pages/ArticleView';
@@ -39,6 +40,7 @@ function App() {
           <DiaryStatusProvider>
             <Router>
               <div className="App">
+                <MagicDesignInitializer />
                 <Toaster />
                 <Routes>
                   <Route path="/" element={<Index />} />

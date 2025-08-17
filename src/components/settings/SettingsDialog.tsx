@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Palette, Type, Settings as SettingsIcon, Monitor, Sun, Moon } from 'lucide-react';
 import { usePersonalization, AccentColor, FontSize, Theme } from '@/contexts/PersonalizationContext';
+import { MagicDesignControls } from './MagicDesignControls';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -64,12 +65,17 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onOpenChange }) =
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="personalization" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="design" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="design">Дизайн</TabsTrigger>
             <TabsTrigger value="personalization">Персонализация</TabsTrigger>
             <TabsTrigger value="general">Общие</TabsTrigger>
             <TabsTrigger value="notifications">Уведомления</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="design" className="space-y-6 max-h-[60vh] overflow-y-auto">
+            <MagicDesignControls />
+          </TabsContent>
 
           <TabsContent value="personalization" className="space-y-6 max-h-[60vh] overflow-y-auto">
             {/* Тема */}

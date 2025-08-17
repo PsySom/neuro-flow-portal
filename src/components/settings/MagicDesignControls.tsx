@@ -26,6 +26,17 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
   const [shadowBlur, setShadowBlur] = useState([4]);
   const [shadowOpacity, setShadowOpacity] = useState([18]);
 
+  // Initialize from localStorage
+  useEffect(() => {
+    const savedScheme = localStorage.getItem('magic-design-scheme') || 'scheme1';
+    const savedIntensity = localStorage.getItem('magic-design-intensity') || 'max';
+    const savedDark = localStorage.getItem('magic-design-dark') === 'true';
+    
+    setScheme(savedScheme);
+    setIntensity(savedIntensity);
+    setIsDark(savedDark);
+  }, []);
+
   const schemes = [
     { id: 'scheme1', name: 'Green/Teal', color: 'from-green-400 to-teal-400' },
     { id: 'scheme2', name: 'Purple/Pink', color: 'from-purple-400 to-pink-400' },
@@ -34,6 +45,12 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
   ];
 
   useEffect(() => {
+    // Save to localStorage
+    localStorage.setItem('magic-design-scheme', scheme);
+    localStorage.setItem('magic-design-intensity', intensity);
+    localStorage.setItem('magic-design-dark', isDark.toString());
+    
+    // Apply to body
     document.body.setAttribute('data-scheme', scheme);
     document.body.setAttribute('data-intensity', intensity);
     
@@ -48,15 +65,22 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
     document.documentElement.style.setProperty('--shadow-distance', `${shadowDistance[0]}px`);
     document.documentElement.style.setProperty('--shadow-blur', `${shadowBlur[0]}px`);
     document.documentElement.style.setProperty('--shadow-opacity', `${shadowOpacity[0] / 100}`);
-  }, [scheme, intensity, isDark, radius, shadowDistance, shadowBlur, shadowOpacity]);
+    
+    // Apply effects to components
+    document.body.classList.toggle('particle-effects', effects.particles);
+    document.body.classList.toggle('spotlight-effect', effects.spotlight);
+    document.body.classList.toggle('tilt-3d', effects.tilt3d);
+    document.body.classList.toggle('magnetism', effects.magnetism);
+    document.body.classList.toggle('border-glow', effects.borderGlow);
+  }, [scheme, intensity, isDark, radius, shadowDistance, shadowBlur, shadowOpacity, effects]);
 
   const toggleEffect = (effect: keyof typeof effects) => {
     setEffects(prev => ({ ...prev, [effect]: !prev[effect] }));
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 space-y-6">
-      <Card>
+    <div className="w-full space-y-6 animate-slide-up-fade">
+      <Card className="border-glow hover-lift">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
@@ -72,12 +96,12 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
                 <Button
                   key={s.id}
                   variant={scheme === s.id ? "default" : "outline"}
-                  className={`h-16 bg-gradient-to-r ${s.color} text-white relative overflow-hidden`}
+                  className={`h-16 bg-gradient-to-r ${s.color} text-white relative overflow-hidden hover-glow transition-all duration-300`}
                   onClick={() => setScheme(s.id)}
                 >
-                  <span className="font-medium">{s.name}</span>
+                  <span className="font-medium z-10 relative">{s.name}</span>
                   {scheme === s.id && (
-                    <div className="absolute inset-0 border-2 border-white/50 rounded-md" />
+                    <div className="absolute inset-0 border-2 border-white/50 rounded-md animate-pulse-glow" />
                   )}
                 </Button>
               ))}
@@ -108,7 +132,7 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
                 { key: 'magnetism', label: 'Magnetism', icon: Magnet },
                 { key: 'borderGlow', label: 'Border Glow', icon: Zap }
               ].map((effect) => (
-                <div key={effect.key} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={effect.key} className="flex items-center justify-between p-3 border rounded-lg hover-lift transition-all duration-200">
                   <Label className="flex items-center gap-2">
                     <effect.icon className="h-4 w-4" />
                     {effect.label}

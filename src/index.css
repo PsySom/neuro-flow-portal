@@ -386,6 +386,23 @@
   background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--glow-color), 0.1) 0%, transparent 50%);
 }
 
+.spotlight-effect:hover {
+  cursor: crosshair;
+}
+
+/* Mouse tracking for spotlight effect */
+.spotlight-effect:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--glow-color), 0.15) 0%, transparent 40%);
+  pointer-events: none;
+  transition: background 0.1s ease;
+}
+
 .tilt-3d {
   transform-style: preserve-3d;
   transition: transform 0.3s ease;
