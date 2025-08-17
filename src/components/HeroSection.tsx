@@ -89,9 +89,9 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden particle-effects spotlight-effect bg-gradient-to-br from-background via-muted/20 to-background pt-20 pb-32">
+    <section className="relative particle-effects spotlight-effect bg-gradient-to-br from-background via-muted/20 to-background pt-20 pb-32">
       {/* Декоративные элементы с магическими эффектами */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full blur-3xl animate-pulse animate-float border-glow"></div>
         <div className="absolute top-60 -left-40 w-80 h-80 bg-gradient-to-br from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-20 right-20 w-60 h-60 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-full blur-2xl animate-pulse animate-float" style={{ animationDelay: '2s' }}></div>

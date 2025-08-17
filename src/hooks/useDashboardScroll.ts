@@ -6,9 +6,15 @@ export const useDashboardScroll = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const greetingElement = document.getElementById('dashboard-greeting');
-    if (greetingElement) {
-      greetingElement.scrollIntoView({ behavior: 'smooth' });
+    // Only scroll on initial load, not on navigation
+    const hasScrolled = sessionStorage.getItem('dashboard-scrolled');
+    
+    if (!hasScrolled) {
+      const greetingElement = document.getElementById('dashboard-greeting');
+      if (greetingElement) {
+        greetingElement.scrollIntoView({ behavior: 'smooth' });
+        sessionStorage.setItem('dashboard-scrolled', 'true');
+      }
     }
-  }, [location]);
+  }, []); // Remove location dependency to prevent re-scrolling
 };

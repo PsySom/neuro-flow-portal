@@ -66,12 +66,26 @@ export const MagicDesignControls: React.FC<MagicDesignControlsProps> = ({ onClos
     document.documentElement.style.setProperty('--shadow-blur', `${shadowBlur[0]}px`);
     document.documentElement.style.setProperty('--shadow-opacity', `${shadowOpacity[0] / 100}`);
     
-    // Apply effects to components
-    document.body.classList.toggle('particle-effects', effects.particles);
-    document.body.classList.toggle('spotlight-effect', effects.spotlight);
-    document.body.classList.toggle('tilt-3d', effects.tilt3d);
-    document.body.classList.toggle('magnetism', effects.magnetism);
-    document.body.classList.toggle('border-glow', effects.borderGlow);
+    // Apply effects to components (but avoid adding particle-effects to body as it blocks scroll)
+    const bodyClasses = ['border-glow'];
+    if (effects.spotlight) bodyClasses.push('spotlight-effect');
+    if (effects.tilt3d) bodyClasses.push('tilt-3d');
+    if (effects.magnetism) bodyClasses.push('magnetism');
+    
+    // Remove all effect classes first
+    document.body.classList.remove('particle-effects', 'spotlight-effect', 'tilt-3d', 'magnetism', 'border-glow');
+    // Add selected classes
+    document.body.classList.add(...bodyClasses);
+    
+    // Apply particle effects only to specific elements, not body
+    const particleElements = document.querySelectorAll('.hero-section, .card, .feature-card');
+    particleElements.forEach(el => {
+      if (effects.particles) {
+        el.classList.add('particle-effects');
+      } else {
+        el.classList.remove('particle-effects');
+      }
+    });
   }, [scheme, intensity, isDark, radius, shadowDistance, shadowBlur, shadowOpacity, effects]);
 
   const toggleEffect = (effect: keyof typeof effects) => {

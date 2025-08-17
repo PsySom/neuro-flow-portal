@@ -27,8 +27,8 @@ export const MagicDesignInitializer: React.FC = () => {
       document.documentElement.style.setProperty('--shadow-opacity', '0.18');
     }
     
-    // Enable default effects
-    document.body.classList.add('particle-effects', 'border-glow');
+    // Enable default effects but don't add particle-effects to body (it blocks scroll)
+    document.body.classList.add('border-glow');
     
     // Initialize interactive effects
     setTimeout(() => {

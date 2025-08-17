@@ -364,7 +364,6 @@
 /* Particle and glow effects */
 .particle-effects {
   position: relative;
-  overflow: hidden;
 }
 
 .particle-effects::before {
