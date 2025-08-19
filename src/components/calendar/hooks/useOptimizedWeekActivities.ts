@@ -1,9 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useActivitiesRange } from '@/hooks/api/useActivities';
 import { calculateActivityLayouts } from '../utils/optimizedTimeUtils';
-import { expandRecurringForRange } from '../utils/recurrenceExpansion';
-import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
-import { getActivitiesForDate } from '@/utils/activitySync';
+import { CalendarSyncService } from '@/services/calendar-sync.service';
 
 /**
  * Optimized hook for week activities with better memoization and performance
@@ -14,15 +12,22 @@ export const useOptimizedWeekActivities = (startDate: string, endDate: string) =
   // Memoize the date range query
   const { data: weekApiActivities = [], isLoading } = useActivitiesRange(startDate, endDate);
 
-  // Optimize activities processing with better memoization
+  // Process activities using unified sync service
   const processedActivities = useMemo(() => {
-    console.log(`Processing ${weekApiActivities.length} API activities for week ${startDate} - ${endDate}`);
+    const processed = CalendarSyncService.processActivities(
+      weekApiActivities,
+      startDate,
+      endDate,
+      'week'
+    );
     
-    const converted = convertApiActivitiesToUi(weekApiActivities);
-    const expanded = expandRecurringForRange(converted, startDate, endDate);
+    // Clean and validate the activities
+    const cleanActivities = CalendarSyncService.cleanActivities(processed.expanded);
     
-    console.log(`Processed result: ${expanded.length} activities after conversion and expansion`);
-    return expanded;
+    // Debug activity distribution
+    CalendarSyncService.debugActivityDistribution(cleanActivities, startDate, endDate, 'week');
+    
+    return cleanActivities;
   }, [weekApiActivities, startDate, endDate]);
 
   // Memoize activities grouped by date for better performance
@@ -60,10 +65,8 @@ export const useOptimizedWeekActivities = (startDate: string, endDate: string) =
     
     console.log(`WeekView: Activities for ${dayString}:`, dayActivities.length);
     
-    // Apply type filtering
-    const filteredActivities = dayActivities.filter(activity => 
-      !filteredTypes.has(activity.type)
-    );
+    // Apply type filtering using unified service
+    const filteredActivities = CalendarSyncService.filterActivitiesByType(dayActivities, filteredTypes);
     
     console.log(`WeekView: Filtered activities for ${dayString}:`, filteredActivities.length);
     

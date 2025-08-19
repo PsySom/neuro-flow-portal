@@ -41,10 +41,10 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     recurring: apiActivity.metadata?.recurring && 
                apiActivity.metadata.recurring.type !== 'none' && 
                apiActivity.metadata.recurring.type !== null ? {
-      originalId: apiActivity.metadata.recurring.originalId,
+      originalId: apiActivity.metadata.recurring.originalId || apiActivity.id,
       type: apiActivity.metadata.recurring.type,
-      interval: apiActivity.metadata.recurring.interval,
-      occurrenceNumber: apiActivity.metadata.recurring.occurrenceNumber,
+      interval: apiActivity.metadata.recurring.interval || 1,
+      occurrenceNumber: apiActivity.metadata.recurring.occurrenceNumber || 1,
     } : undefined,
   };
 };

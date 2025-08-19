@@ -24,6 +24,7 @@ export interface Activity {
     type: 'daily' | 'weekly' | 'monthly';
     interval: number;
     occurrenceNumber: number;
+    isClone?: boolean;
   };
 }
 

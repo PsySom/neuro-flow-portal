@@ -5,8 +5,8 @@ import DayViewCalendar from './components/DayViewCalendar';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useActivities } from '@/hooks/api/useActivities';
 import { Activity } from '@/contexts/ActivitiesContext';
-import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
+import { CalendarSyncService } from '@/services/calendar-sync.service';
 import { DeleteRecurringOption, RecurringActivityOptions } from './utils/recurringUtils';
 
 interface DayViewProps {
@@ -32,8 +32,21 @@ const DayView: React.FC<DayViewProps> = ({
   
   // Unified activity operations will be initialized after activities conversion for accurate context
 
-  // Convert API activities to UI format
-  const dayActivities = useMemo(() => convertApiActivitiesToUi(apiActivities), [apiActivities]);
+  // Process activities using unified sync service for day view  
+  const dayActivities = useMemo(() => {
+    const processed = CalendarSyncService.processActivities(
+      apiActivities,
+      currentDateString,
+      currentDateString,
+      'day'
+    );
+    
+    // Clean and validate the activities
+    const cleanActivities = CalendarSyncService.cleanActivities(processed.expanded);
+    
+    console.log(`DayView: Processed ${apiActivities.length} API activities to ${cleanActivities.length} UI activities for ${currentDateString}`);
+    return cleanActivities;
+  }, [apiActivities, currentDateString]);
 
   const {
     handleActivityCreate: createActivity,
@@ -52,9 +65,9 @@ const DayView: React.FC<DayViewProps> = ({
     }
   }, [apiActivities, toggleActivityStatus]);
 
-  const visibleActivities = useMemo(() => dayActivities.filter(activity => 
-    !filteredTypes.has(activity.type)
-  ), [dayActivities, filteredTypes]);
+  const visibleActivities = useMemo(() => 
+    CalendarSyncService.filterActivitiesByType(dayActivities, filteredTypes)
+  , [dayActivities, filteredTypes]);
 
   console.log('Visible activities count:', visibleActivities.length);
 

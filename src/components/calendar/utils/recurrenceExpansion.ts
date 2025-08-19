@@ -38,7 +38,12 @@ export const expandRecurringForRange = (
     result.push(base);
 
     const rec = (base as any).recurring as UiActivity['recurring'] | undefined;
-    if (!rec || !rec.type) continue;
+    if (!rec || !rec.type) {
+      console.log(`Activity ${base.id} (${base.name}) has no recurring info`);
+      continue;
+    }
+    
+    console.log(`Expanding recurring activity ${base.id} (${base.name}) of type ${rec.type}`);
 
     const firstDate = parseLocalDate(base.date);
     // If first occurrence after range end, skip expansion
@@ -73,7 +78,14 @@ export const expandRecurringForRange = (
       const clone: UiActivity = {
         ...base,
         date: dateStr,
-        // Keep same id to allow toggle/edit; UI keys include index to avoid clashes
+        // Generate unique ID for clone to prevent conflicts
+        id: `${base.id}_recurring_${dateStr}`,
+        // Mark as recurring clone for identification
+        recurring: {
+          ...rec,
+          originalId: typeof base.id === 'number' ? base.id : parseInt(base.id.toString()),
+          isClone: true
+        }
       } as UiActivity;
 
       result.push(clone);
