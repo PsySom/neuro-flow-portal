@@ -1,32 +1,28 @@
-import { useState, useRef, useCallback } from 'react';
+import { useRef, useMemo } from 'react';
 import { useWeekDates } from './useWeekDates';
-import { useOptimizedWeekActivities } from './useOptimizedWeekActivities';
-import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
-import { useActivitiesSync } from '@/hooks/api/useActivities';
+import { useActivitiesRangeApi } from '@/hooks/api/useActivitiesApi';
+import { useCalendarView } from '@/hooks/useCalendarView';
 
 export const useWeekView = (currentDate: Date) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<string>('');
 
   // Get week dates
   const { weekDays, startDate, endDate } = useWeekDates(currentDate);
 
-  // Get activities for the week with optimized processing
-  const {
-    weekActivities,
-    filteredTypes,
+  // Get activities for the week
+  const { data: weekApiActivities = [], isLoading } = useActivitiesRangeApi(startDate, endDate);
+
+  // Use unified calendar view logic
+  const calendarView = useCalendarView({
+    viewType: 'week',
+    activities: weekApiActivities,
     isLoading,
-    getWeekActivities,
-    getActivitiesForDay,
-    handleTypeFilterChange
-  } = useOptimizedWeekActivities(startDate, endDate);
+    startDate,
+    endDate
+  });
 
-  // Get sync utilities
-  const { syncActivities } = useActivitiesSync();
-
-  const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
+  // Enhanced empty area click handler with day context
+  const handleEmptyAreaClick = (e: React.MouseEvent<HTMLDivElement>, dayIndex: number) => {
     const target = e.target as HTMLElement;
     
     if (target.closest('[data-activity-card]')) {
@@ -43,25 +39,21 @@ export const useWeekView = (currentDate: Date) => {
     const clickDate = weekDays[dayIndex] ? weekDays[dayIndex].toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
     
     console.log('Week view click:', clickTime, clickDate);
-    
-    setSelectedTime(clickTime);
-    setSelectedDate(clickDate);
-    setIsCreateDialogOpen(true);
-  }, [weekDays]);
+    calendarView.handleTimeSlotClick(clickTime, clickDate);
+  };
+
+  // Get activities for specific day using unified logic
+  const getActivitiesForDay = (day: Date) => {
+    const dayString = day.toLocaleDateString('en-CA');
+    return calendarView.getActivitiesForDate(dayString);
+  };
 
   return {
     scrollAreaRef,
-    filteredTypes,
-    isCreateDialogOpen,
-    setIsCreateDialogOpen,
-    selectedTime,
-    selectedDate,
     weekDays,
-    getWeekActivities,
     getActivitiesForDay,
     handleEmptyAreaClick,
-    handleTypeFilterChange,
-    isLoading,
-    syncActivities // Export sync function
+    // Spread all calendar view functionality
+    ...calendarView
   };
 };

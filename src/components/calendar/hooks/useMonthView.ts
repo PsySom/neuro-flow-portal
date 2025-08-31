@@ -1,7 +1,6 @@
 import { useMemo, useCallback } from 'react';
-import { useActivitiesRange } from '@/hooks/api/useActivities';
-import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
-import { CalendarSyncService } from '@/services/calendar-sync.service';
+import { useActivitiesRangeApi } from '@/hooks/api/useActivitiesApi';
+import { useCalendarView } from '@/hooks/useCalendarView';
 
 export const useMonthView = (currentDate: Date) => {
   const today = new Date();
@@ -41,28 +40,19 @@ export const useMonthView = (currentDate: Date) => {
   }, [days]);
 
   // Use API call for the month range
-  const { data: monthApiActivities = [], isLoading } = useActivitiesRange(startDate, endDate);
+  const { data: monthApiActivities = [], isLoading } = useActivitiesRangeApi(startDate, endDate);
 
   console.log('MonthView: Date range:', { startDate, endDate });
   console.log('MonthView: API activities count:', monthApiActivities.length);
 
-  // Process activities using unified sync service
-  const monthActivities = useMemo(() => {
-    const processed = CalendarSyncService.processActivities(
-      monthApiActivities,
-      startDate,
-      endDate,
-      'month'
-    );
-    
-    // Clean and validate the activities
-    const cleanActivities = CalendarSyncService.cleanActivities(processed.expanded);
-    
-    // Debug activity distribution
-    CalendarSyncService.debugActivityDistribution(cleanActivities, startDate, endDate, 'month');
-    
-    return cleanActivities;
-  }, [monthApiActivities, startDate, endDate]);
+  // Use unified calendar view logic
+  const calendarView = useCalendarView({
+    viewType: 'month',
+    activities: monthApiActivities,
+    isLoading,
+    startDate,
+    endDate
+  });
 
   const isToday = useCallback((date: Date) => {
     return date.toDateString() === today.toDateString();
@@ -73,44 +63,30 @@ export const useMonthView = (currentDate: Date) => {
   }, [currentMonth]);
 
   const getActivitiesForDateObj = useCallback((date: Date) => {
-    // Get date string in local timezone format (YYYY-MM-DD)
-    const dateString = date.toLocaleDateString('en-CA'); // Always gives YYYY-MM-DD format
+    const dateString = date.toLocaleDateString('en-CA');
     
     console.log(`MonthView: Looking for activities on ${dateString} (calendar date: ${date.toDateString()})`);
     
-    // Use unified sync service for consistent date filtering
-    const dayActivities = CalendarSyncService.getActivitiesForDate(monthActivities, dateString);
+    const dayActivities = calendarView.getActivitiesForDate(dateString);
     
     console.log(`MonthView: Filtered activities for ${dateString}:`, dayActivities.length, dayActivities.map(a => ({ id: a.id, name: a.name, date: a.date })));
     
     return dayActivities;
-  }, [monthActivities]);
+  }, [calendarView]);
 
   const truncateText = useCallback((text: string, maxLength: number = 12) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }, []);
 
-  // Get activity operations with unified interface
-  const {
-    handleActivityCreate,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle
-  } = useUnifiedActivityOperations(monthActivities);
-
   return {
     days,
     currentMonth,
     today,
-    monthActivities,
     isToday,
     isCurrentMonth,
     getActivitiesForDateObj,
     truncateText,
-    isLoading,
-    handleActivityCreate,
-    handleActivityUpdate,
-    handleActivityDelete,
-    handleActivityToggle
+    // Spread all calendar view functionality
+    ...calendarView
   };
 };

@@ -8,7 +8,7 @@ import WeekViewDay from './components/WeekViewDay';
 import TimeColumn from './components/TimeColumn';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import { useWeekView } from './hooks/useWeekView';
-import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
+import { calculateActivityLayouts } from './utils/optimizedTimeUtils';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -18,27 +18,23 @@ interface WeekViewProps {
 const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) => {
   const {
     scrollAreaRef,
+    weekDays,
+    getActivitiesForDay,
+    handleEmptyAreaClick,
+    // Calendar view state and handlers
     filteredTypes,
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     selectedTime,
     selectedDate,
-    weekDays,
-    getWeekActivities,
-    getActivitiesForDay,
-    handleEmptyAreaClick,
-    handleTypeFilterChange,
-    isLoading
+    activities,
+    isLoading,
+    handleActivityCreate,
+    handleActivityUpdate,
+    handleActivityDelete,
+    handleActivityToggle,
+    handleTypeFilterChange
   } = useWeekView(currentDate);
-
-  // Use unified activity sync hook with week activities
-  const weekActivities = getWeekActivities();
-  const {
-    handleActivityCreate: createActivity,
-    handleActivityUpdate: updateActivity,
-    handleActivityDelete: deleteActivity,
-    handleActivityToggle: toggleActivityStatus
-  } = useUnifiedActivityOperations(weekActivities);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
@@ -48,35 +44,17 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
     }
   };
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
-    console.log('WeekView creating activity:', newActivity, 'with recurring:', recurringOptions);
-    createActivity(newActivity, recurringOptions)
-      .then((result) => {
-        console.log('WeekView: Activity creation result:', result);
-        setIsCreateDialogOpen(false);
-      })
-      .catch(error => console.error('Failed to create activity:', error));
+  // Enhanced activity handlers with layouts
+  const getActivitiesForDayWithLayout = (day: Date) => {
+    const dayActivities = getActivitiesForDay(day);
+    return calculateActivityLayouts(dayActivities);
   };
 
-  const handleActivityUpdate = (activityId: number, updates: any, recurringOptions?: any) => {
-    console.log('WeekView updating activity:', activityId, updates, recurringOptions);
-    updateActivity(activityId, updates, recurringOptions)
-      .catch(error => console.error('Failed to update activity:', error));
-  };
-
-  const handleActivityDelete = (id: number, deleteOption?: any) => {
-    console.log('WeekView deleting activity:', id, deleteOption);
-    deleteActivity(id, deleteOption)
-      .catch(error => console.error('Failed to delete activity:', error));
-  };
-
-  const handleActivityToggle = (activityId: number) => {
-    // Find activity to get current status
-    const activity = weekActivities.find(a => a.id === activityId);
+  const handleActivityToggleWithContext = (activityId: number) => {
+    const activity = activities.find(a => a.id === activityId);
     if (activity) {
-      const currentStatus = activity.completed ? 'completed' : 'planned';
-      console.log('WeekView toggling activity status:', activityId, 'current:', currentStatus);
-      toggleActivityStatus(activityId)
+      console.log('WeekView toggling activity status:', activityId, 'current:', activity.completed);
+      handleActivityToggle(activityId)
         .catch(error => console.error('Failed to toggle activity:', error));
     }
   };
@@ -110,7 +88,7 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
         <div className="w-64">
           <DayViewSidebar
             currentDate={currentDate}
-            activities={weekActivities}
+            activities={activities}
             filteredTypes={filteredTypes}
             onTypeFilterChange={handleTypeFilterChange}
             onDateSelect={handleDateSelect}
@@ -130,7 +108,7 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
                   <TimeColumn hours={hours} />
 
                   {weekDays.map((day, dayIndex) => {
-                    const dayActivities = getActivitiesForDay(day);
+                    const dayActivities = getActivitiesForDayWithLayout(day);
                     
                     return (
                       <WeekViewDay
@@ -140,7 +118,7 @@ const WeekView: React.FC<WeekViewProps> = memo(({ currentDate, onDateChange }) =
                         dayActivities={dayActivities}
                         hours={hours}
                         onEmptyAreaClick={handleEmptyAreaClick}
-                        onActivityToggle={handleActivityToggle}
+                        onActivityToggle={handleActivityToggleWithContext}
                         onActivityDelete={handleActivityDelete}
                         onActivityUpdate={handleActivityUpdate}
                       />

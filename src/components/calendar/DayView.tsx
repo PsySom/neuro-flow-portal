@@ -3,10 +3,9 @@ import CreateActivityDialog from './components/CreateActivityDialog';
 import DayViewSidebar from './components/DayViewSidebar';
 import DayViewCalendar from './components/DayViewCalendar';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
-import { useActivities } from '@/hooks/api/useActivities';
+import { useActivitiesApi } from '@/hooks/api/useActivitiesApi';
 import { Activity } from '@/contexts/ActivitiesContext';
-import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
-import { CalendarSyncService } from '@/services/calendar-sync.service';
+import { useCalendarView } from '@/hooks/useCalendarView';
 import { DeleteRecurringOption, RecurringActivityOptions } from './utils/recurringUtils';
 
 interface DayViewProps {
@@ -22,54 +21,53 @@ const DayView: React.FC<DayViewProps> = ({
   onDeleteActivity,
   onDateChange 
 }) => {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<string>('');
-  const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
-
   // Use API hooks with realtime updates enabled
   const currentDateString = useMemo(() => currentDate.toLocaleDateString('en-CA'), [currentDate]);
-  const { data: apiActivities = [], isLoading } = useActivities(currentDateString, true);
-  
-  // Unified activity operations will be initialized after activities conversion for accurate context
+  const { data: apiActivities = [], isLoading } = useActivitiesApi(currentDateString, true);
 
-  // Process activities using unified sync service for day view  
-  const dayActivities = useMemo(() => {
-    const processed = CalendarSyncService.processActivities(
-      apiActivities,
-      currentDateString,
-      currentDateString,
-      'day'
-    );
-    
-    // Clean and validate the activities
-    const cleanActivities = CalendarSyncService.cleanActivities(processed.expanded);
-    
-    console.log(`DayView: Processed ${apiActivities.length} API activities to ${cleanActivities.length} UI activities for ${currentDateString}`);
-    return cleanActivities;
-  }, [apiActivities, currentDateString]);
-
-  const {
-    handleActivityCreate: createActivity,
-    handleActivityUpdate: updateActivity,
-    handleActivityDelete: deleteActivity,
-    handleActivityToggle: toggleActivityStatus,
-  } = useUnifiedActivityOperations(dayActivities);
+  // Use unified calendar view logic
+  const calendarView = useCalendarView({
+    viewType: 'day',
+    activities: apiActivities,
+    isLoading,
+    startDate: currentDateString,
+    endDate: currentDateString
+  });
 
   console.log('DayView current date:', currentDateString);
-  console.log('DayView activities for date:', dayActivities.length);
+  console.log('DayView activities for date:', calendarView.activities.length);
+  
   const handleActivityToggle = useCallback((activityId: number) => {
     const activity = apiActivities.find(a => a.id === activityId);
     if (activity) {
       console.log('Toggling activity status:', activityId, 'current:', activity.status);
-      toggleActivityStatus(activityId);
+      calendarView.handleActivityToggle(activityId);
     }
-  }, [apiActivities, toggleActivityStatus]);
+  }, [apiActivities, calendarView]);
 
-  const visibleActivities = useMemo(() => 
-    CalendarSyncService.filterActivitiesByType(dayActivities, filteredTypes)
-  , [dayActivities, filteredTypes]);
+  console.log('Visible activities count:', calendarView.visibleActivities.length);
 
-  console.log('Visible activities count:', visibleActivities.length);
+  const handleActivityUpdate = useCallback(async (activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
+    try {
+      await calendarView.handleActivityUpdate(activityId, updates, recurringOptions);
+      if (onUpdateActivity) {
+        onUpdateActivity(activityId, updates);
+      }
+    } catch (error) {
+      console.error('Failed to update activity:', error);
+    }
+  }, [calendarView, onUpdateActivity]);
+
+  const handleActivityDelete = useCallback(async (id: number, deleteOption?: DeleteRecurringOption) => {
+    try {
+      await calendarView.handleActivityDelete(id, deleteOption);
+      if (onDeleteActivity) {
+        onDeleteActivity(id, deleteOption);
+      }
+    } catch (error) {
+      console.error('Failed to delete activity:', error);
+    }
+  }, [calendarView, onDeleteActivity]);
 
   const handleEmptyAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -86,55 +84,8 @@ const DayView: React.FC<DayViewProps> = ({
     
     const clickTime = `${hourFromTop.toString().padStart(2, '0')}:${Math.round(minuteFromTop).toString().padStart(2, '0')}`;
     
-    setSelectedTime(clickTime);
-    setIsCreateDialogOpen(true);
-  }, []);
-
-  const handleActivityCreate = useCallback((newActivity: any, recurringOptions?: RecurringActivityOptions) => {
-    console.log('DayView creating activity:', newActivity, 'with recurring:', recurringOptions);
-    createActivity(newActivity, recurringOptions)
-      .then((result) => {
-        console.log('Activity creation result:', result);
-        setIsCreateDialogOpen(false);
-      })
-      .catch(error => console.error('Failed to create activity:', error));
-  }, [createActivity]);
-
-  const handleActivityUpdate = useCallback((activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
-    console.log('DayView handleActivityUpdate:', activityId, updates, recurringOptions);
-    updateActivity(activityId, updates, recurringOptions)
-      .then(() => {
-        if (onUpdateActivity) {
-          onUpdateActivity(activityId, updates);
-        }
-      })
-      .catch(error => console.error('Failed to update activity:', error));
-  }, [updateActivity, onUpdateActivity]);
-
-  const handleActivityDelete = useCallback((id: number, deleteOption?: DeleteRecurringOption) => {
-    console.log('DayView handleActivityDelete:', id, deleteOption);
-    deleteActivity(id, deleteOption)
-      .then(() => {
-        if (onDeleteActivity) {
-          onDeleteActivity(id, deleteOption);
-        }
-      })
-      .catch(error => console.error('Failed to delete activity:', error));
-  }, [deleteActivity, onDeleteActivity]);
-
-  const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
-    console.log('Filter change:', type, checked);
-    setFilteredTypes(prev => {
-      const newFiltered = new Set(prev);
-      if (checked) {
-        newFiltered.delete(type);
-      } else {
-        newFiltered.add(type);
-      }
-      console.log('New filtered types:', Array.from(newFiltered));
-      return newFiltered;
-    });
-  }, []);
+    calendarView.handleTimeSlotClick(clickTime, currentDateString);
+  }, [calendarView, currentDateString]);
 
   const handleDateSelect = useCallback((date: Date) => {
     console.log('Date selected in DayView:', date);
@@ -147,13 +98,13 @@ const DayView: React.FC<DayViewProps> = ({
     return (
       <div className="flex gap-4">
         <div className="w-64">
-          <DayViewSidebar
-            currentDate={currentDate}
-            activities={[]}
-            filteredTypes={new Set()}
-            onTypeFilterChange={() => {}}
-            onDateSelect={handleDateSelect}
-          />
+        <DayViewSidebar
+          currentDate={currentDate}
+          activities={[]}
+          filteredTypes={calendarView.filteredTypes}
+          onTypeFilterChange={calendarView.handleTypeFilterChange}
+          onDateSelect={handleDateSelect}
+        />
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-center h-96">
@@ -174,15 +125,15 @@ const DayView: React.FC<DayViewProps> = ({
         {/* Left sidebar */}
         <DayViewSidebar
           currentDate={currentDate}
-          activities={dayActivities}
-          filteredTypes={filteredTypes}
-          onTypeFilterChange={handleTypeFilterChange}
+          activities={calendarView.activities}
+          filteredTypes={calendarView.filteredTypes}
+          onTypeFilterChange={calendarView.handleTypeFilterChange}
           onDateSelect={handleDateSelect}
         />
 
         {/* Main calendar area */}
         <DayViewCalendar
-          visibleActivities={visibleActivities}
+          visibleActivities={calendarView.visibleActivities}
           currentDate={currentDate}
           onEmptyAreaClick={handleEmptyAreaClick}
           onActivityToggle={handleActivityToggle}
@@ -192,11 +143,11 @@ const DayView: React.FC<DayViewProps> = ({
       </div>
 
       <CreateActivityDialog 
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        initialTime={selectedTime}
-        initialDate={currentDateString}
-        onActivityCreate={handleActivityCreate}
+        open={calendarView.isCreateDialogOpen}
+        onOpenChange={calendarView.setIsCreateDialogOpen}
+        initialTime={calendarView.selectedTime}
+        initialDate={calendarView.selectedDate}
+        onActivityCreate={calendarView.handleActivityCreate}
       />
     </>
   );
