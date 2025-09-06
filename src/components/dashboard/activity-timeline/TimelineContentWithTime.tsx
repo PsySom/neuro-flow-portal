@@ -62,59 +62,37 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
         onWheelCapture={handleUserInteraction}
         onTouchStart={handleUserInteraction}
       >
-        <div className="relative min-h-[1440px] p-6">
-          {/* Hour grid background */}
-          {Array.from({ length: 24 }, (_, hour) => (
-            <div
-              key={hour}
-              className="absolute left-6 right-6 h-[60px] border-b border-gray-100/50"
-              style={{ top: `${hour * 60}px` }}
-            >
-              <div className="absolute -left-14 top-0 text-xs text-gray-400 font-medium">
-                {String(hour).padStart(2, '0')}:00
-              </div>
-            </div>
-          ))}
-          
+        <div className="relative p-6">
           {/* Current time indicator */}
           <TimeIndicator 
             currentTime={currentTime}
             timeIndicatorRef={timeIndicatorRef}
           />
           
-          {/* Activities */}
-          <div className="relative">
-            {(() => {
-              const activityLayouts = calculateTimelineActivityLayouts(activities);
-              return activityLayouts.map((layout) => (
-                <div
-                  key={layout.activity.id}
-                  className="absolute z-10"
-                  style={{ 
-                    top: `${layout.top}px`,
-                    left: `calc(24px + ${layout.left}%)`,
-                    width: `calc(${layout.width}% - 8px)`,
-                    marginRight: '4px'
+          {/* Activities list */}
+          <div className="space-y-3 mt-4">
+            {activities.map((activity, index) => (
+              <div
+                key={activity.id}
+                className="w-full"
+              >
+                <ActivityCard
+                  layout={{
+                    activity: activity,
+                    top: 0,
+                    height: 0,
+                    left: 0,
+                    width: 100,
+                    column: 0,
+                    totalColumns: 1
                   }}
-                >
-                  <ActivityCard
-                    layout={{
-                      activity: layout.activity,
-                      top: 0,
-                      height: 0,
-                      left: layout.left,
-                      width: layout.width,
-                      column: layout.column,
-                      totalColumns: layout.totalColumns
-                    }}
-                    onToggleComplete={handleActivityToggle}
-                    onDelete={onActivityDelete}
-                    onUpdate={handleActivityCardUpdate}
-                    viewType="dashboard"
-                  />
-                </div>
-              ));
-            })()}
+                  onToggleComplete={handleActivityToggle}
+                  onDelete={onActivityDelete}
+                  onUpdate={handleActivityCardUpdate}
+                  viewType="dashboard"
+                />
+              </div>
+            ))}
           </div>
           
           {/* Auto-scroll button */}
