@@ -58,14 +58,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       return;
     }
 
-    // Для dashboard view открываем диалог редактирования сразу
-    if (viewType === 'dashboard') {
-      console.log('ActivityCard: Dashboard view - opening edit dialog directly');
-      setShowEditDialog(true);
-      return;
-    }
-
-    // Для других видов открываем popover
+    // Для всех видов открываем информационное окно
     console.log('ActivityCard: Opening info popover');
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
