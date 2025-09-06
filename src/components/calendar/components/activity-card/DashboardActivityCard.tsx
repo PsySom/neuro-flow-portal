@@ -143,8 +143,10 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
 
       {/* Time, duration and stars row */}
       <div className="flex items-center space-x-4 text-sm text-gray-700 mb-3">
-        <span className="font-medium">{activity.startTime} - {activity.endTime}</span>
-        <span className="bg-white/30 px-2 py-1 rounded text-xs">{activity.duration}</span>
+        <span className="font-medium">
+          {activity.endTime ? `${activity.startTime} - ${activity.endTime}` : activity.startTime}
+        </span>
+        <span className="bg-white/30 px-2 py-1 rounded text-xs">{activity.duration || '1ч'}</span>
         <div className="flex items-center space-x-1">
           {renderStars()}
         </div>

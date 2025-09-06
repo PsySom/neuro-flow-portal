@@ -48,13 +48,19 @@ export const formatDuration = (startTime: string, endTime?: string): string => {
     }
     
     const durationMs = end.getTime() - start.getTime();
+    
+    // If the duration is 0 or negative, return default
+    if (durationMs <= 0) {
+      return '1ч';
+    }
+    
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
     
     if (hours > 0) {
       return minutes > 0 ? `${hours}ч ${minutes}м` : `${hours}ч`;
     } else {
-      return `${minutes}м`;
+      return minutes > 0 ? `${minutes}м` : '1ч';
     }
   } catch (error) {
     console.error('Error calculating duration:', error);

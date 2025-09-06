@@ -8,23 +8,21 @@ import { useCallback } from 'react';
 export const useActivitiesInvalidation = () => {
   const queryClient = useQueryClient();
 
-  const invalidateAllActivities = useCallback(() => {
-    console.log('ActivityInvalidation: Starting comprehensive cache invalidation');
+  const invalidateActivities = useCallback(() => {
+    console.log('🔄 Invalidating all activities queries');
+    // Invalidate and refetch all activity-related queries to get fresh data
+    queryClient.invalidateQueries({
+      queryKey: ['activities'],
+    });
     
-    // Invalidate all activity queries to ensure all views update
-    queryClient.invalidateQueries({ queryKey: ['activities'] });
+    queryClient.invalidateQueries({
+      queryKey: ['activity-types'],
+    });
     
-    // Also invalidate specific date ranges that might be cached
-    queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
-    
-    // Invalidate today's activities specifically
-    const today = new Date().toISOString().split('T')[0];
-    queryClient.invalidateQueries({ queryKey: ['activities', today] });
-    
-    // Force refetch to ensure fresh data
-    queryClient.refetchQueries({ queryKey: ['activities'] });
-    
-    console.log('ActivityInvalidation: Completed comprehensive cache invalidation');
+    // Force refetch for immediate update
+    queryClient.refetchQueries({
+      queryKey: ['activities'],
+    });
   }, [queryClient]);
 
   const invalidateActivitiesForDate = useCallback((date: string) => {
@@ -78,7 +76,7 @@ export const useActivitiesInvalidation = () => {
   }, [queryClient]);
 
   return {
-    invalidateAllActivities,
+    invalidateActivities,
     invalidateActivitiesForDate,
     invalidateActivitiesForDateRange
   };

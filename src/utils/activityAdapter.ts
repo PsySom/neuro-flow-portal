@@ -26,7 +26,7 @@ export const convertApiActivityToUi = (apiActivity: ApiActivity): UiActivity => 
     name: apiActivity.title,
     emoji: apiActivity.metadata?.emoji || defaultEmoji,
     startTime: formatTimeFromISO(apiActivity.start_time),
-    endTime: apiActivity.end_time ? formatTimeFromISO(apiActivity.end_time) : '',
+    endTime: apiActivity.end_time ? formatTimeFromISO(apiActivity.end_time) : formatTimeFromISO(apiActivity.start_time),
     duration,
     color: apiActivity.metadata?.color || 'bg-gray-200',
     importance: apiActivity.metadata?.importance || 3,
