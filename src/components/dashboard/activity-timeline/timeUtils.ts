@@ -21,6 +21,12 @@ export const getCurrentTimePosition = (currentTime: Date): number => {
   return slotIndex * slotHeight + positionInSlot + 60;
 };
 
+export const getActivityTimePosition = (timeStr: string): number => {
+  const totalMinutes = timeToMinutes(timeStr);
+  // Each hour takes 60px in the timeline grid
+  return totalMinutes;
+};
+
 export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {
   const allSlots = Array.from({ length: 8 }, (_, i) => {
     const startHour = i * 3;

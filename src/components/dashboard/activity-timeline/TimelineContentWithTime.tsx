@@ -7,6 +7,7 @@ import ActivityTimelineEmpty from './ActivityTimelineEmpty';
 import { useTimelineLogic } from './useTimelineLogic';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
+import { getActivityTimePosition } from './timeUtils';
 
 interface TimelineContentWithTimeProps {
   activities: Activity[];
@@ -82,25 +83,33 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
           />
           
           {/* Activities */}
-          <div className="space-y-2 pt-2">
-            {activities.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                layout={{
-                  activity,
-                  top: 0,
-                  height: 0,
-                  left: 0,
-                  width: 100,
-                  column: 0,
-                  totalColumns: 1
-                }}
-                onToggleComplete={handleActivityToggle}
-                onDelete={onActivityDelete}
-                onUpdate={handleActivityCardUpdate}
-                viewType="dashboard"
-              />
-            ))}
+          <div className="relative">
+            {activities.map((activity) => {
+              const activityPosition = getActivityTimePosition(activity.startTime);
+              return (
+                <div
+                  key={activity.id}
+                  className="absolute left-6 right-6 z-10"
+                  style={{ top: `${activityPosition}px` }}
+                >
+                  <ActivityCard
+                    layout={{
+                      activity,
+                      top: 0,
+                      height: 0,
+                      left: 0,
+                      width: 100,
+                      column: 0,
+                      totalColumns: 1
+                    }}
+                    onToggleComplete={handleActivityToggle}
+                    onDelete={onActivityDelete}
+                    onUpdate={handleActivityCardUpdate}
+                    viewType="dashboard"
+                  />
+                </div>
+              );
+            })}
           </div>
           
           {/* Auto-scroll button */}
