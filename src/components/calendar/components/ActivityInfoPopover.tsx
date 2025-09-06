@@ -88,7 +88,9 @@ const ActivityInfoPopover: React.FC<ActivityInfoPopoverProps> = ({
 
   const handleDeleteConfirm = () => {
     if (onDelete) {
-      onDelete(activity.id);
+      // For regular activities (not recurring), use 'single' as default
+      const deleteOption: DeleteRecurringOption = activity.recurring ? 'single' : 'single';
+      onDelete(activity.id, deleteOption);
     }
     setShowDeleteDialog(false);
     onClose();

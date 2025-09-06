@@ -32,8 +32,8 @@ export const convertCreateDataToApi = (
     title: activityData.name,
     description: activityData.note || '',
     activity_type_id: getActivityTypeId(activityData.type),
-    start_time: `${activityData.date}T${activityData.startTime}:00.000Z`,
-    end_time: activityData.endTime ? `${activityData.date}T${activityData.endTime}:00.000Z` : undefined,
+    start_time: `${activityData.date}T${convertTimeToISO(activityData.startTime)}`,
+    end_time: activityData.endTime ? `${activityData.date}T${convertTimeToISO(activityData.endTime)}` : undefined,
     status: (activityData.completed ? 'completed' : 'planned') as ActivityStatus,
     metadata: {
       importance: activityData.importance,
@@ -57,9 +57,9 @@ export const convertUpdateDataToApi = (
     description: activityData.note,
     activity_type_id: activityData.type ? getActivityTypeId(activityData.type) : undefined,
     start_time: activityData.date && activityData.startTime ? 
-      `${activityData.date}T${activityData.startTime}:00.000Z` : undefined,
+      `${activityData.date}T${convertTimeToISO(activityData.startTime)}` : undefined,
     end_time: activityData.date && activityData.endTime ? 
-      `${activityData.date}T${activityData.endTime}:00.000Z` : undefined,
+      `${activityData.date}T${convertTimeToISO(activityData.endTime)}` : undefined,
     status: activityData.completed !== undefined ? 
       (activityData.completed ? 'completed' : 'planned') : undefined,
     metadata: {
@@ -96,6 +96,13 @@ export const normalizeActivityId = (id: number | string): number => {
  */
 export const formatDateForInput = (dateString: string): string => {
   return dateString.split(',')[0];
+};
+
+/**
+ * Converts time string to ISO format
+ */
+export const convertTimeToISO = (timeString: string): string => {
+  return `${timeString}:00.000Z`;
 };
 
 /**

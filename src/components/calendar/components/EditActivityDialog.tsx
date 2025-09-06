@@ -19,14 +19,14 @@ import ActivityTimeDate from './form/ActivityTimeDate';
 import ActivityAdvancedOptions from './form/ActivityAdvancedOptions';
 import ActivityStatus from './form/ActivityStatus';
 import { validateActivityForm, getEmojiByType, calculateDuration, FormErrors, ActivityFormData } from './form/validationUtils';
-import { RecurringActivityOptions } from '../utils/recurringUtils';
+import { RecurringActivityOptions, DeleteRecurringOption } from '../utils/recurringUtils';
 
 interface EditActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   activity: Activity;
   onActivityUpdate?: (activity: Activity, recurringOptions?: RecurringActivityOptions) => void;
-  onDelete?: (id: number | string) => void;
+  onDelete?: (id: number | string, deleteOption?: DeleteRecurringOption) => void;
 }
 
 const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
@@ -160,7 +160,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
 
   const handleDeleteConfirm = () => {
     if (onDelete) {
-      onDelete(activity.id);
+      // For EditActivityDialog, always use 'single' as default since we don't have recurring context here
+      const deleteOption: DeleteRecurringOption = activity.recurring ? 'single' : 'single';
+      onDelete(activity.id, deleteOption);
     }
     setShowDeleteDialog(false);
     onOpenChange(false);

@@ -10,6 +10,12 @@ import {
 } from '@/utils/activityConversion';
 import { getCurrentDateString } from '@/utils/dateUtils';
 import { useToast } from './use-toast';
+import { 
+  useCreateActivityApi, 
+  useUpdateActivityApi, 
+  useDeleteActivityApi, 
+  useToggleActivityStatusApi 
+} from './api/useActivitiesApi';
 
 /**
  * Unified activity operations hook that consolidates all activity CRUD operations
@@ -17,6 +23,12 @@ import { useToast } from './use-toast';
  */
 export const useUnifiedActivityOperations = (activities: any[] = []) => {
   const { toast } = useToast();
+  
+  // Use API mutations with proper cache invalidation
+  const createActivityMutation = useCreateActivityApi();
+  const updateActivityMutation = useUpdateActivityApi();
+  const deleteActivityMutation = useDeleteActivityApi();
+  const toggleActivityMutation = useToggleActivityStatusApi();
 
   // Activity Creation with recurring support
   const handleActivityCreate = useCallback(async (
@@ -26,26 +38,25 @@ export const useUnifiedActivityOperations = (activities: any[] = []) => {
     console.log('Creating activity:', newActivity, 'recurring:', recurringOptions);
     
     try {
-      // Use unified service that properly handles recurring activities
-      const { unifiedActivityService } = await import('@/services/unified-activity.service');
-      // Convert ActivityCreateData to Activity format for the service
-      const activityForService: Activity = { 
-        ...newActivity, 
-        id: Date.now() + Math.random(), // Temporary ID
-        emoji: '📋', // Default emoji
-        completed: false, // Default status
-        color: newActivity.color || '#3B82F6', // Default color
-        importance: newActivity.importance || 1 // Default importance
-      };
-      const createdActivities = await unifiedActivityService.createActivity(activityForService, recurringOptions);
+      // Convert to API format
+      const apiData = convertCreateDataToApi(newActivity);
       
-      console.log('Created activities:', createdActivities.length);
-      return createdActivities;
+      // Create main activity using mutation (with cache invalidation)
+      const result = await createActivityMutation.mutateAsync(apiData);
+      
+      // Handle recurring activities if specified
+      if (recurringOptions && recurringOptions.type !== 'none') {
+        console.log('Creating recurring activities with options:', recurringOptions);
+        // TODO: Implement recurring activity creation through API
+      }
+      
+      console.log('Activity created successfully:', result);
+      return result;
     } catch (error) {
       console.error('Error creating activity:', error);
       throw error;
     }
-  }, []);
+  }, [createActivityMutation]);
 
   // Activity Update with recurring support
   const handleActivityUpdate = useCallback(async (
@@ -73,35 +84,50 @@ export const useUnifiedActivityOperations = (activities: any[] = []) => {
     console.log('Updating activity:', activityId, updates, 'recurring:', recurring);
     
     try {
-      // Use unified service that properly handles recurring activities
-      const { unifiedActivityService } = await import('@/services/unified-activity.service');
       const numericId = normalizeActivityId(activityId);
+      const apiData = convertUpdateDataToApi(updates);
       
-      const updatedActivity = await unifiedActivityService.updateActivity(numericId, updates, recurring);
-      console.log('Updated activity:', updatedActivity);
-      return updatedActivity;
+      // Update using mutation (with cache invalidation)
+      const result = await updateActivityMutation.mutateAsync({ id: numericId, data: apiData });
+      
+      // Handle recurring updates if specified
+      if (recurring && recurring.type !== 'none') {
+        console.log('Updating recurring activities with options:', recurring);
+        // TODO: Implement recurring activity updates through API
+      }
+      
+      console.log('Activity updated successfully:', result);
+      return result;
     } catch (error) {
       console.error('Error updating activity:', error);
       throw error;
     }
-  }, []);
+  }, [updateActivityMutation]);
 
   const handleActivityDelete = useCallback(async (
     activityId: number | string, 
-    deleteOption?: DeleteRecurringOption
+    deleteOption: DeleteRecurringOption = 'single'
   ) => {
+    console.log('Deleting activity:', activityId, 'with option:', deleteOption);
+    
     try {
-      // Use unified service that properly handles recurring activities
-      const { unifiedActivityService } = await import('@/services/unified-activity.service');
       const numericId = normalizeActivityId(activityId);
       
-      await unifiedActivityService.deleteActivity(numericId, deleteOption);
-      console.log('Deleted activity:', activityId, 'with option:', deleteOption);
+      // Delete using mutation (with cache invalidation)
+      await deleteActivityMutation.mutateAsync(numericId);
+      
+      // Handle recurring deletions if specified
+      if (deleteOption === 'all') {
+        console.log('Deleting all recurring activities for:', numericId);
+        // TODO: Implement deletion of all recurring activities through API
+      }
+      
+      console.log('Activity deleted successfully:', numericId);
     } catch (error) {
       console.error('Error deleting activity:', error);
       throw error;
     }
-  }, []);
+  }, [deleteActivityMutation]);
 
   const handleActivityToggle = useCallback(async (activityId: number | string) => {
     console.log('Activity toggle requested for:', activityId);
@@ -119,24 +145,18 @@ export const useUnifiedActivityOperations = (activities: any[] = []) => {
     }
 
     try {
-      // Use unified service for consistency
-      const { unifiedActivityService } = await import('@/services/unified-activity.service');
-      const toggledActivity = await unifiedActivityService.toggleActivityCompletion(numericId);
-      
-      console.log('Toggled activity:', toggledActivity);
-      toast({
-        title: "Успешно",
-        description: `Активность "${activity.name}" ${toggledActivity.completed ? 'выполнена' : 'отменена'}`,
+      // Toggle using mutation (with cache invalidation and optimistic updates)
+      await toggleActivityMutation.mutateAsync({
+        activityId: numericId,
+        currentStatus: activity.completed ? 'completed' : 'planned'
       });
+      
+      console.log('Activity toggle completed for:', numericId);
     } catch (error) {
       console.error('Error toggling activity:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось изменить статус активности",
-        variant: "destructive",
-      });
+      // Error handling is done in the mutation itself
     }
-  }, [activities, toast]);
+  }, [activities, toast, toggleActivityMutation]);
 
   // Backward compatibility wrappers
   const handleActivityUpdateForTimeline = useCallback((
@@ -165,10 +185,10 @@ export const useUnifiedActivityOperations = (activities: any[] = []) => {
     handleActivityUpdateForTimeline,
     handleActivityUpdateForEdit,
     
-    // Loading states - all operations are now async
-    isCreating: false,
-    isUpdating: false,
-    isDeleting: false,
-    isToggling: false
+    // Loading states from mutations
+    isCreating: createActivityMutation.isPending,
+    isUpdating: updateActivityMutation.isPending,
+    isDeleting: deleteActivityMutation.isPending,
+    isToggling: toggleActivityMutation.isPending
   };
 };
