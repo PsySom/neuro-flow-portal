@@ -38,6 +38,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('ActivityCard: Card clicked, viewType:', viewType);
+    console.log('ActivityCard: Click target:', (e.target as HTMLElement).tagName, (e.target as HTMLElement).className);
     e.stopPropagation();
     
     const target = e.target as HTMLElement;

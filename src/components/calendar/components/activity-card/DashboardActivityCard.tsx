@@ -50,8 +50,9 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
 
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('DashboardActivityCard: Card click event received');
-    // Prevent card click when clicking on interactive elements
+    
     const target = e.target as HTMLElement;
+    console.log('DashboardActivityCard: Click target:', target.tagName, target.className);
     
     // More precise detection of interactive elements
     const isInteractive = target.closest('button') || 
