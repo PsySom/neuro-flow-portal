@@ -32,7 +32,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const handleCheckboxToggle = () => {
-    console.log('ActivityCard: Checkbox toggled for activity:', layout.activity.id);
+    console.log('ActivityCard: Checkbox toggled for activity:', layout.activity.id, 'current status:', layout.activity.completed);
     onToggleComplete(layout.activity.id);
   };
 
@@ -42,15 +42,30 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     
     const target = e.target as HTMLElement;
 
-    // Для дневного вида проверяем кнопки
-    if (viewType === 'day') {
-      const isActionButton = target.closest('button');
-      if (isActionButton) {
-        console.log('ActivityCard: Action button clicked in day view, ignoring');
-        return;
-      }
+    // Проверяем, что это не клик по кнопке или чекбоксу
+    const isActionButton = target.closest('button');
+    const isCheckbox = target.closest('button[role="checkbox"]') || 
+                      target.closest('[data-radix-checkbox-root]') || 
+                      target.closest('.checkbox-container');
+    
+    if (isActionButton && !isCheckbox) {
+      console.log('ActivityCard: Action button clicked, ignoring');
+      return;
     }
 
+    if (isCheckbox) {
+      console.log('ActivityCard: Checkbox clicked, ignoring card click');
+      return;
+    }
+
+    // Для dashboard view открываем диалог редактирования сразу
+    if (viewType === 'dashboard') {
+      console.log('ActivityCard: Dashboard view - opening edit dialog directly');
+      setShowEditDialog(true);
+      return;
+    }
+
+    // Для других видов открываем popover
     console.log('ActivityCard: Opening info popover');
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();

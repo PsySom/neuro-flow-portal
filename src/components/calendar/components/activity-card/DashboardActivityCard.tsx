@@ -44,32 +44,38 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
     console.log('DashboardActivityCard: Checkbox changed to:', checked, 'for activity:', activity.id);
     console.log('DashboardActivityCard: Current completion status:', activity.completed);
     
-    // Always toggle completion status regardless of checked value
+    // Call the parent's toggle function
     onCheckboxToggle();
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
     console.log('DashboardActivityCard: Card click event received');
-    // Prevent info popover from opening when clicking on buttons or checkbox
+    // Prevent card click when clicking on interactive elements
     const target = e.target as HTMLElement;
     
-    // More precise checkbox detection
-    const isCheckboxClick = target.closest('button[role="checkbox"]') || 
-                           target.closest('[data-radix-checkbox-root]') || 
-                           target.closest('.checkbox-container') ||
-                           target.hasAttribute('data-state') ||
-                           target.closest('[data-state]');
+    // More precise detection of interactive elements
+    const isInteractive = target.closest('button') || 
+                         target.closest('[role="checkbox"]') || 
+                         target.closest('[data-radix-checkbox-root]') ||
+                         target.closest('.checkbox-container') ||
+                         target.hasAttribute('data-state') ||
+                         target.closest('[data-state]');
     
-    const isButtonClick = target.closest('button:not([role="checkbox"]):not([data-radix-checkbox-root])');
-    
-    if (isCheckboxClick || isButtonClick) {
-      console.log('DashboardActivityCard: Click on checkbox/button, preventing card click');
+    if (isInteractive) {
+      console.log('DashboardActivityCard: Click on interactive element, stopping propagation');
       e.stopPropagation();
       return;
     }
 
     console.log('DashboardActivityCard: Card clicked, delegating to parent');
     onCardClick(e);
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    console.log('DashboardActivityCard: Checkbox container clicked');
+    e.stopPropagation();
+    // Toggle the completion status
+    onCheckboxToggle();
   };
 
   const renderStars = () => {
@@ -91,18 +97,11 @@ const DashboardActivityCard: React.FC<DashboardActivityCardProps> = ({
         <div className="flex items-start space-x-3 flex-1">
           <div 
             className={`border-2 ${getActivityTypeColor(activity.type)} rounded-full p-1 bg-white/20 checkbox-container`}
-            onClick={(e) => {
-              console.log('DashboardActivityCard: Checkbox container clicked');
-              e.stopPropagation();
-              handleCheckboxChange(!activity.completed);
-            }}
+            onClick={handleCheckboxClick}
           >
             <Checkbox 
               checked={activity.completed}
-              onCheckedChange={(checked) => {
-                console.log('DashboardActivityCard: Checkbox onCheckedChange triggered:', checked);
-                handleCheckboxChange(checked);
-              }}
+              onCheckedChange={handleCheckboxChange}
               className="w-5 h-5 rounded-full cursor-pointer border-white bg-transparent data-[state=checked]:bg-white data-[state=checked]:text-black transition-all duration-200"
               title={activity.completed ? 'Отметить как не выполненную' : 'Отметить как выполненную'}
             />
