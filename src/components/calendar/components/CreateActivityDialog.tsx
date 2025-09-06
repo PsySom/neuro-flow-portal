@@ -76,7 +76,6 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
     }
 
     const newActivity = {
-      id: Date.now(),
       name: activityName.trim(),
       emoji: getEmojiByType(activityType),
       startTime,
@@ -85,6 +84,7 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
       color: selectedColor,
       importance: priority,
       completed: status === 'completed',
+      status: status,
       type: activityType,
       note,
       reminder,

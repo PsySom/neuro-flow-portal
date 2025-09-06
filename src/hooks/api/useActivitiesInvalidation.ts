@@ -21,8 +21,8 @@ export const useActivitiesInvalidation = () => {
     const today = new Date().toISOString().split('T')[0];
     queryClient.invalidateQueries({ queryKey: ['activities', today] });
     
-    // Clear all cached activities data completely
-    queryClient.removeQueries({ queryKey: ['activities'], exact: false });
+    // Force refetch to ensure fresh data
+    queryClient.refetchQueries({ queryKey: ['activities'] });
     
     console.log('ActivityInvalidation: Completed comprehensive cache invalidation');
   }, [queryClient]);

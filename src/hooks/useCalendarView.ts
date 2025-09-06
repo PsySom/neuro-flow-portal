@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import { CalendarSyncService } from '@/services/calendar-sync.service';
+import { UnifiedActivitySyncService } from '@/services/unified-activity-sync.service';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 
@@ -26,17 +27,51 @@ export const useCalendarView = (config: CalendarViewConfig) => {
 
   // Process activities using unified sync service
   const processedActivities = useMemo(() => {
-    const processed = CalendarSyncService.processActivities(
-      config.activities,
-      config.startDate,
-      config.endDate,
-      config.viewType
-    );
+    const { activities: apiActivities, viewType } = config;
     
-    const cleanActivities = CalendarSyncService.cleanActivities(processed.expanded);
+    // Get date range for processing
+    let selectedDate: Date | undefined;
+    let weekDates: Date[] | undefined;
+    let dateRange: { start: Date; end: Date } | undefined;
     
-    console.log(`CalendarView(${config.viewType}): Processed ${config.activities.length} API to ${cleanActivities.length} UI activities`);
-    return cleanActivities;
+    if (viewType === 'day') {
+      selectedDate = new Date(config.startDate);
+    } else if (viewType === 'week') {
+      const start = new Date(config.startDate);
+      weekDates = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        return date;
+      });
+    } else if (viewType === 'month') {
+      dateRange = {
+        start: new Date(config.startDate),
+        end: new Date(config.endDate)
+      };
+    }
+    
+    // Process activities consistently using unified service
+    let processedActivities: Activity[] = [];
+    
+    if (viewType === 'day' && selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      processedActivities = UnifiedActivitySyncService.processActivitiesForDay(apiActivities, dateString);
+    } else if (viewType === 'week' && weekDates) {
+      const startDate = weekDates[0].toISOString().split('T')[0];
+      const endDate = weekDates[6].toISOString().split('T')[0];
+      processedActivities = UnifiedActivitySyncService.processActivitiesForWeek(apiActivities, startDate, endDate);
+    } else if (viewType === 'month' && dateRange) {
+      const startDate = dateRange.start.toISOString().split('T')[0];
+      const endDate = dateRange.end.toISOString().split('T')[0];
+      processedActivities = UnifiedActivitySyncService.processActivitiesForMonth(apiActivities, startDate, endDate);
+    }
+    
+    console.log(`CalendarView(${viewType}): Processed ${apiActivities.length} API to ${processedActivities.length} UI activities`);
+    
+    // Debug activity distribution
+    UnifiedActivitySyncService.debugActivityDistribution(processedActivities, viewType);
+    
+    return processedActivities;
   }, [config.activities, config.startDate, config.endDate, config.viewType]);
 
   // Get unified activity operations
@@ -156,7 +191,7 @@ export const useCalendarView = (config: CalendarViewConfig) => {
     
     // Utilities
     getActivitiesForDate: (dateString: string) => 
-      CalendarSyncService.getActivitiesForDate(processedActivities, dateString),
+      UnifiedActivitySyncService.getActivitiesForDate(processedActivities, dateString),
     filterActivitiesByType: (activities: Activity[], types: Set<string>) =>
       CalendarSyncService.filterActivitiesByType(activities, types)
   };

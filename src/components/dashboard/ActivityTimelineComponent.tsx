@@ -16,6 +16,8 @@ import { getTodayActivities } from '@/utils/activitySync';
 import { useActivityTimelineLogic } from '@/hooks/useActivityTimelineLogic';
 import { Activity } from '@/contexts/ActivitiesContext';
 
+import { UnifiedActivitySyncService } from '@/services/unified-activity-sync.service';
+
 const ActivityTimelineComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
@@ -35,22 +37,31 @@ const ActivityTimelineComponent = () => {
   // Enable realtime updates
   useActivitiesRealtime(true);
 
+  // Convert API activities to UI format using unified service
+  const allActivities = UnifiedActivitySyncService.processActivitiesForTimeline(apiActivities);
+  
+  console.log('ActivityTimeline: All activities:', allActivities.length);
+  console.log('ActivityTimeline: Current date:', currentDateString);
+  console.log('ActivityTimeline: Sample activities:', allActivities.slice(0, 2).map(a => ({
+    id: a.id,
+    name: a.name,
+    date: a.date,
+    startTime: a.startTime
+  })));
+
   // Use unified activity sync hook
   const {
     handleActivityCreate: createActivity,
     handleActivityUpdate: updateActivity,
     handleActivityDelete: deleteActivity,
     handleActivityToggle: toggleActivityStatus
-  } = useUnifiedActivityOperations([]);
+  } = useUnifiedActivityOperations(allActivities);
 
   // Enhanced toggle with date validation
   const handleActivityToggle = (activityId: number | string) => {
-    const activity = apiActivities.find(a => a.id === activityId);
-    if (activity) {
-      console.log('ActivityTimeline: Toggling activity status:', activityId, 'current:', activity.status);
-      toggleActivityStatus(activityId)
-        .catch(error => console.error('Failed to toggle activity:', error));
-    }
+    console.log('ActivityTimeline: Toggling activity status:', activityId);
+    toggleActivityStatus(activityId)
+      .catch(error => console.error('Failed to toggle activity:', error));
   };
 
   const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
@@ -72,18 +83,6 @@ const ActivityTimelineComponent = () => {
     deleteActivity(id, deleteOption)
       .catch(error => console.error('Failed to delete activity:', error));
   };
-
-  // Convert API activities to UI format - no additional filtering needed since we already query by date
-  const allActivities = convertApiActivitiesToUi(apiActivities);
-  
-  console.log('ActivityTimeline: All activities:', allActivities.length);
-  console.log('ActivityTimeline: Current date:', currentDateString);
-  console.log('ActivityTimeline: Sample activities:', allActivities.slice(0, 2).map(a => ({
-    id: a.id,
-    name: a.name,
-    date: a.date,
-    startTime: a.startTime
-  })));
 
   // Use all activities since we already filtered by date in the API call
   const todayActivities = allActivities;
