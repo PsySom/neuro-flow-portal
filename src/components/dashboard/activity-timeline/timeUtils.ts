@@ -1,4 +1,5 @@
 
+import { Activity as ContextActivity } from '@/contexts/ActivitiesContext';
 import { Activity, TimeSlot } from './types';
 
 export const timeToMinutes = (timeStr: string): number => {
@@ -25,6 +26,80 @@ export const getActivityTimePosition = (timeStr: string): number => {
   const totalMinutes = timeToMinutes(timeStr);
   // Each hour takes 60px in the timeline grid
   return totalMinutes;
+};
+
+export interface ActivityTimelineLayout {
+  activity: ContextActivity;
+  top: number;
+  left: number;
+  width: number;
+  column: number;
+  totalColumns: number;
+}
+
+export const calculateTimelineActivityLayouts = (activities: ContextActivity[]): ActivityTimelineLayout[] => {
+  if (!activities.length) return [];
+
+  // Sort activities by start time
+  const sortedActivities = [...activities].sort((a, b) => 
+    timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
+  );
+
+  const layouts: ActivityTimelineLayout[] = [];
+  const columns: { start: number; end: number; activities: ContextActivity[] }[] = [];
+
+  for (const activity of sortedActivities) {
+    const startMinutes = timeToMinutes(activity.startTime);
+    const endMinutes = activity.endTime ? timeToMinutes(activity.endTime) : startMinutes + 60; // Default 1 hour if no end time
+
+    // Find if this activity overlaps with existing columns
+    let assignedColumn = -1;
+    for (let i = 0; i < columns.length; i++) {
+      const column = columns[i];
+      const hasOverlap = column.activities.some(colActivity => {
+        const colStart = timeToMinutes(colActivity.startTime);
+        const colEnd = colActivity.endTime ? timeToMinutes(colActivity.endTime) : colStart + 60;
+        return startMinutes < colEnd && endMinutes > colStart;
+      });
+
+      if (!hasOverlap) {
+        assignedColumn = i;
+        column.activities.push(activity);
+        column.start = Math.min(column.start, startMinutes);
+        column.end = Math.max(column.end, endMinutes);
+        break;
+      }
+    }
+
+    // If no suitable column found, create a new one
+    if (assignedColumn === -1) {
+      assignedColumn = columns.length;
+      columns.push({
+        start: startMinutes,
+        end: endMinutes,
+        activities: [activity]
+      });
+    }
+
+    layouts.push({
+      activity,
+      top: startMinutes,
+      left: 0, // Will be calculated based on column
+      width: 0, // Will be calculated based on total columns
+      column: assignedColumn,
+      totalColumns: 0 // Will be set after all activities are processed
+    });
+  }
+
+  // Update total columns for all layouts
+  const totalColumns = columns.length;
+  layouts.forEach(layout => {
+    layout.totalColumns = totalColumns;
+    layout.left = (layout.column / totalColumns) * 100;
+    layout.width = (1 / totalColumns) * 100;
+  });
+
+  return layouts;
 };
 
 export const createTimeSlots = (activities: Activity[]): TimeSlot[] => {

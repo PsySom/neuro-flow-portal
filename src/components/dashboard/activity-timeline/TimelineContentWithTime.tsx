@@ -7,7 +7,7 @@ import ActivityTimelineEmpty from './ActivityTimelineEmpty';
 import { useTimelineLogic } from './useTimelineLogic';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { DeleteRecurringOption, RecurringActivityOptions } from '@/components/calendar/utils/recurringUtils';
-import { getActivityTimePosition } from './timeUtils';
+import { getActivityTimePosition, calculateTimelineActivityLayouts } from './timeUtils';
 
 interface TimelineContentWithTimeProps {
   activities: Activity[];
@@ -84,23 +84,28 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
           
           {/* Activities */}
           <div className="relative">
-            {activities.map((activity) => {
-              const activityPosition = getActivityTimePosition(activity.startTime);
-              return (
+            {(() => {
+              const activityLayouts = calculateTimelineActivityLayouts(activities);
+              return activityLayouts.map((layout) => (
                 <div
-                  key={activity.id}
-                  className="absolute left-6 right-6 z-10"
-                  style={{ top: `${activityPosition}px` }}
+                  key={layout.activity.id}
+                  className="absolute z-10"
+                  style={{ 
+                    top: `${layout.top}px`,
+                    left: `calc(24px + ${layout.left}%)`,
+                    width: `calc(${layout.width}% - 8px)`,
+                    marginRight: '4px'
+                  }}
                 >
                   <ActivityCard
                     layout={{
-                      activity,
+                      activity: layout.activity,
                       top: 0,
                       height: 0,
-                      left: 0,
-                      width: 100,
-                      column: 0,
-                      totalColumns: 1
+                      left: layout.left,
+                      width: layout.width,
+                      column: layout.column,
+                      totalColumns: layout.totalColumns
                     }}
                     onToggleComplete={handleActivityToggle}
                     onDelete={onActivityDelete}
@@ -108,8 +113,8 @@ const TimelineContentWithTime: React.FC<TimelineContentWithTimeProps> = ({
                     viewType="dashboard"
                   />
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
           
           {/* Auto-scroll button */}
