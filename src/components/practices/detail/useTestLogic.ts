@@ -375,6 +375,137 @@ ${hasSuicidalThoughts ? `\n🚨 **КРИТИЧЕСКИ ВАЖНО:** Налич�
     };
   };
 
+  const calculateDass21Result = (answers: {[key: number]: string}): TestResult => {
+    // DASS-21 subscale indices (0-based)
+    const depressionItems = [2, 4, 9, 12, 15, 16, 20]; // Questions 3, 5, 10, 13, 16, 17, 21
+    const anxietyItems = [1, 3, 6, 8, 14, 18, 19]; // Questions 2, 4, 7, 9, 15, 19, 20
+    const stressItems = [0, 5, 7, 10, 11, 13, 17]; // Questions 1, 6, 8, 11, 12, 14, 18
+
+    // Calculate subscale scores
+    let depressionScore = 0;
+    let anxietyScore = 0;
+    let stressScore = 0;
+
+    depressionItems.forEach(index => {
+      const answer = parseInt(answers[index]?.charAt(0)) || 0;
+      depressionScore += answer;
+    });
+
+    anxietyItems.forEach(index => {
+      const answer = parseInt(answers[index]?.charAt(0)) || 0;
+      anxietyScore += answer;
+    });
+
+    stressItems.forEach(index => {
+      const answer = parseInt(answers[index]?.charAt(0)) || 0;
+      stressScore += answer;
+    });
+
+    // Multiply by 2 to match DASS-42 norms
+    const finalDepressionScore = depressionScore * 2;
+    const finalAnxietyScore = anxietyScore * 2;
+    const finalStressScore = stressScore * 2;
+
+    // Interpret scores
+    const interpretDepression = (score: number): string => {
+      if (score <= 9) return 'норма';
+      if (score <= 13) return 'лёгкая';
+      if (score <= 20) return 'умеренная';
+      if (score <= 27) return 'тяжёлая';
+      return 'крайне тяжёлая';
+    };
+
+    const interpretAnxiety = (score: number): string => {
+      if (score <= 7) return 'норма';
+      if (score <= 9) return 'лёгкая';
+      if (score <= 14) return 'умеренная';
+      if (score <= 19) return 'тяжёлая';
+      return 'крайне тяжёлая';
+    };
+
+    const interpretStress = (score: number): string => {
+      if (score <= 14) return 'норма';
+      if (score <= 18) return 'лёгкая';
+      if (score <= 25) return 'умеренная';
+      if (score <= 33) return 'тяжёлая';
+      return 'крайне тяжёлая';
+    };
+
+    const depressionLevel = interpretDepression(finalDepressionScore);
+    const anxietyLevel = interpretAnxiety(finalAnxietyScore);
+    const stressLevel = interpretStress(finalStressScore);
+
+    // Determine overall severity for recommendations
+    const maxLevel = Math.max(
+      finalDepressionScore > 9 ? 1 : 0,
+      finalAnxietyScore > 7 ? 1 : 0,
+      finalStressScore > 14 ? 1 : 0
+    );
+    
+    const hasSevereSymptoms = finalDepressionScore >= 21 || finalAnxietyScore >= 15 || finalStressScore >= 26;
+    const hasModerateSymptoms = finalDepressionScore >= 14 || finalAnxietyScore >= 10 || finalStressScore >= 19;
+
+    let recommendations = `**Результаты DASS-21**
+
+**Подшкалы (после умножения ×2):**
+🔵 **Депрессия:** ${finalDepressionScore}/42 (${depressionLevel})
+🟡 **Тревога:** ${finalAnxietyScore}/42 (${anxietyLevel})  
+🟢 **Стресс:** ${finalStressScore}/42 (${stressLevel})
+
+`;
+
+    if (maxLevel === 0) {
+      recommendations += `✅ **Все показатели в норме**
+
+**Рекомендации:**
+• Поддерживайте здоровый образ жизни
+• Регулярный сон и физическая активность
+• Планируйте время для отдыха
+• Повторная проверка через 2-4 недели для профилактики`;
+    } else if (hasSevereSymptoms) {
+      recommendations += `🚨 **Тяжёлая/крайне тяжёлая выраженность**
+
+**Настоятельно рекомендуется:**
+🏥 **Консультация специалиста очно/онлайн** (психолог/врач)
+• План действий в приложении: короткие практики → план на неделю
+• Повторная оценка для мониторинга динамики
+• Профессиональное сопровождение
+
+📞 **При ухудшении самочувствия:**
+Телефон доверия: 8-800-2000-122 (бесплатно, круглосуточно)`;
+    } else if (hasModerateSymptoms) {
+      recommendations += `⚠️ **Лёгкая-умеренная выраженность**
+
+**Рекомендации:**
+• Изучите связь стресса с циклами сна и нагрузки
+• Ведите трекинг самочувствия
+• Дыхательные и релаксационные техники
+• Связь с психологом, если симптомы мешают делам
+• Повторная оценка через 1-2 недели`;
+    } else {
+      recommendations += `💡 **Лёгкие проявления**
+
+**Рекомендации:**
+• Психообразование про стресс-циклы
+• Техники самопомощи и релаксации
+• Внимание к режиму сна и отдыха
+• Мониторинг динамики состояния`;
+    }
+
+    recommendations += `
+
+**Важно:** DASS-21 — не диагностический инструмент. Решения о лечении принимает специалист.
+
+**Атрибуция:** Lovibond & Lovibond, UNSW; www.psy.unsw.edu.au/dass`;
+
+    return {
+      score: finalDepressionScore + finalAnxietyScore + finalStressScore, // Total for display
+      interpretation: `Депрессия: ${depressionLevel}, Тревога: ${anxietyLevel}, Стресс: ${stressLevel}`,
+      recommendations,
+      maxScore: 126 // 42 × 3 subscales
+    };
+  };
+
   const calculateTestResult = (item: any) => {
     if (!item.questions || !item.keys) return;
     
@@ -426,6 +557,8 @@ ${hasSuicidalThoughts ? `\n🚨 **КРИТИЧЕСКИ ВАЖНО:** Налич�
         }
       });
       result = calculateGad7Result(score);
+    } else if (item.keys === "DASS-21") {
+      result = calculateDass21Result(answers);
     } else if (item.keys === "cognitive_distortions_scale") {
       Object.values(answers).forEach(answer => {
         const answerIndex = parseInt(answer);
@@ -479,8 +612,8 @@ ${hasSuicidalThoughts ? `\n🚨 **КРИТИЧЕСКИ ВАЖНО:** Налич�
     // Format result text
     let resultText = '';
     
-    if (item.keys === "PHQ-4" || item.keys === "PHQ-9" || item.keys === "GAD-7") {
-      // For PHQ and GAD tests, use the detailed recommendations from the function
+    if (item.keys === "PHQ-4" || item.keys === "PHQ-9" || item.keys === "GAD-7" || item.keys === "DASS-21") {
+      // For PHQ, GAD and DASS tests, use the detailed recommendations from the function
       resultText = result.recommendations || result.interpretation;
     } else {
       // Standard formatting for other tests
