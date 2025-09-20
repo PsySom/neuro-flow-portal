@@ -13,9 +13,11 @@ const FreeChat: React.FC = () => {
     inputMessage,
     setInputMessage,
     isLoading,
+    isLoadingHistory,
     sessionId,
     sendMessage,
     startNewSession,
+    endSession,
     isUserAuthenticated
   } = useAIDiaryChat();
 
@@ -30,13 +32,15 @@ const FreeChat: React.FC = () => {
     checkAuth();
   }, [isUserAuthenticated]);
 
-  // Если еще проверяем аутентификацию
-  if (isAuthenticated === null) {
+  // Если еще проверяем аутентификацию или загружаем историю
+  if (isAuthenticated === null || isLoadingHistory) {
     return (
       <Card className="h-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 animate-fade-in flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Загрузка...</p>
+          <p className="text-muted-foreground">
+            {isAuthenticated === null ? 'Загрузка...' : 'Загружаем историю сессии...'}
+          </p>
         </div>
       </Card>
     );
@@ -65,6 +69,7 @@ const FreeChat: React.FC = () => {
         <FreeChatHeader 
           sessionId={sessionId}
           onNewSession={startNewSession}
+          onEndSession={endSession}
         />
       </div>
       
