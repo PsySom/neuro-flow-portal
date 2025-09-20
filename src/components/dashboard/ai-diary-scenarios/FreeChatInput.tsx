@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Loader2 } from 'lucide-react';
@@ -11,18 +11,21 @@ interface FreeChatInputProps {
   disabled?: boolean;
 }
 
-const FreeChatInput: React.FC<FreeChatInputProps> = ({
+const FreeChatInput = forwardRef<HTMLInputElement, FreeChatInputProps>(({
   inputMessage,
   setInputMessage,
   onSendMessage,
   isLoading,
   disabled = false
-}) => {
+}, ref) => {
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (inputMessage.trim() && !isLoading && !disabled) {
-        onSendMessage(inputMessage);
+    if (e.key === 'Enter') {
+      // Обычный Enter или Ctrl+Enter для отправки
+      if (!e.shiftKey || e.ctrlKey) {
+        e.preventDefault();
+        if (inputMessage.trim() && !isLoading && !disabled) {
+          onSendMessage(inputMessage);
+        }
       }
     }
   }, [onSendMessage, inputMessage, isLoading, disabled]);
@@ -44,12 +47,14 @@ const FreeChatInput: React.FC<FreeChatInputProps> = ({
       <div className="p-4">
         <div className="flex space-x-2">
           <Input
-            placeholder="Напишите сообщение..."
+            ref={ref}
+            placeholder="Напишите сообщение... (Enter или Ctrl+Enter для отправки)"
             value={inputMessage}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             className="flex-1 transition-all duration-200 focus:scale-[1.01]"
             disabled={isLoading || disabled}
+            autoComplete="off"
           />
           <Button
             onClick={handleSendClick}
@@ -64,9 +69,14 @@ const FreeChatInput: React.FC<FreeChatInputProps> = ({
             )}
           </Button>
         </div>
+        <div className="mt-2 text-xs text-muted-foreground">
+          Совет: используйте Enter для отправки, Shift+Enter для новой строки
+        </div>
       </div>
     </div>
   );
-};
+});
+
+FreeChatInput.displayName = 'FreeChatInput';
 
 export default FreeChatInput;

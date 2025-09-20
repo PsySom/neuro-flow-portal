@@ -1,22 +1,28 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Bot, User, Copy, Check } from 'lucide-react';
 
 interface Message {
   id: string;
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  isTyping?: boolean;
 }
 
 interface FreeChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
+  isAITyping: boolean;
 }
 
-const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading }) => {
+const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading, isAITyping }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -40,7 +46,27 @@ const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading
     }, 150);
 
     return () => clearTimeout(timeoutId);
-  }, [messages, isLoading, scrollToBottom]);
+  }, [messages, isLoading, isAITyping, scrollToBottom]);
+
+  const copyToClipboard = useCallback(async (text: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(messageId);
+      toast({
+        title: "Скопировано",
+        description: "Сообщение скопировано в буфер обмена",
+      });
+      
+      // Скрываем индикатор копирования через 2 секунды
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось скопировать текст",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   return (
     <div className="h-full overflow-hidden">
@@ -53,7 +79,7 @@ const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex items-start space-x-3 animate-slide-up-fade ${
+              className={`group flex items-start space-x-3 animate-fade-in ${
                 message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
               }`}
             >
@@ -74,13 +100,36 @@ const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading
               
               <div className={`max-w-[85%] ${message.type === 'user' ? 'text-right' : ''}`}>
                 <div
-                  className={`rounded-2xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] ${
+                  className={`relative rounded-2xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] ${
                     message.type === 'user'
                       ? 'bg-primary text-primary-foreground ml-auto'
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-line">
+                    {message.content}
+                    {message.isTyping && (
+                      <span className="inline-block ml-1 w-2 h-4 bg-current animate-pulse">|</span>
+                    )}
+                  </p>
+                  
+                  {/* Кнопка копирования */}
+                  {message.content && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`absolute top-2 ${
+                        message.type === 'user' ? 'left-2' : 'right-2'
+                      } opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-6 w-6 p-0`}
+                      onClick={() => copyToClipboard(message.content, message.id)}
+                    >
+                      {copiedId === message.id ? (
+                        <Check className="w-3 h-3 text-green-600" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </Button>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 transition-opacity duration-200">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -89,7 +138,32 @@ const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading
             </div>
           ))}
           
-          {isLoading && (
+          {/* Индикатор "AI печатает..." */}
+          {isAITyping && (
+            <div className="flex items-start space-x-3 animate-fade-in">
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                <AvatarFallback 
+                  className="text-white font-medium"
+                  style={{ backgroundColor: `hsl(var(--primary))` }}
+                >
+                  <Bot className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="bg-muted rounded-2xl px-4 py-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">AI печатает</span>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Индикатор загрузки (старый, для совместимости) */}
+          {isLoading && !isAITyping && (
             <div className="flex items-start space-x-3 animate-fade-in">
               <Avatar className="w-8 h-8 flex-shrink-0">
                 <AvatarFallback 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AIDiaryService } from '@/services/ai-diary.service';
 import { useToast } from '@/hooks/use-toast';
 
@@ -8,6 +8,7 @@ interface Message {
   content: string;
   timestamp: Date;
   session_id?: string;
+  isTyping?: boolean;
 }
 
 export const useAIDiaryChat = () => {
@@ -16,7 +17,42 @@ export const useAIDiaryChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isAITyping, setIsAITyping] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Функция для эффекта печати
+  const typeMessage = useCallback((message: Message, fullText: string) => {
+    let currentIndex = 0;
+    const typingSpeed = 30; // миллисекунды между символами
+
+    const typeNextChar = () => {
+      if (currentIndex <= fullText.length) {
+        const currentText = fullText.substring(0, currentIndex);
+        setMessages(prev => prev.map(msg => 
+          msg.id === message.id 
+            ? { ...msg, content: currentText, isTyping: currentIndex < fullText.length }
+            : msg
+        ));
+        currentIndex++;
+        
+        if (currentIndex <= fullText.length) {
+          setTimeout(typeNextChar, typingSpeed);
+        }
+      }
+    };
+
+    typeNextChar();
+  }, []);
+
+  // Автофокус на поле ввода
+  const focusInput = useCallback(() => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
+  }, []);
 
   // Загружаем историю сессии при монтировании
   useEffect(() => {
@@ -103,6 +139,10 @@ export const useAIDiaryChat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsAITyping(true);
+
+    // Автофокус на поле ввода
+    focusInput();
 
     try {
       // Отправляем сообщение через AI Diary Service
@@ -120,11 +160,26 @@ export const useAIDiaryChat = () => {
         const aiMessage: Message = {
           id: `ai_${Date.now()}`,
           type: 'ai',
-          content: response.ai_response,
-          timestamp: new Date()
+          content: '',
+          timestamp: new Date(),
+          isTyping: true
         };
         
+        // Добавляем пустое сообщение AI для эффекта печати
         setMessages(prev => [...prev, aiMessage]);
+        setIsAITyping(false);
+
+        // Запускаем эффект печати для длинных сообщений (>50 символов)
+        if (response.ai_response.length > 50) {
+          typeMessage(aiMessage, response.ai_response);
+        } else {
+          // Для коротких сообщений показываем сразу
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessage.id 
+              ? { ...msg, content: response.ai_response, isTyping: false }
+              : msg
+          ));
+        }
 
         // Сохраняем оба сообщения в Supabase (пользователя и AI)
         if (currentSessionId) {
@@ -140,6 +195,7 @@ export const useAIDiaryChat = () => {
         }
 
       } else {
+        setIsAITyping(false);
         // Показываем ошибку через toast
         toast({
           title: "Ошибка",
@@ -158,6 +214,7 @@ export const useAIDiaryChat = () => {
         setMessages(prev => [...prev, errorMessage]);
       }
     } catch (error) {
+      setIsAITyping(false);
       console.error('Ошибка при отправке сообщения:', error);
       
       toast({
@@ -177,7 +234,7 @@ export const useAIDiaryChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, sessionId, toast]);
+  }, [isLoading, sessionId, toast, typeMessage, focusInput]);
 
   const startNewSession = useCallback(() => {
     // Очищаем сессию в сервисе
@@ -188,19 +245,23 @@ export const useAIDiaryChat = () => {
     const welcomeMessage: Message = {
       id: `new_session_${Date.now()}`,
       type: 'ai',
-      content: 'Начинаем новый разговор! Я ваш AI-помощник для психологического благополучия. О чем хотели бы поговорить?',
+      content: 'Начинаем новый разговор! Я ваш AI-помощник для психологического благополучия. Что у вас на душе? О чем хотели бы поговорить сегодня?',
       timestamp: new Date()
     };
     
     setMessages([welcomeMessage]);
     setInputMessage('');
     setIsLoading(false);
+    setIsAITyping(false);
+
+    // Автофокус на поле ввода
+    focusInput();
 
     toast({
       title: "Новая сессия",
       description: "Начинаем новый разговор",
     });
-  }, [toast]);
+  }, [toast, focusInput]);
 
   const endSession = useCallback(async () => {
     try {
@@ -252,7 +313,9 @@ export const useAIDiaryChat = () => {
     setInputMessage,
     isLoading,
     isLoadingHistory,
+    isAITyping,
     sessionId,
+    inputRef,
     sendMessage,
     startNewSession,
     endSession,

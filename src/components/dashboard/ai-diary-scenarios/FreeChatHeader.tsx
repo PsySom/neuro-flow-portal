@@ -6,11 +6,17 @@ import { MessageCircle, RotateCcw, Square } from 'lucide-react';
 
 interface FreeChatHeaderProps {
   sessionId: string | null;
+  messageCount: number;
   onNewSession: () => void;
   onEndSession: () => void;
 }
 
-const FreeChatHeader: React.FC<FreeChatHeaderProps> = ({ sessionId, onNewSession, onEndSession }) => {
+const FreeChatHeader: React.FC<FreeChatHeaderProps> = ({ 
+  sessionId, 
+  messageCount, 
+  onNewSession, 
+  onEndSession 
+}) => {
   return (
     <CardHeader className="flex-shrink-0 pb-3">
       <CardTitle className="flex items-center justify-between">
@@ -22,9 +28,14 @@ const FreeChatHeader: React.FC<FreeChatHeaderProps> = ({ sessionId, onNewSession
         </div>
         <div className="flex items-center space-x-2">
           {sessionId && (
-            <Badge variant="outline" className="text-xs">
-              Активная сессия
-            </Badge>
+            <>
+              <Badge variant="outline" className="text-xs">
+                Активная сессия
+              </Badge>
+              <Badge variant="secondary" className="text-xs">
+                {messageCount} сообщений
+              </Badge>
+            </>
           )}
           <div className="flex space-x-1">
             <Button

@@ -14,7 +14,9 @@ const FreeChat: React.FC = () => {
     setInputMessage,
     isLoading,
     isLoadingHistory,
+    isAITyping,
     sessionId,
+    inputRef,
     sendMessage,
     startNewSession,
     endSession,
@@ -68,6 +70,7 @@ const FreeChat: React.FC = () => {
       <div className="flex-shrink-0 border-b border-border">
         <FreeChatHeader 
           sessionId={sessionId}
+          messageCount={messages.length}
           onNewSession={startNewSession}
           onEndSession={endSession}
         />
@@ -77,11 +80,13 @@ const FreeChat: React.FC = () => {
         <FreeChatMessages 
           messages={messages}
           isLoading={isLoading}
+          isAITyping={isAITyping}
         />
       </div>
       
       <div className="flex-shrink-0">
         <FreeChatInput
+          ref={inputRef}
           inputMessage={inputMessage}
           setInputMessage={setInputMessage}
           onSendMessage={sendMessage}
