@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { useSleepDiary } from '@/hooks/useSleepDiary';
 import { sleepQualityLabels } from '@/components/diaries/sleep/types';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
 interface SleepChartData {
   time: string;
@@ -23,6 +24,7 @@ interface SleepChartData {
 type TimeRange = 'day' | 'week' | 'month';
 
 const SleepChart = () => {
+  const { isAuthenticated } = useSupabaseAuth();
   const { entries, loading, error } = useSleepDiary();
   const [chartData, setChartData] = useState<SleepChartData[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
@@ -77,29 +79,6 @@ const SleepChart = () => {
     }
   }, [entries, timeRange]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-          <p className="text-muted-foreground">Загрузка данных сна...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center text-red-600">
-            <p>Ошибка загрузки данных: {error}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
     if (!payload) return null;
@@ -147,16 +126,133 @@ const SleepChart = () => {
     return null;
   };
 
-  if (chartData.length === 0) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Загрузка данных сна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">
-            <p className="mb-4">📊 График пуст</p>
-            <p className="text-sm">Здесь будут отображаться ваши записи из дневника сна и отдыха. Создайте первую запись, чтобы увидеть данные на графике.</p>
+          <div className="text-center text-red-600">
+            <p>Ошибка загрузки данных: {error}</p>
           </div>
         </CardContent>
       </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Загрузка данных сна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-red-600">
+            <p>Ошибка загрузки данных: {error}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (chartData.length === 0) {
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (!payload) return null;
+    
+    return (
+      <g>
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill="hsl(var(--primary))" 
+          stroke="white" 
+          strokeWidth={2}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        />
+        <text 
+          x={cx} 
+          y={cy - 15} 
+          textAnchor="middle" 
+          fontSize={16}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        >
+          {payload.sleepQualityEmoji}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-medium">{label}</p>
+          <p className="text-sm">
+            <span className="text-lg mr-2">{data.sleepQualityEmoji}</span>
+            Качество сна: {data.sleepQuality}
+          </p>
+          <p className="text-sm">Продолжительность: {data.sleepDuration} ч</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Показываем предупреждение если пользователь не авторизован */}
+      {!isAuthenticated && (
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
+          <CardContent className="pt-6">
+            <p className="text-amber-800 dark:text-amber-200 text-sm">
+              📊 Для просмотра статистики необходимо 
+              <strong> войти в аккаунт</strong>. Здесь будут отображаться ваши реальные записи дневника сна и отдыха.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+        {/* Показываем предупреждение если пользователь не авторизован */}
+        {!isAuthenticated && (
+          <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
+            <CardContent className="pt-6">
+              <p className="text-amber-800 dark:text-amber-200 text-sm">
+                📊 Для просмотра статистики необходимо 
+                <strong> войти в аккаунт</strong>. Здесь будут отображаться ваши реальные записи дневника сна и отдыха.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center text-muted-foreground">
+              <p className="mb-4">📊 График пуст</p>
+              <p className="text-sm">Здесь будут отображаться ваши записи из дневника сна и отдыха. Создайте первую запись, чтобы увидеть данные на графике.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

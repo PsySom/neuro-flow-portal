@@ -2,7 +2,7 @@ import apiClient, { handleApiError } from './api.client';
 import { mockDiaryService } from './mock-diary.service';
 
 // Switch between mock and real API
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // === DIARY INTERFACES ===
 

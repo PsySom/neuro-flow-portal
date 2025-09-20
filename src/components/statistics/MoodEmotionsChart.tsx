@@ -10,9 +10,6 @@ import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartCompo
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import MockDataInspector from './MockDataInspector';
 
-// Проверяем, используется ли mock режим
-const USE_MOCK = true; // Соответствует настройке в backend-diary.service.ts
-
 const MoodEmotionsChart = () => {
   const { isAuthenticated } = useSupabaseAuth();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
@@ -81,13 +78,13 @@ const MoodEmotionsChart = () => {
 
   return (
     <div className="space-y-6">
-      {/* Показываем предупреждение только если не используется mock и пользователь не авторизован */}
-      {!USE_MOCK && !isAuthenticated && (
+      {/* Показываем предупреждение если пользователь не авторизован */}
+      {!isAuthenticated && (
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
           <CardContent className="pt-6">
             <p className="text-amber-800 dark:text-amber-200 text-sm">
-              📊 Сейчас отображаются демонстрационные данные. 
-              <strong> Войдите в аккаунт</strong>, чтобы увидеть ваши реальные записи дневника настроения.
+              📊 Для просмотра статистики необходимо 
+              <strong> войти в аккаунт</strong>. Здесь будут отображаться ваши реальные записи дневника настроения.
             </p>
           </CardContent>
         </Card>
@@ -260,9 +257,6 @@ const MoodEmotionsChart = () => {
           )}
         </CardContent>
       </Card>
-      
-      {/* Инспектор данных для Mock режима */}
-      {USE_MOCK && <MockDataInspector />}
     </div>
   );
 };
