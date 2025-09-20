@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Bot, Send, User } from 'lucide-react';
+import { AIDiaryService } from '@/services/ai-diary.service';
 
 interface Message {
   id: string;
@@ -54,10 +55,11 @@ const FreeChat = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
+    const messageText = inputMessage.trim();
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage,
+      content: messageText,
       timestamp: new Date()
     };
 
@@ -65,17 +67,32 @@ const FreeChat = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Отправляем сообщение через AI Diary Service
+      const response = await AIDiaryService.sendMessage(messageText);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: 'Спасибо, что поделились! Я понимаю ваши чувства. Это важный шаг - обращать внимание на свое внутреннее состояние. Расскажите больше о том, что вас беспокоит?',
+        content: response.ai_response,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Ошибка при отправке сообщения:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: 'Извините, произошла ошибка при обработке вашего сообщения. Попробуйте еще раз или обратитесь в поддержку.',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
