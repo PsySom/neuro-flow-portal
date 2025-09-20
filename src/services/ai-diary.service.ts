@@ -53,7 +53,7 @@ export class AIDiaryService {
   /**
    * Получить ID текущего пользователя из Supabase Auth
    */
-  private static async getCurrentUserId(): Promise<string | null> {
+  static async getCurrentUserId(): Promise<string | null> {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
       

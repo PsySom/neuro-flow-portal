@@ -3,9 +3,11 @@ import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useAIDiaryChat } from './hooks/useAIDiaryChat';
+import { useAIDiaryAnalytics } from './hooks/useAIDiaryAnalytics';
 import FreeChatHeader from './FreeChatHeader';
 import FreeChatMessages from './FreeChatMessages';
 import FreeChatInput from './FreeChatInput';
+import AIDiaryStats from './AIDiaryStats';
 
 const FreeChat: React.FC = () => {
   const {
@@ -22,6 +24,12 @@ const FreeChat: React.FC = () => {
     endSession,
     isUserAuthenticated
   } = useAIDiaryChat();
+
+  const analyticsData = useAIDiaryAnalytics({
+    sessionId,
+    messages,
+    isLoadingHistory
+  });
 
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
 
@@ -73,6 +81,17 @@ const FreeChat: React.FC = () => {
           messageCount={messages.length}
           onNewSession={startNewSession}
           onEndSession={endSession}
+        />
+      </div>
+
+      {/* Статистика */}
+      <div className="flex-shrink-0 p-4 border-b border-border bg-muted/30">
+        <AIDiaryStats
+          globalStats={analyticsData.globalStats}
+          currentSessionStats={analyticsData.currentSessionStats}
+          topTopics={analyticsData.topTopics}
+          isLoading={analyticsData.isLoadingStats}
+          sessionId={sessionId}
         />
       </div>
       
