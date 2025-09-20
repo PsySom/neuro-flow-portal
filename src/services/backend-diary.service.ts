@@ -108,13 +108,46 @@ class BackendDiaryService {
     }
     
     try {
-      // Используем гибкий endpoint с автоматическим fallback
-      const response = await apiClient.get<MoodEntry[]>('/diary/mood/flexible', { params });
-      return response.data;
+      console.log('🔄 Fetching mood entries via Supabase');
+      
+      // Используем Supabase репозиторий напрямую
+      const { moodDiaryRepository } = await import('@/integrations/supabase/mood-diary.repo');
+      const supabaseEntries = await moodDiaryRepository.getEntries({
+        start_date: params?.start_date,
+        end_date: params?.end_date,
+        order_direction: params?.sort_desc ? 'desc' : 'asc',
+        limit: params?.limit || 100,
+        offset: params?.offset,
+        mood_min: params?.mood_min,
+        mood_max: params?.mood_max
+      });
+
+      // Конвертируем в формат MoodEntry
+      const result: MoodEntry[] = supabaseEntries.map(entry => ({
+        id: entry.id,
+        user_id: entry.user_id,
+        mood_score: entry.mood_score,
+        emotions: entry.emotions || [],
+        triggers: entry.triggers || [],
+        physical_sensations: entry.physical_sensations || [],
+        body_areas: entry.body_areas || [],
+        context: entry.context || '',
+        notes: entry.notes || '',
+        timestamp: entry.created_at || new Date().toISOString()
+      }));
+
+      console.log('✅ Mood entries fetched via Supabase:', result.length);
+      return result;
     } catch (error: any) {
-      console.error('❌ Failed to fetch mood data:', error);
-      // Возвращаем пустой массив как fallback
-      return [];
+      console.error('❌ Failed to fetch mood entries:', error);
+      // Fallback к старому API
+      try {
+        const response = await apiClient.get<MoodEntry[]>('/diary/mood/flexible', { params });
+        return response.data;
+      } catch (apiError) {
+        console.error('❌ API also failed, returning empty array');
+        return [];
+      }
     }
   }
 
