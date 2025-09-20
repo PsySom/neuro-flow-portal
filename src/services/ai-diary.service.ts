@@ -26,7 +26,7 @@ interface ChatMessage {
 }
 
 export class AIDiaryService {
-  private static readonly WEBHOOK_URL = import.meta.env.VITE_AI_DIARY_WEBHOOK_URL || 'https://mentalbalans.com/webhook/ai-diary-message';
+  private static readonly WEBHOOK_URL = 'https://mentalbalans.com/webhook/ai-diary-message';
   private static readonly SESSION_STORAGE_KEY = 'ai_diary_session_id';
 
   /**
