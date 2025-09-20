@@ -90,6 +90,22 @@ const USE_MOCK = true; // false для реального API
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 ```
 
+### Конфигурация AI Дневника
+
+Для работы AI дневника необходимо настроить переменную окружения:
+
+1. Скопируйте `.env.example` в `.env`:
+```bash
+cp .env.example .env
+```
+
+2. Укажите URL webhook для AI дневника в `.env`:
+```env
+VITE_AI_DIARY_WEBHOOK_URL=https://mentalbalans.com/webhook/ai-diary-message
+```
+
+**Важно**: Без настройки этой переменной AI дневник будет использовать URL по умолчанию. Для изменения webhook URL просто обновите значение в `.env` файле.
+
 ### Режимы работы
 
 **Mock режим** (USE_MOCK = true):
