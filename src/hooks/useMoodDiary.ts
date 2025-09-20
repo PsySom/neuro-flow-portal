@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { moodDiaryRepository, MoodDiaryEntry } from '@/integrations/supabase/mood-diary.repo';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseMoodDiaryReturn {
   entries: MoodDiaryEntry[];
@@ -68,6 +69,28 @@ export const useMoodDiary = (): UseMoodDiaryReturn => {
     return () => {
       window.removeEventListener('diaryStatusUpdate', handleDiaryUpdate);
       window.removeEventListener('mood-data-updated', handleDiaryUpdate);
+    };
+  }, []);
+
+
+  // Подписка на realtime изменения в таблице настроения
+  useEffect(() => {
+    const channel = supabase
+      .channel('mood_diary_entries_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'mood_diary_entries' },
+        (payload) => {
+          console.log('🟢 Realtime mood diary change:', payload.eventType);
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE' || payload.eventType === 'DELETE') {
+            refreshEntries();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
   }, []);
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { backendDiaryService } from '@/services/backend-diary.service';
 import { SleepDiaryEntry } from '@/integrations/supabase/sleep-diary.repo';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface UseSleepDiaryReturn {
   entries: SleepDiaryEntry[];
@@ -88,6 +89,28 @@ export const useSleepDiary = (): UseSleepDiaryReturn => {
     
     return () => {
       window.removeEventListener('diaryStatusUpdate', handleDiaryUpdate as EventListener);
+    };
+  }, []);
+
+  // Подписка на realtime изменения в таблице сна
+  useEffect(() => {
+    const channel = supabase
+      .channel('sleep_diary_entries_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'sleep_diary_entries' },
+        (payload) => {
+          console.log('🟢 Realtime sleep diary change:', payload.eventType);
+          // Обновляем только при вставке/обновлении
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE' || payload.eventType === 'DELETE') {
+            refreshEntries();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
   }, []);
 

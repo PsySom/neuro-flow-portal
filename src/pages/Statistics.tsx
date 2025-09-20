@@ -13,6 +13,7 @@ import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 const Statistics = () => {
   const { activeDiaries } = useDiaryStatus();
+  const [activeTab, setActiveTab] = useState('mood-emotions');
 
   useEffect(() => {
     console.log('=== STATISTICS PAGE MOUNTED ===');
@@ -130,7 +131,7 @@ const Statistics = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardContent className="p-2">
-                 <Tabs defaultValue="mood-emotions" className="w-full" orientation="vertical">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" orientation="vertical">
                    <TabsList className="grid w-full grid-rows-6 h-auto bg-transparent p-0 gap-1">
                      {chartTabs.map((tab) => {
                        const isActive = isDiaryActive(tab.path);
@@ -204,7 +205,7 @@ const Statistics = () => {
 
           {/* Основной контент графиков (только на больших экранах) */}
           <div className="hidden lg:block lg:col-span-3">
-            <Tabs defaultValue="mood-emotions" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                {chartTabs.map((tab) => {
                  const isActive = isDiaryActive(tab.path);
                  
