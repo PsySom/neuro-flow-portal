@@ -116,12 +116,54 @@ export const useSleepDiaryLogic = (onComplete?: () => void) => {
     }
   }, [currentStep, needsFactorsStep]);
 
-  const onSubmit = useCallback((data: SleepDiaryData) => {
+  const onSubmit = useCallback(async (data: SleepDiaryData) => {
     const generatedRecommendations = generateRecommendations(data);
     setRecommendations(generatedRecommendations);
     
-    console.log('Sleep diary entry saved:', data);
-    // Здесь будет сохранение в базу данных
+    try {
+      console.log('💾 Сохраняем запись дневника сна:', data);
+      
+      // Импортируем сервис для сохранения
+      const { backendDiaryService } = await import('@/services/backend-diary.service');
+      
+      // Конвертируем данные в формат SleepEntry
+      const sleepEntry = {
+        bedtime: data.bedtime,
+        wake_up_time: data.wakeUpTime,
+        sleep_duration: data.sleepDuration,
+        sleep_quality: data.sleepQuality,
+        night_awakenings: data.nightAwakenings,
+        morning_feeling: data.morningFeeling,
+        has_day_rest: data.hasDayRest,
+        day_rest_type: data.dayRestType,
+        day_rest_effectiveness: data.dayRestEffectiveness,
+        overall_sleep_impact: data.overallSleepImpact,
+        sleep_disruptors: data.sleepDisruptors,
+        sleep_comment: data.sleepComment,
+        rest_comment: data.restComment,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Сохраняем через backend сервис
+      const savedEntry = await backendDiaryService.createSleepEntry(sleepEntry, generatedRecommendations);
+      console.log('✅ Запись дневника сна сохранена:', savedEntry);
+      
+      // Обновляем статус дневника в localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const diaryStatus = JSON.parse(localStorage.getItem('diary-status-/sleep-diary') || '{}');
+      const updatedStatus = { ...diaryStatus, lastEntryDate: today };
+      localStorage.setItem('diary-status-/sleep-diary', JSON.stringify(updatedStatus));
+      console.log('📅 Статус дневника сна обновлен:', updatedStatus);
+      
+      // Отправляем событие обновления для других компонентов
+      window.dispatchEvent(new CustomEvent('diaryStatusUpdate', {
+        detail: { path: '/sleep-diary', status: updatedStatus }
+      }));
+      
+    } catch (error) {
+      console.error('❌ Ошибка при сохранении записи дневника сна:', error);
+      // В случае ошибки все равно показываем рекомендации
+    }
     
     // Вызываем callback завершения через некоторое время
     setTimeout(() => {

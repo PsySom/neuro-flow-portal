@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -270,6 +270,69 @@ export type Database = {
         }
         Relationships: []
       }
+      sleep_diary_entries: {
+        Row: {
+          bedtime: string
+          created_at: string
+          day_rest_effectiveness: number | null
+          day_rest_type: string | null
+          has_day_rest: boolean
+          id: string
+          morning_feeling: number
+          night_awakenings: number
+          overall_sleep_impact: number
+          recommendations: string[] | null
+          rest_comment: string | null
+          sleep_comment: string | null
+          sleep_disruptors: string[] | null
+          sleep_duration: number
+          sleep_quality: number
+          updated_at: string
+          user_id: string
+          wake_up_time: string
+        }
+        Insert: {
+          bedtime: string
+          created_at?: string
+          day_rest_effectiveness?: number | null
+          day_rest_type?: string | null
+          has_day_rest?: boolean
+          id?: string
+          morning_feeling: number
+          night_awakenings?: number
+          overall_sleep_impact: number
+          recommendations?: string[] | null
+          rest_comment?: string | null
+          sleep_comment?: string | null
+          sleep_disruptors?: string[] | null
+          sleep_duration: number
+          sleep_quality: number
+          updated_at?: string
+          user_id: string
+          wake_up_time: string
+        }
+        Update: {
+          bedtime?: string
+          created_at?: string
+          day_rest_effectiveness?: number | null
+          day_rest_type?: string | null
+          has_day_rest?: boolean
+          id?: string
+          morning_feeling?: number
+          night_awakenings?: number
+          overall_sleep_impact?: number
+          recommendations?: string[] | null
+          rest_comment?: string | null
+          sleep_comment?: string | null
+          sleep_disruptors?: string[] | null
+          sleep_duration?: number
+          sleep_quality?: number
+          updated_at?: string
+          user_id?: string
+          wake_up_time?: string
+        }
+        Relationships: []
+      }
       strategies: {
         Row: {
           category: string | null
@@ -377,12 +440,12 @@ export type Database = {
       admin_get_user_profiles: {
         Args: { limit_count?: number; offset_count?: number }
         Returns: {
-          id: string
+          created_at: string
           email: string
           full_name: string
-          role: string
-          created_at: string
+          id: string
           last_sign_in: string
+          role: string
         }[]
       }
       get_my_profile: {
@@ -403,30 +466,30 @@ export type Database = {
       get_user_profile_with_role: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          email: string
-          full_name: string
           avatar_url: string
-          telegram_handle: string
-          whatsapp_number: string
-          facebook_url: string
-          role: string
           created_at: string
+          email: string
+          facebook_url: string
+          full_name: string
+          id: string
+          role: string
+          telegram_handle: string
           updated_at: string
+          whatsapp_number: string
         }[]
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       log_profile_access: {
         Args: {
-          accessed_user_id: string
           access_type: string
           accessed_fields?: string[]
+          accessed_user_id: string
           reason?: string
         }
         Returns: undefined
@@ -435,8 +498,8 @@ export type Database = {
         Args: { activity_id: string; new_status: string; user_notes?: string }
         Returns: {
           id: string
-          title: string
           status: string
+          title: string
           updated_at: string
         }[]
       }

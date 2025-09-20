@@ -73,6 +73,13 @@ export interface DiaryQueryParams {
   sleep_quality_min?: number;
   sleep_quality_max?: number;
   has_day_rest?: boolean;
+  order_by?: 'created_at' | 'bedtime' | 'timestamp';
+  order_direction?: 'asc' | 'desc';
+  offset?: number;
+  user_id?: string;
+  mood_min?: number;
+  mood_max?: number;
+  emotions?: string[];
 }
 
 class BackendDiaryService {
@@ -186,26 +193,102 @@ class BackendDiaryService {
     }
   }
 
-  // === SLEEP DIARY ===
+// === SLEEP DIARY ===
   
-  async createSleepEntry(entry: SleepEntry): Promise<SleepEntry> {
+  async createSleepEntry(entry: SleepEntry, recommendations?: string[]): Promise<SleepEntry> {
+    if (USE_MOCK) {
+      return mockDiaryService.createSleepEntry(entry);
+    }
+    
     try {
-      console.log('🔄 Creating sleep entry');
-      const response = await apiClient.post<SleepEntry>('/diary/sleep', entry);
-      console.log('✅ Sleep entry created');
-      return response.data;
+      console.log('🔄 Creating sleep entry via Supabase');
+      
+      // Импортируем репозиторий динамически чтобы избежать циклических импортов
+      const { sleepDiaryRepository } = await import('@/integrations/supabase/sleep-diary.repo');
+      
+      // Конвертируем SleepEntry в SleepDiaryData для репозитория
+      const sleepData = {
+        bedtime: entry.bedtime,
+        wakeUpTime: entry.wake_up_time,
+        sleepDuration: entry.sleep_duration,
+        sleepQuality: entry.sleep_quality,
+        nightAwakenings: entry.night_awakenings,
+        morningFeeling: entry.morning_feeling,
+        hasDayRest: entry.has_day_rest || false,
+        dayRestType: entry.day_rest_type || '',
+        dayRestEffectiveness: entry.day_rest_effectiveness || 5,
+        overallSleepImpact: entry.overall_sleep_impact,
+        sleepDisruptors: entry.sleep_disruptors || [],
+        sleepComment: entry.sleep_comment || '',
+        restComment: entry.rest_comment || ''
+      };
+      
+      const savedEntry = await sleepDiaryRepository.createEntry(sleepData, recommendations || []);
+      
+      // Конвертируем обратно в SleepEntry формат
+      const result: SleepEntry = {
+        id: savedEntry.id!,
+        user_id: savedEntry.user_id!,
+        bedtime: savedEntry.bedtime,
+        wake_up_time: savedEntry.wake_up_time,
+        sleep_duration: savedEntry.sleep_duration,
+        sleep_quality: savedEntry.sleep_quality,
+        night_awakenings: savedEntry.night_awakenings,
+        morning_feeling: savedEntry.morning_feeling,
+        has_day_rest: savedEntry.has_day_rest,
+        day_rest_type: savedEntry.day_rest_type,
+        day_rest_effectiveness: savedEntry.day_rest_effectiveness,
+        overall_sleep_impact: savedEntry.overall_sleep_impact,
+        sleep_disruptors: savedEntry.sleep_disruptors,
+        sleep_comment: savedEntry.sleep_comment,
+        rest_comment: savedEntry.rest_comment,
+        timestamp: savedEntry.created_at!
+      };
+      
+      console.log('✅ Sleep entry created via Supabase');
+      return result;
     } catch (error: any) {
       console.error('❌ Failed to create sleep entry:', error);
-      throw handleApiError(error);
+      throw error;
     }
   }
 
   async getSleepEntries(params?: DiaryQueryParams): Promise<SleepEntry[]> {
+    if (USE_MOCK) {
+      return mockDiaryService.getSleepEntries(params);
+    }
+    
     try {
-      const response = await apiClient.get<SleepEntry[]>('/diary/sleep', { params });
-      return response.data;
+      console.log('🔄 Fetching sleep entries via Supabase');
+      
+      const { sleepDiaryRepository } = await import('@/integrations/supabase/sleep-diary.repo');
+      const entries = await sleepDiaryRepository.getEntries(params);
+      
+      // Конвертируем в формат SleepEntry
+      const result: SleepEntry[] = entries.map(entry => ({
+        id: entry.id!,
+        user_id: entry.user_id!,
+        bedtime: entry.bedtime,
+        wake_up_time: entry.wake_up_time,
+        sleep_duration: entry.sleep_duration,
+        sleep_quality: entry.sleep_quality,
+        night_awakenings: entry.night_awakenings,
+        morning_feeling: entry.morning_feeling,
+        has_day_rest: entry.has_day_rest,
+        day_rest_type: entry.day_rest_type,
+        day_rest_effectiveness: entry.day_rest_effectiveness,
+        overall_sleep_impact: entry.overall_sleep_impact,
+        sleep_disruptors: entry.sleep_disruptors,
+        sleep_comment: entry.sleep_comment,
+        rest_comment: entry.rest_comment,
+        timestamp: entry.created_at!
+      }));
+      
+      console.log('✅ Sleep entries fetched via Supabase:', result.length);
+      return result;
     } catch (error: any) {
-      throw handleApiError(error);
+      console.error('❌ Failed to fetch sleep entries:', error);
+      return [];
     }
   }
 
@@ -256,11 +339,27 @@ class BackendDiaryService {
   }
 
   async getSleepStatistics(params?: DiaryQueryParams) {
+    if (USE_MOCK) {
+      return mockDiaryService.getSleepStats();
+    }
+    
     try {
-      const response = await apiClient.get('/diary/sleep/statistics', { params });
-      return response.data;
+      console.log('🔄 Fetching sleep statistics via Supabase');
+      
+      const { sleepDiaryRepository } = await import('@/integrations/supabase/sleep-diary.repo');
+      const stats = await sleepDiaryRepository.getStats();
+      
+      console.log('✅ Sleep statistics fetched via Supabase');
+      return stats;
     } catch (error: any) {
-      throw handleApiError(error);
+      console.error('❌ Failed to fetch sleep statistics:', error);
+      return {
+        total_entries: 0,
+        average_sleep_duration: 0,
+        average_sleep_quality: 0,
+        average_morning_feeling: 0,
+        most_common_disruptors: []
+      };
     }
   }
 
