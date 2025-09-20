@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useSleepDiary } from '@/hooks/useSleepDiary';
 import { sleepQualityLabels } from '@/components/diaries/sleep/types';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 interface SleepChartData {
   time: string;
@@ -25,10 +26,14 @@ type TimeRange = 'day' | 'week' | 'month';
 
 const SleepChart = () => {
   const { isAuthenticated } = useSupabaseAuth();
+  const { activeDiaries } = useDiaryStatus();
   const { entries, loading, error } = useSleepDiary();
   const [chartData, setChartData] = useState<SleepChartData[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<SleepChartData | null>(null);
+
+  // Проверяем активность дневника сна
+  const isSleepDiaryActive = activeDiaries.find(diary => diary.path === '/sleep-diary')?.isActive || false;
 
   const getTimeFormat = (range: TimeRange, date: Date): string => {
     switch (range) {
@@ -47,6 +52,53 @@ const SleepChart = () => {
     const key = quality.toString() as keyof typeof sleepQualityLabels;
     const label = sleepQualityLabels[key];
     return label ? label.split(' ')[0] : '😐';
+  };
+
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (!payload) return null;
+    
+    return (
+      <g>
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill="hsl(var(--primary))" 
+          stroke="white" 
+          strokeWidth={2}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        />
+        <text 
+          x={cx} 
+          y={cy - 15} 
+          textAnchor="middle" 
+          fontSize={16}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        >
+          {payload.sleepQualityEmoji}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-medium">{label}</p>
+          <p className="text-sm">
+            <span className="text-lg mr-2">{data.sleepQualityEmoji}</span>
+            Качество сна: {data.sleepQuality}
+          </p>
+          <p className="text-sm">Продолжительность: {data.sleepDuration} ч</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -79,76 +131,6 @@ const SleepChart = () => {
     }
   }, [entries, timeRange]);
 
-  const CustomDot = (props: any) => {
-    const { cx, cy, payload } = props;
-    if (!payload) return null;
-    
-    return (
-      <g>
-        <circle 
-          cx={cx} 
-          cy={cy} 
-          r={6} 
-          fill="hsl(var(--primary))" 
-          stroke="white" 
-          strokeWidth={2}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedPoint(payload)}
-        />
-        <text 
-          x={cx} 
-          y={cy - 15} 
-          textAnchor="middle" 
-          fontSize={16}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedPoint(payload)}
-        >
-          {payload.sleepQualityEmoji}
-        </text>
-      </g>
-    );
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-          <p className="font-medium">{label}</p>
-          <p className="text-sm">
-            <span className="text-lg mr-2">{data.sleepQualityEmoji}</span>
-            Качество сна: {data.sleepQuality}
-          </p>
-          <p className="text-sm">Продолжительность: {data.sleepDuration} ч</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-          <p className="text-muted-foreground">Загрузка данных сна...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center text-red-600">
-            <p>Ошибка загрузки данных: {error}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -173,66 +155,8 @@ const SleepChart = () => {
   }
 
   if (chartData.length === 0) {
-  const CustomDot = (props: any) => {
-    const { cx, cy, payload } = props;
-    if (!payload) return null;
-    
     return (
-      <g>
-        <circle 
-          cx={cx} 
-          cy={cy} 
-          r={6} 
-          fill="hsl(var(--primary))" 
-          stroke="white" 
-          strokeWidth={2}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedPoint(payload)}
-        />
-        <text 
-          x={cx} 
-          y={cy - 15} 
-          textAnchor="middle" 
-          fontSize={16}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedPoint(payload)}
-        >
-          {payload.sleepQualityEmoji}
-        </text>
-      </g>
-    );
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-          <p className="font-medium">{label}</p>
-          <p className="text-sm">
-            <span className="text-lg mr-2">{data.sleepQualityEmoji}</span>
-            Качество сна: {data.sleepQuality}
-          </p>
-          <p className="text-sm">Продолжительность: {data.sleepDuration} ч</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Показываем предупреждение если пользователь не авторизован */}
-      {!isAuthenticated && (
-        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
-          <CardContent className="pt-6">
-            <p className="text-amber-800 dark:text-amber-200 text-sm">
-              📊 Для просмотра статистики необходимо 
-              <strong> войти в аккаунт</strong>. Здесь будут отображаться ваши реальные записи дневника сна и отдыха.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <div className="space-y-6">
         {/* Показываем предупреждение если пользователь не авторизован */}
         {!isAuthenticated && (
           <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
@@ -258,6 +182,23 @@ const SleepChart = () => {
 
   return (
     <div className="space-y-6">
+      {/* Показываем статус дневника */}
+      <Card className={`border-2 ${isSleepDiaryActive ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50' : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50'}`}>
+        <CardContent className="pt-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${isSleepDiaryActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            <p className="text-sm font-medium">
+              Дневник сна {isSleepDiaryActive ? 'активен' : 'неактивен'}
+            </p>
+            {!isSleepDiaryActive && (
+              <span className="text-xs text-muted-foreground">
+                (график показывает последние записи)
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -288,44 +229,38 @@ const SleepChart = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="h-96 flex items-center justify-center">
-              <p className="text-muted-foreground">Загрузка данных сна...</p>
-            </div>
-          ) : (
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 40, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="time" 
-                    tick={{ fontSize: 12 }}
-                    angle={timeRange === 'week' ? -45 : 0}
-                    textAnchor={timeRange === 'week' ? 'end' : 'middle'}
-                    height={timeRange === 'week' ? 60 : 30}
-                  />
-                  <YAxis 
-                    domain={[-5, 5]} 
-                    ticks={[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]}
-                    tick={{ fontSize: 12 }}
-                    label={{ value: 'Качество сна', angle: -90, position: 'insideLeft' }}
-                  />
-                  <ReferenceLine y={0} stroke="#666" strokeDasharray="2 2" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sleepQuality" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    dot={<CustomDot />}
-                    connectNulls={false}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 40, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="time" 
+                  tick={{ fontSize: 12 }}
+                  angle={timeRange === 'week' ? -45 : 0}
+                  textAnchor={timeRange === 'week' ? 'end' : 'middle'}
+                  height={timeRange === 'week' ? 60 : 30}
+                />
+                <YAxis 
+                  domain={[-5, 5]} 
+                  ticks={[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]}
+                  tick={{ fontSize: 12 }}
+                  label={{ value: 'Качество сна', angle: -90, position: 'insideLeft' }}
+                />
+                <ReferenceLine y={0} stroke="#666" strokeDasharray="2 2" />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="sleepQuality" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  dot={<CustomDot />}
+                  connectNulls={false}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 

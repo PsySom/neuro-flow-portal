@@ -8,14 +8,19 @@ import { ChartDataPoint, TimeRange } from './chart-utils/chartDataConverters';
 import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 import MockDataInspector from './MockDataInspector';
 
 const MoodEmotionsChart = () => {
   const { isAuthenticated } = useSupabaseAuth();
+  const { activeDiaries } = useDiaryStatus();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Проверяем активность дневника настроения
+  const isMoodDiaryActive = activeDiaries.find(diary => diary.path === '/mood-diary')?.isActive || false;
 
   // Загрузка данных с помощью сервиса
   const fetchMoodData = async (range: TimeRange) => {
@@ -89,6 +94,24 @@ const MoodEmotionsChart = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Показываем статус дневника */}
+      <Card className={`border-2 ${isMoodDiaryActive ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50' : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50'}`}>
+        <CardContent className="pt-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${isMoodDiaryActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            <p className="text-sm font-medium">
+              Дневник настроения {isMoodDiaryActive ? 'активен' : 'неактивен'}
+            </p>
+            {!isMoodDiaryActive && (
+              <span className="text-xs text-muted-foreground">
+                (график показывает последние записи)
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">

@@ -26,15 +26,7 @@ const Statistics = () => {
   // Функция для определения активности дневника
   const isDiaryActive = (path: string) => {
     const activeDiary = activeDiaries.find(diary => diary.path === path);
-    if (!activeDiary) return false;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const lastEntry = activeDiary.lastEntryDate;
-    
-    // Считаем активным, если есть записи за последние 7 дней
-    if (!lastEntry) return false;
-    const daysDiff = Math.floor((new Date(today).getTime() - new Date(lastEntry).getTime()) / (1000 * 60 * 60 * 24));
-    return daysDiff <= 7;
+    return activeDiary ? activeDiary.isActive : false;
   };
 
   const chartTabs = [
@@ -138,44 +130,73 @@ const Statistics = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardContent className="p-2">
-                <Tabs defaultValue="mood-emotions" className="w-full" orientation="vertical">
-                  <TabsList className="grid w-full grid-rows-6 h-auto bg-transparent p-0 gap-1">
-                    {chartTabs.map((tab) => {
-                      const isActive = isDiaryActive(tab.path);
-                      const Icon = tab.icon;
-                      
-                      return (
-                        <TabsTrigger 
-                          key={tab.id}
-                          value={tab.id} 
-                          className="w-full justify-start h-auto p-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                        >
-                          <div className="flex items-center gap-3 w-full">
-                            <div className="flex items-center gap-2">
-                              <Icon className="w-4 h-4" />
-                              <span className="text-sm font-medium">{tab.label}</span>
-                            </div>
-                            <div className="ml-auto">
-                              {isActive ? (
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-gray-400" />
-                              )}
-                            </div>
-                          </div>
-                        </TabsTrigger>
-                      );
-                    })}
+                 <Tabs defaultValue="mood-emotions" className="w-full" orientation="vertical">
+                   <TabsList className="grid w-full grid-rows-6 h-auto bg-transparent p-0 gap-1">
+                     {chartTabs.map((tab) => {
+                       const isActive = isDiaryActive(tab.path);
+                       const hasData = activeDiaries.find(diary => diary.path === tab.path) !== undefined;
+                       const Icon = tab.icon;
+                       
+                       return (
+                         <TabsTrigger 
+                           key={tab.id}
+                           value={tab.id} 
+                           className="w-full justify-start h-auto p-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                         >
+                           <div className="flex items-center gap-3 w-full">
+                             <div className="flex items-center gap-2">
+                               <Icon className="w-4 h-4" />
+                               <span className="text-sm font-medium">{tab.label}</span>
+                             </div>
+                             <div className="ml-auto flex items-center gap-1">
+                               {isActive ? (
+                                 <div className="flex items-center gap-1">
+                                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                   <span className="text-xs text-green-600 dark:text-green-400">Активен</span>
+                                 </div>
+                               ) : hasData ? (
+                                 <div className="flex items-center gap-1">
+                                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                   <span className="text-xs text-yellow-600 dark:text-yellow-400">Пауза</span>
+                                 </div>
+                               ) : (
+                                 <div className="flex items-center gap-1">
+                                   <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                   <span className="text-xs text-gray-500">Неактивен</span>
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </TabsTrigger>
+                       );
+                     })}
                   </TabsList>
 
-                  {/* Контент графиков */}
-                  <div className="lg:hidden mt-4">
-                    {chartTabs.map((tab) => (
-                      <TabsContent key={tab.id} value={tab.id} className="mt-0">
-                        {tab.component}
-                      </TabsContent>
-                    ))}
-                  </div>
+                   {/* Контент графиков */}
+                   <div className="lg:hidden mt-4">
+                     {chartTabs.map((tab) => {
+                       const isActive = isDiaryActive(tab.path);
+                       
+                       return (
+                         <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                           <div className="mb-4 p-3 rounded-lg bg-muted/30">
+                             <div className="flex items-center gap-2">
+                               <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                               <span className="text-sm font-medium">
+                                 Дневник {isActive ? 'активен' : 'неактивен'}
+                               </span>
+                               {!isActive && (
+                                 <span className="text-xs text-muted-foreground">
+                                   (график заморожен на последней записи)
+                                 </span>
+                               )}
+                             </div>
+                           </div>
+                           {tab.component}
+                         </TabsContent>
+                       );
+                     })}
+                   </div>
                 </Tabs>
               </CardContent>
             </Card>
@@ -184,11 +205,28 @@ const Statistics = () => {
           {/* Основной контент графиков (только на больших экранах) */}
           <div className="hidden lg:block lg:col-span-3">
             <Tabs defaultValue="mood-emotions" className="w-full">
-              {chartTabs.map((tab) => (
-                <TabsContent key={tab.id} value={tab.id} className="mt-0">
-                  {tab.component}
-                </TabsContent>
-              ))}
+               {chartTabs.map((tab) => {
+                 const isActive = isDiaryActive(tab.path);
+                 
+                 return (
+                   <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                     <div className="mb-4 p-3 rounded-lg bg-muted/30">
+                       <div className="flex items-center gap-2">
+                         <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                         <span className="text-sm font-medium">
+                           Дневник {isActive ? 'активен' : 'неактивен'}
+                         </span>
+                         {!isActive && (
+                           <span className="text-xs text-muted-foreground">
+                             (график заморожен на последней записи)
+                           </span>
+                         )}
+                       </div>
+                     </div>
+                     {tab.component}
+                   </TabsContent>
+                 );
+               })}
             </Tabs>
           </div>
         </div>
