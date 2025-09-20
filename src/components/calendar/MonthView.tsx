@@ -3,11 +3,9 @@ import React, { memo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMonthView } from './hooks/useMonthView';
-import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
 import ActivitySyncIndicator from './components/ActivitySyncIndicator';
 import EditActivityDialog from './components/EditActivityDialog';
 import CreateActivityDialog from './components/CreateActivityDialog';
-import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -25,18 +23,13 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
     isCurrentMonth,
     getActivitiesForDateObj,
     truncateText,
-    isLoading
+    isLoading,
+    // Use unified calendar view functionality
+    handleActivityCreate,
+    handleActivityUpdate,
+    handleActivityDelete,
+    handleActivityToggle
   } = useMonthView(currentDate);
-
-  // Use unified activity operations hook
-  const { 
-    handleActivityCreate: createActivity, 
-    handleActivityUpdate: updateActivity, 
-    handleActivityDelete: deleteActivity 
-  } = useUnifiedActivityOperations();
-
-  // Enable realtime updates
-  useActivitiesRealtime(true);
 
   const weekDays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
 
@@ -50,27 +43,36 @@ const MonthView: React.FC<MonthViewProps> = memo(({ currentDate }) => {
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityUpdateWrapper = (updatedActivity: any, recurringOptions?: any) => {
+  const handleActivityUpdateWrapper = async (updatedActivity: any, recurringOptions?: any) => {
     console.log('MonthView: handleActivityUpdateWrapper called with:', updatedActivity, recurringOptions);
-    updateActivity(updatedActivity.id, updatedActivity, recurringOptions)
-      .then(() => setIsEditDialogOpen(false))
-      .catch(error => console.error('Failed to update activity:', error));
+    try {
+      const numericId = typeof updatedActivity.id === 'string' ? parseInt(updatedActivity.id, 10) : updatedActivity.id;
+      await handleActivityUpdate(numericId, updatedActivity, recurringOptions);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to update activity:', error);
+    }
   };
 
-  const handleActivityCreateWrapper = (newActivity: any, recurringOptions?: any) => {
+  const handleActivityCreateWrapper = async (newActivity: any, recurringOptions?: any) => {
     console.log('MonthView creating activity:', newActivity, 'with recurring:', recurringOptions);
-    createActivity(newActivity, recurringOptions)
-      .then((result) => {
-        console.log('MonthView: Activity creation result:', result);
-        setIsCreateDialogOpen(false);
-      })
-      .catch(error => console.error('Failed to create activity:', error));
+    try {
+      const result = await handleActivityCreate(newActivity, recurringOptions);
+      console.log('MonthView: Activity creation result:', result);
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to create activity:', error);
+    }
   };
 
-  const handleActivityDeleteWrapper = (id: number | string, deleteOption?: any) => {
-    deleteActivity(id, deleteOption)
-      .then(() => setIsEditDialogOpen(false))
-      .catch(error => console.error('Failed to delete activity:', error));
+  const handleActivityDeleteWrapper = async (id: number | string, deleteOption?: any) => {
+    try {
+      const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
+      await handleActivityDelete(numericId, deleteOption);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to delete activity:', error);
+    }
   };
 
   if (isLoading) {

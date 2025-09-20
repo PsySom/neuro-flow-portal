@@ -4,6 +4,7 @@ import activityService from '../../services/activity.service';
 import { CreateActivityRequest, UpdateActivityRequest, UpdateActivityStateRequest } from '../../types/api.types';
 import { useToast } from '../use-toast';
 import { useActivitiesRealtime, useActivitySync } from './useActivitiesRealtime';
+import { useActivitiesInvalidation } from './useActivitiesInvalidation';
 
 // Get activities for specific date with real-time updates
 export const useActivitiesApi = (date?: string, enableRealtime: boolean = true) => {
@@ -73,28 +74,31 @@ export const useActivityTypesApi = () => {
   });
 };
 
-// Mutations with enhanced cache invalidation
+// Mutations with enhanced cache invalidation using unified invalidation hook
 export const useCreateActivityApi = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { invalidateActivities, invalidateActivitiesForDate } = useActivitiesInvalidation();
 
   return useMutation({
     mutationFn: (data: CreateActivityRequest) => activityService.createActivity(data),
     onSuccess: (newActivity) => {
       const activityDate = newActivity.start_time ? new Date(newActivity.start_time).toISOString().split('T')[0] : undefined;
       
-      // Comprehensive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      // Use unified invalidation for consistent updates across all views
+      invalidateActivities();
       
       if (activityDate) {
-        queryClient.invalidateQueries({ queryKey: ['activities', activityDate] });
+        invalidateActivitiesForDate(activityDate);
       }
       
+      // Also invalidate today's activities for timeline
       const today = new Date().toISOString().split('T')[0];
-      queryClient.invalidateQueries({ queryKey: ['activities', today] });
+      if (activityDate !== today) {
+        invalidateActivitiesForDate(today);
+      }
       
-      console.log('Created activity, invalidated caches:', newActivity.id, 'for date:', activityDate);
+      console.log('✅ Created activity, invalidated caches:', newActivity.id, 'for date:', activityDate);
       
       toast({
         title: "Активность создана",
@@ -115,6 +119,7 @@ export const useCreateActivityApi = () => {
 export const useUpdateActivityApi = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { invalidateActivities, invalidateActivitiesForDate } = useActivitiesInvalidation();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateActivityRequest }) => 
@@ -122,18 +127,20 @@ export const useUpdateActivityApi = () => {
     onSuccess: (updatedActivity) => {
       const activityDate = updatedActivity.start_time ? new Date(updatedActivity.start_time).toISOString().split('T')[0] : undefined;
       
-      // Comprehensive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      // Use unified invalidation for consistent updates across all views
+      invalidateActivities();
       
       if (activityDate) {
-        queryClient.invalidateQueries({ queryKey: ['activities', activityDate] });
+        invalidateActivitiesForDate(activityDate);
       }
       
+      // Also invalidate today's activities for timeline
       const today = new Date().toISOString().split('T')[0];
-      queryClient.invalidateQueries({ queryKey: ['activities', today] });
+      if (activityDate !== today) {
+        invalidateActivitiesForDate(today);
+      }
       
-      console.log('Updated activity, invalidated caches:', updatedActivity.id, 'for date:', activityDate);
+      console.log('✅ Updated activity, invalidated caches:', updatedActivity.id, 'for date:', activityDate);
       
       toast({
         title: "Активность обновлена",
@@ -154,18 +161,15 @@ export const useUpdateActivityApi = () => {
 export const useDeleteActivityApi = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { invalidateActivities } = useActivitiesInvalidation();
 
   return useMutation({
     mutationFn: (id: number) => activityService.deleteActivity(id),
     onSuccess: () => {
-      // Comprehensive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      // Use unified invalidation for consistent updates across all views
+      invalidateActivities();
       
-      const today = new Date().toISOString().split('T')[0];
-      queryClient.invalidateQueries({ queryKey: ['activities', today] });
-      
-      console.log('Deleted activity, invalidated caches');
+      console.log('✅ Deleted activity, invalidated all caches');
       
       toast({
         title: "Активность удалена",
@@ -183,10 +187,11 @@ export const useDeleteActivityApi = () => {
   });
 };
 
-// Toggle activity status with optimistic updates
+// Toggle activity status with optimistic updates and unified invalidation
 export const useToggleActivityStatusApi = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { invalidateActivities, invalidateActivitiesForDate } = useActivitiesInvalidation();
 
   return useMutation({
     mutationFn: async ({ activityId, currentStatus }: { activityId: number; currentStatus: string }) => {
@@ -223,13 +228,15 @@ export const useToggleActivityStatusApi = () => {
       });
     },
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', 'range'] });
+      // Use unified invalidation for consistent updates across all views
+      invalidateActivities();
       
       const activityDate = data.start_time ? new Date(data.start_time).toISOString().split('T')[0] : undefined;
       if (activityDate) {
-        queryClient.invalidateQueries({ queryKey: ['activities', activityDate] });
+        invalidateActivitiesForDate(activityDate);
       }
+      
+      console.log('✅ Toggled activity status, invalidated caches:', data.id, 'status:', context?.newStatus);
       
       const statusText = context?.newStatus === 'completed' ? 'завершена' : 'запланирована';
       toast({

@@ -1,21 +1,16 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { LoaderCircle } from 'lucide-react';
 import CreateActivityDialog from '@/components/calendar/components/CreateActivityDialog';
 import EditActivityDialog from '@/components/calendar/components/EditActivityDialog';
 import ActivityTimelineHeader from './activity-timeline/ActivityTimelineHeader';
 import TimelineContentWithTime from './activity-timeline/TimelineContentWithTime';
-import { useActivities } from '@/hooks/api/useActivities';
-import { useActivitiesRealtime } from '@/hooks/api/useActivitiesRealtime';
+import { useTodayActivitiesApi } from '@/hooks/api/useActivitiesApi';
 import { useUnifiedActivityOperations } from '@/hooks/useUnifiedActivityOperations';
 import ActivitySyncIndicator from '@/components/calendar/components/ActivitySyncIndicator';
-import { convertApiActivitiesToUi } from '@/utils/activityAdapter';
 import { formatDateForInput, getFormattedCurrentDate } from '@/utils/activityConversion';
-import { getTodayActivities } from '@/utils/activitySync';
 import { useActivityTimelineLogic } from '@/hooks/useActivityTimelineLogic';
 import { Activity } from '@/contexts/ActivitiesContext';
-
 import { UnifiedActivitySyncService } from '@/services/unified-activity-sync.service';
 
 const ActivityTimelineComponent = () => {
@@ -24,18 +19,15 @@ const ActivityTimelineComponent = () => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   
   // Enhanced timeline logic with date validation
-  const { currentDate, validateAndToggleActivity } = useActivityTimelineLogic();
+  const { currentDate } = useActivityTimelineLogic();
 
   // Get current date for comparison
   const currentDateString = new Date().toISOString().split('T')[0];
   
-  // API hooks - use same pattern as calendar
-  const { data: apiActivities = [], isLoading, error } = useActivities(currentDateString, true);
+  // API hooks - use consistent pattern with calendar views
+  const { data: apiActivities = [], isLoading, error } = useTodayActivitiesApi();
   console.log('ActivityTimeline: Using date:', currentDateString);
   console.log('ActivityTimeline: Raw API activities:', apiActivities.length);
-  
-  // Enable realtime updates
-  useActivitiesRealtime(true);
 
   // Convert API activities to UI format using unified service
   const allActivities = UnifiedActivitySyncService.processActivitiesForTimeline(apiActivities);
@@ -49,7 +41,7 @@ const ActivityTimelineComponent = () => {
     startTime: a.startTime
   })));
 
-  // Use unified activity sync hook
+  // Use unified activity operations with consistent API
   const {
     handleActivityCreate: createActivity,
     handleActivityUpdate: updateActivity,
@@ -57,31 +49,45 @@ const ActivityTimelineComponent = () => {
     handleActivityToggle: toggleActivityStatus
   } = useUnifiedActivityOperations(allActivities);
 
-  // Enhanced toggle with date validation
-  const handleActivityToggle = (activityId: number | string) => {
+  // Enhanced activity handlers with proper error handling and consistency
+  const handleActivityToggle = async (activityId: number | string) => {
     console.log('ActivityTimeline: Toggling activity status:', activityId);
-    toggleActivityStatus(activityId)
-      .catch(error => console.error('Failed to toggle activity:', error));
+    try {
+      await toggleActivityStatus(activityId);
+    } catch (error) {
+      console.error('Failed to toggle activity:', error);
+    }
   };
 
-  const handleActivityCreate = (newActivity: any, recurringOptions?: any) => {
+  const handleActivityCreate = async (newActivity: any, recurringOptions?: any) => {
     console.log('ActivityTimeline creating activity:', newActivity, 'with recurring:', recurringOptions);
-    createActivity(newActivity, recurringOptions)
-      .then(() => setIsDialogOpen(false))
-      .catch(error => console.error('Failed to create activity:', error));
+    try {
+      await createActivity(newActivity, recurringOptions);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to create activity:', error);
+    }
   };
 
-  const handleActivityUpdate = (activityId: number | string, updates: Partial<Activity>, recurringOptions?: any) => {
+  const handleActivityUpdate = async (activityId: number | string, updates: Partial<Activity>, recurringOptions?: any) => {
     console.log('ActivityTimeline updating activity:', activityId, updates, recurringOptions);
-    updateActivity(activityId, updates, recurringOptions)
-      .then(() => setIsDetailsDialogOpen(false))
-      .catch(error => console.error('Failed to update activity:', error));
+    try {
+      const numericId = typeof activityId === 'string' ? parseInt(activityId, 10) : activityId;
+      await updateActivity(numericId, updates, recurringOptions);
+      setIsDetailsDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to update activity:', error);
+    }
   };
 
-  const handleActivityDelete = (id: number | string, deleteOption?: any) => {
+  const handleActivityDelete = async (id: number | string, deleteOption?: any) => {
     console.log('ActivityTimeline deleting activity:', id, deleteOption);
-    deleteActivity(id, deleteOption)
-      .catch(error => console.error('Failed to delete activity:', error));
+    try {
+      const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
+      await deleteActivity(numericId, deleteOption);
+    } catch (error) {
+      console.error('Failed to delete activity:', error);
+    }
   };
 
   // Use all activities since we already filtered by date in the API call

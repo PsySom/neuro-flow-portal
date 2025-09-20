@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Wifi, WifiOff, CheckCircle2 } from 'lucide-react';
-import { useActivitiesSync } from '@/hooks/api/useActivities';
+import { RefreshCw, Wifi, WifiOff, CheckCircle2, AlertCircle, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useSyncMonitor } from '@/hooks/api/useSyncMonitor';
+import { useGlobalActivitySync } from '@/hooks/api/useGlobalActivitySync';
 
 interface ActivitySyncIndicatorProps {
   className?: string;
@@ -11,9 +12,11 @@ interface ActivitySyncIndicatorProps {
 export const ActivitySyncIndicator: React.FC<ActivitySyncIndicatorProps> = ({ className }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncStatus, setLastSyncStatus] = useState<'success' | 'error' | null>(null);
-  const { syncActivities, getLastSyncTime } = useActivitiesSync();
   const { toast } = useToast();
+  
+  // Use new sync monitoring system
+  const { syncStatus, isSyncing: isSystemSyncing, getLastSyncText, getSyncStatusText } = useSyncMonitor();
+  const { forceRefreshAll } = useGlobalActivitySync();
 
   // Monitor online status
   useEffect(() => {
@@ -40,17 +43,14 @@ export const ActivitySyncIndicator: React.FC<ActivitySyncIndicatorProps> = ({ cl
     }
 
     setIsSyncing(true);
-    setLastSyncStatus(null);
 
     try {
-      await syncActivities();
-      setLastSyncStatus('success');
+      await forceRefreshAll();
       toast({
         title: "Синхронизация завершена",
-        description: "Активности обновлены"
+        description: "Все активности обновлены"
       });
     } catch (error) {
-      setLastSyncStatus('error');
       toast({
         title: "Ошибка синхронизации",
         description: "Не удалось обновить активности",
@@ -61,9 +61,8 @@ export const ActivitySyncIndicator: React.FC<ActivitySyncIndicatorProps> = ({ cl
     }
   };
 
-  const lastSync = getLastSyncTime();
-  const timeSinceSync = lastSync ? Math.floor((Date.now() - lastSync.getTime()) / 60000) : null;
-
+  const isActiveSync = isSyncing || isSystemSyncing;
+  
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
       {/* Connection status */}
@@ -78,20 +77,35 @@ export const ActivitySyncIndicator: React.FC<ActivitySyncIndicatorProps> = ({ cl
         </span>
       </div>
 
-      {/* Sync status */}
-      {lastSyncStatus === 'success' && (
-        <div className="flex items-center space-x-1">
-          <CheckCircle2 className="w-4 h-4 text-green-500" />
-          <span className="text-xs text-green-600">Синхронизировано</span>
-        </div>
-      )}
+      {/* Enhanced sync status */}
+      <div className="flex items-center space-x-1">
+        {isActiveSync ? (
+          <>
+            <Activity className="w-4 h-4 text-blue-500 animate-pulse" />
+            <span className="text-xs text-blue-600">{getSyncStatusText()}</span>
+          </>
+        ) : syncStatus.lastSync ? (
+          <>
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <span className="text-xs text-green-600">Синхронизировано</span>
+          </>
+        ) : (
+          <>
+            <AlertCircle className="w-4 h-4 text-orange-500" />
+            <span className="text-xs text-orange-600">Требуется синхронизация</span>
+          </>
+        )}
+      </div>
 
-      {/* Last sync time */}
-      {timeSinceSync !== null && (
-        <span className="text-xs text-gray-500">
-          {timeSinceSync === 0 ? 'только что' : 
-           timeSinceSync === 1 ? '1 мин назад' : 
-           timeSinceSync < 60 ? `${timeSinceSync} мин назад` : 'давно'}
+      {/* Enhanced last sync info */}
+      <span className="text-xs text-gray-500">
+        {getLastSyncText()}
+      </span>
+
+      {/* Queries info (for debugging) */}
+      {syncStatus.totalQueries > 0 && (
+        <span className="text-xs text-gray-400">
+          ({syncStatus.totalQueries} кэшей)
         </span>
       )}
 
@@ -100,10 +114,11 @@ export const ActivitySyncIndicator: React.FC<ActivitySyncIndicatorProps> = ({ cl
         variant="ghost"
         size="sm"
         onClick={handleManualSync}
-        disabled={isSyncing || !isOnline}
+        disabled={isActiveSync || !isOnline}
         className="h-8 px-2"
+        title={isActiveSync ? 'Идет синхронизация...' : 'Принудительно обновить все активности'}
       >
-        <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+        <RefreshCw className={`w-4 h-4 ${isActiveSync ? 'animate-spin' : ''}`} />
         {isSyncing && <span className="ml-1 text-xs">Обновление...</span>}
       </Button>
     </div>

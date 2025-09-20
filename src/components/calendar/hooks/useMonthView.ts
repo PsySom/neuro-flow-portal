@@ -45,7 +45,7 @@ export const useMonthView = (currentDate: Date) => {
   console.log('MonthView: Date range:', { startDate, endDate });
   console.log('MonthView: API activities count:', monthApiActivities.length);
 
-  // Use unified calendar view logic
+  // Use unified calendar view logic for consistent behavior
   const calendarView = useCalendarView({
     viewType: 'month',
     activities: monthApiActivities,
@@ -86,7 +86,7 @@ export const useMonthView = (currentDate: Date) => {
     isCurrentMonth,
     getActivitiesForDateObj,
     truncateText,
-    // Spread all calendar view functionality
+    // Spread all calendar view functionality for consistency
     ...calendarView
   };
 };

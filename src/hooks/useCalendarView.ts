@@ -4,6 +4,7 @@ import { CalendarSyncService } from '@/services/calendar-sync.service';
 import { UnifiedActivitySyncService } from '@/services/unified-activity-sync.service';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
+import { useGlobalActivitySync } from '@/hooks/api/useGlobalActivitySync';
 
 interface CalendarViewConfig {
   viewType: 'day' | 'week' | 'month';
@@ -24,6 +25,9 @@ export const useCalendarView = (config: CalendarViewConfig) => {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [filteredTypes, setFilteredTypes] = useState<Set<string>>(new Set());
+
+  // Global activity synchronization for consistent updates across all views
+  const { syncActivityForDate, syncActivityForDateRange } = useGlobalActivitySync();
 
   // Process activities using unified sync service
   const processedActivities = useMemo(() => {
@@ -82,12 +86,16 @@ export const useCalendarView = (config: CalendarViewConfig) => {
     handleActivityToggle: toggleActivity
   } = useUnifiedActivityOperations(processedActivities);
 
-  // Activity handlers with consistent logic
+  // Activity handlers with enhanced global synchronization
   const handleActivityCreate = useCallback(async (newActivity: any, recurringOptions?: RecurringActivityOptions) => {
     console.log(`CalendarView(${config.viewType}): Creating activity:`, newActivity);
     try {
       const result = await createActivity(newActivity, recurringOptions);
       setIsCreateDialogOpen(false);
+      
+      // Ensure global sync for the activity date
+      const activityDate = newActivity.date || new Date().toISOString().split('T')[0];
+      await syncActivityForDate(activityDate);
       
       if (config.onActivityCreate) {
         await config.onActivityCreate(newActivity, recurringOptions);
@@ -98,12 +106,16 @@ export const useCalendarView = (config: CalendarViewConfig) => {
       console.error('Failed to create activity:', error);
       throw error;
     }
-  }, [createActivity, config.onActivityCreate, config.viewType]);
+  }, [createActivity, config.onActivityCreate, config.viewType, syncActivityForDate]);
 
   const handleActivityUpdate = useCallback(async (activityId: number, updates: Partial<Activity>, recurringOptions?: RecurringActivityOptions) => {
     console.log(`CalendarView(${config.viewType}): Updating activity:`, activityId, updates);
     try {
       const result = await updateActivity(activityId, updates, recurringOptions);
+      
+      // Ensure global sync for the activity date
+      const activityDate = updates.date || new Date().toISOString().split('T')[0];
+      await syncActivityForDate(activityDate);
       
       if (config.onActivityUpdate) {
         config.onActivityUpdate(activityId, updates);
@@ -114,12 +126,19 @@ export const useCalendarView = (config: CalendarViewConfig) => {
       console.error('Failed to update activity:', error);
       throw error;
     }
-  }, [updateActivity, config.onActivityUpdate, config.viewType]);
+  }, [updateActivity, config.onActivityUpdate, config.viewType, syncActivityForDate]);
 
   const handleActivityDelete = useCallback(async (id: number, deleteOption?: DeleteRecurringOption) => {
     console.log(`CalendarView(${config.viewType}): Deleting activity:`, id, deleteOption);
     try {
       const result = await deleteActivity(id, deleteOption);
+      
+      // Ensure global sync - for deletion, sync the current view range
+      if (config.viewType === 'month') {
+        await syncActivityForDateRange(config.startDate, config.endDate);
+      } else {
+        await syncActivityForDate(config.startDate);
+      }
       
       if (config.onActivityDelete) {
         config.onActivityDelete(id, deleteOption);
@@ -130,17 +149,23 @@ export const useCalendarView = (config: CalendarViewConfig) => {
       console.error('Failed to delete activity:', error);
       throw error;
     }
-  }, [deleteActivity, config.onActivityDelete, config.viewType]);
+  }, [deleteActivity, config.onActivityDelete, config.viewType, config.startDate, config.endDate, syncActivityForDate, syncActivityForDateRange]);
 
   const handleActivityToggle = useCallback(async (activityId: number) => {
     console.log(`CalendarView(${config.viewType}): Toggling activity:`, activityId);
     try {
-      return await toggleActivity(activityId);
+      const result = await toggleActivity(activityId);
+      
+      // Ensure global sync for current date (toggle typically happens on current activities)
+      const today = new Date().toISOString().split('T')[0];
+      await syncActivityForDate(today);
+      
+      return result;
     } catch (error) {
       console.error('Failed to toggle activity:', error);
       throw error;
     }
-  }, [toggleActivity, config.viewType]);
+  }, [toggleActivity, config.viewType, syncActivityForDate]);
 
   // Filter management
   const handleTypeFilterChange = useCallback((type: string, checked: boolean) => {
