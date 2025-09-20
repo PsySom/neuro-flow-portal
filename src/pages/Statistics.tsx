@@ -1,14 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain } from 'lucide-react';
+import { ArrowLeft, Brain, Activity, ActivitySquare, Moon, CheckCircle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from '@/components/dashboard/UserMenu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import MoodEmotionsChart from '@/components/statistics/MoodEmotionsChart';
+import SleepChart from '@/components/statistics/SleepChart';
+import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
 
 const Statistics = () => {
+  const { activeDiaries } = useDiaryStatus();
+
   useEffect(() => {
     console.log('=== STATISTICS PAGE MOUNTED ===');
     console.log('Route: /statistics');
@@ -17,6 +22,65 @@ const Statistics = () => {
     console.log('Document title:', document.title);
     console.log('=== END STATISTICS DEBUG ===');
   }, []);
+
+  // Функция для определения активности дневника
+  const isDiaryActive = (path: string) => {
+    const activeDiary = activeDiaries.find(diary => diary.path === path);
+    if (!activeDiary) return false;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastEntry = activeDiary.lastEntryDate;
+    
+    // Считаем активным, если есть записи за последние 7 дней
+    if (!lastEntry) return false;
+    const daysDiff = Math.floor((new Date(today).getTime() - new Date(lastEntry).getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff <= 7;
+  };
+
+  const chartTabs = [
+    {
+      id: 'mood-emotions',
+      label: 'Настроение и эмоции',
+      icon: Activity,
+      path: '/mood-diary',
+      component: <MoodEmotionsChart />
+    },
+    {
+      id: 'sleep',
+      label: 'Сон',
+      icon: Moon,
+      path: '/sleep-diary',
+      component: <SleepChart />
+    },
+    {
+      id: 'thoughts',
+      label: 'Мысли',
+      icon: Brain,
+      path: '/thoughts-diary',
+      component: <div className="text-center py-12 text-gray-500">График мыслей будет добавлен позднее</div>
+    },
+    {
+      id: 'self-esteem',
+      label: 'Самооценка',
+      icon: CheckCircle,
+      path: '/self-esteem-diary',
+      component: <div className="text-center py-12 text-gray-500">График самооценки будет добавлен позднее</div>
+    },
+    {
+      id: 'procrastination',
+      label: 'Прокрастинация',
+      icon: XCircle,
+      path: '/procrastination-diary',
+      component: <div className="text-center py-12 text-gray-500">График прокрастинации будет добавлен позднее</div>
+    },
+    {
+      id: 'ocd',
+      label: 'ОКР',
+      icon: ActivitySquare,
+      path: '/ocd-diary',
+      component: <div className="text-center py-12 text-gray-500">График ОКР будет добавлен позднее</div>
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -69,43 +133,65 @@ const Statistics = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="mood-emotions" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="mood-emotions">Настроение и эмоции</TabsTrigger>
-            <TabsTrigger value="thoughts">Мысли</TabsTrigger>
-            <TabsTrigger value="self-esteem">Самооценка</TabsTrigger>
-            <TabsTrigger value="procrastination">Прокрастинация</TabsTrigger>
-            <TabsTrigger value="ocd">ОКР</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar с вкладками графиков */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-2">
+                <Tabs defaultValue="mood-emotions" className="w-full" orientation="vertical">
+                  <TabsList className="grid w-full grid-rows-6 h-auto bg-transparent p-0 gap-1">
+                    {chartTabs.map((tab) => {
+                      const isActive = isDiaryActive(tab.path);
+                      const Icon = tab.icon;
+                      
+                      return (
+                        <TabsTrigger 
+                          key={tab.id}
+                          value={tab.id} 
+                          className="w-full justify-start h-auto p-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                        >
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="flex items-center gap-2">
+                              <Icon className="w-4 h-4" />
+                              <span className="text-sm font-medium">{tab.label}</span>
+                            </div>
+                            <div className="ml-auto">
+                              {isActive ? (
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <XCircle className="w-4 h-4 text-gray-400" />
+                              )}
+                            </div>
+                          </div>
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
 
-          <TabsContent value="mood-emotions" className="mt-6">
-            <MoodEmotionsChart />
-          </TabsContent>
+                  {/* Контент графиков */}
+                  <div className="lg:hidden mt-4">
+                    {chartTabs.map((tab) => (
+                      <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                        {tab.component}
+                      </TabsContent>
+                    ))}
+                  </div>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
 
-          <TabsContent value="thoughts" className="mt-6">
-            <div className="text-center py-12 text-gray-500">
-              График мыслей будет добавлен позднее
-            </div>
-          </TabsContent>
-
-          <TabsContent value="self-esteem" className="mt-6">
-            <div className="text-center py-12 text-gray-500">
-              График самооценки будет добавлен позднее
-            </div>
-          </TabsContent>
-
-          <TabsContent value="procrastination" className="mt-6">
-            <div className="text-center py-12 text-gray-500">
-              График прокрастинации будет добавлен позднее  
-            </div>
-          </TabsContent>
-
-          <TabsContent value="ocd" className="mt-6">
-            <div className="text-center py-12 text-gray-500">
-              График ОКР будет добавлен позднее
-            </div>
-          </TabsContent>
-        </Tabs>
+          {/* Основной контент графиков (только на больших экранах) */}
+          <div className="hidden lg:block lg:col-span-3">
+            <Tabs defaultValue="mood-emotions" className="w-full">
+              {chartTabs.map((tab) => (
+                <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                  {tab.component}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        </div>
       </main>
     </div>
   );
