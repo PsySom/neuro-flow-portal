@@ -221,6 +221,48 @@ export type Database = {
         }
         Relationships: []
       }
+      mood_diary_entries: {
+        Row: {
+          body_areas: string[] | null
+          context: string | null
+          created_at: string
+          emotions: Json
+          id: string
+          mood_score: number
+          notes: string | null
+          physical_sensations: string[] | null
+          triggers: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body_areas?: string[] | null
+          context?: string | null
+          created_at?: string
+          emotions?: Json
+          id?: string
+          mood_score: number
+          notes?: string | null
+          physical_sensations?: string[] | null
+          triggers?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body_areas?: string[] | null
+          context?: string | null
+          created_at?: string
+          emotions?: Json
+          id?: string
+          mood_score?: number
+          notes?: string | null
+          physical_sensations?: string[] | null
+          triggers?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       practices: {
         Row: {
           benefits: string[]

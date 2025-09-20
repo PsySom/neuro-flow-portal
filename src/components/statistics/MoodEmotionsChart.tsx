@@ -9,11 +9,13 @@ import { chartDataService } from './chart-utils/chartDataService';
 import { CustomTooltip, CustomDot, getLineWidth } from './chart-utils/chartComponents';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useDiaryStatus } from '@/contexts/DiaryStatusContext';
+import { useMoodDiary } from '@/hooks/useMoodDiary';
 import MockDataInspector from './MockDataInspector';
 
 const MoodEmotionsChart = () => {
   const { isAuthenticated } = useSupabaseAuth();
   const { activeDiaries } = useDiaryStatus();
+  const { entries: moodEntries, loading: moodLoading } = useMoodDiary();
   const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [selectedPoint, setSelectedPoint] = useState<ChartDataPoint | null>(null);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
@@ -22,12 +24,59 @@ const MoodEmotionsChart = () => {
   // Проверяем активность дневника настроения
   const isMoodDiaryActive = activeDiaries.find(diary => diary.path === '/mood-diary')?.isActive || false;
 
+  // Конвертируем записи из Supabase в формат графика
+  const convertMoodEntriesToChart = (entries: any[], range: TimeRange): ChartDataPoint[] => {
+    return entries.map(entry => {
+      const date = new Date(entry.created_at || entry.timestamp);
+      let timeFormat: string;
+      
+      switch (range) {
+        case 'day':
+          timeFormat = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+          break;
+        case 'week':
+          timeFormat = date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' });
+          break;
+        case 'month':
+          timeFormat = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+          break;
+        default:
+          timeFormat = date.toLocaleDateString('ru-RU');
+      }
+
+      return {
+        time: timeFormat,
+        mood: entry.mood_score || 0,
+        emotions: entry.emotions?.map((e: any) => e.name || e) || [],
+        triggers: entry.triggers || [],
+        physical_sensations: entry.physical_sensations || [],
+        connection: entry.context || '',
+        notes: entry.notes || '',
+        fullDate: date.toLocaleDateString('ru-RU', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      };
+    });
+  };
+
   // Загрузка данных с помощью сервиса
   const fetchMoodData = async (range: TimeRange) => {
     setIsLoading(true);
     try {
-      const data = await chartDataService.fetchMoodData(range, isAuthenticated);
-      setChartData(data);
+      // Сначала пробуем загрузить данные напрямую из хука
+      if (isAuthenticated && moodEntries.length > 0) {
+        console.log('📊 Используем данные из useMoodDiary хука');
+        const chartData = convertMoodEntriesToChart(moodEntries, range);
+        setChartData(chartData);
+      } else {
+        // Fallback к chartDataService
+        const data = await chartDataService.fetchMoodData(range, isAuthenticated);
+        setChartData(data);
+      }
     } catch (error) {
       console.error('❌ Ошибка при загрузке данных настроения:', error);
       setChartData([]);
@@ -36,10 +85,10 @@ const MoodEmotionsChart = () => {
     }
   };
 
-  // Загрузка данных при изменении диапазона времени или статуса аутентификации
+  // Загрузка данных при изменении диапазона времени или данных
   useEffect(() => {
     fetchMoodData(timeRange);
-  }, [timeRange, isAuthenticated]);
+  }, [timeRange, isAuthenticated, moodEntries]);
 
   // Автоматическое обновление данных
   useEffect(() => {
@@ -54,10 +103,9 @@ const MoodEmotionsChart = () => {
 
     // Слушаем изменения в localStorage для немедленного обновления
     const handleStorageChange = (e: StorageEvent) => {
-      console.log('📊 Storage event triggered:', e.key, e.newValue?.slice(0, 100));
       if (e.key === 'mock_mood_entries' || e.key?.includes('diary-status')) {
         console.log('📊 Обнаружено изменение в localStorage, обновляем график');
-        setTimeout(() => fetchMoodData(timeRange), 100); // Небольшая задержка для обеспечения синхронности
+        setTimeout(() => fetchMoodData(timeRange), 100);
       }
     };
 
@@ -80,6 +128,7 @@ const MoodEmotionsChart = () => {
   }, [timeRange, isAuthenticated]);
 
   const currentData = chartData;
+  const loading = isLoading || moodLoading;
 
   return (
     <div className="space-y-6">
@@ -88,8 +137,8 @@ const MoodEmotionsChart = () => {
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
           <CardContent className="pt-6">
             <p className="text-amber-800 dark:text-amber-200 text-sm">
-              📊 Для просмотра статистики необходимо 
-              <strong> войти в аккаунт</strong>. Здесь будут отображаться ваши реальные записи дневника настроения.
+              📊 Для просмотра реальной статистики необходимо 
+              <strong> войти в аккаунт</strong>. Сейчас отображаются демо-данные для примера.
             </p>
           </CardContent>
         </Card>
@@ -103,7 +152,7 @@ const MoodEmotionsChart = () => {
             <p className="text-sm font-medium">
               Дневник настроения {isMoodDiaryActive ? 'активен' : 'неактивен'}
             </p>
-            {!isMoodDiaryActive && (
+            {!isMoodDiaryActive && isAuthenticated && (
               <span className="text-xs text-muted-foreground">
                 (график показывает последние записи)
               </span>
@@ -142,16 +191,21 @@ const MoodEmotionsChart = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {loading ? (
             <div className="h-96 flex items-center justify-center">
-              <p className="text-muted-foreground">Загрузка данных настроения...</p>
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-muted-foreground">Загрузка данных настроения...</p>
+              </div>
             </div>
           ) : currentData.length === 0 ? (
             <div className="h-96 flex flex-col items-center justify-center">
               <p className="text-muted-foreground text-lg mb-2">📊 График пуст</p>
               <p className="text-muted-foreground text-sm text-center max-w-md">
-                Здесь будут отображаться ваши записи из дневника настроения. 
-                Создайте первую запись, чтобы увидеть данные на графике.
+                {isAuthenticated 
+                  ? 'Здесь будут отображаться ваши записи из дневника настроения. Создайте первую запись, чтобы увидеть данные на графике.'
+                  : 'Войдите в аккаунт, чтобы увидеть ваши реальные данные.'
+                }
               </p>
             </div>
           ) : (
