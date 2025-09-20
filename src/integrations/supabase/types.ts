@@ -147,6 +147,80 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_diary_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          message_type: string | null
+          metadata: Json | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          metadata?: Json | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          metadata?: Json | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_diary_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "ai_diary_sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
+      }
+      ai_diary_sessions: {
+        Row: {
+          created_at: string | null
+          emotional_state: Json | null
+          ended_at: string | null
+          id: string
+          insights: Json | null
+          session_id: string
+          started_at: string | null
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emotional_state?: Json | null
+          ended_at?: string | null
+          id?: string
+          insights?: Json | null
+          session_id?: string
+          started_at?: string | null
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emotional_state?: Json | null
+          ended_at?: string | null
+          id?: string
+          insights?: Json | null
+          session_id?: string
+          started_at?: string | null
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       practices: {
         Row: {
           benefits: string[]
@@ -446,6 +520,13 @@ export type Database = {
           id: string
           last_sign_in: string
           role: string
+        }[]
+      }
+      ensure_ai_session: {
+        Args: { p_session_id: string; p_user_id: string }
+        Returns: {
+          is_new: boolean
+          session_id: string
         }[]
       }
       get_my_profile: {
