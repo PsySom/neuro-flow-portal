@@ -1,34 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { useSleepDiary } from '@/hooks/useSleepDiary';
+import { sleepQualityLabels } from '@/components/diaries/sleep/types';
 
 interface SleepChartData {
-  date: string;
-  sleepDuration: number;
+  time: string;
+  fullDate: string;
   sleepQuality: number;
+  sleepDuration: number;
   morningFeeling: number;
   nightAwakenings: number;
+  sleepQualityEmoji: string;
+  hasRest: boolean;
+  restType?: string;
+  sleepComment?: string;
+  restComment?: string;
+  disruptors?: string[];
 }
+
+type TimeRange = 'day' | 'week' | 'month';
 
 const SleepChart = () => {
   const { entries, loading, error } = useSleepDiary();
   const [chartData, setChartData] = useState<SleepChartData[]>([]);
+  const [timeRange, setTimeRange] = useState<TimeRange>('week');
+  const [selectedPoint, setSelectedPoint] = useState<SleepChartData | null>(null);
+
+  const getTimeFormat = (range: TimeRange, date: Date): string => {
+    switch (range) {
+      case 'day':
+        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      case 'week':
+        return date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' });
+      case 'month':
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+      default:
+        return date.toLocaleDateString('ru-RU');
+    }
+  };
+
+  const getSleepQualityEmoji = (quality: number): string => {
+    const key = quality.toString() as keyof typeof sleepQualityLabels;
+    const label = sleepQualityLabels[key];
+    return label ? label.split(' ')[0] : '😐';
+  };
 
   useEffect(() => {
     if (entries.length > 0) {
-      const data = entries.map(entry => ({
-        date: new Date(entry.created_at || '').toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' }),
-        sleepDuration: entry.sleep_duration,
-        sleepQuality: entry.sleep_quality,
-        morningFeeling: entry.morning_feeling,
-        nightAwakenings: entry.night_awakenings
-      })).reverse(); // Показываем от старых к новым
+      const data = entries.map(entry => {
+        const date = new Date(entry.created_at || '');
+        return {
+          time: getTimeFormat(timeRange, date),
+          fullDate: date.toLocaleDateString('ru-RU', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          sleepQuality: entry.sleep_quality,
+          sleepDuration: entry.sleep_duration,
+          morningFeeling: entry.morning_feeling,
+          nightAwakenings: entry.night_awakenings,
+          sleepQualityEmoji: getSleepQualityEmoji(entry.sleep_quality),
+          hasRest: entry.has_day_rest,
+          restType: entry.day_rest_type,
+          sleepComment: entry.sleep_comment,
+          restComment: entry.rest_comment,
+          disruptors: entry.sleep_disruptors
+        };
+      }).reverse(); // Показываем от старых к новым
       
       setChartData(data);
     }
-  }, [entries]);
+  }, [entries, timeRange]);
 
   if (loading) {
     return (
@@ -53,13 +100,60 @@ const SleepChart = () => {
     );
   }
 
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (!payload) return null;
+    
+    return (
+      <g>
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill="hsl(var(--primary))" 
+          stroke="white" 
+          strokeWidth={2}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        />
+        <text 
+          x={cx} 
+          y={cy - 15} 
+          textAnchor="middle" 
+          fontSize={16}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSelectedPoint(payload)}
+        >
+          {payload.sleepQualityEmoji}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-medium">{label}</p>
+          <p className="text-sm">
+            <span className="text-lg mr-2">{data.sleepQualityEmoji}</span>
+            Качество сна: {data.sleepQuality}
+          </p>
+          <p className="text-sm">Продолжительность: {data.sleepDuration} ч</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   if (chartData.length === 0) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-muted-foreground">
-            <p className="mb-4">Нет данных для отображения</p>
-            <p className="text-sm">Начните вести дневник сна, чтобы увидеть статистику</p>
+            <p className="mb-4">📊 График пуст</p>
+            <p className="text-sm">Здесь будут отображаться ваши записи из дневника сна и отдыха. Создайте первую запись, чтобы увидеть данные на графике.</p>
           </div>
         </CardContent>
       </Card>
@@ -68,53 +162,94 @@ const SleepChart = () => {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>График сна и отдыха</span>
+            <div className="flex space-x-2">
+              <Button
+                variant={timeRange === 'day' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('day')}
+              >
+                День
+              </Button>
+              <Button
+                variant={timeRange === 'week' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('week')}
+              >
+                Неделя
+              </Button>
+              <Button
+                variant={timeRange === 'month' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('month')}
+              >
+                Месяц
+              </Button>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="h-96 flex items-center justify-center">
+              <p className="text-muted-foreground">Загрузка данных сна...</p>
+            </div>
+          ) : (
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 40, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="time" 
+                    tick={{ fontSize: 12 }}
+                    angle={timeRange === 'week' ? -45 : 0}
+                    textAnchor={timeRange === 'week' ? 'end' : 'middle'}
+                    height={timeRange === 'week' ? 60 : 30}
+                  />
+                  <YAxis 
+                    domain={[-5, 5]} 
+                    ticks={[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]}
+                    tick={{ fontSize: 12 }}
+                    label={{ value: 'Качество сна', angle: -90, position: 'insideLeft' }}
+                  />
+                  <ReferenceLine y={0} stroke="#666" strokeDasharray="2 2" />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="sleepQuality" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={<CustomDot />}
+                    connectNulls={false}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Продолжительность сна */}
       <Card>
         <CardHeader>
           <CardTitle>Продолжительность сна</CardTitle>
-          <CardDescription>Количество часов сна по дням</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[0, 12]} />
+              <XAxis dataKey="time" />
+              <YAxis domain={[0, 12]} label={{ value: 'Часы', angle: -90, position: 'insideLeft' }} />
               <Tooltip 
                 formatter={(value: number) => [`${value} ч`, 'Продолжительность']}
-                labelFormatter={(label) => `Дата: ${label}`}
               />
               <Line 
                 type="monotone" 
                 dataKey="sleepDuration" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Качество сна */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Качество сна</CardTitle>
-          <CardDescription>Оценка качества сна от -5 до +5</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[-5, 5]} />
-              <Tooltip 
-                formatter={(value: number) => [value, 'Качество']}
-                labelFormatter={(label) => `Дата: ${label}`}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="sleepQuality" 
                 stroke="hsl(var(--chart-2))" 
                 strokeWidth={2}
                 dot={{ fill: 'hsl(var(--chart-2))', strokeWidth: 2, r: 4 }}
@@ -124,57 +259,97 @@ const SleepChart = () => {
         </CardContent>
       </Card>
 
-      {/* Утреннее самочувствие */}
+      {/* Панель подробностей */}
       <Card>
         <CardHeader>
-          <CardTitle>Утреннее самочувствие</CardTitle>
-          <CardDescription>Оценка самочувствия утром от 1 до 10</CardDescription>
+          <CardTitle>Подробности записи сна</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[1, 10]} />
-              <Tooltip 
-                formatter={(value: number) => [value, 'Самочувствие']}
-                labelFormatter={(label) => `Дата: ${label}`}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="morningFeeling" 
-                stroke="hsl(var(--chart-3))" 
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+          {selectedPoint ? (
+            <div className="space-y-6">
+              <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Время записи: {selectedPoint.fullDate}
+                </p>
+              </div>
 
-      {/* Ночные пробуждения */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ночные пробуждения</CardTitle>
-          <CardDescription>Количество пробуждений за ночь</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip 
-                formatter={(value: number) => [value, 'Пробуждения']}
-                labelFormatter={(label) => `Дата: ${label}`}
-              />
-              <Bar 
-                dataKey="nightAwakenings" 
-                fill="hsl(var(--chart-4))"
-                radius={[2, 2, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2 flex items-center">
+                      <span className="text-2xl mr-2">{selectedPoint.sleepQualityEmoji}</span>
+                      Качество сна: {selectedPoint.sleepQuality}
+                    </h4>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Продолжительность сна</h4>
+                    <p className="text-muted-foreground">{selectedPoint.sleepDuration} часов</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Утреннее самочувствие</h4>
+                    <p className="text-muted-foreground">{selectedPoint.morningFeeling}/10</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Ночные пробуждения</h4>
+                    <p className="text-muted-foreground">{selectedPoint.nightAwakenings} раз</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Дневной отдых</h4>
+                    <p className="text-muted-foreground">
+                      {selectedPoint.hasRest ? 
+                        `Да ${selectedPoint.restType ? `(${selectedPoint.restType})` : ''}` : 
+                        'Нет'
+                      }
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Нарушители сна</h4>
+                    <p className="text-muted-foreground">
+                      {selectedPoint.disruptors && selectedPoint.disruptors.length > 0
+                        ? selectedPoint.disruptors.join(', ')
+                        : 'Не указано'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Комментарий о сне</h4>
+                    <p className="text-muted-foreground">
+                      {selectedPoint.sleepComment || 'Не указано'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-foreground mb-2">Комментарий об отдыхе</h4>
+                    <p className="text-muted-foreground">
+                      {selectedPoint.restComment || 'Не указано'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedPoint(null)}
+                >
+                  Очистить выбор
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p className="mb-2">Нажмите на точку графика, чтобы увидеть подробности</p>
+              <p className="text-sm">Подробности доступны для всех режимов просмотра</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

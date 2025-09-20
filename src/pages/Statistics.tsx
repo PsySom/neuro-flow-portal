@@ -47,7 +47,7 @@ const Statistics = () => {
     },
     {
       id: 'sleep',
-      label: 'Сон',
+      label: 'Сон и отдых',
       icon: Moon,
       path: '/sleep-diary',
       component: <SleepChart />
