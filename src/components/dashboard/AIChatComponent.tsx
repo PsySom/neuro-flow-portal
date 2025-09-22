@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import AIChatHeader from './ai-chat/AIChatHeader';
+import { MessageCircle } from 'lucide-react';
 import AIChatTabs from './ai-chat/AIChatTabs';
 import FreeChat from './ai-chat/FreeChat';
-import AIDiaryScenarios from './AIDiaryScenarios';
+import AIDiaryStatsTab from './ai-chat/AIDiaryStatsTab';
 
 const AIChatComponent = () => {
   const [activeTab, setActiveTab] = useState('free-chat');
@@ -14,7 +14,16 @@ const AIChatComponent = () => {
     <div className="h-[600px] flex flex-col">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
         <div className="flex-shrink-0 px-6 pt-6">
-          <AIChatHeader />
+          {/* Общий заголовок */}
+          <Card className="mb-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2">
+                <MessageCircle className="w-5 h-5 text-primary" />
+                <span className="text-lg font-semibold">Свободное общение с AI</span>
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          
           <AIChatTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
@@ -26,7 +35,7 @@ const AIChatComponent = () => {
           </TabsContent>
 
           <TabsContent value="scenarios" className="h-full mt-4">
-            <AIDiaryScenarios />
+            <AIDiaryStatsTab />
           </TabsContent>
         </div>
       </Tabs>

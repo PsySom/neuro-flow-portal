@@ -15,10 +15,10 @@ const AIChatTabs = ({ activeTab, onTabChange }: AIChatTabsProps) => {
         <MessageCircle className="w-4 h-4" />
         <span>Свободное общение</span>
       </TabsTrigger>
-      <TabsTrigger value="scenarios" className="flex items-center space-x-2">
-        <Calendar className="w-4 h-4" />
-        <span>Сценарии рефлексии</span>
-      </TabsTrigger>
+        <TabsTrigger value="scenarios" className="flex items-center space-x-2">
+          <Calendar className="w-4 h-4" />
+          <span>Сценарии рефлексии</span>
+        </TabsTrigger>
     </TabsList>
   );
 };

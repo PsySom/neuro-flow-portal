@@ -1,199 +1,84 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bot, Send, User } from 'lucide-react';
-import { AIDiaryService } from '@/services/ai-diary.service';
-
-interface Message {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-}
+import React, { useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import { useAIDiaryChat } from '../ai-diary-scenarios/hooks/useAIDiaryChat';
+import FreeChatMessages from '../ai-diary-scenarios/FreeChatMessages';
+import FreeChatInput from '../ai-diary-scenarios/FreeChatInput';
 
 const FreeChat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: 'Привет! Я ваш AI-помощник для психологического благополучия. Расскажите, как дела? О чем хотели бы поговорить?',
-      timestamp: new Date()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const {
+    messages,
+    inputMessage,
+    setInputMessage,
+    isLoading,
+    isLoadingHistory,
+    isAITyping,
+    inputRef,
+    sendMessage,
+    isUserAuthenticated
+  } = useAIDiaryChat();
 
-  const scrollToBottom = useCallback(() => {
-    if (scrollAreaRef.current) {
-      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
-      if (viewport) {
-        // Используем requestAnimationFrame для более плавного скроллинга
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            viewport.scrollTo({
-              top: viewport.scrollHeight,
-              behavior: 'smooth'
-            });
-          });
-        });
-      }
-    }
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
 
+  // Проверяем аутентификацию при монтировании
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      scrollToBottom();
-    }, 150);
-
-    return () => clearTimeout(timeoutId);
-  }, [messages, isTyping, scrollToBottom]);
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    const messageText = inputMessage.trim();
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: messageText,
-      timestamp: new Date()
+    const checkAuth = async () => {
+      const authenticated = await isUserAuthenticated();
+      setIsAuthenticated(authenticated);
     };
+    checkAuth();
+  }, [isUserAuthenticated]);
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsTyping(true);
+  // Если еще проверяем аутентификацию или загружаем историю
+  if (isAuthenticated === null || isLoadingHistory) {
+    return (
+      <div className="h-full bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">
+            {isAuthenticated === null ? 'Загрузка...' : 'Загружаем историю сессии...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      // Отправляем сообщение через AI Diary Service
-      const response = await AIDiaryService.sendMessage(messageText);
-      
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: response.ai_response,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Ошибка при отправке сообщения:', error);
-      
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: 'Извините, произошла ошибка при обработке вашего сообщения. Попробуйте еще раз или обратитесь в поддержку.',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  // Если не авторизован
+  if (!isAuthenticated) {
+    return (
+      <div className="h-full bg-background flex items-center justify-center">
+        <div className="max-w-md mx-auto p-6">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Для использования AI дневника необходимо войти в систему. 
+              Пожалуйста, авторизуйтесь или зарегистрируйтесь.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea 
-          className="h-full" 
-          ref={scrollAreaRef}
-        >
-          <div className="space-y-4 p-4 pb-28">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex items-start space-x-3 animate-slide-up-fade ${
-                  message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                }`}
-              >
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback 
-                    className={`text-white font-medium ${
-                      message.type === 'ai' 
-                        ? 'text-white' 
-                        : 'bg-gray-600 dark:bg-gray-400'
-                    }`}
-                    style={message.type === 'ai' ? {
-                      backgroundColor: `hsl(var(--psybalans-primary))`
-                    } : undefined}
-                  >
-                    {message.type === 'ai' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className={`max-w-[85%] ${message.type === 'user' ? 'text-right' : ''}`}>
-                  <div
-                    className={`rounded-2xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] ${
-                      message.type === 'user'
-                        ? 'bg-blue-500 text-white ml-auto'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-opacity duration-200">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex items-start space-x-3 animate-fade-in">
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback 
-                    className="text-white font-medium"
-                    style={{ backgroundColor: `hsl(var(--psybalans-primary))` }}
-                  >
-                    <Bot className="w-4 h-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+    <div className="h-full flex flex-col bg-background overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <FreeChatMessages 
+          messages={messages}
+          isLoading={isLoading}
+          isAITyping={isAITyping}
+        />
       </div>
       
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="p-4">
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Напишите сообщение..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1 transition-all duration-200 focus:scale-[1.01]"
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              className="text-white transition-all duration-300 hover:scale-110 transform"
-              style={{
-                background: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))`
-              }}
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+      <div className="flex-shrink-0">
+        <FreeChatInput
+          ref={inputRef}
+          inputMessage={inputMessage}
+          setInputMessage={setInputMessage}
+          onSendMessage={sendMessage}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
