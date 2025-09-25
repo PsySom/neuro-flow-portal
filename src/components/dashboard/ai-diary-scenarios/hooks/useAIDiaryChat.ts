@@ -58,30 +58,44 @@ export const useAIDiaryChat = () => {
   }, []);
 
   // Обработка новых AI сообщений через Realtime
-  const handleNewAIMessage = useCallback((newMessage: Message) => {
+  const handleNewAIMessage = useCallback((aiMessageData: any) => {
+    console.log('Получено новое AI сообщение через Realtime:', aiMessageData);
+    
     setIsAITyping(false);
+    setIsLoading(false);
     
-    // Добавляем сообщение с эффектом печати для длинных сообщений
-    const aiMessage: Message = {
-      ...newMessage,
-      isTyping: true
-    };
-    
-    setMessages(prev => [...prev, aiMessage]);
-    
-    // Запускаем эффект печати для длинных сообщений (>50 символов)
-    if (newMessage.content.length > 50) {
-      typeMessage(aiMessage, newMessage.content);
-    } else {
-      // Для коротких сообщений показываем сразу
-      setTimeout(() => {
-        setMessages(prev => prev.map(msg => 
-          msg.id === aiMessage.id 
-            ? { ...msg, isTyping: false }
-            : msg
-        ));
-      }, 500);
-    }
+    // Убираем placeholder "AI печатает..." если он есть
+    setMessages(prev => {
+      const filteredMessages = prev.filter(msg => msg.id !== 'ai-typing-placeholder');
+      
+      // Создаем новое AI сообщение
+      const aiMessage: Message = {
+        id: aiMessageData.id || `ai_${Date.now()}`,
+        type: 'ai',
+        content: '',
+        timestamp: new Date(aiMessageData.created_at || Date.now()),
+        session_id: aiMessageData.session_id,
+        isTyping: true
+      };
+      
+      const newMessages = [...filteredMessages, aiMessage];
+      
+      // Запускаем эффект печати для длинных сообщений (>50 символов)
+      if (aiMessageData.content.length > 50) {
+        setTimeout(() => typeMessage(aiMessage, aiMessageData.content), 100);
+      } else {
+        // Для коротких сообщений показываем сразу
+        setTimeout(() => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessage.id 
+              ? { ...msg, content: aiMessageData.content, isTyping: false }
+              : msg
+          ));
+        }, 500);
+      }
+      
+      return newMessages;
+    });
   }, [typeMessage]);
 
   // Загружаем историю сессии и настраиваем Realtime подписку
@@ -212,11 +226,24 @@ export const useAIDiaryChat = () => {
           );
         }
         
-        // AI ответ придет через Realtime подписку автоматически
+        // Добавляем placeholder "AI печатает..." пока ждем ответ через Realtime
+        const typingPlaceholder: Message = {
+          id: 'ai-typing-placeholder',
+          type: 'ai',
+          content: 'AI печатает...',
+          timestamp: new Date(),
+          isTyping: true
+        };
+        setMessages(prev => [...prev, typingPlaceholder]);
+        
+        // AI ответ придет через Realtime подписку автоматически и заменит placeholder
         
       } else {
         setIsAITyping(false);
         setIsLoading(false);
+        
+        // Убираем placeholder если ошибка
+        setMessages(prev => prev.filter(msg => msg.id !== 'ai-typing-placeholder'));
         
         // Показываем ошибку через toast
         toast({
@@ -239,6 +266,9 @@ export const useAIDiaryChat = () => {
       setIsAITyping(false);
       setIsLoading(false);
       console.error('Ошибка при отправке сообщения:', error);
+      
+      // Убираем placeholder если ошибка
+      setMessages(prev => prev.filter(msg => msg.id !== 'ai-typing-placeholder'));
       
       toast({
         title: "Ошибка сети",
