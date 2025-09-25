@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AIDiaryService } from '@/services/ai-diary.service';
 import { useToast } from '@/hooks/use-toast';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface Message {
   id: string;
@@ -19,6 +20,7 @@ export const useAIDiaryChat = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAITyping, setIsAITyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const realtimeChannelRef = useRef<RealtimeChannel | null>(null);
   const { toast } = useToast();
 
   // Функция для эффекта печати
@@ -54,9 +56,36 @@ export const useAIDiaryChat = () => {
     }, 100);
   }, []);
 
-  // Загружаем историю сессии при монтировании
+  // Обработка новых AI сообщений через Realtime
+  const handleNewAIMessage = useCallback((newMessage: Message) => {
+    setIsAITyping(false);
+    
+    // Добавляем сообщение с эффектом печати для длинных сообщений
+    const aiMessage: Message = {
+      ...newMessage,
+      isTyping: true
+    };
+    
+    setMessages(prev => [...prev, aiMessage]);
+    
+    // Запускаем эффект печати для длинных сообщений (>50 символов)
+    if (newMessage.content.length > 50) {
+      typeMessage(aiMessage, newMessage.content);
+    } else {
+      // Для коротких сообщений показываем сразу
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === aiMessage.id 
+            ? { ...msg, isTyping: false }
+            : msg
+        ));
+      }, 500);
+    }
+  }, [typeMessage]);
+
+  // Загружаем историю сессии и настраиваем Realtime подписку
   useEffect(() => {
-    const loadSessionHistory = async () => {
+    const loadSessionHistoryAndSetupRealtime = async () => {
       const existingSessionId = AIDiaryService.getCurrentSessionId();
       
       if (existingSessionId) {
@@ -89,6 +118,13 @@ export const useAIDiaryChat = () => {
             };
             setMessages([welcomeMessage]);
           }
+          
+          // Настраиваем Realtime подписку для существующей сессии
+          realtimeChannelRef.current = AIDiaryService.subscribeToAIMessages(
+            existingSessionId,
+            handleNewAIMessage
+          );
+          
         } catch (error) {
           console.error('Ошибка загрузки истории сессии:', error);
           toast({
@@ -121,8 +157,16 @@ export const useAIDiaryChat = () => {
       }
     };
 
-    loadSessionHistory();
-  }, [toast]);
+    loadSessionHistoryAndSetupRealtime();
+    
+    // Очистка при размонтировании
+    return () => {
+      if (realtimeChannelRef.current) {
+        AIDiaryService.unsubscribeFromMessages();
+        realtimeChannelRef.current = null;
+      }
+    };
+  }, [toast, handleNewAIMessage]);
 
   const sendMessage = useCallback(async (message: string) => {
     if (!message.trim() || isLoading) return;
@@ -145,61 +189,33 @@ export const useAIDiaryChat = () => {
     focusInput();
 
     try {
-      // Отправляем сообщение через AI Diary Service
-      const response = await AIDiaryService.sendMessage(messageText);
+      // Отправляем сообщение (сохраняем в Supabase, trigger вызовет n8n)
+      const result = await AIDiaryService.sendMessage(messageText);
       
-      if (response.status === 'success') {
-        // Получаем session_id (новый или текущий)
-        const currentSessionId = response.session_id || sessionId;
+      if (result.success) {
+        // Получаем текущий session_id 
+        const currentSessionId = AIDiaryService.getCurrentSessionId();
         
-        // Обновляем session_id если получили новый
-        if (response.session_id && response.session_id !== sessionId) {
-          setSessionId(response.session_id);
+        if (currentSessionId && !sessionId) {
+          setSessionId(currentSessionId);
+          
+          // Настраиваем Realtime подписку для новой сессии
+          realtimeChannelRef.current = AIDiaryService.subscribeToAIMessages(
+            currentSessionId,
+            handleNewAIMessage
+          );
         }
-
-        const aiMessage: Message = {
-          id: `ai_${Date.now()}`,
-          type: 'ai',
-          content: '',
-          timestamp: new Date(),
-          isTyping: true
-        };
         
-        // Добавляем пустое сообщение AI для эффекта печати
-        setMessages(prev => [...prev, aiMessage]);
-        setIsAITyping(false);
-
-        // Запускаем эффект печати для длинных сообщений (>50 символов)
-        if (response.ai_response.length > 50) {
-          typeMessage(aiMessage, response.ai_response);
-        } else {
-          // Для коротких сообщений показываем сразу
-          setMessages(prev => prev.map(msg => 
-            msg.id === aiMessage.id 
-              ? { ...msg, content: response.ai_response, isTyping: false }
-              : msg
-          ));
-        }
-
-        // Сохраняем оба сообщения в Supabase (пользователя и AI)
-        if (currentSessionId) {
-          try {
-            await Promise.all([
-              AIDiaryService.saveMessageToSupabase(currentSessionId, 'user', messageText),
-              AIDiaryService.saveMessageToSupabase(currentSessionId, 'ai', response.ai_response)
-            ]);
-          } catch (saveError) {
-            console.error('Ошибка сохранения сообщений в Supabase:', saveError);
-            // Не показываем пользователю ошибку сохранения, чтобы не прерывать разговор
-          }
-        }
-
+        // AI ответ придет через Realtime подписку автоматически
+        
       } else {
         setIsAITyping(false);
+        setIsLoading(false);
+        
         // Показываем ошибку через toast
         toast({
           title: "Ошибка",
-          description: response.error || "Произошла ошибка при отправке сообщения",
+          description: result.error || "Произошла ошибка при отправке сообщения",
           variant: "destructive",
         });
 
@@ -207,7 +223,7 @@ export const useAIDiaryChat = () => {
         const errorMessage: Message = {
           id: `error_${Date.now()}`,
           type: 'ai',
-          content: response.ai_response,
+          content: 'Извините, произошла ошибка при отправке вашего сообщения. Попробуйте еще раз.',
           timestamp: new Date()
         };
         
@@ -215,6 +231,7 @@ export const useAIDiaryChat = () => {
       }
     } catch (error) {
       setIsAITyping(false);
+      setIsLoading(false);
       console.error('Ошибка при отправке сообщения:', error);
       
       toast({
@@ -231,12 +248,16 @@ export const useAIDiaryChat = () => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
-  }, [isLoading, sessionId, toast, typeMessage, focusInput]);
+  }, [isLoading, sessionId, toast, focusInput, handleNewAIMessage]);
 
   const startNewSession = useCallback(() => {
+    // Отписываемся от текущей Realtime подписки
+    if (realtimeChannelRef.current) {
+      AIDiaryService.unsubscribeFromMessages();
+      realtimeChannelRef.current = null;
+    }
+    
     // Очищаем сессию в сервисе
     AIDiaryService.startNewSession();
     setSessionId(null);
@@ -265,6 +286,12 @@ export const useAIDiaryChat = () => {
 
   const endSession = useCallback(async () => {
     try {
+      // Отписываемся от Realtime подписки
+      if (realtimeChannelRef.current) {
+        AIDiaryService.unsubscribeFromMessages();
+        realtimeChannelRef.current = null;
+      }
+      
       const success = await AIDiaryService.endSession();
       
       if (success) {

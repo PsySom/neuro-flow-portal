@@ -1,19 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
-interface AIDiaryRequest {
-  session_id: string;
-  user_id: string;
-  message: string;
-  metadata?: {
-    timestamp: string;
-    source: string;
-  };
-}
-
-interface AIDiaryResponse {
-  ai_response: string;
-  session_id: string;
-  status: 'success' | 'error';
+interface MessageSaveResult {
+  success: boolean;
   error?: string;
 }
 
@@ -26,8 +15,8 @@ interface ChatMessage {
 }
 
 export class AIDiaryService {
-  private static readonly WEBHOOK_URL = 'https://mentalbalans.com/webhook/ai-diary-message';
   private static readonly SESSION_STORAGE_KEY = 'ai_diary_session_id';
+  private static realtimeChannel: RealtimeChannel | null = null;
 
   /**
    * Получить текущую сессию из localStorage или создать новую
@@ -70,81 +59,42 @@ export class AIDiaryService {
   }
 
   /**
-   * Отправить сообщение в AI дневник
+   * Отправить сообщение в AI дневник (сохраняет в Supabase, AI ответ придет через Realtime)
    */
-  static async sendMessage(message: string): Promise<AIDiaryResponse> {
+  static async sendMessage(message: string): Promise<MessageSaveResult> {
     try {
       // Получаем ID пользователя
       const userId = await this.getCurrentUserId();
       if (!userId) {
         return {
-          ai_response: 'Ошибка: необходимо войти в систему для использования AI дневника.',
-          session_id: '',
-          status: 'error',
-          error: 'Пользователь не авторизован'
+          success: false,
+          error: 'Необходимо войти в систему для использования AI дневника.'
         };
       }
 
       // Получаем или создаем сессию
       const sessionId = this.getCurrentSession();
 
-      // Подготавливаем данные для отправки
-      const requestData: AIDiaryRequest = {
-        session_id: sessionId,
-        user_id: userId,
-        message: message.trim(),
-        metadata: {
-          timestamp: new Date().toISOString(),
-          source: 'free_chat'
-        }
-      };
-
-      // Отправляем запрос на webhook
-      const response = await fetch(this.WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: AIDiaryResponse = await response.json();
-
-      // Проверяем формат ответа
-      if (!data.ai_response) {
-        throw new Error('Некорректный формат ответа от сервера');
+      // Сохраняем сообщение пользователя в Supabase
+      const saveResult = await this.saveMessageToSupabase(sessionId, 'user', message);
+      
+      if (!saveResult) {
+        return {
+          success: false,
+          error: 'Ошибка при сохранении сообщения'
+        };
       }
 
       return {
-        ai_response: data.ai_response,
-        session_id: data.session_id || sessionId,
-        status: 'success'
+        success: true
       };
 
     } catch (error) {
       console.error('Ошибка при отправке сообщения в AI дневник:', error);
       
-      let errorMessage = 'Произошла ошибка при обращении к AI дневнику.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'Ошибка сети. Проверьте подключение к интернету.';
-        } else if (error.message.includes('HTTP error')) {
-          errorMessage = 'Сервер временно недоступен. Попробуйте позже.';
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
       return {
-        ai_response: errorMessage,
-        session_id: '',
-        status: 'error',
-        error: errorMessage
+        success: false,
+        error: 'Произошла ошибка при отправке сообщения'
       };
     }
   }
@@ -320,6 +270,60 @@ export class AIDiaryService {
     } catch (error) {
       console.error('Ошибка при завершении сессии:', error);
       return false;
+    }
+  }
+
+  /**
+   * Подписаться на новые AI сообщения через Supabase Realtime
+   */
+  static subscribeToAIMessages(
+    sessionId: string,
+    onNewMessage: (message: ChatMessage) => void
+  ): RealtimeChannel {
+    // Отписываемся от предыдущего канала если есть
+    if (this.realtimeChannel) {
+      supabase.removeChannel(this.realtimeChannel);
+    }
+
+    this.realtimeChannel = supabase
+      .channel('ai-diary-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ai_diary_messages',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as any;
+          
+          // Обрабатываем только AI сообщения
+          if (newMessage.message_type === 'ai') {
+            const chatMessage: ChatMessage = {
+              id: newMessage.id,
+              type: 'ai',
+              content: newMessage.content,
+              timestamp: new Date(newMessage.created_at),
+              session_id: newMessage.session_id,
+            };
+            
+            onNewMessage(chatMessage);
+          }
+        }
+      )
+      .subscribe();
+
+    return this.realtimeChannel;
+  }
+
+  /**
+   * Отписаться от Realtime уведомлений
+   */
+  static unsubscribeFromMessages(): void {
+    if (this.realtimeChannel) {
+      supabase.removeChannel(this.realtimeChannel);
+      this.realtimeChannel = null;
     }
   }
 
