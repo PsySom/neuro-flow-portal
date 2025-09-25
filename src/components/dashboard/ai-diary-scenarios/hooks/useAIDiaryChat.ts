@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AIDiaryService } from '@/services/ai-diary.service';
+import AIDiaryService from '@/services/ai-diary.service';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface Message {
@@ -98,11 +99,11 @@ export const useAIDiaryChat = () => {
           
           if (history.length > 0) {
             // Преобразуем историю в формат Message
-            const historyMessages: Message[] = history.map(msg => ({
+            const historyMessages: Message[] = history.map((msg: any) => ({
               id: msg.id,
-              type: msg.type,
+              type: msg.message_type as 'user' | 'ai',
               content: msg.content,
-              timestamp: msg.timestamp,
+              timestamp: new Date(msg.created_at),
               session_id: msg.session_id
             }));
             
@@ -120,7 +121,7 @@ export const useAIDiaryChat = () => {
           }
           
           // Настраиваем Realtime подписку для существующей сессии
-          realtimeChannelRef.current = AIDiaryService.subscribeToAIMessages(
+          realtimeChannelRef.current = AIDiaryService.subscribeToMessages(
             existingSessionId,
             handleNewAIMessage
           );
@@ -162,7 +163,7 @@ export const useAIDiaryChat = () => {
     // Очистка при размонтировании
     return () => {
       if (realtimeChannelRef.current) {
-        AIDiaryService.unsubscribeFromMessages();
+        AIDiaryService.unsubscribe();
         realtimeChannelRef.current = null;
       }
     };
@@ -189,18 +190,23 @@ export const useAIDiaryChat = () => {
     focusInput();
 
     try {
+      // Получаем или создаем sessionId
+      let currentSessionId = AIDiaryService.getCurrentSessionId();
+      
+      if (!currentSessionId) {
+        currentSessionId = await AIDiaryService.startNewSession();
+        setSessionId(currentSessionId);
+      }
+
       // Отправляем сообщение (сохраняем в Supabase, trigger вызовет n8n)
-      const result = await AIDiaryService.sendMessage(messageText);
+      const result = await AIDiaryService.sendMessage(messageText, currentSessionId);
       
       if (result.success) {
-        // Получаем текущий session_id 
-        const currentSessionId = AIDiaryService.getCurrentSessionId();
-        
-        if (currentSessionId && !sessionId) {
+        if (!sessionId) {
           setSessionId(currentSessionId);
           
           // Настраиваем Realtime подписку для новой сессии
-          realtimeChannelRef.current = AIDiaryService.subscribeToAIMessages(
+          realtimeChannelRef.current = AIDiaryService.subscribeToMessages(
             currentSessionId,
             handleNewAIMessage
           );
@@ -251,16 +257,16 @@ export const useAIDiaryChat = () => {
     }
   }, [isLoading, sessionId, toast, focusInput, handleNewAIMessage]);
 
-  const startNewSession = useCallback(() => {
+  const startNewSession = useCallback(async () => {
     // Отписываемся от текущей Realtime подписки
     if (realtimeChannelRef.current) {
-      AIDiaryService.unsubscribeFromMessages();
+      AIDiaryService.unsubscribe();
       realtimeChannelRef.current = null;
     }
     
-    // Очищаем сессию в сервисе
-    AIDiaryService.startNewSession();
-    setSessionId(null);
+    // Очищаем сессию в сервисе и создаем новую
+    const newSessionId = await AIDiaryService.startNewSession();
+    setSessionId(newSessionId);
     
     // Очищаем сообщения и добавляем новое приветствие
     const welcomeMessage: Message = {
@@ -285,41 +291,34 @@ export const useAIDiaryChat = () => {
   }, [toast, focusInput]);
 
   const endSession = useCallback(async () => {
+    if (!sessionId) return;
+
     try {
       // Отписываемся от Realtime подписки
       if (realtimeChannelRef.current) {
-        AIDiaryService.unsubscribeFromMessages();
+        AIDiaryService.unsubscribe();
         realtimeChannelRef.current = null;
       }
       
-      const success = await AIDiaryService.endSession();
+      await AIDiaryService.endSession(sessionId);
+      setSessionId(null);
       
-      if (success) {
-        setSessionId(null);
-        
-        // Очищаем сообщения и добавляем новое приветствие
-        const welcomeMessage: Message = {
-          id: `session_ended_${Date.now()}`,
-          type: 'ai',
-          content: 'Сессия завершена. Спасибо за разговор! Начнем новый диалог, когда будете готовы.',
-          timestamp: new Date()
-        };
-        
-        setMessages([welcomeMessage]);
-        setInputMessage('');
-        setIsLoading(false);
+      // Очищаем сообщения и добавляем новое приветствие
+      const welcomeMessage: Message = {
+        id: `session_ended_${Date.now()}`,
+        type: 'ai',
+        content: 'Сессия завершена. Спасибо за разговор! Начнем новый диалог, когда будете готовы.',
+        timestamp: new Date()
+      };
+      
+      setMessages([welcomeMessage]);
+      setInputMessage('');
+      setIsLoading(false);
 
-        toast({
-          title: "Сессия завершена",
-          description: "Диалог сохранен в вашей истории",
-        });
-      } else {
-        toast({
-          title: "Ошибка",
-          description: "Не удалось завершить сессию",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Сессия завершена",
+        description: "Диалог сохранен в вашей истории",
+      });
     } catch (error) {
       console.error('Ошибка завершения сессии:', error);
       toast({
@@ -328,10 +327,11 @@ export const useAIDiaryChat = () => {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [sessionId, toast]);
 
   const isUserAuthenticated = useCallback(async () => {
-    return await AIDiaryService.isUserAuthenticated();
+    const { data: { user } } = await supabase.auth.getUser();
+    return !!user;
   }, []);
 
   return {

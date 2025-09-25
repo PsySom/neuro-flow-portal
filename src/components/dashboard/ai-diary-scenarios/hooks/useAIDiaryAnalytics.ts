@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AIDiaryAnalyticsService, SessionStats, TopicFrequency } from '@/services/ai-diary-analytics.service';
-import { AIDiaryService } from '@/services/ai-diary.service';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseAIDiaryAnalyticsProps {
   sessionId: string | null;
@@ -17,7 +17,8 @@ export const useAIDiaryAnalytics = ({ sessionId, messages, isLoadingHistory }: U
   // Загружаем глобальную статистику
   const loadGlobalStats = useCallback(async () => {
     try {
-      const userId = await AIDiaryService.getCurrentUserId();
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) return;
 
       setIsLoadingStats(true);
@@ -42,7 +43,8 @@ export const useAIDiaryAnalytics = ({ sessionId, messages, isLoadingHistory }: U
     }
 
     try {
-      const userId = await AIDiaryService.getCurrentUserId();
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) return;
 
       const stats = await AIDiaryAnalyticsService.getCurrentSessionStats(
