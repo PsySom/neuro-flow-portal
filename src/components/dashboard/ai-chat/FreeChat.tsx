@@ -16,7 +16,8 @@ const FreeChat = () => {
     isAITyping,
     inputRef,
     sendMessage,
-    isUserAuthenticated
+    isUserAuthenticated,
+    handleSuggestionClick
   } = useAIDiaryChat();
 
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
@@ -68,6 +69,7 @@ const FreeChat = () => {
           messages={messages}
           isLoading={isLoading}
           isAITyping={isAITyping}
+          onSuggestionClick={handleSuggestionClick}
         />
       </div>
       

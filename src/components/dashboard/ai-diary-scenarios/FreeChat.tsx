@@ -22,7 +22,8 @@ const FreeChat: React.FC = () => {
     sendMessage,
     startNewSession,
     endSession,
-    isUserAuthenticated
+    isUserAuthenticated,
+    handleSuggestionClick
   } = useAIDiaryChat();
 
   const analyticsData = useAIDiaryAnalytics({
@@ -100,6 +101,7 @@ const FreeChat: React.FC = () => {
           messages={messages}
           isLoading={isLoading}
           isAITyping={isAITyping}
+          onSuggestionClick={handleSuggestionClick}
         />
       </div>
       

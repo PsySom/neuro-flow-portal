@@ -11,18 +11,31 @@ interface Message {
   content: string;
   timestamp: Date;
   isTyping?: boolean;
+  suggestions?: string[];
 }
 
 interface FreeChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
   isAITyping: boolean;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
-const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading, isAITyping }) => {
+const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ 
+  messages, 
+  isLoading, 
+  isAITyping, 
+  onSuggestionClick 
+}) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    if (onSuggestionClick) {
+      onSuggestionClick(suggestion);
+    }
+  }, [onSuggestionClick]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -131,6 +144,27 @@ const FreeChatMessages: React.FC<FreeChatMessagesProps> = ({ messages, isLoading
                     </Button>
                   )}
                 </div>
+                
+                {/* Suggestions для AI сообщений */}
+                {message.type === 'ai' && message.suggestions && message.suggestions.length > 0 && !message.isTyping && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs text-muted-foreground">Быстрые ответы:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-8 px-3 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <p className="text-xs text-muted-foreground mt-1 transition-opacity duration-200">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>

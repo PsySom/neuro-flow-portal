@@ -11,6 +11,7 @@ interface Message {
   timestamp: Date;
   session_id?: string;
   isTyping?: boolean;
+  suggestions?: string[];
 }
 
 export const useAIDiaryChat = () => {
@@ -48,6 +49,38 @@ export const useAIDiaryChat = () => {
     typeNextChar();
   }, []);
 
+  // Функция для парсинга suggestions из AI ответа
+  const parseSuggestions = useCallback((content: string, metadata?: any): string[] => {
+    const suggestions: string[] = [];
+    
+    // Проверяем metadata на наличие suggestions
+    if (metadata?.suggestions && Array.isArray(metadata.suggestions)) {
+      suggestions.push(...metadata.suggestions);
+    }
+    
+    // Парсим suggestions из текста (формат: [suggestion1, suggestion2, suggestion3])
+    const suggestionMatch = content.match(/\[([^\]]+)\]/g);
+    if (suggestionMatch) {
+      suggestionMatch.forEach(match => {
+        const cleanMatch = match.slice(1, -1); // убираем скобки
+        const parsedSuggestions = cleanMatch.split(',').map(s => s.trim());
+        suggestions.push(...parsedSuggestions);
+      });
+    }
+    
+    // Парсим suggestions из текста (формат: "Варианты: вариант1 | вариант2 | вариант3")
+    const variantMatch = content.match(/(?:Варианты|Быстрые ответы|Suggestions?):\s*(.+?)(?:\n|$)/i);
+    if (variantMatch) {
+      const variants = variantMatch[1].split(/\s*\|\s*/).map(s => s.trim());
+      suggestions.push(...variants);
+    }
+    
+    // Убираем дубликаты и пустые значения, ограничиваем до 4 suggestions
+    return [...new Set(suggestions)]
+      .filter(s => s.length > 0 && s.length < 100)
+      .slice(0, 4);
+  }, []);
+
   // Автофокус на поле ввода
   const focusInput = useCallback(() => {
     setTimeout(() => {
@@ -64,6 +97,9 @@ export const useAIDiaryChat = () => {
     setIsAITyping(false);
     setIsLoading(false);
     
+    // Парсим suggestions из AI ответа
+    const suggestions = parseSuggestions(aiMessageData.content, aiMessageData.metadata);
+    
     // Убираем placeholder "AI печатает..." если он есть
     setMessages(prev => {
       const filteredMessages = prev.filter(msg => msg.id !== 'ai-typing-placeholder');
@@ -75,7 +111,8 @@ export const useAIDiaryChat = () => {
         content: '',
         timestamp: new Date(aiMessageData.created_at || Date.now()),
         session_id: aiMessageData.session_id,
-        isTyping: true
+        isTyping: true,
+        suggestions: suggestions.length > 0 ? suggestions : undefined
       };
       
       const newMessages = [...filteredMessages, aiMessage];
@@ -96,7 +133,7 @@ export const useAIDiaryChat = () => {
       
       return newMessages;
     });
-  }, [typeMessage]);
+  }, [typeMessage, parseSuggestions]);
 
   // Загружаем историю сессии и настраиваем Realtime подписку
   useEffect(() => {
@@ -129,7 +166,8 @@ export const useAIDiaryChat = () => {
               type: 'ai',
               content: 'Привет! Продолжаем наш разговор. О чем хотели бы поговорить?',
               timestamp: new Date(),
-              session_id: existingSessionId
+              session_id: existingSessionId,
+              suggestions: ['Как дела?', 'Расскажу о своем дне', 'Поговорим о настроении', 'Нужна поддержка']
             };
             setMessages([welcomeMessage]);
           }
@@ -166,7 +204,8 @@ export const useAIDiaryChat = () => {
           id: `initial_${Date.now()}`,
           type: 'ai',
           content: 'Привет! Я ваш AI-помощник для психологического благополучия. Расскажите, как дела? О чем хотели бы поговорить?',
-          timestamp: new Date()
+          timestamp: new Date(),
+          suggestions: ['Как дела?', 'Расскажу о своем дне', 'Хочу поговорить о стрессе', 'Нужен совет']
         };
         setMessages([initialMessage]);
       }
@@ -364,6 +403,17 @@ export const useAIDiaryChat = () => {
     return !!user;
   }, []);
 
+  // Обработка клика по suggestion
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    setInputMessage(suggestion);
+    // Автоматически отправляем suggestion как сообщение
+    setTimeout(() => {
+      if (suggestion.trim()) {
+        sendMessage(suggestion);
+      }
+    }, 100);
+  }, [sendMessage]);
+
   return {
     messages,
     inputMessage,
@@ -376,6 +426,7 @@ export const useAIDiaryChat = () => {
     sendMessage,
     startNewSession,
     endSession,
-    isUserAuthenticated
+    isUserAuthenticated,
+    handleSuggestionClick
   };
 };
