@@ -527,6 +527,151 @@ export type Database = {
         }
         Relationships: []
       }
+      therapy_questions: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          parent_question_id: string | null
+          question_code: string
+          question_text: string
+          question_type: string | null
+          scenario_id: string | null
+          sequence_number: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_question_id?: string | null
+          question_code: string
+          question_text: string
+          question_type?: string | null
+          scenario_id?: string | null
+          sequence_number?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_question_id?: string | null
+          question_code?: string
+          question_text?: string
+          question_type?: string | null
+          scenario_id?: string | null
+          sequence_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "therapy_questions_parent_question_id_fkey"
+            columns: ["parent_question_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "therapy_questions_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      therapy_scenarios: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_active: boolean | null
+          name: string | null
+          priority: number | null
+          scenario_code: string
+          scenario_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          priority?: number | null
+          scenario_code: string
+          scenario_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          priority?: number | null
+          scenario_code?: string
+          scenario_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      therapy_transitions: {
+        Row: {
+          condition_data: Json | null
+          condition_type: string | null
+          created_at: string | null
+          from_question_id: string | null
+          id: string
+          next_question_id: string | null
+          next_scenario_id: string | null
+          priority: number | null
+        }
+        Insert: {
+          condition_data?: Json | null
+          condition_type?: string | null
+          created_at?: string | null
+          from_question_id?: string | null
+          id?: string
+          next_question_id?: string | null
+          next_scenario_id?: string | null
+          priority?: number | null
+        }
+        Update: {
+          condition_data?: Json | null
+          condition_type?: string | null
+          created_at?: string | null
+          from_question_id?: string | null
+          id?: string
+          next_question_id?: string | null
+          next_scenario_id?: string | null
+          priority?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "therapy_transitions_from_question_id_fkey"
+            columns: ["from_question_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "therapy_transitions_next_question_id_fkey"
+            columns: ["next_question_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "therapy_transitions_next_scenario_id_fkey"
+            columns: ["next_scenario_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -547,6 +692,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_therapy_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_question_id: string | null
+          id: string
+          insights: Json | null
+          metrics: Json | null
+          responses: Json | null
+          scenario_id: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_question_id?: string | null
+          id?: string
+          insights?: Json | null
+          metrics?: Json | null
+          responses?: Json | null
+          scenario_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_question_id?: string | null
+          id?: string
+          insights?: Json | null
+          metrics?: Json | null
+          responses?: Json | null
+          scenario_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_therapy_progress_current_question_id_fkey"
+            columns: ["current_question_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_therapy_progress_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -608,6 +807,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      insert_test_mood_entries: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          inserted_count: number
+        }[]
+      }
       log_profile_access: {
         Args: {
           access_type: string
@@ -616,6 +821,10 @@ export type Database = {
           reason?: string
         }
         Returns: undefined
+      }
+      test_webhook_connection: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       update_activity_status: {
         Args: { activity_id: string; new_status: string; user_notes?: string }

@@ -1,8 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Brain, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Brain, RefreshCw, Beaker } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from '@/components/dashboard/UserMenu';
@@ -10,9 +10,27 @@ import { StateChart } from '@/components/state/StateChart';
 import { TodayMetrics } from '@/components/state/TodayMetrics';
 import { useStateMetrics } from '@/hooks/useStateMetrics';
 import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const State = () => {
   const { metrics, todayMetrics, loading, refreshMetrics } = useStateMetrics();
+  const [isGeneratingTestData, setIsGeneratingTestData] = useState(false);
+
+  const handleGenerateTestData = async () => {
+    setIsGeneratingTestData(true);
+    try {
+      const { data, error } = await supabase.rpc('insert_test_mood_entries');
+      if (error) throw error;
+      toast.success(`Создано ${data?.[0]?.inserted_count || 3} тестовых записей`);
+      await refreshMetrics();
+    } catch (error) {
+      console.error('Error generating test data:', error);
+      toast.error('Ошибка при создании тестовых данных');
+    } finally {
+      setIsGeneratingTestData(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
@@ -55,15 +73,26 @@ const State = () => {
               Отслеживание настроения, энергии и уровня стресса
             </p>
           </div>
-          <Button 
-            onClick={refreshMetrics} 
-            disabled={loading}
-            variant="outline"
-            size="sm"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Обновить
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleGenerateTestData}
+              disabled={isGeneratingTestData || loading}
+              variant="outline"
+              size="sm"
+            >
+              <Beaker className={`w-4 h-4 mr-2 ${isGeneratingTestData ? 'animate-pulse' : ''}`} />
+              Тестовые данные
+            </Button>
+            <Button 
+              onClick={refreshMetrics} 
+              disabled={loading}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Обновить
+            </Button>
+          </div>
         </div>
 
         {/* Today's Metrics */}
