@@ -1,27 +1,29 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Brain, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from '@/components/dashboard/UserMenu';
+import { StateChart } from '@/components/state/StateChart';
+import { TodayMetrics } from '@/components/state/TodayMetrics';
+import { useStateMetrics } from '@/hooks/useStateMetrics';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const State = () => {
+  const { metrics, todayMetrics, loading, refreshMetrics } = useStateMetrics();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
       {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
+      <header className="bg-card/80 backdrop-blur-lg border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link to="/" className="flex items-center space-x-2">
-                <Brain className="w-8 h-8" style={{ color: `hsl(var(--psybalans-primary))` }} />
-                <span 
-                  className="text-2xl font-bold bg-clip-text text-transparent"
-                  style={{ 
-                    backgroundImage: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
-                  }}
-                >
+                <Brain className="w-8 h-8 text-primary" />
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   PsyBalans
                 </span>
               </Link>
@@ -44,28 +46,75 @@ const State = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Состояние
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Отслеживание текущего психологического состояния
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm">
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-4xl">🧠</span>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Страница в разработке
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Здесь будет интерфейс для отслеживания вашего текущего состояния
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Текущее состояние
+            </h1>
+            <p className="text-muted-foreground">
+              Отслеживание настроения, энергии и уровня стресса
             </p>
           </div>
+          <Button 
+            onClick={refreshMetrics} 
+            disabled={loading}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Обновить
+          </Button>
         </div>
+
+        {/* Today's Metrics */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground mb-4">
+            Показатели сегодня
+          </h2>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="p-6">
+                  <Skeleton className="h-24 w-full" />
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <TodayMetrics metrics={todayMetrics} />
+          )}
+        </div>
+
+        {/* Weekly Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Динамика за неделю</CardTitle>
+            <CardDescription>
+              График изменения показателей за последние 7 дней
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-[400px] w-full" />
+            ) : metrics.length > 0 ? (
+              <StateChart metrics={metrics} />
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">📊</span>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Нет данных для отображения
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Начните заполнять дневник настроения, чтобы видеть графики
+                </p>
+                <Link to="/diaries">
+                  <Button>Перейти к дневникам</Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
