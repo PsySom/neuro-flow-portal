@@ -17,11 +17,17 @@ export type Database = {
       activities: {
         Row: {
           activity_type_id: number
+          calendar_event_id: string | null
+          calendar_provider: string | null
+          calendar_sync_status: string | null
           created_at: string
           description: string | null
           end_time: string | null
+          from_template_id: number | null
           id: string
+          kind: Database["public"]["Enums"]["activity_kind"] | null
           metadata: Json | null
+          planned_at: string | null
           start_time: string
           status: string
           title: string
@@ -30,11 +36,17 @@ export type Database = {
         }
         Insert: {
           activity_type_id: number
+          calendar_event_id?: string | null
+          calendar_provider?: string | null
+          calendar_sync_status?: string | null
           created_at?: string
           description?: string | null
           end_time?: string | null
+          from_template_id?: number | null
           id?: string
+          kind?: Database["public"]["Enums"]["activity_kind"] | null
           metadata?: Json | null
+          planned_at?: string | null
           start_time: string
           status?: string
           title: string
@@ -43,11 +55,17 @@ export type Database = {
         }
         Update: {
           activity_type_id?: number
+          calendar_event_id?: string | null
+          calendar_provider?: string | null
+          calendar_sync_status?: string | null
           created_at?: string
           description?: string | null
           end_time?: string | null
+          from_template_id?: number | null
           id?: string
+          kind?: Database["public"]["Enums"]["activity_kind"] | null
           metadata?: Json | null
+          planned_at?: string | null
           start_time?: string
           status?: string
           title?: string
@@ -116,6 +134,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      activity_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          default_notes: string | null
+          id: number
+          is_public: boolean | null
+          kind: Database["public"]["Enums"]["activity_kind"]
+          metadata: Json | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          default_notes?: string | null
+          id?: number
+          is_public?: boolean | null
+          kind: Database["public"]["Enums"]["activity_kind"]
+          metadata?: Json | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          default_notes?: string | null
+          id?: number
+          is_public?: boolean | null
+          kind?: Database["public"]["Enums"]["activity_kind"]
+          metadata?: Json | null
+          title?: string
+        }
+        Relationships: []
       }
       activity_types: {
         Row: {
@@ -347,6 +398,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      four_scale_trackers: {
+        Row: {
+          activity_id: string | null
+          created_at: string | null
+          date: string
+          day_part: Database["public"]["Enums"]["day_part"] | null
+          energy_cost: number
+          id: string
+          metadata: Json | null
+          process_satisfaction: number
+          result_satisfaction: number
+          scope: Database["public"]["Enums"]["tracker_scope"]
+          stress_level: number
+          user_id: string
+        }
+        Insert: {
+          activity_id?: string | null
+          created_at?: string | null
+          date: string
+          day_part?: Database["public"]["Enums"]["day_part"] | null
+          energy_cost: number
+          id?: string
+          metadata?: Json | null
+          process_satisfaction: number
+          result_satisfaction: number
+          scope: Database["public"]["Enums"]["tracker_scope"]
+          stress_level: number
+          user_id: string
+        }
+        Update: {
+          activity_id?: string | null
+          created_at?: string | null
+          date?: string
+          day_part?: Database["public"]["Enums"]["day_part"] | null
+          energy_cost?: number
+          id?: string
+          metadata?: Json | null
+          process_satisfaction?: number
+          result_satisfaction?: number
+          scope?: Database["public"]["Enums"]["tracker_scope"]
+          stress_level?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "four_scale_trackers_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       metric_alerts: {
         Row: {
@@ -1027,6 +1131,7 @@ export type Database = {
       }
     }
     Enums: {
+      activity_kind: "restorative" | "neutral" | "mixed" | "depleting"
       app_role: "admin" | "user"
       content_status: "draft" | "published"
       day_part: "morning" | "afternoon" | "evening"
@@ -1159,6 +1264,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_kind: ["restorative", "neutral", "mixed", "depleting"],
       app_role: ["admin", "user"],
       content_status: ["draft", "published"],
       day_part: ["morning", "afternoon", "evening"],
