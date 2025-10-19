@@ -80,6 +80,28 @@ export interface DefaultNorm {
   norm_max: number;
 }
 
+export interface DiaryHistoryFilters {
+  type?: "all" | "notes" | "structured";
+  topic?: string;
+  startDate?: string;
+  endDate?: string;
+  onlyOutOfNorm?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DiaryHistoryItem {
+  id: string;
+  type: "note" | "structured";
+  created_at: string;
+  content: string;
+  topic?: string;
+  topics?: string[];
+  hasOutOfNormMetrics?: boolean;
+  metrics?: DiaryMetric[];
+  emotions?: DiaryEmotion[];
+}
+
 export class DiaryService {
   async createNote(input: CreateNoteInput): Promise<DiaryNote> {
     const validated = createNoteSchema.parse(input);
@@ -220,6 +242,139 @@ export class DiaryService {
 
     if (error) throw error;
     return data || [];
+  }
+
+  async getDiaryHistory(filters: DiaryHistoryFilters = {}): Promise<{
+    items: DiaryHistoryItem[];
+    total: number;
+  }> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error("Not authenticated");
+
+    const limit = filters.limit || 20;
+    const offset = filters.offset || 0;
+    const items: DiaryHistoryItem[] = [];
+
+    // Fetch notes if needed
+    if (filters.type === "all" || filters.type === "notes" || !filters.type) {
+      let notesQuery = supabase
+        .from("diary_notes")
+        .select("*", { count: "exact" })
+        .eq("user_id", user.user.id)
+        .order("created_at", { ascending: false });
+
+      if (filters.startDate) {
+        notesQuery = notesQuery.gte("created_at", filters.startDate);
+      }
+      if (filters.endDate) {
+        notesQuery = notesQuery.lte("created_at", filters.endDate);
+      }
+
+      const { data: notes } = await notesQuery.limit(limit);
+
+      if (notes) {
+        items.push(
+          ...notes.map((note) => ({
+            id: note.id,
+            type: "note" as const,
+            created_at: note.created_at,
+            content: note.text,
+            topics: note.topics || [],
+          }))
+        );
+      }
+    }
+
+    // Fetch structured entries if needed
+    if (filters.type === "all" || filters.type === "structured" || !filters.type) {
+      let entriesQuery = supabase
+        .from("diary_entries")
+        .select("*, diary_entry_metrics(*)", { count: "exact" })
+        .eq("user_id", user.user.id)
+        .order("created_at", { ascending: false });
+
+      if (filters.topic) {
+        entriesQuery = entriesQuery.eq("topic", filters.topic);
+      }
+      if (filters.startDate) {
+        entriesQuery = entriesQuery.gte("created_at", filters.startDate);
+      }
+      if (filters.endDate) {
+        entriesQuery = entriesQuery.lte("created_at", filters.endDate);
+      }
+
+      const { data: entries } = await entriesQuery.limit(limit);
+
+      if (entries) {
+        const defaultNorms = await this.getDefaultNorms();
+
+        for (const entry of entries) {
+          const metrics = (entry.diary_entry_metrics as any[]) || [];
+          
+          // Check if any metric is out of norm
+          const hasOutOfNormMetrics = metrics.some((m) => {
+            const norm = defaultNorms.find((n) => n.metric_key === m.key);
+            if (!norm && !m.norm_min && !m.norm_max) return false;
+            
+            const min = m.norm_min ?? norm?.norm_min ?? -Infinity;
+            const max = m.norm_max ?? norm?.norm_max ?? Infinity;
+            
+            return m.value < min || m.value > max;
+          });
+
+          // Only include if not filtering by onlyOutOfNorm, or if it matches the filter
+          if (!filters.onlyOutOfNorm || hasOutOfNormMetrics) {
+            items.push({
+              id: entry.id,
+              type: "structured" as const,
+              created_at: entry.created_at,
+              content: entry.context || "",
+              topic: entry.topic,
+              hasOutOfNormMetrics,
+              metrics,
+            });
+          }
+        }
+      }
+    }
+
+    // Sort by date and apply pagination
+    items.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    const paginatedItems = items.slice(offset, offset + limit);
+
+    return {
+      items: paginatedItems,
+      total: items.length,
+    };
+  }
+
+  async updateNoteTopics(noteId: string, topics: string[]): Promise<void> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("diary_notes")
+      .update({ topics })
+      .eq("id", noteId)
+      .eq("user_id", user.user.id);
+
+    if (error) throw error;
+  }
+
+  async updateEntryContext(entryId: string, context: string): Promise<void> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("diary_entries")
+      .update({ context })
+      .eq("id", entryId)
+      .eq("user_id", user.user.id);
+
+    if (error) throw error;
   }
 }
 

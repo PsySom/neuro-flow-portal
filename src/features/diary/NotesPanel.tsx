@@ -24,11 +24,6 @@ export function NotesPanel({
   const queryClient = useQueryClient();
   const [showSuggestions] = useState(true);
 
-  const { data: notes = [], isLoading: isLoadingNotes } = useQuery({
-    queryKey: ["diary-notes"],
-    queryFn: () => diaryService.listNotes(20),
-  });
-
   const createNoteMutation = useMutation({
     mutationFn: (input: CreateNoteInput) => diaryService.createNote(input),
     onMutate: async (newNote) => {
@@ -61,6 +56,7 @@ export function NotesPanel({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["diary-notes"] });
+      queryClient.invalidateQueries({ queryKey: ["diary-history"] });
       onClearDraft();
       toast({
         title: "Сохранено",
@@ -142,45 +138,6 @@ export function NotesPanel({
             )}
           </Button>
         </div>
-      </div>
-
-      <Separator />
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">История заметок</h3>
-        {isLoadingNotes ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : notes.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Пока нет заметок
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {notes.map((note) => (
-              <Card key={note.id}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm text-muted-foreground">
-                    {format(new Date(note.created_at), "dd.MM.yyyy HH:mm")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap">{note.text}</p>
-                  {note.topics && note.topics.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-3">
-                      {note.topics.map((topic, idx) => (
-                        <Badge key={idx} variant="outline">
-                          {topic}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

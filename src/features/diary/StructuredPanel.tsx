@@ -62,11 +62,6 @@ export function StructuredPanel({
   const queryClient = useQueryClient();
   const [newEmotion, setNewEmotion] = useState("");
 
-  const { data: entries = [], isLoading: isLoadingEntries } = useQuery({
-    queryKey: ["diary-entries"],
-    queryFn: () => diaryService.listStructured(20),
-  });
-
   const { data: defaultNorms = [] } = useQuery({
     queryKey: ["default-norms"],
     queryFn: () => diaryService.getDefaultNorms(),
@@ -103,6 +98,7 @@ export function StructuredPanel({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["diary-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["diary-history"] });
       queryClient.invalidateQueries({ queryKey: ["diary-metrics"] });
       onClearDraft();
       toast({
@@ -356,46 +352,6 @@ export function StructuredPanel({
             )}
           </Button>
         </div>
-      </div>
-
-      <Separator />
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">История записей</h3>
-        {isLoadingEntries ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : entries.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Пока нет записей
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {entries.map((entry) => (
-              <Card key={entry.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm text-muted-foreground">
-                      {format(new Date(entry.created_at), "dd.MM.yyyy HH:mm")}
-                    </CardTitle>
-                    <Badge variant="outline">
-                      {TOPICS.find((t) => t.value === entry.topic)?.label ||
-                        entry.topic}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                {entry.context && (
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {entry.context}
-                    </p>
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
