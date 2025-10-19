@@ -221,6 +221,177 @@ export type Database = {
         }
         Relationships: []
       }
+      diary_entries: {
+        Row: {
+          ai_summary: string | null
+          context: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          topic: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      diary_entry_emotions: {
+        Row: {
+          entry_id: string
+          id: number
+          intensity: number | null
+          label: string
+        }
+        Insert: {
+          entry_id: string
+          id?: number
+          intensity?: number | null
+          label: string
+        }
+        Update: {
+          entry_id?: string
+          id?: number
+          intensity?: number | null
+          label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diary_entry_emotions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "diary_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diary_entry_metrics: {
+        Row: {
+          entry_id: string
+          id: number
+          key: string
+          norm_max: number | null
+          norm_min: number | null
+          value: number
+        }
+        Insert: {
+          entry_id: string
+          id?: number
+          key: string
+          norm_max?: number | null
+          norm_min?: number | null
+          value: number
+        }
+        Update: {
+          entry_id?: string
+          id?: number
+          key?: string
+          norm_max?: number | null
+          norm_min?: number | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diary_entry_metrics_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "diary_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diary_notes: {
+        Row: {
+          ai_followups: string[] | null
+          ai_suggestions: string[] | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          text: string
+          topics: string[] | null
+          user_id: string
+        }
+        Insert: {
+          ai_followups?: string[] | null
+          ai_suggestions?: string[] | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          text: string
+          topics?: string[] | null
+          user_id: string
+        }
+        Update: {
+          ai_followups?: string[] | null
+          ai_suggestions?: string[] | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          text?: string
+          topics?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      metric_alerts: {
+        Row: {
+          created_at: string | null
+          delivered: boolean | null
+          entry_id: string
+          id: number
+          metric_key: string
+          norm_max: number | null
+          norm_min: number | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          delivered?: boolean | null
+          entry_id: string
+          id?: number
+          metric_key: string
+          norm_max?: number | null
+          norm_min?: number | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          delivered?: boolean | null
+          entry_id?: string
+          id?: number
+          metric_key?: string
+          norm_max?: number | null
+          norm_min?: number | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_alerts_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "diary_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mood_diary_entries: {
         Row: {
           body_areas: string[] | null
@@ -839,7 +1010,9 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       content_status: "draft" | "published"
+      day_part: "morning" | "afternoon" | "evening"
       difficulty_level: "beginner" | "intermediate" | "advanced"
+      tracker_scope: "day" | "day_part" | "activity"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -969,7 +1142,9 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       content_status: ["draft", "published"],
+      day_part: ["morning", "afternoon", "evening"],
       difficulty_level: ["beginner", "intermediate", "advanced"],
+      tracker_scope: ["day", "day_part", "activity"],
     },
   },
 } as const
