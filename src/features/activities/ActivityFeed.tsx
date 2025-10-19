@@ -27,6 +27,7 @@ import {
 import { ActivityEditor } from "./ActivityEditor";
 import { ActivityTrackerDialog } from "./ActivityTrackerDialog";
 import { TemplatesPicker } from "./TemplatesPicker";
+import { DayBalanceIndicator } from "./DayBalanceIndicator";
 import { ActivityTemplate } from "@/services/activity-templates.service";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -205,6 +206,8 @@ export function ActivityFeed() {
 
   return (
     <div className="space-y-4">
+      <DayBalanceIndicator />
+
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => {
           setSelectedActivity(undefined);
