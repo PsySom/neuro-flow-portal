@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 interface TimePickerDropdownProps {
   open: boolean;
@@ -18,27 +18,35 @@ const TimePickerDropdown: React.FC<TimePickerDropdownProps> = ({
   onChange,
   triggerRef
 }) => {
-  const [selectedHour, setSelectedHour] = useState('09');
-  const [selectedMinute, setSelectedMinute] = useState('00');
+  const [timeInMinutes, setTimeInMinutes] = useState(540); // 09:00 в минутах
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-  const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
+  // Генерируем временные интервалы с шагом 5 минут (0:00 - 23:55)
+  const totalMinutesInDay = 24 * 60;
+  
+  const minutesToTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  };
+
+  const timeToMinutes = (time: string) => {
+    const [hours, mins] = time.split(':').map(Number);
+    return hours * 60 + mins;
+  };
 
   useEffect(() => {
     if (open && value) {
-      const [hour, minute] = value.split(':');
-      setSelectedHour(hour || '09');
-      setSelectedMinute(minute || '00');
+      setTimeInMinutes(timeToMinutes(value));
     }
   }, [open, value]);
 
   useEffect(() => {
     if (open && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      const dropdownWidth = 200;
-      const dropdownHeight = 180;
+      const dropdownWidth = 280;
+      const dropdownHeight = 200;
       
       let top = rect.bottom + 4;
       let left = rect.left;
@@ -72,31 +80,17 @@ const TimePickerDropdown: React.FC<TimePickerDropdownProps> = ({
     };
   }, [open, onClose]);
 
-  const handleTimeSelect = (hour: string, minute: string) => {
-    const time = `${hour}:${minute}`;
+  const handleTimeSelect = () => {
+    const time = minutesToTime(timeInMinutes);
     onChange(time);
     onClose();
   };
 
-  const scrollToCurrentTime = (type: 'hour' | 'minute') => {
-    const currentValue = type === 'hour' ? selectedHour : selectedMinute;
-    const container = dropdownRef.current?.querySelector(`[data-scroll-${type}]`);
-    if (container) {
-      const element = container.querySelector(`[data-value="${currentValue}"]`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
+  const handleSliderChange = (values: number[]) => {
+    // Округляем до ближайших 5 минут
+    const roundedMinutes = Math.round(values[0] / 5) * 5;
+    setTimeInMinutes(roundedMinutes);
   };
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        scrollToCurrentTime('hour');
-        scrollToCurrentTime('minute');
-      }, 100);
-    }
-  }, [open, selectedHour, selectedMinute]);
 
   if (!open) return null;
 
@@ -107,75 +101,66 @@ const TimePickerDropdown: React.FC<TimePickerDropdownProps> = ({
       style={{
         top: position.top,
         left: position.left,
-        width: '200px'
+        width: '280px'
       }}
     >
-      <div className="p-2">
-        <div className="flex gap-2 mb-2">
-          {/* Часы */}
-          <div className="flex-1">
-            <div className="text-center mb-1 font-medium text-xs">Часы</div>
-            <ScrollArea className="h-20 border rounded">
-              <div data-scroll-hour className="p-1">
-                {hours.map((hour) => (
-                  <div
-                    key={hour}
-                    data-value={hour}
-                    className={`p-1 text-center cursor-pointer rounded text-xs hover:bg-gray-100 ${
-                      selectedHour === hour ? 'bg-emerald-100 text-emerald-700 font-medium' : ''
-                    }`}
-                    onClick={() => setSelectedHour(hour)}
-                  >
-                    {hour}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+      <div className="p-4">
+        {/* Выбранное время */}
+        <div className="text-center mb-4">
+          <div className="text-2xl font-bold text-emerald-600">
+            {minutesToTime(timeInMinutes)}
           </div>
-
-          {/* Минуты */}
-          <div className="flex-1">
-            <div className="text-center mb-1 font-medium text-xs">Минуты</div>
-            <ScrollArea className="h-20 border rounded">
-              <div data-scroll-minute className="p-1">
-                {minutes.map((minute) => (
-                  <div
-                    key={minute}
-                    data-value={minute}
-                    className={`p-1 text-center cursor-pointer rounded text-xs hover:bg-gray-100 ${
-                      selectedMinute === minute ? 'bg-emerald-100 text-emerald-700 font-medium' : ''
-                    }`}
-                    onClick={() => setSelectedMinute(minute)}
-                  >
-                    {minute}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+          <div className="text-xs text-muted-foreground mt-1">
+            Выберите время
           </div>
         </div>
 
-        {/* Выбранное время */}
-        <div className="text-center mb-2">
-          <div className="text-sm font-bold text-emerald-600">
-            {selectedHour}:{selectedMinute}
+        {/* Вертикальный слайдер времени */}
+        <div className="mb-4 px-2">
+          <Slider
+            value={[timeInMinutes]}
+            onValueChange={handleSliderChange}
+            max={totalMinutesInDay - 5}
+            min={0}
+            step={5}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <span>00:00</span>
+            <span>12:00</span>
+            <span>23:55</span>
           </div>
+        </div>
+
+        {/* Быстрый выбор */}
+        <div className="grid grid-cols-4 gap-1 mb-4">
+          {[0, 360, 540, 720, 1080, 1200, 1320, 1380].map((mins) => (
+            <Button
+              key={mins}
+              variant="outline"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setTimeInMinutes(mins)}
+            >
+              {minutesToTime(mins)}
+            </Button>
+          ))}
         </div>
 
         {/* Кнопки */}
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 text-xs h-7"
+            className="flex-1"
             onClick={onClose}
           >
             Отмена
           </Button>
           <Button
             size="sm"
-            className="flex-1 text-xs h-7 bg-emerald-600 hover:bg-emerald-700"
-            onClick={() => handleTimeSelect(selectedHour, selectedMinute)}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            onClick={handleTimeSelect}
           >
             Выбрать
           </Button>

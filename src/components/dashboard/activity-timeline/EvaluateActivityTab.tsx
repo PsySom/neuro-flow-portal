@@ -60,28 +60,6 @@ const EvaluateActivityTab: React.FC = () => {
       <div className="space-y-6">
         <h3 className="text-lg font-semibold">Оценка активности</h3>
         
-        {/* Удовлетворенность результатом */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label>Удовлетворенность результатом</Label>
-            <span className="text-sm font-medium bg-emerald-100 px-2 py-1 rounded">
-              {satisfaction[0]}/10
-            </span>
-          </div>
-          <Slider
-            value={satisfaction}
-            onValueChange={setSatisfaction}
-            max={10}
-            min={0}
-            step={1}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Совсем не удовлетворен</span>
-            <span>Полностью удовлетворен</span>
-          </div>
-        </div>
-
         {/* Удовлетворенность процессом */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -104,10 +82,32 @@ const EvaluateActivityTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Усталость/восстановление */}
+        {/* Удовлетворенность результатом */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Усталость/восстановление</Label>
+            <Label>Удовлетворенность результатом</Label>
+            <span className="text-sm font-medium bg-emerald-100 px-2 py-1 rounded">
+              {satisfaction[0]}/10
+            </span>
+          </div>
+          <Slider
+            value={satisfaction}
+            onValueChange={setSatisfaction}
+            max={10}
+            min={0}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Совсем не удовлетворен</span>
+            <span>Полностью удовлетворен</span>
+          </div>
+        </div>
+
+        {/* Затраты энергии */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label>Затраты энергии</Label>
             <span className="text-sm font-medium bg-purple-100 px-2 py-1 rounded">
               {fatigue[0]}/10
             </span>
@@ -121,15 +121,15 @@ const EvaluateActivityTab: React.FC = () => {
             className="w-full"
           />
           <div className="flex justify-between text-xs text-gray-500">
-            <span>Очень устал</span>
-            <span>Полностью восстановился</span>
+            <span>Очень легко</span>
+            <span>Очень трудно</span>
           </div>
         </div>
 
-        {/* Стресс/тревога */}
+        {/* Уровень стресса */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Стресс/тревога</Label>
+            <Label>Уровень стресса</Label>
             <span className="text-sm font-medium bg-red-100 px-2 py-1 rounded">
               {stress[0]}/10
             </span>
