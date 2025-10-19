@@ -17,7 +17,8 @@ const diaryTypes = [
     path: '/mood-scenario-diary',
     color: 'from-pink-100 to-pink-200',
     darkColor: 'dark:from-pink-900/20 dark:to-pink-800/20',
-    isNew: true
+    isNew: true,
+    scenarioSlug: 'mood_diary_flow'
   },
   {
     title: 'Дневник настроения',
@@ -156,6 +157,7 @@ const Diaries = () => {
                   emoji={diary.emoji}
                   description={diary.description}
                   color={diary.color}
+                  scenarioSlug={(diary as any).scenarioSlug}
                   onStatusChange={(status) => {
                     console.log(`Статус дневника ${diary.title} изменен:`, status);
                   }}

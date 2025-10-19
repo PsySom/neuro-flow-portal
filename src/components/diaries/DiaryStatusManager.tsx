@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Play, Pause, Square } from 'lucide-react';
 import { useDiaryStatus, type MoodDiaryConfig } from '@/contexts/DiaryStatusContext';
 import MoodDiaryConfigDialog from './MoodDiaryConfigDialog';
+import { userActiveDiariesService } from '@/services/user-active-diaries.service';
+import { useToast } from '@/hooks/use-toast';
 
 export interface DiaryStatus {
   id: string;
@@ -20,6 +22,7 @@ interface DiaryStatusManagerProps {
   emoji: string;
   description: string;
   color: string;
+  scenarioSlug?: string;
   onStatusChange?: (status: DiaryStatus) => void;
 }
 
@@ -29,9 +32,11 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   emoji,
   description,
   color,
+  scenarioSlug,
   onStatusChange
 }) => {
   const { updateDiaryStatus } = useDiaryStatus();
+  const { toast } = useToast();
   // Инициализируем статус из localStorage или значениями по умолчанию
   const getInitialStatus = (): DiaryStatus => {
     const saved = localStorage.getItem(`diary-status-${diaryPath}`);
@@ -68,7 +73,7 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
     setShowConfigDialog(true);
   };
 
-  const handleMoodDiaryConfig = (config: MoodDiaryConfig) => {
+  const handleMoodDiaryConfig = async (config: MoodDiaryConfig) => {
     updateStatus({ 
       isActive: true, 
       isPaused: false, 
@@ -76,14 +81,50 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
       lastEntryDate: null,
       scheduledDate: new Date().toISOString().split('T')[0]
     });
+
+    // Активируем сценарий в БД, если указан scenarioSlug
+    if (scenarioSlug) {
+      try {
+        await userActiveDiariesService.activateScenario(scenarioSlug);
+        toast({
+          title: "Успешно",
+          description: "Дневник активирован и добавлен в раздел 'Активные'",
+        });
+      } catch (error) {
+        console.error('Error activating scenario:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось активировать дневник в базе данных",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handlePause = () => {
     updateStatus({ isPaused: !status.isPaused });
   };
 
-  const handleDeactivate = () => {
+  const handleDeactivate = async () => {
     updateStatus({ isActive: false, isPaused: false });
+
+    // Деактивируем сценарий в БД, если указан scenarioSlug
+    if (scenarioSlug) {
+      try {
+        await userActiveDiariesService.deactivateScenario(scenarioSlug);
+        toast({
+          title: "Успешно",
+          description: "Дневник деактивирован",
+        });
+      } catch (error) {
+        console.error('Error deactivating scenario:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось деактивировать дневник в базе данных",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleSchedule = () => {

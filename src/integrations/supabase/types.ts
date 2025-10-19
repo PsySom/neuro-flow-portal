@@ -947,6 +947,27 @@ export type Database = {
           },
         ]
       }
+      user_active_diaries: {
+        Row: {
+          created_at: string | null
+          id: string
+          scenario_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          scenario_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          scenario_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
