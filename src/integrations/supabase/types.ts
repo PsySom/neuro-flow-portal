@@ -920,7 +920,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_default_norms: {
+        Row: {
+          metric_key: string | null
+          norm_max: number | null
+          norm_min: number | null
+        }
+        Relationships: []
+      }
+      v_diary_metrics_timeseries: {
+        Row: {
+          key: string | null
+          norm_max: number | null
+          norm_min: number | null
+          topic: string | null
+          ts: string | null
+          user_id: string | null
+          value: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_get_user_profiles: {
