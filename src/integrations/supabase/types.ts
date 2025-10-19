@@ -1024,6 +1024,15 @@ export type Database = {
       }
     }
     Views: {
+      v_daily_rli: {
+        Row: {
+          date: string | null
+          day_recovery: number | null
+          day_strain: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       v_default_norms: {
         Row: {
           metric_key: string | null
