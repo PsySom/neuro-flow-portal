@@ -27,6 +27,7 @@ import OCDDiaryPage from './pages/OCDDiaryPage';
 import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 import SleepDiaryPage from './pages/SleepDiaryPage';
 import Diary from './pages/Diary';
+import Activities from './pages/Activities';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import SupabaseAuthProvider from './contexts/SupabaseAuthContext';
@@ -65,6 +66,7 @@ function App() {
                   <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
                   <Route path="/sleep-diary" element={<SleepDiaryPage />} />
                   <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
+                  <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
                   <Route path="/onboarding" element={<Onboarding />} />
                 </Routes>
               </div>
