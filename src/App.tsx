@@ -27,6 +27,7 @@ import OCDDiaryPage from './pages/OCDDiaryPage';
 import DepressionCareDiaryPage from './pages/DepressionCareDiaryPage';
 import SleepDiaryPage from './pages/SleepDiaryPage';
 import Diary from './pages/Diary';
+import MoodScenarioDiaryPage from './pages/MoodScenarioDiaryPage';
 import Activities from './pages/Activities';
 import Analytics from './pages/Analytics';
 import Auth from './pages/Auth';
@@ -66,6 +67,7 @@ function App() {
                   <Route path="/ocd-diary" element={<OCDDiaryPage />} />
                   <Route path="/depression-care-diary" element={<DepressionCareDiaryPage />} />
                   <Route path="/sleep-diary" element={<SleepDiaryPage />} />
+                  <Route path="/mood-scenario-diary" element={<ProtectedRoute><MoodScenarioDiaryPage /></ProtectedRoute>} />
                   <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
                   <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
                   <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

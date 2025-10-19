@@ -11,6 +11,15 @@ import DiaryStatusManager from '@/components/diaries/DiaryStatusManager';
 
 const diaryTypes = [
   {
+    title: 'Дневник настроения (сценарий)',
+    description: 'Структурированный дневник с пошаговыми вопросами',
+    emoji: '😊',
+    path: '/mood-scenario-diary',
+    color: 'from-pink-100 to-pink-200',
+    darkColor: 'dark:from-pink-900/20 dark:to-pink-800/20',
+    isNew: true
+  },
+  {
     title: 'Дневник настроения',
     description: 'Отслеживайте свои эмоции и настроение',
     emoji: '😊',
@@ -110,7 +119,14 @@ const Diaries = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {diaryTypes.map((diary) => (
-            <Card key={diary.path} className={`bg-gradient-to-br ${diary.color} ${diary.darkColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105`}>
+            <Card key={diary.path} className={`bg-gradient-to-br ${diary.color} ${diary.darkColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative`}>
+              {diary.isNew && (
+                <div className="absolute top-3 right-3">
+                  <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    НОВОЕ
+                  </span>
+                </div>
+              )}
               <CardHeader className="text-center">
                 <div className="text-4xl mb-2">{diary.emoji}</div>
                 <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200">
