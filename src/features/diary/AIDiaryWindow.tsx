@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { NotesPanel } from "./NotesPanel";
 import { StructuredPanel } from "./StructuredPanel";
 import { DiaryHistory } from "./DiaryHistory";
-import { BookText, ListChecks } from "lucide-react";
+import { StructuredHistory } from "./StructuredHistory";
+import { BookText, ListChecks, History } from "lucide-react";
 
 interface DraftState {
   notes: string;
@@ -88,7 +89,7 @@ export function AIDiaryWindow() {
       <div className="grid gap-6 lg:grid-cols-[1fr,400px]">
         <Card className="p-6">
           <Tabs value={mode} onValueChange={handleModeChange}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="notes" className="flex items-center gap-2">
                 <BookText className="h-4 w-4" />
                 Свободные заметки
@@ -96,6 +97,10 @@ export function AIDiaryWindow() {
               <TabsTrigger value="structured" className="flex items-center gap-2">
                 <ListChecks className="h-4 w-4" />
                 Структурированные записи
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                История
               </TabsTrigger>
             </TabsList>
 
@@ -117,6 +122,10 @@ export function AIDiaryWindow() {
                 }
                 onClearDraft={() => clearDraft("structured")}
               />
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-0">
+              <StructuredHistory />
             </TabsContent>
           </Tabs>
         </Card>
