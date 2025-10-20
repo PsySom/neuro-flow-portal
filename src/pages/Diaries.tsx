@@ -11,22 +11,22 @@ import DiaryStatusManager from '@/components/diaries/DiaryStatusManager';
 
 const diaryTypes = [
   {
-    title: 'Дневник настроения (сценарий)',
-    description: 'Структурированный дневник с пошаговыми вопросами',
+    title: 'Дневник настроения',
+    description: 'Структурированный дневник для отслеживания настроения, эмоций, триггеров и телесных ощущений',
     emoji: '😊',
     path: '/mood-scenario-diary',
     color: 'from-pink-100 to-pink-200',
     darkColor: 'dark:from-pink-900/20 dark:to-pink-800/20',
-    isNew: true,
     scenarioSlug: 'mood_diary_flow'
   },
   {
-    title: 'Дневник настроения',
-    description: 'Отслеживайте свои эмоции и настроение',
-    emoji: '😊',
-    path: '/mood-diary',
-    color: 'from-pink-100 to-pink-200',
-    darkColor: 'dark:from-pink-900/20 dark:to-pink-800/20'
+    title: 'Дневник сна и отдыха',
+    description: 'Структурированный дневник для отслеживания качества сна, восстановления и факторов влияния',
+    emoji: '😴',
+    path: '/sleep-diary',
+    color: 'from-indigo-100 to-indigo-200',
+    darkColor: 'dark:from-indigo-900/20 dark:to-indigo-800/20',
+    scenarioSlug: 'sleep_diary_flow'
   },
   {
     title: 'Дневник мыслей',
@@ -67,14 +67,6 @@ const diaryTypes = [
     path: '/depression-care-diary',
     color: 'from-green-100 to-green-200',
     darkColor: 'dark:from-green-900/20 dark:to-green-800/20'
-  },
-  {
-    title: 'Дневник сна и отдыха',
-    description: 'Отслеживайте качество сна и восстановления',
-    emoji: '😴',
-    path: '/sleep-diary',
-    color: 'from-indigo-100 to-indigo-200',
-    darkColor: 'dark:from-indigo-900/20 dark:to-indigo-800/20'
   }
 ];
 
@@ -121,13 +113,6 @@ const Diaries = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {diaryTypes.map((diary) => (
             <Card key={diary.path} className={`bg-gradient-to-br ${diary.color} ${diary.darkColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative`}>
-              {diary.isNew && (
-                <div className="absolute top-3 right-3">
-                  <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    НОВОЕ
-                  </span>
-                </div>
-              )}
               <CardHeader className="text-center">
                 <div className="text-4xl mb-2">{diary.emoji}</div>
                 <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200">
