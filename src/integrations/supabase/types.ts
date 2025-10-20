@@ -1045,6 +1045,18 @@ export type Database = {
       }
     }
     Views: {
+      admin_access_summary: {
+        Row: {
+          access_count: number | null
+          access_type: string | null
+          admin_email: string | null
+          admin_user_id: string | null
+          first_access: string | null
+          last_access: string | null
+          unique_users_accessed: number | null
+        }
+        Relationships: []
+      }
       v_daily_rli: {
         Row: {
           date: string | null
@@ -1076,6 +1088,21 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_profiles_with_logging: {
+        Args: { p_reason?: string; p_user_ids?: string[] }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          email: string
+          facebook_url: string
+          full_name: string
+          id: string
+          role: string
+          telegram_handle: string
+          updated_at: string
+          whatsapp_number: string
+        }[]
+      }
       admin_get_user_profiles: {
         Args: { limit_count?: number; offset_count?: number }
         Returns: {
