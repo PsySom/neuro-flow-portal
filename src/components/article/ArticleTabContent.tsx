@@ -24,7 +24,56 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
   
   // Определяем правильный articleId на основе переданного ID (синхронизируем с ArticleView)
   const getArticleId = (id: string | undefined) => {
-...
+    if (id === '2') return 2; // Депрессия
+    if (id === '3') return 3; // Циклы 
+    if (id === '4') return 4; // Самооценка
+    if (id === '8') return 3; // Старая ссылка на циклы
+    return parseInt(id || '0') || undefined;
+  };
+
+  const articleId = getArticleId(id);
+  
+  const tableOfContents = getArticleTableOfContents(articleId);
+  const recommendedTools = getRecommendedTools(articleId);
+  
+  const [activeSection, setActiveSection] = useState(tableOfContents[0]?.id || '');
+
+  // Scroll spy effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = tableOfContents.map(item => item.id);
+      const scrollPosition = window.scrollY + 150;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const element = document.getElementById(sections[i]);
+        if (element && element.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [tableOfContents]);
+
+  const scrollToSection = (sectionId: string) => {
+    if (sectionId === 'рекомендуемые-практики') {
+      setTimeout(() => {
+        const element = document.getElementById('recommended-tools-section');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  // Добавляем пункт "Рекомендуемые практики" в оглавление
   const enhancedTableOfContents = [
     ...tableOfContents,
     { id: 'рекомендуемые-практики', title: 'Рекомендуемые тесты, дневники и упражнения' }
