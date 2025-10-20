@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import TableOfContents from './TableOfContents';
@@ -13,60 +14,17 @@ interface ArticleTabContentProps {
 const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
   const { id } = useParams();
   
+  // Sanitize HTML content
+  const sanitizedContent = useMemo(() => {
+    return DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'strong', 'em', 'code', 'pre', 'blockquote', 'br', 'div', 'span'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id']
+    });
+  }, [content]);
+  
   // Определяем правильный articleId на основе переданного ID (синхронизируем с ArticleView)
   const getArticleId = (id: string | undefined) => {
-    if (id === '2') return 2; // Депрессия
-    if (id === '3') return 3; // Циклы 
-    if (id === '4') return 4; // Самооценка
-    if (id === '8') return 3; // Старая ссылка на циклы
-    return parseInt(id || '0') || undefined;
-  };
-
-  const articleId = getArticleId(id);
-  
-  const tableOfContents = getArticleTableOfContents(articleId);
-  const recommendedTools = getRecommendedTools(articleId);
-  
-  const [activeSection, setActiveSection] = useState(tableOfContents[0]?.id || '');
-  const [showRecommendedTools, setShowRecommendedTools] = useState(false);
-
-  // Scroll spy effect
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = tableOfContents.map(item => item.id);
-      const scrollPosition = window.scrollY + 150;
-
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const element = document.getElementById(sections[i]);
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i]);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [tableOfContents]);
-
-  const scrollToSection = (sectionId: string) => {
-    if (sectionId === 'рекомендуемые-практики') {
-      setShowRecommendedTools(true);
-      setTimeout(() => {
-        const element = document.getElementById('recommended-tools-section');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    } else {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  };
-
-  // Добавляем пункт "Рекомендуемые практики" в оглавление
+...
   const enhancedTableOfContents = [
     ...tableOfContents,
     { id: 'рекомендуемые-практики', title: 'Рекомендуемые тесты, дневники и упражнения' }
@@ -89,7 +47,7 @@ const ArticleTabContent: React.FC<ArticleTabContentProps> = ({ content }) => {
           <CardContent className="p-8">
             <div 
               className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: content }}
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
             
             {/* Рекомендуемые инструменты */}
