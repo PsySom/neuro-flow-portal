@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -124,7 +123,7 @@ export default function Auth() {
         try {
           localStorage.setItem('onboarding-completed', 'false');
           localStorage.setItem('onboarding-force', 'true');
-        } catch {}
+        } catch { }
         window.location.href = '/onboarding';
       }
     } catch (err: any) {
@@ -257,7 +256,7 @@ export default function Auth() {
                   className="underline"
                   onClick={() => {
                     setMode('signup');
-                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=signup`); } catch {}
+                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=signup`); } catch { }
                   }}
                 >
                   Нет аккаунта? Регистрация
@@ -267,7 +266,7 @@ export default function Auth() {
                   className="underline"
                   onClick={() => {
                     setMode('login');
-                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=login`); } catch {}
+                    try { window.history.replaceState(null, '', `${window.location.pathname}?mode=login`); } catch { }
                   }}
                 >
                   Уже есть аккаунт? Войти

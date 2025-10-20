@@ -108,7 +108,7 @@ class BackendAuthService {
       });
       
       if (import.meta.env.DEV) {
-        console.log('✅ Login successful');
+        console.log('✅ Login successful:', response.data);
       }
       
       // Сохраняем токены
@@ -154,7 +154,9 @@ class BackendAuthService {
     try {
       await apiClient.post('/auth/logout');
     } catch (error: any) {
-      console.warn('Logout request failed:', error);
+      if (import.meta.env.DEV) {
+        console.warn('Logout request failed:', error);
+      }
     } finally {
       this.clearAuthData();
     }
@@ -177,7 +179,9 @@ class BackendAuthService {
       const userData = localStorage.getItem('auth-user');
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
-      console.error('Error parsing stored user data:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error parsing stored user data:', error);
+      }
       return null;
     }
   }
