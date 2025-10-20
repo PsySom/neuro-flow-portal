@@ -74,21 +74,20 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
   };
 
   const handleMoodDiaryConfig = async (config: MoodDiaryConfig) => {
-    updateStatus({ 
-      isActive: true, 
-      isPaused: false, 
-      config,
-      lastEntryDate: null,
-      scheduledDate: new Date().toISOString().split('T')[0]
-    });
-
     // Активируем сценарий в БД, если указан scenarioSlug
     if (scenarioSlug) {
       try {
         await userActiveDiariesService.activateScenario(scenarioSlug);
+        updateStatus({ 
+          isActive: true, 
+          isPaused: false, 
+          config,
+          lastEntryDate: null,
+          scheduledDate: new Date().toISOString().split('T')[0]
+        });
         toast({
           title: "Успешно",
-          description: "Дневник активирован и добавлен в раздел 'Активные'",
+          description: `Дневник "${title}" активирован и добавлен в раздел 'Активные'`,
         });
       } catch (error) {
         console.error('Error activating scenario:', error);
@@ -98,6 +97,14 @@ const DiaryStatusManager: React.FC<DiaryStatusManagerProps> = ({
           variant: "destructive",
         });
       }
+    } else {
+      updateStatus({ 
+        isActive: true, 
+        isPaused: false, 
+        config,
+        lastEntryDate: null,
+        scheduledDate: new Date().toISOString().split('T')[0]
+      });
     }
   };
 

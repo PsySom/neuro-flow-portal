@@ -14,7 +14,7 @@ const diaryTypes = [
     title: 'Дневник настроения',
     description: 'Структурированный дневник для отслеживания настроения, эмоций, триггеров и телесных ощущений',
     emoji: '😊',
-    path: '/mood-scenario-diary',
+    path: '/mood-diary',
     color: 'from-pink-100 to-pink-200',
     darkColor: 'dark:from-pink-900/20 dark:to-pink-800/20',
     scenarioSlug: 'mood_diary_flow'
