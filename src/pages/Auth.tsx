@@ -40,7 +40,9 @@ export default function Auth() {
   React.useEffect(() => {
     // Если пользователь уже аутентифицирован, перенаправляем на dashboard
     if (isAuthenticated) {
-      console.log('User already authenticated, redirecting to dashboard');
+      if (import.meta.env.DEV) {
+        console.log('User already authenticated, redirecting to dashboard');
+      }
       window.location.href = '/dashboard';
     }
   }, [isAuthenticated]);
@@ -87,7 +89,9 @@ export default function Auth() {
           toast({ title: 'Заполните поля', description: 'Введите email и пароль для входа.', variant: 'destructive' });
           return;
         }
-        console.log('Attempting login...');
+        if (import.meta.env.DEV) {
+          console.log('Attempting login...');
+        }
         await signIn(email, password);
         securityLogger.logAuthSuccess(email, 'pending'); // userId will be updated by auth context
       } else {
@@ -111,7 +115,9 @@ export default function Auth() {
           return;
         }
 
-        console.log('Attempting signup...');
+        if (import.meta.env.DEV) {
+          console.log('Attempting signup...');
+        }
         await signUp(email, password, fullName);
         securityLogger.logAuthSuccess(email, 'pending');
         
@@ -122,7 +128,9 @@ export default function Auth() {
         window.location.href = '/onboarding';
       }
     } catch (err: any) {
-      console.error('Auth error:', err);
+      if (import.meta.env.DEV) {
+        console.error('Auth error:', err);
+      }
       securityLogger.logAuthFailure(email, err?.message || 'Unknown error', { mode, code: err?.code });
       
       let msg = err?.message || 'Произошла ошибка. Попробуйте снова.';

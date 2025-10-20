@@ -41,16 +41,22 @@ class BackendAuthService {
   // Проверить доступность сервера
   async checkServerHealth(): Promise<boolean> {
     try {
-      console.log('🔍 Checking server health at:', 'http://localhost:8000/api/v1');
+      if (import.meta.env.DEV) {
+        console.log('🔍 Checking server health at:', 'http://localhost:8000/api/v1');
+      }
       const response = await apiClient.get('/health', { timeout: 5000 });
-      console.log('✅ Server is available:', response.status);
+      if (import.meta.env.DEV) {
+        console.log('✅ Server is available:', response.status);
+      }
       return true;
     } catch (error: any) {
-      console.error('❌ Server is not available:', {
-        message: error.message,
-        code: error.code,
-        baseURL: 'http://localhost:8000/api/v1'
-      });
+      if (import.meta.env.DEV) {
+        console.error('❌ Server is not available:', {
+          message: error.message,
+          code: error.code,
+          baseURL: 'http://localhost:8000/api/v1'
+        });
+      }
       return false;
     }
   }
@@ -58,7 +64,9 @@ class BackendAuthService {
   // Регистрация
   async register(userData: RegisterData): Promise<User> {
     try {
-      console.log('🔄 Registering user:', userData.email);
+      if (import.meta.env.DEV) {
+        console.log('🔄 Registering user:', userData.email);
+      }
       
       const response = await apiClient.post<User>('/auth/register', {
         email: userData.email,
@@ -71,10 +79,14 @@ class BackendAuthService {
         terms_consent: userData.terms_consent
       });
       
-      console.log('✅ Registration successful');
+      if (import.meta.env.DEV) {
+        console.log('✅ Registration successful');
+      }
       return response.data;
     } catch (error: any) {
-      console.error('❌ Registration failed:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ Registration failed:', error);
+      }
       throw handleApiError(error);
     }
   }
@@ -82,31 +94,37 @@ class BackendAuthService {
   // Вход
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      console.log('🔄 Logging in user:', credentials.username);
-      console.log('📤 Login data being sent:', {
-        username: credentials.username,
-        password: '***hidden***'
-      });
+      if (import.meta.env.DEV) {
+        console.log('🔄 Logging in user:', credentials.username);
+        console.log('📤 Login data being sent:', {
+          username: credentials.username,
+          password: '***hidden***'
+        });
+      }
       
       const response = await apiClient.post<AuthResponse>('/auth/login-json', {
         username: credentials.username,
         password: credentials.password
       });
       
-      console.log('✅ Login successful:', response.data);
+      if (import.meta.env.DEV) {
+        console.log('✅ Login successful');
+      }
       
       // Сохраняем токены
       this.storeAuthTokens(response.data);
       
       return response.data;
     } catch (error: any) {
-      console.error('❌ Login failed:', error);
-      console.error('🔍 Error details:', {
-        code: error.code,
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      if (import.meta.env.DEV) {
+        console.error('❌ Login failed:', error);
+        console.error('🔍 Error details:', {
+          code: error.code,
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
+      }
       throw handleApiError(error);
     }
   }
