@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Target, Search } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 
 interface Step3GoalsAndChallengesProps {
@@ -10,87 +13,160 @@ interface Step3GoalsAndChallengesProps {
   onNext: () => void;
 }
 
-const goals = [
-  { id: 'stress', label: 'Снизить уровень стресса' },
-  { id: 'anxiety', label: 'Справиться с тревожностью' },
+const primaryGoals = [
+  { id: 'anxiety-stress', label: 'Справиться с тревогой и стрессом' },
   { id: 'mood', label: 'Улучшить настроение' },
-  { id: 'energy', label: 'Повысить энергию' },
+  { id: 'procrastination', label: 'Победить прокрастинацию' },
   { id: 'sleep', label: 'Наладить сон' },
-  { id: 'focus', label: 'Улучшить концентрацию' }
+  { id: 'productivity', label: 'Повысить продуктивность' },
+  { id: 'mindfulness', label: 'Развить осознанность' },
+  { id: 'relationships', label: 'Улучшить отношения' },
+  { id: 'balance', label: 'Найти баланс в жизни' },
+  { id: 'other', label: 'Другое' }
 ];
 
-const challenges = [
+const challengeAreas = [
+  { id: 'anxiety', label: 'Тревога и беспокойство' },
+  { id: 'stress', label: 'Стресс и напряжение' },
   { id: 'procrastination', label: 'Прокрастинация' },
-  { id: 'fatigue', label: 'Постоянная усталость' },
-  { id: 'worry', label: 'Постоянные переживания' },
-  { id: 'motivation', label: 'Отсутствие мотивации' },
-  { id: 'burnout', label: 'Эмоциональное выгорание' },
-  { id: 'sleep-issues', label: 'Проблемы со сном' }
+  { id: 'self-esteem', label: 'Низкая самооценка' },
+  { id: 'sleep-issues', label: 'Проблемы со сном' },
+  { id: 'low-energy', label: 'Недостаток энергии' },
+  { id: 'concentration', label: 'Трудности с концентрацией' },
+  { id: 'mood-swings', label: 'Перепады настроения' },
+  { id: 'loneliness', label: 'Одиночество' },
+  { id: 'burnout', label: 'Выгорание' },
+  { id: 'relationship-issues', label: 'Проблемы в отношениях' }
 ];
+
+const MAX_CHALLENGES = 3;
 
 const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   data,
   updateData
 }) => {
+  const [otherGoalText, setOtherGoalText] = useState('');
+  const showOtherInput = data.primaryGoal === 'other';
+
   const handleChallengeToggle = (challengeId: string) => {
     const newChallenges = data.challenges.includes(challengeId)
       ? data.challenges.filter(c => c !== challengeId)
       : [...data.challenges, challengeId];
-    updateData({ challenges: newChallenges });
+    
+    // Limit to MAX_CHALLENGES
+    if (newChallenges.length <= MAX_CHALLENGES) {
+      updateData({ challenges: newChallenges });
+    }
+  };
+
+  const isChallengeDisabled = (challengeId: string) => {
+    return !data.challenges.includes(challengeId) && data.challenges.length >= MAX_CHALLENGES;
+  };
+
+  const handlePrimaryGoalChange = (value: string) => {
+    updateData({ primaryGoal: value });
+    if (value !== 'other') {
+      setOtherGoalText('');
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">Ваши цели и вызовы</h2>
+        <h2 className="text-2xl font-bold">Ваши цели</h2>
         <p className="text-muted-foreground">
-          Что для вас важнее всего?
+          Расскажите, что для вас важнее всего
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* Primary Goal */}
-        <div className="space-y-3">
-          <Label className="text-base font-semibold">
-            Главная цель (выберите одну)
-          </Label>
+        {/* Block 1: Primary Goal */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-primary" />
+            <Label className="text-base font-semibold">
+              🎯 Что привело вас в Mental Balance?
+            </Label>
+          </div>
+          
           <RadioGroup
             value={data.primaryGoal}
-            onValueChange={(value) => updateData({ primaryGoal: value })}
+            onValueChange={handlePrimaryGoalChange}
           >
-            {goals.map((goal) => (
+            {primaryGoals.map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={goal.id} id={goal.id} />
-                <Label htmlFor={goal.id} className="cursor-pointer font-normal">
+                <RadioGroupItem value={goal.id} id={`goal-${goal.id}`} />
+                <Label 
+                  htmlFor={`goal-${goal.id}`} 
+                  className="cursor-pointer font-normal leading-tight"
+                >
                   {goal.label}
                 </Label>
               </div>
             ))}
           </RadioGroup>
+
+          {showOtherInput && (
+            <Input
+              placeholder="Опишите вашу цель..."
+              value={otherGoalText}
+              onChange={(e) => setOtherGoalText(e.target.value)}
+              className="mt-2"
+            />
+          )}
         </div>
 
-        {/* Challenges */}
-        <div className="space-y-3">
-          <Label className="text-base font-semibold">
-            С чем вы сталкиваетесь? (можно выбрать несколько)
-          </Label>
-          <div className="space-y-2">
-            {challenges.map((challenge) => (
-              <div key={challenge.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={challenge.id}
-                  checked={data.challenges.includes(challenge.id)}
-                  onCheckedChange={() => handleChallengeToggle(challenge.id)}
-                />
-                <Label
-                  htmlFor={challenge.id}
-                  className="cursor-pointer font-normal"
-                >
-                  {challenge.label}
-                </Label>
-              </div>
-            ))}
+        {/* Divider */}
+        <Separator className="my-6" />
+
+        {/* Block 2: Challenge Areas */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Search className="w-5 h-5 text-primary" />
+              <Label className="text-base font-semibold">
+                🔍 И 2-3 области для работы:
+              </Label>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              Выбрано: {data.challenges.length}/{MAX_CHALLENGES}
+            </span>
           </div>
+
+          <div className="space-y-3">
+            {challengeAreas.map((area) => {
+              const isDisabled = isChallengeDisabled(area.id);
+              const isChecked = data.challenges.includes(area.id);
+              
+              return (
+                <div 
+                  key={area.id} 
+                  className={`flex items-center space-x-2 ${isDisabled ? 'opacity-50' : ''}`}
+                >
+                  <Checkbox
+                    id={`challenge-${area.id}`}
+                    checked={isChecked}
+                    onCheckedChange={() => handleChallengeToggle(area.id)}
+                    disabled={isDisabled}
+                  />
+                  <Label
+                    htmlFor={`challenge-${area.id}`}
+                    className={`cursor-pointer font-normal leading-tight ${
+                      isDisabled ? 'cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {area.label}
+                  </Label>
+                </div>
+              );
+            })}
+          </div>
+
+          {data.challenges.length >= MAX_CHALLENGES && (
+            <p className="text-sm text-muted-foreground">
+              Максимум {MAX_CHALLENGES} области. Снимите выбор, чтобы добавить другую.
+            </p>
+          )}
         </div>
       </div>
     </div>
