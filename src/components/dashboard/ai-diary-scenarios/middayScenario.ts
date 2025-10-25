@@ -9,10 +9,64 @@ export const middayScenario: DiaryScenario = {
   questions: [
     {
       id: 'current_mood',
-      text: 'Как ваше настроение сейчас?',
+      text: 'Пожалуйста, прислушайся к себе и оцени, какое у тебя сейчас настроение',
       type: 'scale',
-      scaleRange: { min: -10, max: 10, step: 1 },
+      scaleRange: { min: -5, max: 5, step: 1 },
       required: true
+    },
+    {
+      id: 'mood_comment',
+      text: 'Можешь коротко описать, что особенно влияет на твое настроение сейчас?',
+      type: 'text',
+      required: false
+    },
+    {
+      id: 'emotions',
+      text: 'Попробуй теперь описать, какие эмоции и чувства преобладали сегодня?',
+      type: 'multi-select',
+      options: [
+        // Позитивные эмоции
+        { emoji: '😊', label: 'Радость', value: 'joy' },
+        { emoji: '🤔', label: 'Интерес', value: 'interest' },
+        { emoji: '✨', label: 'Вдохновение', value: 'inspiration' },
+        { emoji: '💪', label: 'Уверенность', value: 'confidence' },
+        { emoji: '😌', label: 'Спокойствие', value: 'calmness' },
+        { emoji: '🙏', label: 'Благодарность', value: 'gratitude' },
+        // Нейтральные эмоции
+        { emoji: '😲', label: 'Удивление', value: 'surprise' },
+        { emoji: '😐', label: 'Скука', value: 'boredom' },
+        { emoji: '🤷', label: 'Растерянность', value: 'confusion' },
+        { emoji: '🙂', label: 'Спокойное принятие', value: 'acceptance' },
+        // Негативные эмоции
+        { emoji: '😢', label: 'Грусть', value: 'sadness' },
+        { emoji: '😰', label: 'Тревога', value: 'anxiety' },
+        { emoji: '😔', label: 'Обида', value: 'resentment' },
+        { emoji: '😤', label: 'Раздражение', value: 'irritation' },
+        { emoji: '😠', label: 'Злость', value: 'anger' },
+        { emoji: '😑', label: 'Апатия', value: 'apathy' },
+        { emoji: '😴', label: 'Усталость', value: 'fatigue' },
+        { emoji: '😨', label: 'Страх', value: 'fear' }
+      ],
+      required: false
+    },
+    {
+      id: 'emotion_intensity',
+      text: 'Оцени интенсивность выбранных эмоций',
+      type: 'scale',
+      scaleRange: { min: 1, max: 10, step: 1 },
+      required: false
+    },
+    {
+      id: 'emotion_trigger',
+      text: 'Если хочется, опиши, как это проявлялось или что этому способствовало:',
+      type: 'text',
+      required: false
+    },
+    {
+      id: 'body_state',
+      text: 'Как это влияло на твое состояние тела?',
+      type: 'text',
+      required: false
     },
     {
       id: 'mood_comparison',

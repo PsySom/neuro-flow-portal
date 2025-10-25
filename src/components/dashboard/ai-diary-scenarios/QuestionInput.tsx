@@ -72,6 +72,7 @@ const QuestionInput: React.FC<QuestionInputProps> = ({
       case 'text':
         return (
           <TextInput
+            question={question}
             currentResponse={currentResponse}
             setCurrentResponse={setCurrentResponse}
           />
