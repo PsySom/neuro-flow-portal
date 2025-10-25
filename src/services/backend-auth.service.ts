@@ -196,9 +196,18 @@ class BackendAuthService {
 
   // Очистить данные аутентификации
   clearAuthData(): void {
+    // SECURITY WARNING: This service stores tokens in localStorage which is vulnerable to XSS attacks.
+    // Consider migrating to Supabase authentication or using httpOnly cookies for production.
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('auth-user');
+    
+    // Clear any other sensitive data
+    localStorage.removeItem('onboarding-data');
+    localStorage.removeItem('onboarding-completed');
+    
+    // Also clear sessionStorage
+    sessionStorage.clear();
   }
 
   // Проверить аутентификацию

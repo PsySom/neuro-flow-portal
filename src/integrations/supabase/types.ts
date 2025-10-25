@@ -594,7 +594,7 @@ export type Database = {
           admin_user_id: string
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           reason: string | null
           user_agent: string | null
         }
@@ -605,7 +605,7 @@ export type Database = {
           admin_user_id: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           reason?: string | null
           user_agent?: string | null
         }
@@ -616,7 +616,7 @@ export type Database = {
           admin_user_id?: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           reason?: string | null
           user_agent?: string | null
         }
@@ -1122,7 +1122,7 @@ export type Database = {
         }[]
       }
       get_my_profile: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avatar_url: string | null
           created_at: string
@@ -1135,9 +1135,15 @@ export type Database = {
           updated_at: string
           whatsapp_number: string | null
         }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_user_profile_with_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avatar_url: string
           created_at: string
@@ -1159,7 +1165,7 @@ export type Database = {
         Returns: boolean
       }
       insert_test_mood_entries: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           inserted_count: number
         }[]
@@ -1173,10 +1179,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      test_webhook_connection: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      test_webhook_connection: { Args: never; Returns: string }
       update_activity_status: {
         Args: { activity_id: string; new_status: string; user_notes?: string }
         Returns: {

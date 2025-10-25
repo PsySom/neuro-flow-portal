@@ -33,7 +33,8 @@ export class AIDiaryService {
   }
   
   getCurrentSessionId(): string | null {
-    return localStorage.getItem('ai_diary_session_id');
+    // Use sessionStorage for better security (cleared on browser close)
+    return sessionStorage.getItem('ai_diary_session_id');
   }
   
   subscribeToMessages(sessionId: string, onNewMessage: (message: any) => void) {
@@ -125,7 +126,8 @@ export class AIDiaryService {
   
   async startNewSession(): Promise<string> {
     const newSessionId = `ai_diary_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('ai_diary_session_id', newSessionId);
+    // Use sessionStorage for better security (cleared on browser close)
+    sessionStorage.setItem('ai_diary_session_id', newSessionId);
     
     if (this.userId) {
       await supabase.from('ai_diary_sessions').insert({
@@ -146,7 +148,8 @@ export class AIDiaryService {
         .eq('session_id', sessionId);
     }
     
-    localStorage.removeItem('ai_diary_session_id');
+    // Clear from sessionStorage
+    sessionStorage.removeItem('ai_diary_session_id');
     this.unsubscribe();
   }
   
