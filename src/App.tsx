@@ -32,7 +32,7 @@ import Activities from './pages/Activities';
 import Analytics from './pages/Analytics';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import SupabaseAuthProvider from './contexts/SupabaseAuthContext';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import Onboarding from './pages/Onboarding';
 
 function App() {

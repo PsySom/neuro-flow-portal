@@ -166,5 +166,3 @@ export function useSupabaseAuth() {
   if (!ctx) throw new Error('useSupabaseAuth must be used within SupabaseAuthProvider');
   return ctx;
 }
-
-export default SupabaseAuthProvider;
