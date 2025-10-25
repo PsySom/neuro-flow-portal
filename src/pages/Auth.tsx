@@ -38,14 +38,21 @@ export default function Auth() {
   }, [location.search]);
 
   React.useEffect(() => {
-    // Если пользователь уже аутентифицирован, перенаправляем на dashboard
-    if (isAuthenticated) {
-      if (import.meta.env.DEV) {
-        console.log('User already authenticated, redirecting to dashboard');
-      }
-      window.location.href = '/dashboard';
+    // Если пользователь уже аутентифицирован, перенаправляем корректно
+    if (!isAuthenticated) return;
+
+    const params = new URLSearchParams(location.search);
+    const modeParam = params.get('mode');
+    let forceOnboarding = false;
+    try { forceOnboarding = localStorage.getItem('onboarding-force') === 'true'; } catch {}
+
+    const target = (modeParam === 'signup' || forceOnboarding) ? '/onboarding' : '/dashboard';
+
+    if (import.meta.env.DEV) {
+      console.log('User authenticated, redirecting to', target);
     }
-  }, [isAuthenticated]);
+    window.location.href = target;
+  }, [isAuthenticated, location.search]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
