@@ -102,16 +102,13 @@ export const validatePasswordSecurity = (password: string): ValidationResult => 
     };
   }
   
-  // Check for common weak patterns
+  // Check for very weak patterns only
   const weakPatterns = [
-    /(.)\1{3,}/, // 4+ repeated characters
-    /123456|654321|qwerty|password|admin/i, // Common weak passwords
-    /^[A-Za-z]+$/, // Only letters
-    /^[0-9]+$/, // Only numbers
+    /(.)\1{5,}/, // 6+ repeated characters (more lenient)
   ];
   
   if (weakPatterns.some(pattern => pattern.test(password))) {
-    return { isValid: false, message: 'Пароль слишком простой. Используйте более сложную комбинацию' };
+    return { isValid: false, message: 'Пароль слишком простой. Избегайте повторяющихся символов' };
   }
   
   return { isValid: true };
