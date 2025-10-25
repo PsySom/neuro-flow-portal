@@ -1,0 +1,328 @@
+/* Onboarding Global Styles & Animations */
+
+/* Container Styles */
+.onboarding-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--muted) / 0.3));
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-step {
+  animation: fade-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .onboarding-step {
+    padding: 2rem;
+  }
+}
+
+.onboarding-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px hsl(var(--foreground) / 0.05),
+              0 2px 4px -1px hsl(var(--foreground) / 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-card:hover {
+  box-shadow: 0 10px 15px -3px hsl(var(--foreground) / 0.08),
+              0 4px 6px -2px hsl(var(--foreground) / 0.05);
+}
+
+/* Progress Bar Animations */
+.onboarding-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.progress-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: hsl(var(--muted));
+}
+
+.progress-dot.active {
+  background: hsl(var(--primary));
+  transform: scale(1.3);
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.2);
+}
+
+.progress-dot.completed {
+  background: hsl(var(--primary));
+  transform: scale(1.1);
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+  }
+}
+
+/* Step Transitions */
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.step-slide-left-enter {
+  animation: slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-slide-right-enter {
+  animation: slide-in-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Interactive Elements */
+.onboarding-radio,
+.onboarding-checkbox {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.onboarding-radio:hover,
+.onboarding-checkbox:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px hsl(var(--primary) / 0.15);
+}
+
+.onboarding-radio:active,
+.onboarding-checkbox:active {
+  transform: scale(0.98);
+}
+
+/* Focus States for Accessibility */
+.onboarding-radio:focus-visible,
+.onboarding-checkbox:focus-visible,
+.onboarding-button:focus-visible,
+.onboarding-input:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Ripple Effect on Buttons */
+.onboarding-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px hsl(var(--primary) / 0.25);
+}
+
+.onboarding-button:active {
+  transform: translateY(0);
+}
+
+.onboarding-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: hsl(var(--primary-foreground) / 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.onboarding-button:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Sleep Card - Special Dark Theme Styling */
+.sleep-card {
+  background: linear-gradient(135deg, 
+    hsl(var(--card)), 
+    hsl(var(--muted) / 0.5));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sleep-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, 
+    hsl(var(--primary) / 0.05) 0%, 
+    transparent 50%);
+  pointer-events: none;
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  .sleep-card {
+    background: linear-gradient(135deg,
+      hsl(220 20% 12%),
+      hsl(220 20% 18%));
+    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.3);
+  }
+  
+  .onboarding-card {
+    box-shadow: 0 4px 6px -1px hsl(0 0% 0% / 0.3),
+                0 2px 4px -1px hsl(0 0% 0% / 0.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .onboarding-step {
+    padding: 1rem;
+  }
+  
+  .onboarding-card {
+    padding: 1.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .sleep-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .onboarding-step {
+    max-width: 600px;
+  }
+}
+
+/* Loading State */
+.onboarding-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.onboarding-loading::after {
+  content: '';
+  width: 48px;
+  height: 48px;
+  border: 4px solid hsl(var(--muted));
+  border-top-color: hsl(var(--primary));
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Celebration Confetti Container */
+.celebration-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Smooth Scrolling */
+.onboarding-container {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Input Styles */
+.onboarding-input {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
+}
+
+/* Icon Animations */
+.icon-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Emoji Scale Animation */
+.emoji-scale {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.emoji-scale:hover {
+  transform: scale(1.2);
+}

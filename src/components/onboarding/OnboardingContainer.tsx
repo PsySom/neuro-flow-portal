@@ -161,8 +161,8 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/20">
-      <div className="w-full max-w-2xl">
+    <div className="onboarding-container">
+      <div className="w-full max-w-2xl mx-auto px-4 py-8">
         {/* Header with Skip button */}
         <div className="flex justify-between items-center mb-6">
           <OnboardingProgress currentStep={data.step} totalSteps={TOTAL_STEPS} />
@@ -173,7 +173,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
               size="sm"
               onClick={handleSkip}
               disabled={isSaving}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground transition-all"
             >
               {isSaving ? (
                 <>
@@ -191,13 +191,13 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
         </div>
 
         {/* Main content card */}
-        <Card className="border-2 shadow-xl">
+        <Card className="onboarding-card">
           <CardContent className="p-6 md:p-8">
             {/* Step content with transition */}
             <div
               className={cn(
-                "transition-opacity duration-150",
-                isTransitioning ? "opacity-0" : "opacity-100"
+                "onboarding-step",
+                isTransitioning && "opacity-0"
               )}
             >
               {renderStep()}
@@ -210,7 +210,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
                   variant="outline"
                   onClick={handleBack}
                   disabled={data.step === 1 || isSaving}
-                  className="gap-2"
+                  className="onboarding-button gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Назад
@@ -219,7 +219,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
                 <Button
                   onClick={handleNext}
                   disabled={isSaving}
-                  className="gap-2"
+                  className="onboarding-button gap-2"
                 >
                   {isSaving ? (
                     <>
@@ -240,7 +240,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
 
         {/* Progress hint */}
         {data.step < TOTAL_STEPS && (
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in">
             Займет всего 2-3 минуты
           </p>
         )}

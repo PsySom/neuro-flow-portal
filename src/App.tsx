@@ -71,7 +71,7 @@ function App() {
                   <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
                   <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
                   <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                 </Routes>
               </div>
             </Router>
