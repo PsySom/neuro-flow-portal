@@ -57,7 +57,7 @@ export class OnboardingSaveService {
         .from('profiles')
         .select('onboarding_completed')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking onboarding status:', error);
@@ -84,7 +84,7 @@ export class OnboardingSaveService {
         .from('profiles')
         .select('onboarding_data')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching onboarding data:', error);

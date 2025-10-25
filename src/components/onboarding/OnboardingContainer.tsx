@@ -12,7 +12,6 @@ import Step4CurrentState from './steps/Step4CurrentState';
 import Step5Sleep from './steps/Step5Sleep';
 import Step6Rhythm from './steps/Step6Rhythm';
 import Step7Complete from './steps/Step7Complete';
-import { onboardingSaveService } from '@/services/onboarding-save.service';
 import { toast } from '@/hooks/use-toast';
 
 interface OnboardingContainerProps {
@@ -26,13 +25,32 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
   onComplete,
   onSkip
 }) => {
-  const { data, updateData, nextStep, prevStep, goToStep, resetData } = useOnboardingState();
+  const { 
+    data, 
+    updateData, 
+    nextStep, 
+    prevStep, 
+    isStepValid,
+    saveToSupabase,
+    skipOnboarding 
+  } = useOnboardingState();
+  
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleNext = () => {
     if (data.step === TOTAL_STEPS) {
       handleCompleteOnboarding();
+      return;
+    }
+
+    // Validate current step before moving
+    if (!isStepValid()) {
+      toast({
+        title: 'Заполните все поля',
+        description: 'Пожалуйста, заполните обязательные поля перед продолжением',
+        variant: 'destructive',
+      });
       return;
     }
     
@@ -53,22 +71,48 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
     }, 150);
   };
 
+  const handleSkip = async () => {
+    setIsSaving(true);
+    
+    try {
+      const result = await skipOnboarding();
+      
+      if (result.success) {
+        toast({
+          title: 'Онбординг пропущен',
+          description: 'Вы сможете заполнить профиль позже',
+        });
+        onSkip();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: result.error || 'Не удалось пропустить онбординг',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error skipping onboarding:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleCompleteOnboarding = async () => {
     setIsSaving(true);
     
     try {
-      const result = await onboardingSaveService.saveOnboardingData(data);
+      const result = await saveToSupabase();
       
       if (result.success) {
-        // Clear localStorage
-        localStorage.removeItem('psybalans_onboarding_data');
-        
         toast({
           title: 'Профиль успешно создан!',
           description: 'Добро пожаловать в Mental Balance',
         });
-        
-        // Complete onboarding
         onComplete();
       } else {
         toast({
@@ -127,12 +171,21 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={onSkip}
-              className="text-muted-foreground hover:text-foreground"
+              onClick={handleSkip}
               disabled={isSaving}
+              className="text-muted-foreground hover:text-foreground"
             >
-              <X className="w-4 h-4 mr-1" />
-              Пропустить
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  Сохранение...
+                </>
+              ) : (
+                <>
+                  <X className="w-4 h-4 mr-1" />
+                  Пропустить
+                </>
+              )}
             </Button>
           )}
         </div>
