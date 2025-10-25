@@ -35,7 +35,7 @@ const DashboardPractices = () => {
   const handleShare = (title: string, type: string = 'практику') => {
     if (navigator.share) {
       navigator.share({
-        title: `${title} - PsyBalans`,
+        title: `${title} - PsyBalance`,
         text: `Попробуйте эту ${type}: ${title}`,
         url: window.location.href
       });

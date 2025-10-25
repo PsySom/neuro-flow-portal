@@ -54,7 +54,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <Brain className="w-8 h-8 text-psybalans-primary" />
               <span className="text-2xl font-bold bg-gradient-to-r from-psybalans-primary to-psybalans-secondary bg-clip-text text-transparent">
-                PsyBalans
+                PsyBalance
               </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
@@ -105,7 +105,7 @@ const Footer = () => {
         <div className="border-t border-psybalans-border pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="text-sm text-muted-foreground">
-              © 2024 PsyBalans. Все права защищены.
+              © 2024 PsyBalance. Все права защищены.
             </div>
             
             <div className="text-sm text-muted-foreground">

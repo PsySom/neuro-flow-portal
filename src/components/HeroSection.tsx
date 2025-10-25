@@ -54,7 +54,7 @@ const HeroSection = () => {
           , состояний и потребностей.
           <br />
           <span className="text-lg md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-400 mt-6 block">
-            PsyBalans — первая платформа, которая помогает вам строить жизнь вокруг себя, а не под чужой шаблон.
+            PsyBalance — первая платформа, которая помогает вам строить жизнь вокруг себя, а не под чужой шаблон.
           </span>
         </>
       )

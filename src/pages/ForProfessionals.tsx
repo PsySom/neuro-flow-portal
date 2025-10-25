@@ -15,7 +15,7 @@ const ForProfessionals = () => {
             Для психологов и специалистов
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            PsyBalans как инструмент для работы с клиентами между сессиями
+            PsyBalance как инструмент для работы с клиентами между сессиями
           </p>
         </div>
 

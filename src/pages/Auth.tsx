@@ -214,7 +214,7 @@ export default function Auth() {
           <CardHeader>
             <CardTitle>{mode === 'login' ? 'Вход' : 'Регистрация'}</CardTitle>
             <CardDescription>
-              {mode === 'login' ? 'Войдите в аккаунт PsyBalans' : 'Создайте аккаунт PsyBalans. После регистрации вы сразу перейдёте к онбордингу, подтверждение email можно сделать позже.'}
+              {mode === 'login' ? 'Войдите в аккаунт PsyBalance' : 'Создайте аккаунт PsyBalance. После регистрации вы сразу перейдёте к онбордингу, подтверждение email можно сделать позже.'}
             </CardDescription>
           </CardHeader>
           <CardContent>

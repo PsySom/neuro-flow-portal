@@ -5,7 +5,7 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-// API configuration - PsyBalansV2 backend
+// API configuration - PsyBalanceV2 backend
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 // Warn if using insecure API over HTTPS context

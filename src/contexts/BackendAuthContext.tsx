@@ -97,7 +97,7 @@ export function BackendAuthProvider({ children }: { children: React.ReactNode })
       queryClient.setQueryData(['backend-auth', 'user'], user);
       toast({
         title: "Регистрация завершена!",
-        description: "Добро пожаловать в PsyBalans!",
+        description: "Добро пожаловать в PsyBalance!",
       });
     },
     onError: (error: any) => {

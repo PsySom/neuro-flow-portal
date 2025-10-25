@@ -13,7 +13,7 @@ const Logo: React.FC = () => {
           backgroundImage: `linear-gradient(to right, hsl(var(--psybalans-primary)), hsl(var(--psybalans-secondary)))` 
         }}
       >
-        PsyBalans
+        PsyBalance
       </span>
     </Link>
   );

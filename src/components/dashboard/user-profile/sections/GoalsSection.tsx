@@ -10,7 +10,7 @@ interface GoalsSectionProps {
 
 const GoalsSection: React.FC<GoalsSectionProps> = ({ data }) => {
   return (
-    <ProfileSection icon={Target} title="Цели в PsyBalans">
+    <ProfileSection icon={Target} title="Цели в PsyBalance">
       <div className="flex flex-wrap gap-2">
         {data.goals?.map((goal: string, index: number) => (
           <Badge 
