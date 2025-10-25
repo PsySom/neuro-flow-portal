@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +96,9 @@ const MoodDiaryConfigDialog: React.FC<MoodDiaryConfigDialogProps> = ({
             <span className="text-lg">😊</span>
             Настройка дневника настроения
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Настройка параметров дневника настроения: время заполнения и напоминаний
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

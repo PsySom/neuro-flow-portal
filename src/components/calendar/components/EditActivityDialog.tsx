@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -190,6 +191,9 @@ const EditActivityDialog: React.FC<EditActivityDialogProps> = ({
             <DialogTitle className="text-xl font-semibold text-center">
               Редактировать: {activity.name}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Форма для редактирования активности
+            </DialogDescription>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

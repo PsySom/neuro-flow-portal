@@ -89,7 +89,6 @@ class UnifiedActivityService {
 
       // Handle recurring updates
       if (recurringOptions && recurringOptions.type !== 'none') {
-        console.log('Updating recurring activity with new options:', recurringOptions);
         // TODO: Implement recurring update logic - delete old recurring and create new ones
       }
 
@@ -104,11 +103,8 @@ class UnifiedActivityService {
   // Delete activity with recurring support
   async deleteActivity(id: number, deleteOption?: DeleteRecurringOption): Promise<void> {
     try {
-      console.log('Deleting activity:', id, 'with option:', deleteOption);
-      
       if (deleteOption === 'all') {
         // TODO: Implement deletion of all recurring activities
-        console.log('Deleting all recurring activities for:', id);
       }
       
       await activityService.deleteActivity(id);
@@ -124,8 +120,11 @@ class UnifiedActivityService {
       const apiActivities = await activityService.getActivities(date);
       return apiActivities.map(convertApiActivityToUi);
     } catch (error) {
-      console.error('Error fetching activities for date:', error);
-      return [];
+      // Only log non-auth errors
+      if (error instanceof Error && !error.message.includes('Не авторизовано')) {
+        console.error('Error fetching activities for date:', error);
+      }
+      throw error; // Re-throw to let caller handle
     }
   }
 
@@ -135,8 +134,11 @@ class UnifiedActivityService {
       const apiActivities = await activityService.getActivitiesRange(startDate, endDate);
       return apiActivities.map(convertApiActivityToUi);
     } catch (error) {
-      console.error('Error fetching activities for date range:', error);
-      return [];
+      // Only log non-auth errors
+      if (error instanceof Error && !error.message.includes('Не авторизовано')) {
+        console.error('Error fetching activities for date range:', error);
+      }
+      throw error; // Re-throw to let caller handle
     }
   }
 

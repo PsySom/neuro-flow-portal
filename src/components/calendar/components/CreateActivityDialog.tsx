@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -134,6 +134,9 @@ const CreateActivityDialog: React.FC<CreateActivityDialogProps> = ({
           <DialogTitle className="text-xl font-semibold text-center">
             Создать активность
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Форма для создания новой активности с настройками времени, типа и повторения
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SleepDiary from './SleepDiary';
 
@@ -27,6 +27,9 @@ const SleepDiaryModal: React.FC<SleepDiaryModalProps> = ({
             <span className="text-lg">😴</span>
             Дневник сна и отдыха
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Дневник для отслеживания качества сна и режима отдыха
+          </DialogDescription>
         </DialogHeader>
         <ScrollArea className="flex-1 max-h-[calc(95vh-100px)]">
           <div className="p-6 pb-8">

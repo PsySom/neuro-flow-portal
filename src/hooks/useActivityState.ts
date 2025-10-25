@@ -1,12 +1,10 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Activity } from '@/contexts/ActivitiesContext';
 import { RecurringActivityOptions, DeleteRecurringOption } from '@/components/calendar/utils/recurringUtils';
 import { loadActivitiesFromStorage, saveActivitiesToStorage } from '@/utils/activityStorage';
 import { unifiedActivityService } from '@/services/unified-activity.service';
-import { 
-  sortActivities
-} from '@/utils/activityOperations';
+import { sortActivities } from '@/utils/activityOperations';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useActivityState = () => {
   const getCurrentDateString = useCallback((): string => {
@@ -81,17 +79,26 @@ export const useActivityState = () => {
     }
   }, [activities]);
 
-  // Load activities from server on mount
+  // Load activities from server on mount (only if authenticated)
   useEffect(() => {
     const loadServerActivities = async () => {
       try {
+        // Check if user is authenticated before loading
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          return; // Don't try to load activities if not authenticated
+        }
+
         const today = getCurrentDateString();
         const serverActivities = await unifiedActivityService.getActivitiesForDate(today);
         if (serverActivities.length > 0) {
           setActivities(sortActivities(serverActivities));
         }
       } catch (error) {
-        console.error('Error loading server activities:', error);
+        // Silently handle errors to avoid console spam for unauthenticated users
+        if (error instanceof Error && !error.message.includes('Не авторизовано')) {
+          console.error('Error loading server activities:', error);
+        }
       }
     };
 

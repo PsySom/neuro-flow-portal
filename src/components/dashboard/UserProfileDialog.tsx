@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, User } from 'lucide-react';
@@ -66,8 +66,6 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
   }
 
   const displayData = profileData;
-  
-  console.log('Отображаемые данные:', displayData);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -77,6 +75,9 @@ const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ isOpen, onClose }
             <User className="w-5 h-5" />
             <span>Профиль пользователя</span>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Просмотр и редактирование профиля пользователя
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-[60vh] pr-4">

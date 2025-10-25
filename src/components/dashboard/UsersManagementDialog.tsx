@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +74,9 @@ const UsersManagementDialog: React.FC<UsersManagementDialogProps> = ({ isOpen, o
             <Users className="w-5 h-5" />
             <span>Управление пользователями</span>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Просмотр и управление пользователями системы
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
