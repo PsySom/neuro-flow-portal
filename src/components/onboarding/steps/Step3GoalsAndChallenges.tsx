@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Target, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 import { cn } from '@/lib/utils';
 
@@ -37,15 +36,19 @@ const challengeAreas = [
   { id: 'mood-swings', label: 'Перепады настроения', icon: '🎭', description: 'Резкие изменения эмоционального состояния' },
   { id: 'loneliness', label: 'Одиночество', icon: '😞', description: 'Ощущение изоляции и отсутствия поддержки' },
   { id: 'burnout', label: 'Выгорание', icon: '🔥', description: 'Эмоциональное и физическое истощение' },
-  { id: 'relationship-issues', label: 'Проблемы в отношениях', icon: '💔', description: 'Конфликты и непонимание' }
+  { id: 'relationship-issues', label: 'Проблемы в отношениях', icon: '💔', description: 'Конфликты и непонимание' },
+  { id: 'other', label: 'Иное', icon: '✏️', description: 'Другие трудности' }
 ];
 
 const MAX_CHALLENGES = 3;
 
 const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   data,
-  updateData
+  updateData,
+  onNext
 }) => {
+  const [otherText, setOtherText] = useState('');
+
   const handleChallengeToggle = (challengeId: string) => {
     const currentChallenges = data.challenges || [];
     const newChallenges = currentChallenges.includes(challengeId)
@@ -61,6 +64,12 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   const isChallengeDisabled = (challengeId: string) => {
     const currentChallenges = data.challenges || [];
     return !currentChallenges.includes(challengeId) && currentChallenges.length >= MAX_CHALLENGES;
+  };
+
+  const handleSkip = () => {
+    // Allow skip with empty challenges
+    updateData({ challenges: [] });
+    onNext();
   };
 
   return (
@@ -117,6 +126,19 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
           })}
         </div>
 
+        {/* Other input */}
+        {(data.challenges || []).includes('other') && (
+          <div className="space-y-2">
+            <Input
+              placeholder="Опишите вашу трудность..."
+              value={otherText}
+              onChange={(e) => setOtherText(e.target.value)}
+              className="w-full"
+              aria-label="Опишите вашу трудность"
+            />
+          </div>
+        )}
+
         {/* Selection counter */}
         {(data.challenges || []).length > 0 && (
           <div className="text-center p-3 bg-muted/50 rounded-lg">
@@ -125,6 +147,26 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
             </p>
           </div>
         )}
+
+        {/* Navigation buttons */}
+        <div className="flex justify-between items-center gap-4 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleSkip}
+            className="text-muted-foreground"
+          >
+            Пропустить
+          </Button>
+          
+          <Button
+            onClick={onNext}
+            disabled={(data.challenges || []).length < 1 || (data.challenges || []).length > MAX_CHALLENGES}
+            className="flex-1 max-w-xs"
+          >
+            Далее
+          </Button>
+        </div>
       </div>
     </div>
   );

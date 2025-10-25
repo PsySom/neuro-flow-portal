@@ -336,8 +336,8 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
               {renderStep()}
             </div>
 
-            {/* Navigation buttons */}
-            {data.step < TOTAL_STEPS && (
+            {/* Navigation buttons - skip for step 3 as it has its own navigation */}
+            {data.step < TOTAL_STEPS && data.step !== 3 && (
               <div 
                 className="flex justify-between items-center mt-8 pt-6 border-t"
                 role="navigation"

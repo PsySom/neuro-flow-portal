@@ -126,11 +126,10 @@ export const useOnboardingState = () => {
           data.timezone.length > 0
         );
       
-      case 3: // Goals and Challenges
+      case 3: // Challenges only (goals moved to step 7) - allow skip
         return (
-          data.primaryGoal.length > 0 &&
-          data.challenges.length >= 1 &&
-          data.challenges.length <= 3
+          data.challenges.length === 0 || // Allow skip with no challenges
+          (data.challenges.length >= 1 && data.challenges.length <= 3)
         );
       
       case 4: // Current State
@@ -149,10 +148,9 @@ export const useOnboardingState = () => {
           data.sleepDuration.length > 0
         );
       
-      case 6: // Rhythm
+      case 6: // Rhythm (chronotype and reminders only)
         return (
           data.chronotype.length > 0 &&
-          data.timeCommitment.length > 0 &&
           data.reminders.length > 0
         );
       
