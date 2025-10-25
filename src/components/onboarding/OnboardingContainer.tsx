@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
 import { useOnboardingState } from './hooks/useOnboardingState';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,8 @@ import Step4CurrentState from './steps/Step4CurrentState';
 import Step5Sleep from './steps/Step5Sleep';
 import Step6Rhythm from './steps/Step6Rhythm';
 import Step7Complete from './steps/Step7Complete';
+import { onboardingSaveService } from '@/services/onboarding-save.service';
+import { toast } from '@/hooks/use-toast';
 
 interface OnboardingContainerProps {
   onComplete: () => void;
@@ -24,12 +26,13 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
   onComplete,
   onSkip
 }) => {
-  const { data, updateData, nextStep, prevStep, goToStep } = useOnboardingState();
+  const { data, updateData, nextStep, prevStep, goToStep, resetData } = useOnboardingState();
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleNext = () => {
     if (data.step === TOTAL_STEPS) {
-      onComplete();
+      handleCompleteOnboarding();
       return;
     }
     
@@ -48,6 +51,42 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
       prevStep();
       setIsTransitioning(false);
     }, 150);
+  };
+
+  const handleCompleteOnboarding = async () => {
+    setIsSaving(true);
+    
+    try {
+      const result = await onboardingSaveService.saveOnboardingData(data);
+      
+      if (result.success) {
+        // Clear localStorage
+        localStorage.removeItem('psybalans_onboarding_data');
+        
+        toast({
+          title: 'Профиль успешно создан!',
+          description: 'Добро пожаловать в Mental Balance',
+        });
+        
+        // Complete onboarding
+        onComplete();
+      } else {
+        toast({
+          title: 'Ошибка сохранения',
+          description: result.error || 'Попробуйте еще раз',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сохранить данные',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderStep = () => {
@@ -71,7 +110,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
       case 6:
         return <Step6Rhythm {...stepProps} />;
       case 7:
-        return <Step7Complete {...stepProps} onComplete={onComplete} />;
+        return <Step7Complete {...stepProps} onComplete={handleCompleteOnboarding} />;
       default:
         return <Step1Welcome {...stepProps} />;
     }
@@ -90,6 +129,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
               size="sm"
               onClick={onSkip}
               className="text-muted-foreground hover:text-foreground"
+              disabled={isSaving}
             >
               <X className="w-4 h-4 mr-1" />
               Пропустить
@@ -116,7 +156,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
                 <Button
                   variant="outline"
                   onClick={handleBack}
-                  disabled={data.step === 1}
+                  disabled={data.step === 1 || isSaving}
                   className="gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -125,10 +165,20 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
 
                 <Button
                   onClick={handleNext}
+                  disabled={isSaving}
                   className="gap-2"
                 >
-                  Далее
-                  <ChevronRight className="w-4 h-4" />
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Сохранение...
+                    </>
+                  ) : (
+                    <>
+                      Далее
+                      <ChevronRight className="w-4 h-4" />
+                    </>
+                  )}
                 </Button>
               </div>
             )}
@@ -136,9 +186,11 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
         </Card>
 
         {/* Progress hint */}
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Займет всего 2-3 минуты
-        </p>
+        {data.step < TOTAL_STEPS && (
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            Займет всего 2-3 минуты
+          </p>
+        )}
       </div>
     </div>
   );

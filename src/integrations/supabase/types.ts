@@ -625,37 +625,58 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          challenges: string[] | null
+          chronotype: string | null
           created_at: string
           email: string | null
           facebook_url: string | null
           full_name: string | null
           id: string
+          onboarding_completed: boolean | null
+          onboarding_data: Json | null
+          primary_goal: string | null
+          reminder_frequency: string | null
           role: string | null
           telegram_handle: string | null
+          time_commitment: string | null
           updated_at: string
           whatsapp_number: string | null
         }
         Insert: {
           avatar_url?: string | null
+          challenges?: string[] | null
+          chronotype?: string | null
           created_at?: string
           email?: string | null
           facebook_url?: string | null
           full_name?: string | null
           id: string
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
+          primary_goal?: string | null
+          reminder_frequency?: string | null
           role?: string | null
           telegram_handle?: string | null
+          time_commitment?: string | null
           updated_at?: string
           whatsapp_number?: string | null
         }
         Update: {
           avatar_url?: string | null
+          challenges?: string[] | null
+          chronotype?: string | null
           created_at?: string
           email?: string | null
           facebook_url?: string | null
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
+          primary_goal?: string | null
+          reminder_frequency?: string | null
           role?: string | null
           telegram_handle?: string | null
+          time_commitment?: string | null
           updated_at?: string
           whatsapp_number?: string | null
         }
@@ -1125,13 +1146,20 @@ export type Database = {
         Args: never
         Returns: {
           avatar_url: string | null
+          challenges: string[] | null
+          chronotype: string | null
           created_at: string
           email: string | null
           facebook_url: string | null
           full_name: string | null
           id: string
+          onboarding_completed: boolean | null
+          onboarding_data: Json | null
+          primary_goal: string | null
+          reminder_frequency: string | null
           role: string | null
           telegram_handle: string | null
+          time_commitment: string | null
           updated_at: string
           whatsapp_number: string | null
         }
