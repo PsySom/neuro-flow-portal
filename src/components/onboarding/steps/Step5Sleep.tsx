@@ -96,21 +96,23 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
   };
 
   return (
-    <div className="space-y-6" role="form" aria-label="Информация о сне">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">😴 Расскажите о вашем сне</h2>
-        <p className="text-muted-foreground">
-          Это поможет нам настроить рекомендации
+    <div className="space-y-6 max-w-2xl mx-auto" role="form" aria-label="Информация о сне">
+      <div className="space-y-3 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold">Ваш режим сна</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Помогите нам настроить оптимальное расписание
         </p>
       </div>
 
-      <Card className="p-6 bg-card border-border">
+      <Card className="p-6 border-2">
         <div className="space-y-6">
           {/* Sleep Quality */}
-          <div className="space-y-4">
-            <Label htmlFor="sleep-quality" className="text-base font-semibold">
-              Качество сна:
-            </Label>
+          <div className="space-y-5">
+            <div className="text-center">
+              <Label htmlFor="sleep-quality" className="text-lg font-bold">
+                Как вы оцениваете качество своего сна?
+              </Label>
+            </div>
             
             <div className="space-y-4">
               <div className="text-center" aria-live="polite" role="status">

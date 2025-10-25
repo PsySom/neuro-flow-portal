@@ -2,7 +2,6 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Activity } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 
 interface Step4CurrentStateProps {
@@ -56,21 +55,27 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
   updateData
 }) => {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">Какое у вас настроение сейчас?</h2>
-        <p className="text-muted-foreground">
-          Это поможет нам понять ваше текущее состояние
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="space-y-3 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold">Ваше текущее состояние</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Расскажите, как вы себя чувствуете сейчас
         </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Mood Slider */}
-        <div className="space-y-4">
+        <div className="space-y-5">
+          <div className="text-center">
+            <Label className="text-lg font-bold">Настроение сегодня</Label>
+          </div>
+          
           <div className="text-center space-y-3">
             {/* Large mood emoji without background */}
-            <div className="inline-block">
-              <span className="text-6xl">{getMoodEmoji(data.mood)}</span>
+            <div className="flex justify-center py-2">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center">
+                <span className="text-6xl">{getMoodEmoji(data.mood)}</span>
+              </div>
             </div>
             
             {/* Mood score */}
@@ -123,12 +128,9 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
         </div>
 
         {/* Energy Level */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="text-center">
-            <Label className="text-base font-semibold flex items-center justify-center gap-2">
-              <Activity className="w-4 h-4 text-primary" />
-              Уровень энергии
-            </Label>
+            <Label className="text-lg font-bold">Уровень энергии</Label>
             <p className="text-xs text-muted-foreground mt-1">
               Насколько вы бодры прямо сейчас?
             </p>
@@ -143,18 +145,18 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
               <div 
                 key={level.id} 
                 className={`
-                  flex items-center space-x-3 p-3 rounded-lg border-2 
-                  transition-all cursor-pointer
+                  flex items-center space-x-3 p-3 rounded-xl border-2 
+                  transition-all cursor-pointer hover:scale-[1.01]
                   ${data.energy === level.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                    ? 'border-primary bg-primary/10 shadow-sm' 
+                    : 'border-border hover:border-primary/50 hover:bg-accent/50'
                   }
                 `}
               >
                 <RadioGroupItem value={level.id} id={level.id} className="mt-0" />
                 <Label 
                   htmlFor={level.id} 
-                  className="cursor-pointer font-normal text-sm flex items-center gap-2 flex-1"
+                  className="cursor-pointer font-normal flex items-center gap-2 flex-1"
                 >
                   <span className="text-xl">{level.emoji}</span>
                   <span>{level.label}</span>
@@ -165,9 +167,9 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
         </div>
 
         {/* Anxiety Level */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="text-center">
-            <Label className="text-base font-semibold">Уровень тревоги</Label>
+            <Label className="text-lg font-bold">Уровень тревоги</Label>
             <p className="text-xs text-muted-foreground mt-1">
               Насколько вы тревожны сейчас?
             </p>
@@ -182,18 +184,18 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
               <div 
                 key={level.id} 
                 className={`
-                  flex items-center space-x-3 p-3 rounded-lg border-2 
-                  transition-all cursor-pointer
+                  flex items-center space-x-3 p-3 rounded-xl border-2 
+                  transition-all cursor-pointer hover:scale-[1.01]
                   ${data.anxiety === level.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                    ? 'border-primary bg-primary/10 shadow-sm' 
+                    : 'border-border hover:border-primary/50 hover:bg-accent/50'
                   }
                 `}
               >
                 <RadioGroupItem value={level.id} id={`anxiety-${level.id}`} className="mt-0" />
                 <Label 
                   htmlFor={`anxiety-${level.id}`}
-                  className="cursor-pointer font-normal text-sm flex items-center gap-2 flex-1"
+                  className="cursor-pointer font-normal flex items-center gap-2 flex-1"
                 >
                   <span className="text-xl">{level.emoji}</span>
                   <span>{level.label}</span>
@@ -204,9 +206,9 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
         </div>
 
         {/* Stress Level */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="text-center">
-            <Label className="text-base font-semibold">Уровень стресса</Label>
+            <Label className="text-lg font-bold">Уровень стресса</Label>
             <p className="text-xs text-muted-foreground mt-1">
               Насколько вы напряжены сейчас?
             </p>
@@ -221,18 +223,18 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
               <div 
                 key={level.id} 
                 className={`
-                  flex items-center space-x-3 p-3 rounded-lg border-2 
-                  transition-all cursor-pointer
+                  flex items-center space-x-3 p-3 rounded-xl border-2 
+                  transition-all cursor-pointer hover:scale-[1.01]
                   ${data.stress === level.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                    ? 'border-primary bg-primary/10 shadow-sm' 
+                    : 'border-border hover:border-primary/50 hover:bg-accent/50'
                   }
                 `}
               >
                 <RadioGroupItem value={level.id} id={`stress-${level.id}`} className="mt-0" />
                 <Label 
                   htmlFor={`stress-${level.id}`}
-                  className="cursor-pointer font-normal text-sm flex items-center gap-2 flex-1"
+                  className="cursor-pointer font-normal flex items-center gap-2 flex-1"
                 >
                   <span className="text-xl">{level.emoji}</span>
                   <span>{level.label}</span>

@@ -14,12 +14,14 @@ interface Step7CompleteProps {
 }
 
 const primaryGoals = [
+  { id: 'anxiety', label: 'Разобраться с тревожностью', icon: '😌', description: 'Научиться управлять тревогой и стрессом' },
+  { id: 'self-esteem', label: 'Улучшить самооценку', icon: '💪', description: 'Больше верить в себя и свои силы' },
+  { id: 'needs', label: 'Заботиться о потребностях', icon: '🤗', description: 'Понимать и удовлетворять свои потребности' },
+  { id: 'track-feelings', label: 'Отслеживать свои чувства, мысли и состояния', icon: '📝', description: 'Быть внимательнее к себе и заботиться о своем состоянии' },
   { id: 'mood', label: 'Улучшить настроение', icon: '😊', description: 'Стать более позитивным' },
   { id: 'sleep', label: 'Наладить сон', icon: '😴', description: 'Высыпаться и чувствовать бодрость' },
-  { id: 'stress', label: 'Снизить стресс', icon: '😌', description: 'Меньше тревожиться' },
   { id: 'procrastination', label: 'Победить прокрастинацию', icon: '✅', description: 'Делать дела вовремя' },
   { id: 'mindfulness', label: 'Развить осознанность', icon: '🧘', description: 'Быть в моменте' },
-  { id: 'energy', label: 'Повысить энергию', icon: '⚡', description: 'Чувствовать себя бодрее' },
 ];
 
 interface Recommendation {
@@ -204,25 +206,25 @@ const Step7Complete: React.FC<Step7CompleteProps> = ({ data, updateData, onCompl
       <Card>
         <CardContent className="pt-6 space-y-4">
           <Label className="text-base font-semibold">
-            Выберите главную цель:
+            Выберите важные для вас цели:
           </Label>
-          <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             {primaryGoals.map((goal) => (
               <div
                 key={goal.id}
                 className={`
-                  flex items-start space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+                  flex items-start space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:scale-[1.02]
                   ${data.primaryGoal === goal.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                    ? 'border-primary bg-primary/10 shadow-md' 
+                    : 'border-border hover:border-primary/50 hover:bg-accent/50'
                   }
                 `}
                 onClick={() => updateData({ primaryGoal: goal.id })}
               >
-                <span className="text-2xl">{goal.icon}</span>
-                <div className="flex-1">
-                  <p className="font-medium">{goal.label}</p>
-                  <p className="text-sm text-muted-foreground">{goal.description}</p>
+                <span className="text-3xl flex-shrink-0">{goal.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm leading-tight mb-1">{goal.label}</p>
+                  <p className="text-xs text-muted-foreground leading-snug">{goal.description}</p>
                 </div>
               </div>
             ))}

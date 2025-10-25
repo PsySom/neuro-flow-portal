@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 import { cn } from '@/lib/utils';
 
@@ -75,55 +73,43 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">С какими трудностями вы сталкиваетесь?</h2>
-        <p className="text-muted-foreground">
-          Выберите до {MAX_CHALLENGES} областей для работы
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="space-y-3 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold">С какими трудностями вы сталкиваетесь?</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Выберите до {MAX_CHALLENGES} основных проблем
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-3">
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {challengeAreas.map((challenge) => {
             const isSelected = (data.challenges || []).includes(challenge.id);
             const isDisabled = isChallengeDisabled(challenge.id);
 
             return (
-              <div
+              <button
                 key={challenge.id}
-                className={cn(
-                  "flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors",
-                  isSelected && "bg-primary/5 border-primary",
-                  isDisabled && "opacity-50 cursor-not-allowed",
-                  !isDisabled && "hover:bg-muted/50 cursor-pointer"
-                )}
+                type="button"
                 onClick={() => !isDisabled && handleChallengeToggle(challenge.id)}
+                disabled={isDisabled}
+                className={cn(
+                  "flex items-start space-x-3 p-4 rounded-xl border-2 transition-all text-left",
+                  "hover:scale-[1.02] active:scale-[0.98]",
+                  isSelected
+                    ? "border-primary bg-primary/10 shadow-md"
+                    : "border-border hover:border-primary/50 hover:bg-accent/50",
+                  isDisabled && "opacity-50 cursor-not-allowed hover:scale-100"
+                )}
               >
-                <Checkbox
-                  id={challenge.id}
-                  checked={isSelected}
-                  onCheckedChange={() => handleChallengeToggle(challenge.id)}
-                  disabled={isDisabled}
-                  className="mt-1"
-                  aria-label={challenge.label}
-                />
-                <Label
-                  htmlFor={challenge.id}
-                  className={cn(
-                    "flex-1 cursor-pointer",
-                    isDisabled && "cursor-not-allowed"
-                  )}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xl">{challenge.icon}</span>
-                    <span className="font-medium">{challenge.label}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground ml-7">
+                <span className="text-3xl flex-shrink-0">{challenge.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold mb-1">{challenge.label}</p>
+                  <p className="text-xs text-muted-foreground leading-snug">
                     {challenge.description}
                   </p>
-                </Label>
-              </div>
+                </div>
+              </button>
             );
           })}
         </div>
@@ -143,8 +129,8 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
 
         {/* Selection counter */}
         {(data.challenges || []).length > 0 && (
-          <div className="text-center p-3 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
+          <div className="text-center p-3 bg-primary/5 rounded-xl border border-primary/20">
+            <p className="text-sm font-medium">
               Выбрано: {(data.challenges || []).length} из {MAX_CHALLENGES}
             </p>
           </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sunrise, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 
 interface Step6RhythmProps {
@@ -46,23 +46,23 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
   const recommendedChronotype = getChronotypeRecommendation();
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">🌅 Когда вы наиболее активны?</h2>
-        <p className="text-muted-foreground">
-          Давайте подберем оптимальное время для практик
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="space-y-3 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold">Ваш ритм жизни</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Когда вам комфортнее быть активным?
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Chronotype */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Sunrise className="w-5 h-5 text-primary" />
-                Ваш хронотип:
+        <Card className="border-2">
+          <CardContent className="pt-6 space-y-5">
+            <div className="text-center">
+              <Label className="text-lg font-bold">
+                Когда вы чувствуете себя наиболее продуктивным?
               </Label>
+            </div>
 
               {showRecommendation && recommendedChronotype && (
                 <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg text-sm">
@@ -76,15 +76,15 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
               <RadioGroup
                 value={data.chronotype}
                 onValueChange={(value) => updateData({ chronotype: value })}
-                className="space-y-3"
+                className="grid gap-2"
               >
                 {chronotypes.map((type) => (
                   <div
                     key={type.id}
-                    className={`relative flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 ${
+                    className={`relative flex items-center space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all hover:scale-[1.01] ${
                       data.chronotype === type.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border'
+                        ? 'border-primary bg-primary/10 shadow-sm'
+                        : 'border-border hover:border-primary/50 hover:bg-accent/50'
                     }`}
                   >
                     <RadioGroupItem
@@ -96,10 +96,10 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
                       htmlFor={`chronotype-${type.id}`}
                       className="cursor-pointer flex items-center gap-3 flex-1"
                     >
-                      <span className="text-2xl">{type.icon}</span>
+                      <span className="text-3xl">{type.icon}</span>
                       <div className="flex-1">
-                        <p className="font-medium">{type.label}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-semibold">{type.label}</p>
+                        <p className="text-xs text-muted-foreground">
                           {type.description}
                         </p>
                       </div>
@@ -107,7 +107,6 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
                   </div>
                 ))}
               </RadioGroup>
-            </div>
           </CardContent>
         </Card>
       </div>
