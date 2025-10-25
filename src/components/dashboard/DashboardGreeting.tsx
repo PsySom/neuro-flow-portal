@@ -1,12 +1,42 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
-import { getGreeting, getUserDisplayName } from '@/utils/dateUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { getGreeting } from '@/utils/dateUtils';
 
 const DashboardGreeting = () => {
   const { user } = useAuth();
+  const [userName, setUserName] = useState<string>('Пользователь');
   const greeting = getGreeting();
-  const userName = getUserDisplayName(user);
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user?.id) {
+        setUserName('Пользователь');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!error && data?.full_name) {
+          setUserName(data.full_name);
+        } else {
+          // Fallback to email username
+          setUserName(user.email?.split('@')[0] || 'Пользователь');
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+        setUserName(user.email?.split('@')[0] || 'Пользователь');
+      }
+    };
+
+    fetchUserName();
+  }, [user]);
 
   return (
     <div id="dashboard-greeting" className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/30">
