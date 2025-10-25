@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { CheckCircle, Sparkles, Book, Activity, Calendar, Bot, Settings } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 import Confetti from 'react-confetti';
@@ -12,13 +13,22 @@ interface Step7CompleteProps {
   onComplete: () => void;
 }
 
+const primaryGoals = [
+  { id: 'mood', label: 'Улучшить настроение', icon: '😊', description: 'Стать более позитивным' },
+  { id: 'sleep', label: 'Наладить сон', icon: '😴', description: 'Высыпаться и чувствовать бодрость' },
+  { id: 'stress', label: 'Снизить стресс', icon: '😌', description: 'Меньше тревожиться' },
+  { id: 'procrastination', label: 'Победить прокрастинацию', icon: '✅', description: 'Делать дела вовремя' },
+  { id: 'mindfulness', label: 'Развить осознанность', icon: '🧘', description: 'Быть в моменте' },
+  { id: 'energy', label: 'Повысить энергию', icon: '⚡', description: 'Чувствовать себя бодрее' },
+];
+
 interface Recommendation {
   icon: React.ReactNode;
   title: string;
   description: string;
 }
 
-const Step7Complete: React.FC<Step7CompleteProps> = ({ data, onComplete }) => {
+const Step7Complete: React.FC<Step7CompleteProps> = ({ data, updateData, onComplete }) => {
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
@@ -178,20 +188,66 @@ const Step7Complete: React.FC<Step7CompleteProps> = ({ data, onComplete }) => {
       <div className="space-y-3 text-center">
         <div className="flex justify-center">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-primary" />
+            <Sparkles className="w-10 h-10 text-primary" />
           </div>
         </div>
         
         <h1 className="text-3xl font-bold">
-          ✨ Ваш персональный план готов!
+          Последний шаг!
         </h1>
         <p className="text-lg text-muted-foreground">
-          Отлично, {data.name}! На основе ваших ответов мы подобрали:
+          Что привело вас в PsyBalance?
         </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Recommended Diaries */}
+      {/* Primary Goal Selection */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <Label className="text-base font-semibold">
+            Выберите главную цель:
+          </Label>
+          <div className="space-y-3">
+            {primaryGoals.map((goal) => (
+              <div
+                key={goal.id}
+                className={`
+                  flex items-start space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+                  ${data.primaryGoal === goal.id 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                  }
+                `}
+                onClick={() => updateData({ primaryGoal: goal.id })}
+              >
+                <span className="text-2xl">{goal.icon}</span>
+                <div className="flex-1">
+                  <p className="font-medium">{goal.label}</p>
+                  <p className="text-sm text-muted-foreground">{goal.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {data.primaryGoal && (
+        <>
+          <div className="space-y-3 text-center">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold">
+              ✨ Ваш персональный план готов!
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Отлично, {data.name}! На основе ваших ответов мы подобрали:
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Recommended Diaries */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-4">
@@ -292,35 +348,37 @@ const Step7Complete: React.FC<Step7CompleteProps> = ({ data, onComplete }) => {
             </div>
           </CardContent>
         </Card>
-      </div>
+          </div>
 
-      {/* Call to Action */}
-      <Button
+          {/* Call to Action */}
+          <Button
         size="lg"
         onClick={onComplete}
         className="w-full"
       >
-        <Sparkles className="w-5 h-5 mr-2" />
-        Начать использовать
-      </Button>
+            <Sparkles className="w-5 h-5 mr-2" />
+            Начать использовать
+          </Button>
 
-      {/* Additional Info */}
-      <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-900 dark:text-blue-300">
-              <p className="font-medium mb-2">💡 Вы сможете настроить детали в профиле:</p>
-              <ul className="space-y-1 ml-4">
-                <li>• Детали сна и режим</li>
-                <li>• Профессиональную помощь</li>
-                <li>• Социальную поддержку</li>
-                <li>• Стиль обратной связи</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Additional Info */}
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Settings className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-foreground/80">
+                  <p className="font-medium mb-2">💡 Вы сможете настроить детали в профиле:</p>
+                  <ul className="space-y-1 ml-4">
+                    <li>• Детали сна и режим</li>
+                    <li>• Профессиональную помощь</li>
+                    <li>• Социальную поддержку</li>
+                    <li>• Стиль обратной связи</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

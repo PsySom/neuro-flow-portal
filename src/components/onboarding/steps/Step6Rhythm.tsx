@@ -137,50 +137,6 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
           </CardContent>
         </Card>
 
-        {/* Time Commitment */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Clock className="w-5 h-5 text-primary" />
-                ⏱ Сколько времени готовы уделять?
-              </Label>
-
-              <RadioGroup
-                value={data.timeCommitment}
-                onValueChange={(value) => updateData({ timeCommitment: value })}
-                className="space-y-3"
-              >
-                {timeCommitments.map((commitment) => (
-                  <div
-                    key={commitment.id}
-                    className={`relative flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 ${
-                      data.timeCommitment === commitment.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border'
-                    }`}
-                  >
-                    <RadioGroupItem
-                      value={commitment.id}
-                      id={`time-${commitment.id}`}
-                      className="mt-0"
-                    />
-                    <Label
-                      htmlFor={`time-${commitment.id}`}
-                      className="cursor-pointer flex-1"
-                    >
-                      <p className="font-medium">{commitment.label}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {commitment.description}
-                      </p>
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Reminders */}
         <Card>
           <CardContent className="pt-6">

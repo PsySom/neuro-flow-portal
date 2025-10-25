@@ -104,12 +104,11 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
         </p>
       </div>
 
-      {/* Night-themed card */}
-      <Card className="sleep-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white">
+      <Card className="p-6 bg-card border-border">
         <div className="space-y-6">
           {/* Sleep Quality */}
           <div className="space-y-4">
-            <Label htmlFor="sleep-quality" className="text-white text-base font-semibold">
+            <Label htmlFor="sleep-quality" className="text-base font-semibold">
               Качество сна:
             </Label>
             
@@ -118,7 +117,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
                 <span className="text-4xl emoji-scale" aria-hidden="true">
                   {getSleepQualityEmoji(data.sleepQuality)}
                 </span>
-                <p className="text-sm text-slate-300 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   {data.sleepQuality}/10
                 </p>
               </div>
@@ -137,7 +136,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
                 aria-valuenow={data.sleepQuality}
               />
               
-              <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
+              <div className="flex justify-between text-xs text-muted-foreground" aria-hidden="true">
                 <span>😴 Плохое</span>
                 <span>😐 Нормальное</span>
                 <span>😊 Отличное</span>
@@ -148,12 +147,12 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
           {/* Bed Time */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="bed-time-slider" className="text-white text-base font-semibold flex items-center gap-2">
+              <Label htmlFor="bed-time-slider" className="text-base font-semibold flex items-center gap-2">
                 <Moon className="w-4 h-4" aria-hidden="true" />
                 Засыпаю:
               </Label>
               <span className="text-2xl" aria-hidden="true">{getBedTimeIcon(data.bedTime)}</span>
-              <span className="text-lg font-mono text-slate-200" aria-live="polite">
+              <span className="text-lg font-mono text-primary" aria-live="polite">
                 {data.bedTime || '23:00'}
               </span>
             </div>
@@ -172,7 +171,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
               aria-valuenow={bedTimeSliderValue}
             />
             
-            <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
+            <div className="flex justify-between text-xs text-muted-foreground" aria-hidden="true">
               <span>22:00</span>
               <span>06:00</span>
             </div>
@@ -181,12 +180,12 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
           {/* Wake Time */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="wake-time-slider" className="text-white text-base font-semibold flex items-center gap-2">
+              <Label htmlFor="wake-time-slider" className="text-base font-semibold flex items-center gap-2">
                 <Sunrise className="w-4 h-4" aria-hidden="true" />
                 Просыпаюсь:
               </Label>
               <span className="text-2xl" aria-hidden="true">{getWakeTimeIcon(data.wakeTime)}</span>
-              <span className="text-lg font-mono text-slate-200" aria-live="polite">
+              <span className="text-lg font-mono text-primary" aria-live="polite">
                 {data.wakeTime || '07:00'}
               </span>
             </div>
@@ -205,56 +204,35 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
               aria-valuenow={wakeTimeSliderValue}
             />
             
-            <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
+            <div className="flex justify-between text-xs text-muted-foreground" aria-hidden="true">
               <span>05:00</span>
               <span>12:00</span>
             </div>
           </div>
 
-          {/* Live Feedback */}
-          {feedback && (
-            <div 
-              className={`text-center p-3 bg-slate-800/50 rounded-lg border border-slate-600 ${feedback.color}`}
-              role="status"
-              aria-live="polite"
-            >
-              <p className="text-sm font-medium">
-                <span aria-hidden="true">{feedback.emoji}</span> {feedback.text}
-              </p>
-            </div>
-          )}
-
-          {/* Duration Chips */}
+          {/* Duration Selection */}
           <div className="space-y-3">
-            <Label className="text-white text-base font-semibold">
-              Продолжительность:
+            <Label className="text-base font-semibold">
+              Сколько хотели бы спать:
             </Label>
             
             <RadioGroup
               value={data.sleepDuration}
               onValueChange={(value) => updateData({ sleepDuration: value })}
-              className="flex flex-wrap gap-3"
-              aria-label="Выберите продолжительность сна"
-              aria-required="true"
+              className="grid grid-cols-2 gap-3"
+              aria-label="Желаемая продолжительность сна"
             >
               {[
-                { id: 'less-6', label: 'Меньше 6 часов' },
-                { id: '6-8', label: '6-8 часов' },
-                { id: 'more-8', label: 'Больше 8 часов' }
+                { id: '5-6h', label: '5-6 часов' },
+                { id: '6-7h', label: '6-7 часов' },
+                { id: '7-8h', label: '7-8 часов' },
+                { id: '8-9h', label: '8-9 часов' },
+                { id: '9-10h', label: '9-10 часов' },
+                { id: '10+h', label: '10+ часов' }
               ].map((option) => (
-                <div key={option.id} className="flex-1 min-w-[140px]">
-                  <RadioGroupItem
-                    value={option.id}
-                    id={option.id}
-                    className="peer sr-only"
-                    aria-label={option.label}
-                  />
-                  <Label
-                    htmlFor={option.id}
-                    className="flex items-center justify-center px-4 py-3 bg-slate-800 border-2 border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/20 transition-all text-sm font-medium text-center"
-                  >
-                    {option.label}
-                  </Label>
+                <div key={option.id} className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/30 cursor-pointer">
+                  <RadioGroupItem value={option.id} id={option.id} />
+                  <Label htmlFor={option.id} className="cursor-pointer flex-1">{option.label}</Label>
                 </div>
               ))}
             </RadioGroup>

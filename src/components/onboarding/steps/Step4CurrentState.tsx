@@ -34,78 +34,102 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
   return (
     <div className="space-y-8">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">💭 Как бы вы описали своё текущее состояние?</h2>
+        <h2 className="text-2xl font-bold">Какое у вас настроение сейчас?</h2>
         <p className="text-muted-foreground">
-          Оцените ваше самочувствие прямо сейчас
+          Это поможет нам понять ваше текущее состояние
         </p>
       </div>
 
-      <div className="space-y-8">
-        {/* Mood Slider */}
-        <div className="space-y-4">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            Настроение:
-          </Label>
-          
-          <div className="space-y-6 px-2">
-            {/* Current mood display */}
-            <div className="text-center">
-              <span className="text-5xl">{getMoodEmoji(data.mood)}</span>
-              <p className="text-sm text-muted-foreground mt-2">
+      <div className="space-y-10">
+        {/* Mood Slider - Improved UX */}
+        <div className="space-y-6">
+          <div className="text-center space-y-4">
+            {/* Large mood emoji */}
+            <div className="inline-block p-6 rounded-full bg-primary/10">
+              <span className="text-7xl">{getMoodEmoji(data.mood)}</span>
+            </div>
+            
+            {/* Mood score */}
+            <div>
+              <p className="text-3xl font-bold text-primary">
                 {data.mood}/10
               </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {data.mood <= 3 && 'Тяжёлый день'}
+                {data.mood > 3 && data.mood <= 5 && 'Могло быть лучше'}
+                {data.mood > 5 && data.mood <= 7 && 'В целом нормально'}
+                {data.mood > 7 && data.mood <= 9 && 'Хороший день'}
+                {data.mood > 9 && 'Отличное настроение!'}
+              </p>
             </div>
+          </div>
 
-            {/* Slider */}
-            <div className="relative">
-              <Slider
-                value={[data.mood]}
-                onValueChange={([value]) => updateData({ mood: value })}
-                min={0}
-                max={10}
-                step={1}
-                className="py-4"
-              />
-              
-              {/* Emoji indicators */}
-              <div className="flex justify-between items-center mt-2">
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl">😔</span>
-                  <span className="text-xs text-muted-foreground mt-1">Плохое</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl">😊</span>
-                  <span className="text-xs text-muted-foreground mt-1">Отличное</span>
-                </div>
+          {/* Slider */}
+          <div className="px-4">
+            <Slider
+              value={[data.mood]}
+              onValueChange={([value]) => updateData({ mood: value })}
+              min={0}
+              max={10}
+              step={1}
+              className="py-6"
+              aria-label={`Настроение: ${data.mood} из 10`}
+            />
+            
+            {/* Emoji scale */}
+            <div className="flex justify-between items-center mt-3 px-2">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-3xl">😔</span>
+                <span className="text-xs text-muted-foreground font-medium">Плохое</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-3xl">😐</span>
+                <span className="text-xs text-muted-foreground font-medium">Норма</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-3xl">😊</span>
+                <span className="text-xs text-muted-foreground font-medium">Отличное</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Energy Level */}
+        {/* Energy Level - Improved UI */}
         <div className="space-y-4">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            <Activity className="w-5 h-5 text-primary" />
-            Уровень энергии:
-          </Label>
+          <div className="text-center">
+            <Label className="text-lg font-semibold flex items-center justify-center gap-2">
+              <Activity className="w-5 h-5 text-primary" />
+              Уровень энергии
+            </Label>
+            <p className="text-sm text-muted-foreground mt-1">
+              Насколько вы бодры прямо сейчас?
+            </p>
+          </div>
           
           <RadioGroup
             value={data.energy}
             onValueChange={(value) => updateData({ energy: value })}
-            className="space-y-3"
+            className="grid grid-cols-1 gap-3"
           >
             {energyLevels.map((level) => (
               <div 
                 key={level.id} 
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                className={`
+                  flex items-center space-x-4 p-4 rounded-xl border-2 
+                  transition-all cursor-pointer
+                  ${data.energy === level.id 
+                    ? 'border-primary bg-primary/5 shadow-sm' 
+                    : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                  }
+                `}
               >
                 <RadioGroupItem value={level.id} id={level.id} className="mt-0" />
                 <Label 
                   htmlFor={level.id} 
                   className="cursor-pointer font-normal text-base flex items-center gap-3 flex-1"
                 >
-                  <span className="text-xl">{level.emoji}</span>
-                  <span>{level.label}</span>
+                  <span className="text-2xl">{level.emoji}</span>
+                  <span className="font-medium">{level.label}</span>
                 </Label>
               </div>
             ))}

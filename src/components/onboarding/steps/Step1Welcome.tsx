@@ -64,7 +64,7 @@ const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onNext }) => {
       await signUp(email, password);
       toast({
         title: 'Регистрация успешна!',
-        description: 'Добро пожаловать в Mental Balance',
+        description: 'Добро пожаловать в PsyBalance',
       });
       setShowRegistration(false);
     } catch (error: any) {

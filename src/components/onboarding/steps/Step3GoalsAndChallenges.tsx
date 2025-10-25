@@ -27,17 +27,17 @@ const primaryGoals = [
 ];
 
 const challengeAreas = [
-  { id: 'anxiety', label: 'Тревога и беспокойство' },
-  { id: 'stress', label: 'Стресс и напряжение' },
-  { id: 'procrastination', label: 'Прокрастинация' },
-  { id: 'self-esteem', label: 'Низкая самооценка' },
-  { id: 'sleep-issues', label: 'Проблемы со сном' },
-  { id: 'low-energy', label: 'Недостаток энергии' },
-  { id: 'concentration', label: 'Трудности с концентрацией' },
-  { id: 'mood-swings', label: 'Перепады настроения' },
-  { id: 'loneliness', label: 'Одиночество' },
-  { id: 'burnout', label: 'Выгорание' },
-  { id: 'relationship-issues', label: 'Проблемы в отношениях' }
+  { id: 'anxiety', label: 'Тревога и беспокойство', icon: '😰', description: 'Постоянное беспокойство и напряжение' },
+  { id: 'stress', label: 'Стресс и напряжение', icon: '😓', description: 'Трудно расслабиться и отдохнуть' },
+  { id: 'procrastination', label: 'Прокрастинация', icon: '⏰', description: 'Откладываю дела на потом' },
+  { id: 'self-esteem', label: 'Низкая самооценка', icon: '😔', description: 'Недостаток уверенности в себе' },
+  { id: 'sleep-issues', label: 'Проблемы со сном', icon: '😴', description: 'Плохо засыпаю или часто просыпаюсь' },
+  { id: 'low-energy', label: 'Недостаток энергии', icon: '🔋', description: 'Постоянная усталость' },
+  { id: 'concentration', label: 'Трудности с концентрацией', icon: '🎯', description: 'Сложно сосредоточиться на задачах' },
+  { id: 'mood-swings', label: 'Перепады настроения', icon: '🎭', description: 'Резкие изменения эмоционального состояния' },
+  { id: 'loneliness', label: 'Одиночество', icon: '😞', description: 'Ощущение изоляции и отсутствия поддержки' },
+  { id: 'burnout', label: 'Выгорание', icon: '🔥', description: 'Эмоциональное и физическое истощение' },
+  { id: 'relationship-issues', label: 'Проблемы в отношениях', icon: '💔', description: 'Конфликты и непонимание' }
 ];
 
 const MAX_CHALLENGES = 3;
@@ -46,13 +46,11 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   data,
   updateData
 }) => {
-  const [otherGoalText, setOtherGoalText] = useState('');
-  const showOtherInput = data.primaryGoal === 'other';
-
   const handleChallengeToggle = (challengeId: string) => {
-    const newChallenges = data.challenges.includes(challengeId)
-      ? data.challenges.filter(c => c !== challengeId)
-      : [...data.challenges, challengeId];
+    const currentChallenges = data.challenges || [];
+    const newChallenges = currentChallenges.includes(challengeId)
+      ? currentChallenges.filter(c => c !== challengeId)
+      : [...currentChallenges, challengeId];
     
     // Limit to MAX_CHALLENGES
     if (newChallenges.length <= MAX_CHALLENGES) {
@@ -61,142 +59,72 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   };
 
   const isChallengeDisabled = (challengeId: string) => {
-    return !data.challenges.includes(challengeId) && data.challenges.length >= MAX_CHALLENGES;
-  };
-
-  const handlePrimaryGoalChange = (value: string) => {
-    updateData({ primaryGoal: value });
-    if (value !== 'other') {
-      setOtherGoalText('');
-    }
+    const currentChallenges = data.challenges || [];
+    return !currentChallenges.includes(challengeId) && currentChallenges.length >= MAX_CHALLENGES;
   };
 
   return (
-    <div className="space-y-6" role="form" aria-label="Ваши цели и задачи">
+    <div className="space-y-8">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">Ваши цели</h2>
+        <h2 className="text-2xl font-bold">С какими трудностями вы сталкиваетесь?</h2>
         <p className="text-muted-foreground">
-          Расскажите, что для вас важнее всего
+          Выберите до {MAX_CHALLENGES} областей для работы
         </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Block 1: Primary Goal */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" aria-hidden="true" />
-            <Label className="text-base font-semibold">
-              🎯 Что привело вас в Mental Balance?
-            </Label>
-          </div>
-          
-          <RadioGroup
-            value={data.primaryGoal}
-            onValueChange={handlePrimaryGoalChange}
-            aria-label="Выберите вашу основную цель"
-            aria-required="true"
-          >
-            {primaryGoals.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-2 onboarding-radio">
-                <RadioGroupItem 
-                  value={goal.id} 
-                  id={`goal-${goal.id}`}
-                  aria-label={goal.label}
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {challengeAreas.map((challenge) => {
+            const isSelected = (data.challenges || []).includes(challenge.id);
+            const isDisabled = isChallengeDisabled(challenge.id);
+
+            return (
+              <div
+                key={challenge.id}
+                className={cn(
+                  "flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors",
+                  isSelected && "bg-primary/5 border-primary",
+                  isDisabled && "opacity-50 cursor-not-allowed",
+                  !isDisabled && "hover:bg-muted/50 cursor-pointer"
+                )}
+                onClick={() => !isDisabled && handleChallengeToggle(challenge.id)}
+              >
+                <Checkbox
+                  id={challenge.id}
+                  checked={isSelected}
+                  onCheckedChange={() => handleChallengeToggle(challenge.id)}
+                  disabled={isDisabled}
+                  className="mt-1"
+                  aria-label={challenge.label}
                 />
-                <Label 
-                  htmlFor={`goal-${goal.id}`} 
-                  className="cursor-pointer font-normal leading-tight"
-                >
-                  {goal.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-
-          {showOtherInput && (
-            <Input
-              placeholder="Опишите вашу цель..."
-              value={otherGoalText}
-              onChange={(e) => setOtherGoalText(e.target.value)}
-              className="mt-2 onboarding-input"
-              aria-label="Опишите вашу цель"
-              aria-required="true"
-            />
-          )}
-        </div>
-
-        {/* Divider */}
-        <Separator className="my-6" />
-
-        {/* Block 2: Challenge Areas */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-primary" aria-hidden="true" />
-              <Label className="text-base font-semibold">
-                🔍 И 2-3 области для работы:
-              </Label>
-            </div>
-            <span 
-              className="text-sm text-muted-foreground"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              Выбрано: {data.challenges.length}/{MAX_CHALLENGES}
-            </span>
-          </div>
-
-          <div 
-            className="space-y-3" 
-            role="group" 
-            aria-label="Выберите области для работы"
-            aria-required="true"
-          >
-            {challengeAreas.map((area) => {
-              const isDisabled = isChallengeDisabled(area.id);
-              const isChecked = data.challenges.includes(area.id);
-              
-              return (
-                <div 
-                  key={area.id} 
+                <Label
+                  htmlFor={challenge.id}
                   className={cn(
-                    "flex items-center space-x-2 onboarding-checkbox",
-                    isDisabled && 'opacity-50'
+                    "flex-1 cursor-pointer",
+                    isDisabled && "cursor-not-allowed"
                   )}
                 >
-                  <Checkbox
-                    id={`challenge-${area.id}`}
-                    checked={isChecked}
-                    onCheckedChange={() => handleChallengeToggle(area.id)}
-                    disabled={isDisabled}
-                    aria-label={area.label}
-                    aria-describedby={isDisabled ? "challenge-limit-message" : undefined}
-                  />
-                  <Label
-                    htmlFor={`challenge-${area.id}`}
-                    className={cn(
-                      "cursor-pointer font-normal leading-tight",
-                      isDisabled && 'cursor-not-allowed'
-                    )}
-                  >
-                    {area.label}
-                  </Label>
-                </div>
-              );
-            })}
-          </div>
-
-          {data.challenges.length >= MAX_CHALLENGES && (
-            <p 
-              id="challenge-limit-message" 
-              className="text-sm text-muted-foreground"
-              role="status"
-              aria-live="polite"
-            >
-              Максимум {MAX_CHALLENGES} области. Снимите выбор, чтобы добавить другую.
-            </p>
-          )}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xl">{challenge.icon}</span>
+                    <span className="font-medium">{challenge.label}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground ml-7">
+                    {challenge.description}
+                  </p>
+                </Label>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Selection counter */}
+        {(data.challenges || []).length > 0 && (
+          <div className="text-center p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Выбрано: {(data.challenges || []).length} из {MAX_CHALLENGES}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
