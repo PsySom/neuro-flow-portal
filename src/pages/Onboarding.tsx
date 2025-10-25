@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import OnboardingDialog from '@/components/onboarding/OnboardingDialog';
+import OnboardingContainer from '@/components/onboarding/OnboardingContainer';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const OnboardingPage: React.FC = () => {
   const { isAuthenticated } = useSupabaseAuth();
-  const [open, setOpen] = React.useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // SEO basics
-    document.title = 'Онбординг — Добро пожаловать | PsyBalans';
+    document.title = 'Онбординг — Добро пожаловать | Mental Balance';
     const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', 'Добро пожаловать в PsyBalans: начните персональный онбординг с экрана приветствия.');
+    if (metaDesc) metaDesc.setAttribute('content', 'Добро пожаловать в Mental Balance: начните персональный онбординг с экрана приветствия.');
     const linkCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     const href = window.location.origin + '/onboarding';
     if (linkCanonical) linkCanonical.href = href; else {
@@ -23,20 +22,22 @@ const OnboardingPage: React.FC = () => {
     }
   }, []);
 
-  const handleClose = () => {
-    setOpen(false);
-    // Если пользователь уже вошёл — на дашборд, иначе — на главную
-    window.location.href = isAuthenticated ? '/dashboard' : '/';
+  const handleComplete = () => {
+    // Сохраняем флаг завершения онбординга
+    localStorage.setItem('onboarding-completed', 'true');
+    // Переходим на дашборд
+    navigate('/dashboard');
+  };
+
+  const handleSkip = () => {
+    // Пользователь пропустил онбординг
+    localStorage.setItem('onboarding-completed', 'true');
+    // Если авторизован - на дашборд, иначе на главную
+    navigate(isAuthenticated ? '/dashboard' : '/');
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <OnboardingDialog isOpen={open} initialStep="welcome" onClose={handleClose} />
-      </main>
-      <Footer />
-    </div>
+    <OnboardingContainer onComplete={handleComplete} onSkip={handleSkip} />
   );
 };
 
