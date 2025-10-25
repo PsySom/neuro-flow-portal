@@ -1,24 +1,17 @@
 
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { emotionsData } from '../moodDiaryUtils';
 import { lifeSpheres } from './constants';
 import { MoodStepProps } from './types';
 
 interface ClarifyingQuestionsStepProps extends MoodStepProps {
   selectedEmotions: Array<{name: string; intensity: number}>;
-  showNegativeQuestions: boolean;
-  showPositiveQuestions: boolean;
 }
 
 const ClarifyingQuestionsStep = ({ 
   form, 
-  selectedEmotions, 
-  showNegativeQuestions, 
-  showPositiveQuestions 
+  selectedEmotions
 }: ClarifyingQuestionsStepProps) => {
   return (
     <div className="space-y-6">
@@ -27,7 +20,7 @@ const ClarifyingQuestionsStep = ({
       {/* Основные вопросы - всегда показываем если есть выбранные эмоции */}
       {selectedEmotions.length > 0 && (
         <>
-          {/* Вопрос: С чем связанно это чувство? */}
+          {/* Вопрос 4: С чем связанно это чувство? */}
           <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <h4 className="font-medium text-gray-900 dark:text-gray-100">С чем связанно это чувство?</h4>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -49,102 +42,16 @@ const ClarifyingQuestionsStep = ({
             </div>
           </div>
 
-          {/* Вопрос: На что влияет эта эмоция? */}
-          <div className="space-y-2">
-            <Label>На что влияет эта эмоция? Чему мешает или помогает?</Label>
-            <Textarea
-              placeholder="Опиши, как эмоция влияет на твою жизнь, деятельность, отношения..."
-              {...form.register('emotionImpact')}
-              rows={3}
-            />
-          </div>
-
-          {/* Вопрос о связанных мыслях */}
-          <div className="space-y-2">
-            <Label>Какие мысли с этим связаны?</Label>
-            <Textarea
-              placeholder="Опиши свои мысли и размышления..."
-              {...form.register('relatedThoughts')}
-              rows={3}
-            />
-          </div>
-
-          {/* Перенесенный вопрос из шага 2 */}
+          {/* Вопрос 7: Если хочется, опиши, как это проявлялось или что этому способствовало */}
           <div className="space-y-2">
             <Label>Если хочется, опиши, как это проявлялось или что этому способствовало:</Label>
-            <Input
+            <Textarea
               placeholder="Дополнительные комментарии об эмоциях..."
               {...form.register('emotionComment')}
+              rows={4}
             />
           </div>
         </>
-      )}
-      
-      {/* Углубленные вопросы для сильных негативных эмоций */}
-      {showNegativeQuestions && (
-        <div className="space-y-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-          <h4 className="font-medium text-orange-900 dark:text-orange-100">Работа с негативными эмоциями</h4>
-          
-          <div className="space-y-2">
-            <Label>Что именно вызвало это чувство?</Label>
-            <select 
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-              {...form.register('triggerSource')}
-            >
-              <option value="">Выберите источник</option>
-              <option value="external">Внешнее событие</option>
-              <option value="thoughts">Внутренние мысли</option>
-              <option value="communication">Общение</option>
-              <option value="physical">Физиологические причины</option>
-              <option value="self-esteem">Самооценка</option>
-              <option value="other">Другое</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Какая мысль или фраза приходила тебе в голову в этот момент?</Label>
-            <Input
-              placeholder="Опиши свои мысли..."
-              {...form.register('triggerThought')}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="cognitiveBias"
-              checked={form.watch('hasCognitiveBias')}
-              onCheckedChange={(checked) => form.setValue('hasCognitiveBias', !!checked)}
-            />
-            <Label htmlFor="cognitiveBias">
-              Были ли среди этих мыслей категоричные («я всегда», «я не могу», «у меня не получится»)?
-            </Label>
-          </div>
-
-          {form.watch('hasCognitiveBias') && (
-            <div className="space-y-2">
-              <Label>Можешь переформулировать эту мысль так, чтобы она звучала мягче и поддерживающе для тебя?</Label>
-              <Input
-                placeholder="Переформулированная мысль..."
-                {...form.register('reframedThought')}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Вопросы для сильных позитивных эмоций */}
-      {showPositiveQuestions && (
-        <div className="space-y-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <h4 className="font-medium text-green-900 dark:text-green-100">Позитивные моменты</h4>
-          
-          <div className="space-y-2">
-            <Label>Что способствовало этому прекрасному состоянию?</Label>
-            <Input
-              placeholder="Опиши событие, процесс, поддержку, достижение..."
-              {...form.register('positiveSource')}
-            />
-          </div>
-        </div>
       )}
     </div>
   );

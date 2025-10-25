@@ -40,5 +40,8 @@ export const bodyStates = [
   { emoji: '💪', label: 'Энергичность', value: 'energetic', type: 'positive' },
   { emoji: '😌', label: 'Расслабленность', value: 'relaxed', type: 'positive' },
   { emoji: '✨', label: 'Легкость', value: 'light', type: 'positive' },
-  { emoji: '🔥', label: 'Жизненная сила', value: 'vital', type: 'positive' }
+  { emoji: '🔥', label: 'Жизненная сила', value: 'vital', type: 'positive' },
+  
+  // Опция для своего ответа
+  { emoji: '✍️', label: 'Другое', value: 'custom', type: 'neutral' }
 ];

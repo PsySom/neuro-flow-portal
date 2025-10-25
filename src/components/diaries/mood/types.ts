@@ -6,20 +6,10 @@ export interface MoodDiaryData {
     name: string;
     intensity: number;
   }>;
-  emotionTrigger?: string;
   emotionComment: string;
+  emotionConnection?: string;
   bodyStateInfluence?: string;
   bodyStateCustom?: string;
-  relatedThoughts?: string;
-  triggerSource?: string;
-  triggerThought?: string;
-  hasCognitiveBias: boolean;
-  reframedThought?: string;
-  positiveSource?: string;
-  selfEvaluation: number;
-  gratitude: string;
-  emotionConnection?: string;
-  emotionImpact?: string;
 }
 
 export interface MoodStepProps {

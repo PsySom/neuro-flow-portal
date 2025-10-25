@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -7,13 +7,12 @@ import { useForm } from 'react-hook-form';
 import { Heart, ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { backendDiaryService, MoodEntry } from '@/services/backend-diary.service';
-import { getRecommendations, emotionsData } from './moodDiaryUtils';
+import { emotionsData } from './moodDiaryUtils';
 import { MoodDiaryData } from './mood/types';
 import MoodStep from './mood/MoodStep';
 import EmotionsStep from './mood/EmotionsStep';
 import ClarifyingQuestionsStep from './mood/ClarifyingQuestionsStep';
 import SelfEvaluationStep from './mood/SelfEvaluationStep';
-import RecommendationsStep from './mood/RecommendationsStep';
 
 interface MoodDiaryProps {
   onComplete?: () => void;
@@ -23,9 +22,6 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [moodValue, setMoodValue] = useState([0]);
   const [selectedEmotions, setSelectedEmotions] = useState<Array<{name: string; intensity: number}>>([]);
-  const [showNegativeQuestions, setShowNegativeQuestions] = useState(false);
-  const [showPositiveQuestions, setShowPositiveQuestions] = useState(false);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
 
   const form = useForm<MoodDiaryData>({
     defaultValues: {
@@ -33,32 +29,13 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
       moodComment: '',
       selectedEmotions: [],
       emotionComment: '',
-      relatedThoughts: '',
-      hasCognitiveBias: false,
-      selfEvaluation: 0,
-      gratitude: '',
       emotionConnection: '',
-      emotionImpact: ''
+      bodyStateInfluence: '',
+      bodyStateCustom: ''
     }
   });
 
   const currentMood = moodValue[0];
-
-  useEffect(() => {
-    // Проверяем нужны ли уточняющие вопросы
-    const hasHighNegativeEmotions = selectedEmotions.some(emotion => {
-      const emotionData = emotionsData.negative.find(e => e.name === emotion.name);
-      return emotionData && emotion.intensity >= 7;
-    });
-
-    const hasHighPositiveEmotions = selectedEmotions.some(emotion => {
-      const emotionData = emotionsData.positive.find(e => e.name === emotion.name);
-      return emotionData && emotion.intensity >= 8;
-    });
-
-    setShowNegativeQuestions(hasHighNegativeEmotions);
-    setShowPositiveQuestions(hasHighPositiveEmotions);
-  }, [selectedEmotions]);
 
   const handleMoodChange = (value: number[]) => {
     setMoodValue(value);
@@ -70,9 +47,12 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
     form.setValue('selectedEmotions', emotions);
   };
 
-  const handleNext = () => {
-    if (currentStep < 5) {
+  const handleNext = async () => {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
+    } else if (currentStep === 4) {
+      // На последнем шаге сохраняем данные
+      await form.handleSubmit(onSubmit)();
     }
   };
 
@@ -84,13 +64,9 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
 
   const onSubmit = async (data: MoodDiaryData) => {
     try {
-      console.log('💾 Сохранение записи дневника настроения...');
-      
-      // Формируем данные в формате фронтенда (-5/+5) для endpoint /frontend
       const moodEntry: MoodEntry = {
-        mood_score: data.mood, // Формат фронтенда -5/+5, бэкенд автоматически конвертирует в -10/+10
+        mood_score: data.mood,
         emotions: data.selectedEmotions.map(emotion => {
-          // Определяем категорию эмоции
           let category: 'positive' | 'neutral' | 'negative' = 'neutral';
           if (emotionsData.positive.find(e => e.name === emotion.name)) {
             category = 'positive';
@@ -106,46 +82,30 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
         }),
         timestamp: new Date().toISOString(),
         context: data.emotionConnection || '',
-        notes: [data.moodComment, data.emotionComment, data.gratitude].filter(Boolean).join('. '),
-        triggers: data.relatedThoughts ? [data.relatedThoughts] : []
+        notes: [data.moodComment, data.emotionComment].filter(Boolean).join('. '),
+        triggers: []
       };
 
-      console.log('📝 Данные для отправки:', moodEntry);
-
-      // Сохраняем через backend /frontend endpoint
-      const savedEntry = await backendDiaryService.createMoodEntry(moodEntry);
-      console.log('✅ Запись сохранена:', savedEntry);
+      await backendDiaryService.createMoodEntry(moodEntry);
       
-      // Обновляем статус дневника в localStorage
       const today = new Date().toISOString().split('T')[0];
       const diaryStatus = JSON.parse(localStorage.getItem('diary-status-/mood-diary') || '{}');
       const updatedStatus = { ...diaryStatus, lastEntryDate: today };
       localStorage.setItem('diary-status-/mood-diary', JSON.stringify(updatedStatus));
-      console.log('📅 Статус дневника обновлен:', updatedStatus);
       
-      // Принудительно вызываем событие storage для обновления графиков
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'mock_mood_entries',
         newValue: localStorage.getItem('mock_mood_entries'),
         storageArea: localStorage
       }));
       
-      // Дополнительно отправляем кастомное событие
       window.dispatchEvent(new CustomEvent('mood-data-updated'));
-      console.log('📊 Отправлены события обновления данных настроения');
       
       toast.success('Запись дневника настроения сохранена');
-
-      // Генерируем рекомендации
-      const generatedRecommendations = getRecommendations(data);
-      setRecommendations(generatedRecommendations);
       
-      // Вызываем callback о завершении
-      setTimeout(() => {
-        onComplete?.();
-      }, 2000);
+      onComplete?.();
     } catch (error) {
-      console.error('❌ Ошибка при сохранении записи дневника:', error);
+      console.error('Ошибка при сохранении записи дневника:', error);
       toast.error('Ошибка при сохранении записи дневника');
     }
   };
@@ -171,23 +131,13 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
         );
       case 3:
         return (
-          <ClarifyingQuestionsStep
-            form={form}
-            selectedEmotions={selectedEmotions}
-            showNegativeQuestions={showNegativeQuestions}
-            showPositiveQuestions={showPositiveQuestions}
-          />
+        <ClarifyingQuestionsStep
+          form={form}
+          selectedEmotions={selectedEmotions}
+        />
         );
       case 4:
         return <SelfEvaluationStep form={form} />;
-      case 5:
-        return (
-          <RecommendationsStep
-            form={form}
-            recommendations={recommendations}
-            onSubmit={onSubmit}
-          />
-        );
       default:
         return null;
     }
@@ -198,7 +148,6 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
     { number: 2, title: 'Эмоции' },
     { number: 3, title: 'Уточнения' },
     { number: 4, title: 'Самооценка' },
-    { number: 5, title: 'Рекомендации' },
   ];
 
   return (
@@ -238,15 +187,13 @@ const MoodDiary: React.FC<MoodDiaryProps> = ({ onComplete }) => {
                   Назад
                 </Button>
                 
-                {currentStep < steps.length && (
-                  <Button
-                    type="button"
-                    onClick={handleNext}
-                  >
-                    Далее
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                >
+                  {currentStep === steps.length ? 'Сохранить' : 'Далее'}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               </div>
             </form>
           </Form>
