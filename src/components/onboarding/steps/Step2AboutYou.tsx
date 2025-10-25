@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Cake, Clock } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
+import { cn } from '@/lib/utils';
 
 interface Step2AboutYouProps {
   data: OnboardingData;
@@ -72,7 +73,7 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="form" aria-label="Информация о вас">
       <div className="space-y-2 text-center">
         <h2 className="text-2xl font-bold">Расскажите о себе</h2>
         <p className="text-muted-foreground">
@@ -84,7 +85,7 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
         {/* Name */}
         <div className="space-y-3">
           <Label htmlFor="name" className="flex items-center gap-2 text-base font-semibold">
-            <User className="w-4 h-4 text-primary" />
+            <User className="w-4 h-4 text-primary" aria-hidden="true" />
             Как к вам обращаться?
           </Label>
           <Input
@@ -92,35 +93,46 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
             placeholder="Введите ваше имя"
             value={data.name}
             onChange={(e) => handleNameChange(e.target.value)}
-            className={nameError ? 'border-destructive' : ''}
+            className={cn("onboarding-input", nameError && 'border-destructive')}
+            aria-required="true"
+            aria-invalid={!!nameError}
+            aria-describedby={nameError ? "name-error" : undefined}
+            autoComplete="given-name"
           />
           {nameError && (
-            <p className="text-sm text-destructive">{nameError}</p>
+            <p id="name-error" className="text-sm text-destructive" role="alert">
+              {nameError}
+            </p>
           )}
         </div>
 
         {/* Age Slider */}
         <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Cake className="w-4 h-4 text-primary" />
+          <Label htmlFor="age-slider" className="flex items-center gap-2 text-base font-semibold">
+            <Cake className="w-4 h-4 text-primary" aria-hidden="true" />
             Сколько вам лет?
           </Label>
           <div className="space-y-4">
-            <div className="text-center">
+            <div className="text-center" aria-live="polite">
               <span className="text-4xl font-bold text-primary">
                 {data.age || 25}
               </span>
               <span className="text-muted-foreground ml-2">лет</span>
             </div>
             <Slider
+              id="age-slider"
               value={[data.age || 25]}
               onValueChange={([value]) => updateData({ age: value })}
               min={16}
               max={80}
               step={1}
               className="py-4"
+              aria-label={`Возраст: ${data.age || 25} лет`}
+              aria-valuemin={16}
+              aria-valuemax={80}
+              aria-valuenow={data.age || 25}
             />
-            <div className="flex justify-between text-xs text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground" aria-hidden="true">
               <span>16</span>
               <span>80</span>
             </div>
@@ -129,14 +141,18 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
 
         {/* Timezone */}
         <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-base font-semibold">
-            <Clock className="w-4 h-4 text-primary" />
+          <Label htmlFor="timezone" className="flex items-center gap-2 text-base font-semibold">
+            <Clock className="w-4 h-4 text-primary" aria-hidden="true" />
             Часовой пояс
           </Label>
           
           {!showTimezoneSelect ? (
             <div className="flex items-center gap-2">
-              <div className="flex-1 px-3 py-2 bg-muted rounded-md text-sm">
+              <div 
+                className="flex-1 px-3 py-2 bg-muted rounded-md text-sm"
+                role="text"
+                aria-label={`Выбранный часовой пояс: ${getTimezoneLabel(data.timezone)}`}
+              >
                 {getTimezoneLabel(data.timezone)}
               </div>
               <Button
@@ -144,6 +160,7 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowTimezoneSelect(true)}
+                aria-label="Изменить часовой пояс"
               >
                 Изменить
               </Button>
@@ -156,8 +173,9 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
                   updateData({ timezone: value });
                   setShowTimezoneSelect(false);
                 }}
+                aria-label="Выбрать часовой пояс"
               >
-                <SelectTrigger>
+                <SelectTrigger id="timezone">
                   <SelectValue placeholder="Выберите часовой пояс" />
                 </SelectTrigger>
                 <SelectContent>
@@ -174,6 +192,7 @@ const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
                 size="sm"
                 onClick={() => setShowTimezoneSelect(false)}
                 className="w-full"
+                aria-label="Отменить изменение часового пояса"
               >
                 Отмена
               </Button>

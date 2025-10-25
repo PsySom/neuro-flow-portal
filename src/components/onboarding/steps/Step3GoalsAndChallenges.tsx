@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Target, Search } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
+import { cn } from '@/lib/utils';
 
 interface Step3GoalsAndChallengesProps {
   data: OnboardingData;
@@ -71,7 +72,7 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="form" aria-label="Ваши цели и задачи">
       <div className="space-y-2 text-center">
         <h2 className="text-2xl font-bold">Ваши цели</h2>
         <p className="text-muted-foreground">
@@ -83,7 +84,7 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
         {/* Block 1: Primary Goal */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
+            <Target className="w-5 h-5 text-primary" aria-hidden="true" />
             <Label className="text-base font-semibold">
               🎯 Что привело вас в Mental Balance?
             </Label>
@@ -92,10 +93,16 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
           <RadioGroup
             value={data.primaryGoal}
             onValueChange={handlePrimaryGoalChange}
+            aria-label="Выберите вашу основную цель"
+            aria-required="true"
           >
             {primaryGoals.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={goal.id} id={`goal-${goal.id}`} />
+              <div key={goal.id} className="flex items-center space-x-2 onboarding-radio">
+                <RadioGroupItem 
+                  value={goal.id} 
+                  id={`goal-${goal.id}`}
+                  aria-label={goal.label}
+                />
                 <Label 
                   htmlFor={`goal-${goal.id}`} 
                   className="cursor-pointer font-normal leading-tight"
@@ -111,7 +118,9 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
               placeholder="Опишите вашу цель..."
               value={otherGoalText}
               onChange={(e) => setOtherGoalText(e.target.value)}
-              className="mt-2"
+              className="mt-2 onboarding-input"
+              aria-label="Опишите вашу цель"
+              aria-required="true"
             />
           )}
         </div>
@@ -123,17 +132,26 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-primary" />
+              <Search className="w-5 h-5 text-primary" aria-hidden="true" />
               <Label className="text-base font-semibold">
                 🔍 И 2-3 области для работы:
               </Label>
             </div>
-            <span className="text-sm text-muted-foreground">
+            <span 
+              className="text-sm text-muted-foreground"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               Выбрано: {data.challenges.length}/{MAX_CHALLENGES}
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div 
+            className="space-y-3" 
+            role="group" 
+            aria-label="Выберите области для работы"
+            aria-required="true"
+          >
             {challengeAreas.map((area) => {
               const isDisabled = isChallengeDisabled(area.id);
               const isChecked = data.challenges.includes(area.id);
@@ -141,19 +159,25 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
               return (
                 <div 
                   key={area.id} 
-                  className={`flex items-center space-x-2 ${isDisabled ? 'opacity-50' : ''}`}
+                  className={cn(
+                    "flex items-center space-x-2 onboarding-checkbox",
+                    isDisabled && 'opacity-50'
+                  )}
                 >
                   <Checkbox
                     id={`challenge-${area.id}`}
                     checked={isChecked}
                     onCheckedChange={() => handleChallengeToggle(area.id)}
                     disabled={isDisabled}
+                    aria-label={area.label}
+                    aria-describedby={isDisabled ? "challenge-limit-message" : undefined}
                   />
                   <Label
                     htmlFor={`challenge-${area.id}`}
-                    className={`cursor-pointer font-normal leading-tight ${
-                      isDisabled ? 'cursor-not-allowed' : ''
-                    }`}
+                    className={cn(
+                      "cursor-pointer font-normal leading-tight",
+                      isDisabled && 'cursor-not-allowed'
+                    )}
                   >
                     {area.label}
                   </Label>
@@ -163,7 +187,12 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
           </div>
 
           {data.challenges.length >= MAX_CHALLENGES && (
-            <p className="text-sm text-muted-foreground">
+            <p 
+              id="challenge-limit-message" 
+              className="text-sm text-muted-foreground"
+              role="status"
+              aria-live="polite"
+            >
               Максимум {MAX_CHALLENGES} области. Снимите выбор, чтобы добавить другую.
             </p>
           )}

@@ -96,7 +96,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="form" aria-label="Информация о сне">
       <div className="space-y-2 text-center">
         <h2 className="text-2xl font-bold">😴 Расскажите о вашем сне</h2>
         <p className="text-muted-foreground">
@@ -105,32 +105,39 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
       </div>
 
       {/* Night-themed card */}
-      <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white">
+      <Card className="sleep-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white">
         <div className="space-y-6">
           {/* Sleep Quality */}
           <div className="space-y-4">
-            <Label className="text-white text-base font-semibold">
+            <Label htmlFor="sleep-quality" className="text-white text-base font-semibold">
               Качество сна:
             </Label>
             
             <div className="space-y-4">
-              <div className="text-center">
-                <span className="text-4xl">{getSleepQualityEmoji(data.sleepQuality)}</span>
+              <div className="text-center" aria-live="polite" role="status">
+                <span className="text-4xl emoji-scale" aria-hidden="true">
+                  {getSleepQualityEmoji(data.sleepQuality)}
+                </span>
                 <p className="text-sm text-slate-300 mt-2">
                   {data.sleepQuality}/10
                 </p>
               </div>
 
               <Slider
+                id="sleep-quality"
                 value={[data.sleepQuality]}
                 onValueChange={([value]) => updateData({ sleepQuality: value })}
                 min={0}
                 max={10}
                 step={1}
                 className="py-4"
+                aria-label={`Качество сна: ${data.sleepQuality} из 10`}
+                aria-valuemin={0}
+                aria-valuemax={10}
+                aria-valuenow={data.sleepQuality}
               />
               
-              <div className="flex justify-between text-xs text-slate-300">
+              <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
                 <span>😴 Плохое</span>
                 <span>😐 Нормальное</span>
                 <span>😊 Отличное</span>
@@ -141,26 +148,31 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
           {/* Bed Time */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-white text-base font-semibold flex items-center gap-2">
-                <Moon className="w-4 h-4" />
+              <Label htmlFor="bed-time-slider" className="text-white text-base font-semibold flex items-center gap-2">
+                <Moon className="w-4 h-4" aria-hidden="true" />
                 Засыпаю:
               </Label>
-              <span className="text-2xl">{getBedTimeIcon(data.bedTime)}</span>
-              <span className="text-lg font-mono text-slate-200">
+              <span className="text-2xl" aria-hidden="true">{getBedTimeIcon(data.bedTime)}</span>
+              <span className="text-lg font-mono text-slate-200" aria-live="polite">
                 {data.bedTime || '23:00'}
               </span>
             </div>
             
             <Slider
+              id="bed-time-slider"
               value={[bedTimeSliderValue]}
               onValueChange={([value]) => handleBedTimeChange(value)}
               min={22 * 60}
               max={30 * 60}
               step={15}
               className="py-4"
+              aria-label={`Время отхода ко сну: ${data.bedTime || '23:00'}`}
+              aria-valuemin={22 * 60}
+              aria-valuemax={30 * 60}
+              aria-valuenow={bedTimeSliderValue}
             />
             
-            <div className="flex justify-between text-xs text-slate-300">
+            <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
               <span>22:00</span>
               <span>06:00</span>
             </div>
@@ -169,26 +181,31 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
           {/* Wake Time */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-white text-base font-semibold flex items-center gap-2">
-                <Sunrise className="w-4 h-4" />
+              <Label htmlFor="wake-time-slider" className="text-white text-base font-semibold flex items-center gap-2">
+                <Sunrise className="w-4 h-4" aria-hidden="true" />
                 Просыпаюсь:
               </Label>
-              <span className="text-2xl">{getWakeTimeIcon(data.wakeTime)}</span>
-              <span className="text-lg font-mono text-slate-200">
+              <span className="text-2xl" aria-hidden="true">{getWakeTimeIcon(data.wakeTime)}</span>
+              <span className="text-lg font-mono text-slate-200" aria-live="polite">
                 {data.wakeTime || '07:00'}
               </span>
             </div>
             
             <Slider
+              id="wake-time-slider"
               value={[wakeTimeSliderValue]}
               onValueChange={([value]) => handleWakeTimeChange(value)}
               min={5 * 60}
               max={12 * 60}
               step={15}
               className="py-4"
+              aria-label={`Время пробуждения: ${data.wakeTime || '07:00'}`}
+              aria-valuemin={5 * 60}
+              aria-valuemax={12 * 60}
+              aria-valuenow={wakeTimeSliderValue}
             />
             
-            <div className="flex justify-between text-xs text-slate-300">
+            <div className="flex justify-between text-xs text-slate-300" aria-hidden="true">
               <span>05:00</span>
               <span>12:00</span>
             </div>
@@ -196,9 +213,13 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
 
           {/* Live Feedback */}
           {feedback && (
-            <div className={`text-center p-3 bg-slate-800/50 rounded-lg border border-slate-600 ${feedback.color}`}>
+            <div 
+              className={`text-center p-3 bg-slate-800/50 rounded-lg border border-slate-600 ${feedback.color}`}
+              role="status"
+              aria-live="polite"
+            >
               <p className="text-sm font-medium">
-                {feedback.emoji} {feedback.text}
+                <span aria-hidden="true">{feedback.emoji}</span> {feedback.text}
               </p>
             </div>
           )}
@@ -213,6 +234,8 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
               value={data.sleepDuration}
               onValueChange={(value) => updateData({ sleepDuration: value })}
               className="flex flex-wrap gap-3"
+              aria-label="Выберите продолжительность сна"
+              aria-required="true"
             >
               {[
                 { id: 'less-6', label: 'Меньше 6 часов' },
@@ -224,6 +247,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
                     value={option.id}
                     id={option.id}
                     className="peer sr-only"
+                    aria-label={option.label}
                   />
                   <Label
                     htmlFor={option.id}
@@ -239,8 +263,11 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
       </Card>
 
       {/* Info Box */}
-      <div className="flex gap-3 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+      <div 
+        className="flex gap-3 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg"
+        role="note"
+      >
+        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
         <p className="text-sm text-blue-900 dark:text-blue-300">
           💡 Мы используем эти данные для настройки напоминаний и рекомендаций практик для сна
         </p>

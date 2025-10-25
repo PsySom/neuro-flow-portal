@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import OnboardingContainer from '@/components/onboarding/OnboardingContainer';
+import OnboardingSkeleton from '@/components/onboarding/OnboardingSkeleton';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,11 +109,7 @@ const OnboardingPage: React.FC = () => {
 
   // Show loading while checking auth and profile
   if (authLoading || checkingProfile) {
-    return (
-      <div className="onboarding-container">
-        <div className="onboarding-loading" />
-      </div>
-    );
+    return <OnboardingSkeleton />;
   }
 
   // Don't render if not authenticated (will redirect)
