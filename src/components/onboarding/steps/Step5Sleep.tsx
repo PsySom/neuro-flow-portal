@@ -84,7 +84,16 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
     [sleepHours]
   );
 
-  const bedTimeSliderValue = timeToMinutes(data.bedTime || '23:00');
+  // Handle bedTime for slider (20:00-04:00 range)
+  const bedTimeSliderValue = useMemo(() => {
+    const minutes = timeToMinutes(data.bedTime || '23:00');
+    // If time is between 00:00 and 04:59, treat as next day (add 24 hours)
+    if (minutes >= 0 && minutes < 5 * 60) {
+      return minutes + 24 * 60;
+    }
+    return minutes;
+  }, [data.bedTime]);
+  
   const wakeTimeSliderValue = timeToMinutes(data.wakeTime || '07:00');
 
   const handleBedTimeChange = (minutes: number) => {

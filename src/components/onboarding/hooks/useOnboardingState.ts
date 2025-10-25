@@ -136,11 +136,10 @@ export const useOnboardingState = () => {
           (data.challenges.length >= 1 && data.challenges.length <= 3)
         );
       
-      case 4: // Current State
+      case 4: // Current State (mood, anxiety, stress)
         return (
           data.mood >= 0 &&
           data.mood <= 10 &&
-          data.energy.length > 0 &&
           data.anxiety.length > 0 &&
           data.stress.length > 0
         );
@@ -154,9 +153,10 @@ export const useOnboardingState = () => {
           data.sleepDuration.length > 0
         );
       
-      case 6: // Rhythm (chronotype only)
+      case 6: // Rhythm (chronotype and energy)
         return (
-          data.chronotype.length > 0
+          data.chronotype.length > 0 &&
+          data.energy.length > 0
         );
       
       case 7: // Complete

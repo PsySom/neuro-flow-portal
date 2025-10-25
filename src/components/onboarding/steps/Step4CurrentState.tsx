@@ -10,14 +10,6 @@ interface Step4CurrentStateProps {
   onNext: () => void;
 }
 
-const energyLevels = [
-  { id: 'very-low', label: 'Очень низкий', emoji: '😴' },
-  { id: 'low', label: 'Низкий', emoji: '😑' },
-  { id: 'medium', label: 'Средний', emoji: '😐' },
-  { id: 'high', label: 'Высокий', emoji: '🙂' },
-  { id: 'very-high', label: 'Очень высокий', emoji: '⚡' }
-];
-
 const anxietyLevels = [
   { id: 'very-low', label: 'Очень низкая', emoji: '😌' },
   { id: 'low', label: 'Низкая', emoji: '🙂' },
@@ -125,45 +117,6 @@ const Step4CurrentState: React.FC<Step4CurrentStateProps> = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Energy Level */}
-        <div className="space-y-4">
-          <div className="text-center">
-            <Label className="text-lg font-bold">Уровень энергии</Label>
-            <p className="text-xs text-muted-foreground mt-1">
-              Насколько вы бодры прямо сейчас?
-            </p>
-          </div>
-          
-          <RadioGroup
-            value={data.energy}
-            onValueChange={(value) => updateData({ energy: value })}
-            className="grid grid-cols-1 gap-2"
-          >
-            {energyLevels.map((level) => (
-              <div 
-                key={level.id} 
-                className={`
-                  flex items-center space-x-3 p-3 rounded-xl border-2 
-                  transition-all cursor-pointer hover:scale-[1.01]
-                  ${data.energy === level.id 
-                    ? 'border-primary bg-primary/10 shadow-sm' 
-                    : 'border-border hover:border-primary/50 hover:bg-accent/50'
-                  }
-                `}
-              >
-                <RadioGroupItem value={level.id} id={level.id} className="mt-0" />
-                <Label 
-                  htmlFor={level.id} 
-                  className="cursor-pointer font-normal flex items-center gap-2 flex-1"
-                >
-                  <span className="text-xl">{level.emoji}</span>
-                  <span>{level.label}</span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
         </div>
 
         {/* Anxiety Level */}
