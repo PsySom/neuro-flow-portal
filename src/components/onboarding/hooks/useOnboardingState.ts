@@ -23,7 +23,7 @@ const STORAGE_KEY = 'psybalans_onboarding_data';
 const initialData: OnboardingData = {
   step: 1,
   name: '',
-  age: 0,
+  age: 25,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   primaryGoal: '',
   challenges: [],
