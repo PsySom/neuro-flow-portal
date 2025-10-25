@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { User, Cake, Clock } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 import { cn } from '@/lib/utils';
+import { useSupabaseAuth as useAuth } from '@/contexts/SupabaseAuthContext';
 
 interface Step2AboutYouProps {
   data: OnboardingData;
@@ -38,16 +39,22 @@ const TIMEZONES = [
 ];
 
 const Step2AboutYou: React.FC<Step2AboutYouProps> = ({ data, updateData }) => {
+  const { user } = useAuth();
   const [showTimezoneSelect, setShowTimezoneSelect] = useState(false);
   const [nameError, setNameError] = useState('');
 
-  // Auto-detect timezone on mount
+  // Auto-detect timezone and prefill name from user metadata on mount
   useEffect(() => {
     if (!data.timezone) {
       const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       updateData({ timezone: detectedTimezone });
     }
-  }, []);
+    
+    // Prefill name from user metadata if available and not already set
+    if (!data.name && user?.user_metadata?.full_name) {
+      updateData({ name: user.user_metadata.full_name });
+    }
+  }, [user]);
 
   const getTimezoneLabel = (timezone: string) => {
     const found = TIMEZONES.find(tz => tz.value === timezone);

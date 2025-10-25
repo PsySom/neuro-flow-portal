@@ -171,7 +171,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
             </div>
             
             <Slider
-              value={[timeToMinutes(data.bedTime || '23:00')]}
+              value={[bedTimeSliderValue]}
               onValueChange={([value]) => handleBedTimeChange(value)}
               min={20 * 60} // 20:00
               max={28 * 60} // 04:00 next day
