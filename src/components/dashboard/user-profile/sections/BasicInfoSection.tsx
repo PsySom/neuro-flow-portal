@@ -19,16 +19,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 }) => {
   return (
     <ProfileSection icon={User} title="Основная информация">
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
         <ProfileField label="Имя" value={data.basicInfo?.name} />
         <ProfileField label="Email" value={userEmail} />
-        <ProfileField label="Возраст" value={data.basicInfo?.age} />
-        <ProfileField label="Пол" value={data.basicInfo?.gender} />
-        <ProfileField label="Часовой пояс" value={data.basicInfo?.timezone} />
-        <ProfileField 
-          label="Дата регистрации" 
-          value={formatDate(userCreatedAt || new Date().toISOString())} 
-        />
+        {data.basicInfo?.age && (
+          <ProfileField label="Возраст" value={`${data.basicInfo.age} лет`} />
+        )}
+        {data.basicInfo?.timezone && (
+          <ProfileField label="Часовой пояс" value={data.basicInfo.timezone} />
+        )}
       </div>
     </ProfileSection>
   );

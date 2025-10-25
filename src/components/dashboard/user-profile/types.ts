@@ -8,6 +8,7 @@ export interface UserProfileData {
   naturalRhythms?: {
     activity_preference?: string;
     activityPreference?: string;
+    chronotype?: string;
     wake_time?: string;
     wakeTime?: string;
     sleep_time?: string;

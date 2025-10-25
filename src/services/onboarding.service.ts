@@ -17,7 +17,7 @@ import type {
 } from '@/types/onboarding.types';
 
 // Switch to real backend API
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 class OnboardingService {
   private baseUrl = '/onboarding';
@@ -31,7 +31,75 @@ class OnboardingService {
 
   async getProfile() {
     if (USE_MOCK) return mockOnboardingService.getProfile();
-    return apiClient.get(`${this.baseUrl}/profile`);
+    
+    // Get onboarding data from profiles table
+    const { onboardingSaveService } = await import('./onboarding-save.service');
+    const onboardingData = await onboardingSaveService.getOnboardingData();
+    
+    if (!onboardingData) {
+      return { data: null, success: false };
+    }
+    
+    // Helper function to map energy level
+    const mapEnergyLevel = (energy: string) => {
+      const mapping: Record<string, string> = {
+        'very-low': 'Очень низкий',
+        'low': 'Низкий',
+        'medium': 'Средний',
+        'high': 'Высокий',
+        'very-high': 'Очень высокий'
+      };
+      return mapping[energy] || energy;
+    };
+    
+    // Helper function to map stress/anxiety level
+    const mapStressLevel = (level: string) => {
+      const mapping: Record<string, string> = {
+        'none': 'Отсутствует',
+        'low': 'Низкий',
+        'medium': 'Умеренный',
+        'high': 'Высокий',
+        'very-high': 'Очень высокий'
+      };
+      return mapping[level] || level;
+    };
+    
+    // Helper function to map sleep quality
+    const mapSleepQuality = (quality: number) => {
+      if (quality <= 3) return 'Плохое';
+      if (quality <= 5) return 'Среднее';
+      if (quality <= 7) return 'Хорошее';
+      return 'Отличное';
+    };
+    
+    // Transform OnboardingData to UserProfileData format
+    return {
+      data: {
+        basicInfo: {
+          name: onboardingData.name,
+          age: onboardingData.age,
+          timezone: onboardingData.timezone
+        },
+        naturalRhythms: {
+          chronotype: onboardingData.chronotype,
+          sleepTime: onboardingData.bedTime,
+          wakeTime: onboardingData.wakeTime,
+          sleepQuality: mapSleepQuality(onboardingData.sleepQuality)
+        },
+        currentState: {
+          moodScore: onboardingData.mood,
+          energyLevel: mapEnergyLevel(onboardingData.energy),
+          stressImpact: mapStressLevel(onboardingData.stress)
+        },
+        challenges: onboardingData.challenges,
+        goals: [onboardingData.primaryGoal],
+        preferences: {
+          dailyPracticeTime: onboardingData.timeCommitment,
+          reminderFrequency: onboardingData.reminders
+        }
+      },
+      success: true
+    };
   }
 
   async getSummary() {

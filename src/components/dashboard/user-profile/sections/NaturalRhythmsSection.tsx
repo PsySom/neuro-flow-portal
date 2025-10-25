@@ -9,25 +9,43 @@ interface NaturalRhythmsSectionProps {
 }
 
 const NaturalRhythmsSection: React.FC<NaturalRhythmsSectionProps> = ({ data }) => {
+  const mapChronotype = (chronotype: string) => {
+    const mapping: Record<string, string> = {
+      'morning': 'Утренний тип',
+      'day': 'Дневной тип',
+      'evening': 'Вечерний тип',
+      'varies': 'Смешанный тип'
+    };
+    return mapping[chronotype] || chronotype;
+  };
+
   return (
     <ProfileSection icon={Moon} title="Естественные ритмы">
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
-        <ProfileField 
-          label="Тип активности" 
-          value={data.naturalRhythms?.activity_preference || data.naturalRhythms?.activityPreference} 
-        />
-        <ProfileField 
-          label="Время пробуждения" 
-          value={data.naturalRhythms?.wake_time || data.naturalRhythms?.wakeTime} 
-        />
-        <ProfileField 
-          label="Время сна" 
-          value={data.naturalRhythms?.sleep_time || data.naturalRhythms?.sleepTime} 
-        />
-        <ProfileField 
-          label="Качество сна" 
-          value={data.naturalRhythms?.sleep_quality || data.naturalRhythms?.sleepQuality} 
-        />
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
+        {data.naturalRhythms?.chronotype && (
+          <ProfileField 
+            label="Хронотип" 
+            value={mapChronotype(data.naturalRhythms.chronotype)} 
+          />
+        )}
+        {data.naturalRhythms?.wakeTime && (
+          <ProfileField 
+            label="Время пробуждения" 
+            value={data.naturalRhythms.wakeTime} 
+          />
+        )}
+        {data.naturalRhythms?.sleepTime && (
+          <ProfileField 
+            label="Время засыпания" 
+            value={data.naturalRhythms.sleepTime} 
+          />
+        )}
+        {data.naturalRhythms?.sleepQuality && (
+          <ProfileField 
+            label="Качество сна" 
+            value={data.naturalRhythms.sleepQuality} 
+          />
+        )}
       </div>
     </ProfileSection>
   );
