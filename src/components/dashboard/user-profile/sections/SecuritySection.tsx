@@ -8,6 +8,7 @@ import { useSecurityData } from './security/useSecurityData';
 import EmailVerificationSection from './security/EmailVerificationSection';
 import ContactInfoFields from './security/ContactInfoFields';
 import FacebookConnectionSection from './security/FacebookConnectionSection';
+import PasswordChangeSection from './security/PasswordChangeSection';
 
 const SecuritySection: React.FC = () => {
   const { user } = useSupabaseAuth();
@@ -27,6 +28,10 @@ const SecuritySection: React.FC = () => {
           userEmail={user?.email}
           emailConfirmed={emailConfirmed}
         />
+
+        <Separator />
+
+        <PasswordChangeSection />
 
         <Separator />
 

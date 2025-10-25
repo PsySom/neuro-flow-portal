@@ -13,7 +13,8 @@ import { useLocation } from 'react-router-dom';
 import { PasswordStrength, validatePassword } from '@/components/ui/password-strength';
 import { validateEmail, validatePasswordSecurity, checkRateLimit } from '@/utils/securityValidation';
 import { securityLogger } from '@/utils/securityLogger';
-import { Shield } from 'lucide-react';
+import { Shield, AlertCircle } from 'lucide-react';
+import { PasswordBreachService } from '@/services/password-breach.service';
 
 export default function Auth() {
   const { signIn, signUp, isAuthenticated } = useSupabaseAuth();
@@ -109,6 +110,17 @@ export default function Auth() {
           toast({ 
             title: 'Слабый пароль', 
             description: 'Для безопасности используйте более надёжный пароль.', 
+            variant: 'destructive' 
+          });
+          return;
+        }
+
+        // Check if password has been breached
+        const breachCheck = await PasswordBreachService.checkPassword(password);
+        if (breachCheck.isBreached) {
+          toast({ 
+            title: 'Небезопасный пароль', 
+            description: `Этот пароль был скомпрометирован в утечках данных${breachCheck.breachCount ? ` (${breachCheck.breachCount.toLocaleString()} раз)` : ''}. Используйте другой пароль для безопасности.`, 
             variant: 'destructive' 
           });
           return;
