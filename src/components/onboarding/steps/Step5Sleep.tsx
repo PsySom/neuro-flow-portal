@@ -144,36 +144,35 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
             </div>
           </div>
 
-          {/* Bed Time */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="bed-time-slider" className="text-base font-semibold flex items-center gap-2">
-                <Moon className="w-4 h-4" aria-hidden="true" />
-                Засыпаю:
-              </Label>
-              <span className="text-2xl" aria-hidden="true">{getBedTimeIcon(data.bedTime)}</span>
-              <span className="text-lg font-mono text-primary" aria-live="polite">
-                {data.bedTime || '23:00'}
-              </span>
+          {/* Bed Time Slider */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">{getBedTimeIcon(data.bedTime)}</div>
+              <div className="flex-1">
+                <Label className="text-base font-semibold">Засыпаю</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Во сколько вы обычно ложитесь спать?
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-primary">{data.bedTime || '23:00'}</p>
+              </div>
             </div>
             
             <Slider
-              id="bed-time-slider"
-              value={[bedTimeSliderValue]}
+              value={[timeToMinutes(data.bedTime || '23:00')]}
               onValueChange={([value]) => handleBedTimeChange(value)}
-              min={22 * 60}
-              max={30 * 60}
+              min={20 * 60} // 20:00
+              max={28 * 60} // 04:00 next day
               step={15}
-              className="py-4"
+              className="w-full"
               aria-label={`Время отхода ко сну: ${data.bedTime || '23:00'}`}
-              aria-valuemin={22 * 60}
-              aria-valuemax={30 * 60}
-              aria-valuenow={bedTimeSliderValue}
             />
             
-            <div className="flex justify-between text-xs text-muted-foreground" aria-hidden="true">
-              <span>22:00</span>
-              <span>06:00</span>
+            <div className="flex justify-between text-xs text-muted-foreground px-1">
+              <span>20:00</span>
+              <span>00:00</span>
+              <span>04:00</span>
             </div>
           </div>
 
@@ -213,7 +212,7 @@ const Step5Sleep: React.FC<Step5SleepProps> = ({ data, updateData }) => {
           {/* Duration Selection */}
           <div className="space-y-3">
             <Label className="text-base font-semibold">
-              Сколько хотели бы спать:
+              Сколько в среднем вы спите в сутки?
             </Label>
             
             <RadioGroup

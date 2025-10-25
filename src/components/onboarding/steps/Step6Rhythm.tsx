@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sunrise, Sun, Moon, RefreshCw, Clock, Bell, Lightbulb } from 'lucide-react';
+import { Sunrise, Lightbulb } from 'lucide-react';
 import { OnboardingData } from '../hooks/useOnboardingState';
 
 interface Step6RhythmProps {
@@ -18,20 +18,6 @@ const chronotypes = [
   { id: 'varies', label: 'По-разному', icon: '🔄', description: 'Зависит от дня' }
 ];
 
-const timeCommitments = [
-  { id: '5-10', label: '5-10 минут в день', description: 'Быстрые практики' },
-  { id: '15-20', label: '15-20 минут в день', description: 'Умеренная нагрузка' },
-  { id: '30-45', label: '30-45 минут в день', description: 'Глубокая работа' },
-  { id: '60+', label: '60+ минут в день', description: 'Максимальное погружение' }
-];
-
-const reminderOptions = [
-  { id: '1-2', label: '1-2 раза в день', description: 'Утром и вечером' },
-  { id: '3-4', label: '3-4 раза в день', description: 'Регулярные напоминания' },
-  { id: 'on-demand', label: 'По необходимости', description: 'Когда нужна поддержка' },
-  { id: 'minimal', label: 'Минимум уведомлений', description: 'Только важное' }
-];
-
 const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
   const [showRecommendation, setShowRecommendation] = useState(false);
 
@@ -44,19 +30,7 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
         setShowRecommendation(true);
       }
     }
-
-    // Auto-suggest reminders based on time commitment
-    if (data.timeCommitment && !data.reminders) {
-      if (data.timeCommitment === '5-10') {
-        updateData({ reminders: '1-2' });
-      }
-    }
-
-    // Auto-suggest reminders based on chronotype
-    if (data.chronotype === 'evening' && !data.reminders) {
-      updateData({ reminders: '1-2' });
-    }
-  }, [data.chronotype, data.timeCommitment, data.wakeTime]);
+  }, [data.chronotype, data.wakeTime]);
 
   const getChronotypeRecommendation = () => {
     if (!data.wakeTime) return null;
@@ -129,50 +103,6 @@ const Step6Rhythm: React.FC<Step6RhythmProps> = ({ data, updateData }) => {
                           {type.description}
                         </p>
                       </div>
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Reminders */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Bell className="w-5 h-5 text-primary" />
-                🔔 Как часто получать напоминания?
-              </Label>
-
-              <RadioGroup
-                value={data.reminders}
-                onValueChange={(value) => updateData({ reminders: value })}
-                className="space-y-3"
-              >
-                {reminderOptions.map((option) => (
-                  <div
-                    key={option.id}
-                    className={`relative flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 ${
-                      data.reminders === option.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border'
-                    }`}
-                  >
-                    <RadioGroupItem
-                      value={option.id}
-                      id={`reminder-${option.id}`}
-                      className="mt-0"
-                    />
-                    <Label
-                      htmlFor={`reminder-${option.id}`}
-                      className="cursor-pointer flex-1"
-                    >
-                      <p className="font-medium">{option.label}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {option.description}
-                      </p>
                     </Label>
                   </div>
                 ))}

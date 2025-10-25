@@ -251,7 +251,7 @@ const OnboardingContainer: React.FC<OnboardingContainerProps> = ({
       case 2:
         return <Step2AboutYou {...stepProps} />;
       case 3:
-        return <Step3GoalsAndChallenges {...stepProps} />;
+        return <Step3GoalsAndChallenges {...stepProps} onPrev={handleBack} />;
       case 4:
         return <Step4CurrentState {...stepProps} />;
       case 5:

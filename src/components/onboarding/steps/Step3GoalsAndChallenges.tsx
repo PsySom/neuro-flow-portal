@@ -11,6 +11,7 @@ interface Step3GoalsAndChallengesProps {
   data: OnboardingData;
   updateData: (updates: Partial<OnboardingData>) => void;
   onNext: () => void;
+  onPrev: () => void;
 }
 
 const primaryGoals = [
@@ -45,7 +46,8 @@ const MAX_CHALLENGES = 3;
 const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
   data,
   updateData,
-  onNext
+  onNext,
+  onPrev
 }) => {
   const [otherText, setOtherText] = useState('');
 
@@ -150,6 +152,14 @@ const Step3GoalsAndChallenges: React.FC<Step3GoalsAndChallengesProps> = ({
 
         {/* Navigation buttons */}
         <div className="flex justify-between items-center gap-4 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onPrev}
+          >
+            Назад
+          </Button>
+          
           <Button
             type="button"
             variant="ghost"

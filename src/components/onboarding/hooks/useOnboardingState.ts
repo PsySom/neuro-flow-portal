@@ -24,6 +24,8 @@ export interface OnboardingData {
   // Step 4: Current State
   mood: number; // 0-10
   energy: string;
+  anxiety: string;
+  stress: string;
   
   // Step 5: Sleep
   sleepQuality: number; // 0-10
@@ -53,6 +55,8 @@ const initialData: OnboardingData = {
   challenges: [],
   mood: 5,
   energy: '',
+  anxiety: '',
+  stress: '',
   sleepQuality: 5,
   bedTime: '',
   wakeTime: '',
@@ -136,7 +140,9 @@ export const useOnboardingState = () => {
         return (
           data.mood >= 0 &&
           data.mood <= 10 &&
-          data.energy.length > 0
+          data.energy.length > 0 &&
+          data.anxiety.length > 0 &&
+          data.stress.length > 0
         );
       
       case 5: // Sleep
@@ -148,10 +154,9 @@ export const useOnboardingState = () => {
           data.sleepDuration.length > 0
         );
       
-      case 6: // Rhythm (chronotype and reminders only)
+      case 6: // Rhythm (chronotype only)
         return (
-          data.chronotype.length > 0 &&
-          data.reminders.length > 0
+          data.chronotype.length > 0
         );
       
       case 7: // Complete
