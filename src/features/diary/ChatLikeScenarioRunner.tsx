@@ -10,6 +10,7 @@ import { ChipsInput } from "./question-inputs/ChipsInput";
 import { TimeInput } from "./question-inputs/TimeInput";
 import { NumberInput } from "./question-inputs/NumberInput";
 import { TextAreaInput } from "./question-inputs/TextAreaInput";
+import { EmotionsWithIntensityInput } from "./question-inputs/EmotionsWithIntensityInput";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -41,12 +42,15 @@ export const ChatLikeScenarioRunner = ({
   const { toast } = useToast();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
+  }, [messages, currentQuestionIndex]);
 
   useEffect(() => {
     loadScenario();
@@ -133,8 +137,17 @@ export const ChatLikeScenarioRunner = ({
     setResponses(newResponses);
 
     // Format user message based on question type
+    const metadata = currentQuestion.metadata || {};
     let userMessage = "";
-    if (currentQuestion.question_type === 'chips' || currentQuestion.question_type === 'multiple_choice') {
+    
+    // Special handling for emotions with intensity
+    if (currentQuestion.question_code === 'emotions' && Array.isArray(currentResponse)) {
+      const emotionLabels = currentResponse.map((emotion: any) => {
+        const option = metadata.options?.find((o: any) => o.id === emotion.id);
+        return option ? `${option.emoji} ${option.label} (${emotion.intensity}/10)` : '';
+      }).filter(Boolean);
+      userMessage = emotionLabels.join(", ");
+    } else if (currentQuestion.question_type === 'chips' || currentQuestion.question_type === 'multiple_choice') {
       if (Array.isArray(currentResponse)) {
         userMessage = currentResponse.join(", ");
       } else {
@@ -209,6 +222,18 @@ export const ChatLikeScenarioRunner = ({
     if (!currentQuestion) return null;
 
     const metadata = currentQuestion.metadata || {};
+
+    // Special handling for emotions question
+    if (currentQuestion.question_code === 'emotions') {
+      return (
+        <EmotionsWithIntensityInput
+          value={Array.isArray(currentResponse) ? currentResponse : []}
+          onChange={setCurrentResponse}
+          options={metadata.options || []}
+          maxSelect={metadata.maxSelect}
+        />
+      );
+    }
 
     switch (currentQuestion.question_type) {
       case 'scale':
@@ -287,14 +312,14 @@ export const ChatLikeScenarioRunner = ({
   const canGoNext = currentResponse !== "" && currentResponse !== null && currentResponse !== undefined;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full max-h-[calc(100vh-200px)]">
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ scrollBehavior: 'smooth' }}>
         {messages.map((message, index) => (
           <div
             key={index}
             className={cn(
-              "flex",
+              "flex animate-slide-up-fade",
               message.role === 'assistant' ? "justify-start" : "justify-end"
             )}
           >
@@ -317,8 +342,10 @@ export const ChatLikeScenarioRunner = ({
 
       {/* Input area */}
       {currentQuestionIndex < questions.length && (
-        <div className="border-t bg-background p-4 space-y-4">
-          {renderInput()}
+        <div className="border-t bg-background p-4 space-y-4 shrink-0">
+          <div className="animate-fade-in">
+            {renderInput()}
+          </div>
           
           <div className="flex gap-2">
             {!isLastQuestion ? (

@@ -138,16 +138,29 @@ class ScenarioService {
           });
         }
 
-        // Эмоции
+        // Эмоции с интенсивностью
         if (q.question_code === 'emotions' && Array.isArray(response)) {
-          response.forEach(emotionId => {
-            const option = q.metadata.options?.find(o => o.id === emotionId);
-            if (option) {
-              emotionsToInsert.push({
-                entry_id: entry.id,
-                label: option.label,
-                intensity: null
-              });
+          response.forEach(emotion => {
+            // Проверяем, это эмоция с интенсивностью или просто ID
+            if (typeof emotion === 'object' && emotion.id) {
+              const option = q.metadata.options?.find(o => o.id === emotion.id);
+              if (option) {
+                emotionsToInsert.push({
+                  entry_id: entry.id,
+                  label: option.label,
+                  intensity: emotion.intensity || null
+                });
+              }
+            } else if (typeof emotion === 'string') {
+              // Старый формат (только ID)
+              const option = q.metadata.options?.find(o => o.id === emotion);
+              if (option) {
+                emotionsToInsert.push({
+                  entry_id: entry.id,
+                  label: option.label,
+                  intensity: null
+                });
+              }
             }
           });
         }
